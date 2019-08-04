@@ -1,0 +1,33 @@
+{
+    "name": "sinergi/browser-detector",
+    "description": "Detecting the user's browser, operating system and language.",
+    "keywords": ["browser", "os", "operating system", "language", "detection"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Gabriel Bull",
+            "email": "me@gabrielbull.com"
+        },
+        {
+            "name": "Chris Schuld"
+        }
+    ],
+    "require": {
+        "php": "^5.3.3 || ^7.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^4.8 || ^5.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Sinergi\\BrowserDetector\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Sinergi\\BrowserDetector\\Tests\\": ["tests/BrowserDetector/Tests", "tests/BrowserDetector/Tests/_includes"]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

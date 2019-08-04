@@ -1,0 +1,11 @@
+{
+    "autoload": 
+    {
+        "psr-4": {
+            "Binomo\\":"src/"
+        }
+    },
+    "require": {
+        "sinergi/browser-detector": "^6.1"
+    }
+}
