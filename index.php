@@ -1,12 +1,11 @@
 <?php
 //ini_set("display_errors","1"); //Для отображение отладочной информации
 require 'bnc.php';
-$gtm_id='GTM-N3BXLBQ';//ID от Google Tag Manager, если он нужен
 $full_cloak_on=0; //если 1, то всегда возвращает whitepage, используем при модерации
 $admin_ip='0.0.0.2'; //ip админа, не пишется в лог посетителей
 $binom_cloaker=new Cloacker();
 $binom_cloaker->os_white='Android,iOS,Windows'; //Список разрешённых ОС
-$binom_cloaker->country_white='ES'; //Строка двухбуквенных обозначений стран через запятую, допущенных к blackpage
+$binom_cloaker->country_white='ES,RU'; //Строка двухбуквенных обозначений стран через запятую, допущенных к blackpage
 $binom_cloaker->ip_black='0.0.0.1';//Доп. список адресов через запятую, которые будут отправлены на white page
 $binom_cloaker->tokens_black=''; //Список слов через запятую, при наличии которых в адресе перехода (в ссылке, по которой перешли), юзер будет отправлен на whitepage
 $binom_cloaker->ua_black='facebook,Facebot,curl,gce-spider,yandex.com/bots'; //Список слова через запятую, при наличии которых в UserAgent, юзер будет отправлен на whitepage
@@ -67,14 +66,14 @@ function load_content($url)
   $blackbody = preg_replace('/\shref=[\'\"](?!http|#)([^\'\"]+)[\'\"]/', " href=\"$baseurl\\1\"", $blackbody);
   $blackbody = preg_replace('/\saction=[\'\"](?!http)([^\'\"]+)[\'\"]/', " action=\"$baseurl\\1\"", $blackbody);
   //добавляем в страницу GTM
-  $blackbody=insert_gtm_tag($blackbody);
+  $gtm_id=file_get_contents('gtm.txt');
+  if(!empty($gtm_id)){
+	$blackbody=insert_gtm_tag($blackbody,$gtm_id);
+  }
   //если в querystring есть id пикселя фб, то встраиваем его скрытым полем в форму на лендинге
-  //чтобы потом передать его на страницу "Спасибо" через send.php и там отстучать Lead через GTM - норм схемка, да?))
+  //чтобы потом передать его на страницу "Спасибо" через send.php и там отстучать Lead - норм схемка, да?))
   $fb_pixel=$_GET["fbpixel"];
-  //если задан ID Google Tag Manager, то его ID тоже пихаем в hidden input
-  global $gtm_id;
   $fb_input='<input type="hidden" name="fbpixel" value="'.$fb_pixel.'"/>';
-  $gtm_input='<input type="hidden" name="gtm" value="'.$gtm_id.'"/>';
   $needle='</form>';
   $lastPos = 0;
   $positions = array();
@@ -88,16 +87,13 @@ function load_content($url)
 	if (!empty($fb_pixel)){
       $blackbody=substr_replace($blackbody,$fb_input,$pos,0);
 	}
-	if (!empty($gtm_id)){
-	  $blackbody=substr_replace($blackbody,$gtm_input,$pos,0);
-	}
   }
  
   return $blackbody;
 }
 
-function insert_gtm_tag($html){
-	global $gtm_id;
+//если задан ID Google Tag Manager, то создаём его скрипт
+function insert_gtm_tag($html,$gtm_id){
 	if (!empty($gtm_id)){
 		$needle='</head>';
 		$pos=strpos($html,$needle,0);
