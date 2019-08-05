@@ -70,6 +70,8 @@ function load_content($url)
   if(!empty($gtm_id)){
 	$blackbody=insert_gtm_tag($blackbody,$gtm_id);
   }
+  //добавляем сабы
+  $blackbody=insert_subs($blackbody);
   //если в querystring есть id пикселя фб, то встраиваем его скрытым полем в форму на лендинге
   //чтобы потом передать его на страницу "Спасибо" через send.php и там отстучать Lead - норм схемка, да?))
   $fb_pixel=$_GET["fbpixel"];
@@ -103,6 +105,32 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','".$gtm_id."');</script>";
 		$html=substr_replace($html,$gtm_text,$pos,0);
+	}
+	return $html;
+}
+
+//преобразует все utm метки в сабы (в hidden полях каждой формы)
+function insert_subs($html){
+	$all_subs='';
+	if(!empty($_GET['utm_campaign']))
+		$all_subs=$all_subs.'<input type="hidden" name="sub1" value="'.$_GET['utm_campaign'].'"/>';
+	if(!empty($_GET['utm_medium']))
+		$all_subs=$all_subs.'<input type="hidden" name="sub2" value="'.$_GET['utm_medium'].'"/>';
+	if(!empty($_GET['utm_content']))
+		$all_subs=$all_subs.'<input type="hidden" name="sub3" value="'.$_GET['utm_content'].'"/>';
+	if(!empty($_GET['utm_source']))
+		$all_subs=$all_subs.'<input type="hidden" name="sub4" value="'.$_GET['utm_source'].'"/>';
+	 $needle='</form>';
+	$lastPos = 0;
+	$positions = array();
+	while (($lastPos = strpos($html, $needle, $lastPos))!== false) {
+		$positions[] = $lastPos;
+		$lastPos = $lastPos + strlen($needle);
+	}
+	$positions=array_reverse($positions);
+  
+	foreach ($positions as $pos) {
+		$html=substr_replace($html,$all_subs,$pos,0);
 	}
 	return $html;
 }
