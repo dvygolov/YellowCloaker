@@ -1,6 +1,8 @@
 <?php
 //ini_set("display_errors","1"); //Для отображение отладочной информации
 require 'bnc.php';
+$white_folder_name='white'; //папка, где лежит вайтпейдж
+$black_folder_name='land'; //папка, где лежит основной ленд
 $full_cloak_on=0; //если 1, то всегда возвращает whitepage, используем при модерации
 $admin_ip='0.0.0.2'; //ip админа, не пишется в лог посетителей
 $binom_cloaker=new Cloacker();
@@ -18,7 +20,7 @@ write_visitors_to_log();
 //если включен full_cloak_on, то шлём всех на white page, полностью набрасываем плащ)
 if ($full_cloak_on==1)
 {
-	echo load_content('/white/Mysite.html');
+	echo load_content($white_folder_name);
 	return;
 }
 
@@ -26,7 +28,7 @@ if($check_result==0) //Обычный юзверь
 {
   //A/B тестирование лендингов
   //TODO:добавить при тестировании проброс суб-метки с номером ленда
-  $landings=array('/land/index.html');
+  $landings=array($black_folder_name);
   $r=rand(0,count($landings)-1);
   //1.если у вас html лендинг, то вам нужна эта часть кода
   echo load_content($landings[$r]);
@@ -40,7 +42,7 @@ if($check_result==0) //Обычный юзверь
 } 
 else //Обнаружили бота или модера
 {
-	echo load_content('/white/Mysite.html');
+	echo load_content($white_folder_name);
 }
 
 //Подгрузка контента из другой папки через CURL
@@ -59,8 +61,7 @@ function load_content($url)
   curl_setopt_array($curl, $optArray);
   $blackbody= curl_exec($curl);
   curl_close($curl);
-  $parts=explode('/',$url);
-  $baseurl= '/'.$parts[1].'/';
+  $baseurl= '/'.$url.'/';
   //переписываем все относительные src,href & action (не начинающиеся с http)
   $blackbody = preg_replace('/\ssrc=[\'\"](?!http)([^\'\"]+)[\'\"]/', " src=\"$baseurl\\1\"", $blackbody);
   $blackbody = preg_replace('/\shref=[\'\"](?!http|#)([^\'\"]+)[\'\"]/', " href=\"$baseurl\\1\"", $blackbody);
