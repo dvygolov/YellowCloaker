@@ -50,7 +50,7 @@ function load_content($url)
 {
   $domain = $_SERVER['HTTP_HOST'];
   $prefix = $_SERVER['HTTPS'] ? 'https://' : 'http://';
-  $fullpath=$prefix.$domain.$url;
+  $fullpath=$prefix.$domain.'/'.$url.'/';
   $curl = curl_init();
   // define options
   $optArray = array(
