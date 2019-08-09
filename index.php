@@ -3,13 +3,12 @@
 require 'bnc.php';
 include 'htmlprocessing.php';
 include 'logging.php';
+$cloacker = new Cloacker();
 
 //Тут начинаются настройки кло
 $white_folder_name = 'white'; //папка, где лежит вайтпейдж
 $black_folder_name = 'land1,land2,land3'; //папка, где лежит основной ленд или набор папок через запятую (для сплит-теста)
 $full_cloak_on = 0; //если 1, то всегда возвращает whitepage, используем при модерации
-$admin_ip = '0.0.0.2'; //ip админа, не пишется в лог посетителей
-$cloacker = new Cloacker();
 $cloacker->os_white = 'Android,iOS,Windows'; //Список разрешённых ОС
 $cloacker->country_white = 'RU'; //Строка двухбуквенных обозначений стран через запятую, допущенных к blackpage
 $cloacker->ip_black = '0.0.0.1'; //Доп. список адресов через запятую, которые будут отправлены на white page
