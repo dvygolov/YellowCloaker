@@ -10,14 +10,17 @@ function write_visitors_to_log() {
 		$file = "visitors.csv";
 		$time = date('Y-m-d H:i:s');
 		$os = $cloacker->detect['os'];
-		$user_agent = $cloacker->detect['ua'];
+		$user_agent = str_replace(',',' ',$cloacker->detect['ua']); //заменяем все зпт на пробелы, чтобы в csv-файле это было одним полем
 
 		if (isset($cloacker->result))
 			$reason = implode(";", $cloacker->result);
 		else
 			$reason = "";
 		$country = $cloacker->detect['country'];
-		$message = "$calledIp, $country, $time, $check_result, $reason, $os, $user_agent \n";
+		$qsarray=explode('&',$_SERVER['QUERY_STRING']);
+		sort($qsarray);
+		$querystring=implode(',',$qsarray);
+		$message = "$calledIp, $country, $time, $check_result, $reason, $os, $user_agent, $querystring \n";
 		$save_order = fopen($file, 'a+');
 		fwrite($save_order, $message);
 		fflush($save_order);
