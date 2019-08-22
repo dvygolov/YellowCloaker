@@ -1,5 +1,5 @@
-# binomocloaker
-Модифицированный скрипт клоакинга.
+# Binomo Cloaker
+Модифицированный скрипт клоакинга, изначально найденный на просторах Black Hat Forum.
 
 Настройка тут: https://vk.com/@webyellow-kloaking-dlya-bednogo-no-umnogo-arbitrazhnika
 
