@@ -82,11 +82,12 @@ function insert_subs($html) {
 //чтобы потом передать его на страницу "Спасибо" через send.php и там отстучать Lead
 function insert_fbpixel($html) {
 	$fbpixel_subname="fbpixel"; //имя параметра из querystring, в которой будет лежать ID пикселя
-	$fb_pixel = $_GET[$fbpixel_subname];
-	if (empty($fb_pixel))
+	
+	if (empty($_GET[$fbpixel_subname]))
 	{
 		return $html;
 	}
+	$fb_pixel = $_GET[$fbpixel_subname];
 	$fb_input = '<input type="hidden" name="'.$fbpixel_subname.'" value="'.$fb_pixel.'"/>';
 	$needle = '</form>';
 	$lastPos = 0;
