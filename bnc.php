@@ -99,7 +99,11 @@ class Cloacker{
 		$a['ua']=$_SERVER['HTTP_USER_AGENT'];
 		include("geoip.inc");
 		$g = geoip_open("GeoIP.dat", GEOIP_STANDARD);
-		$a['country'] = geoip_country_code_by_addr($g, $a['ip']);
+		$country = geoip_country_code_by_addr($g, $a['ip']);
+		
+		if (!empty($country)) {
+			$a['country'] = $country;
+		}
 		geoip_close($g);
 		$this->detect=$a;
 	}
