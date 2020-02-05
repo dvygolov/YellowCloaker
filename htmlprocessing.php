@@ -2,7 +2,12 @@
 //Подгрузка контента из другой папки через CURL
 function load_content($url) {
 	$domain = $_SERVER['HTTP_HOST'];
-	$prefix = $_SERVER['HTTPS'] ? 'https://' : 'http://';
+	$prefix = 'http://';
+
+	if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
+		$prefix = 'https://';
+	}
+
 	$fullpath = $prefix.$domain.'/'.$url.'/';
 	$querystr = $_SERVER['QUERY_STRING'];
 	if (!empty($querystr))
