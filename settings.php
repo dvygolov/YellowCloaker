@@ -1,4 +1,5 @@
 <?php
+
 //Настройка вайта
 //если 'site' - показывает локальный вайт-пейдж из папки $white_folder_name 
 //если 'redirect' - редиректит на $redirect_url при помощи $redirect_type
@@ -6,20 +7,24 @@
 //если 'error' - возвращает ошибку $error_code
 $white_action = 'site'; 
 $white_folder_name = 'white'; //папка, где лежит вайтпейдж
-$redirect_url = 'http://ya.ru';
-$redirect_type = 301; //можно использовать 301 или 302 редирект
-$curl_url = 'https://ya.ru';
-$error_code = 404; //код ошибки для возврата вместо вайта, по умолчанию 404 = Not Found
+$white_redirect_url = 'http://ya.ru';
+$white_redirect_type = 301; //можно использовать 301 или 302 редирект
+$white_curl_url = 'https://ya.ru';
+$white_error_code = 404; //код ошибки для возврата вместо вайта, по умолчанию 404 = Not Found
+
+//Настройка блэка
+//папка, где лежит прокла или набор прокл через запятую (для сплит-теста), если проклы не нужны - ставим ''
+$black_action = 'site'; //по аналогии с white_action 'site' или 'redirect'
+$black_preland_folder_name = 'p1,p2'; 
+//папка, где лежит основной ленд или набор папок через запятую (для сплит-теста)
+$black_land_folder_name = 'land'; 
+$black_redirect_url = 'http://ya.ru';
+$black_redirect_type = 301; //можно использовать 301 или 302 редирект
 
 //Настройка скриптов
 $gtm_id=''; //идентификатор Google Tag Manager
 $ya_id=''; //идентификатор Яндекс.Метрики
 
-//Настройки папок лендов-прокл
-//папка, где лежит прокла или набор прокл через запятую (для сплит-теста), если проклы не нужны - ставим ''
-$preland_folder_name = ''; 
-//папка, где лежит основной ленд или набор папок через запятую (для сплит-теста)
-$land_folder_name = 'land'; 
 
 //Настройка TDS
 $full_cloak_on = false; //если true, то всегда возвращает whitepage, используем при модерации
