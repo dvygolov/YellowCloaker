@@ -3,6 +3,9 @@ require 'vendor/sinergi/browser-detector/src/DetectorInterface.php';
 require 'vendor/sinergi/browser-detector/src/UserAgent.php';
 require 'vendor/sinergi/browser-detector/src/Os.php';
 require 'vendor/sinergi/browser-detector/src/OsDetector.php';
+require_once 'geoip2.phar';
+
+use GeoIp2\Database\Reader;
 use Sinergi\BrowserDetector\Os;
 
 class Cloacker{
@@ -11,7 +14,7 @@ class Cloacker{
 	var $tokens_black;
 	var $ua_black;
 	var $ip_black;
-	var $referer;
+	var $block_without_referer;
 	var $is_bot;
 
 	function __construct(){
@@ -65,7 +68,7 @@ class Cloacker{
 			$this->result[]='ip';
 		}
 		
-		if(!empty($this->referer) && (int)$this->referer==1 && (int)$this->detect['referer']==0){
+		if(!empty($this->referer) && $this->block_without_referer && (int)$this->detect['referer']==0){
 			$result=1;
 			$this->result[]='referer';
 		}
@@ -97,10 +100,10 @@ class Cloacker{
 	    $a['os']=$os->getName();
 		$a['ip'] = $this->getip();
 		$a['ua']=$_SERVER['HTTP_USER_AGENT'];
-		include("geoip.inc");
-		$g = geoip_open("GeoIP.dat", GEOIP_STANDARD);
-		$a['country'] = geoip_country_code_by_addr($g, $a['ip']);
-		geoip_close($g);
+
+		$reader = new Reader('GeoLite2-Country.mmdb');
+	    $record = $reader->country($a['ip']);
+		$a['country'] = $record->country->isoCode;
 		$this->detect=$a;
 	}
 

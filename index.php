@@ -1,42 +1,91 @@
 <?php
-//ini_set('display_errors','1'); //Для отображение отладочной информации
+//Включение отладочной информации
+ini_set('display_errors','1'); 
+ini_set('display_startup_errors', 1); 
+error_reporting(E_ALL);
+//Конец включения отладочной информации
+
 require 'bnc.php';
+include 'settings.php';
 include 'htmlprocessing.php';
 include 'logging.php';
+
+//передаём все параметры в кло
 $cloacker = new Cloacker();
-
-//Тут начинаются настройки кло
-$white_folder_name = 'white'; //папка, где лежит вайтпейдж
-$black_folder_name = 'land1,land2,land3'; //папка, где лежит основной ленд или набор папок через запятую (для сплит-теста)
-$full_cloak_on = 0; //если 1, то всегда возвращает whitepage, используем при модерации
-$cloacker->os_white = 'Android,iOS,Windows'; //Список разрешённых ОС
-$cloacker->country_white = 'RU'; //Строка двухбуквенных обозначений стран через запятую, допущенных к blackpage
-$cloacker->ip_black = '0.0.0.1'; //Доп. список адресов через запятую, которые будут отправлены на white page
-$cloacker->tokens_black = ''; //Список слов через запятую, при наличии которых в адресе перехода (в ссылке, по которой перешли), юзер будет отправлен на whitepage
-$cloacker->ua_black = 'facebook,Facebot,curl,gce-spider,yandex.com/bots'; //Список слова через запятую, при наличии которых в UserAgent, юзер будет отправлен на whitepage
-$cloacker->referer = '0'; //при ='1' все запросы без referer будут идти на whitepage
-//Тут заканчиваются настройки кло
-
-//Проверяем зашедшего пользователя
-$check_result = $cloacker->check();
-//запись посетителей в файл visitors.csv
-write_visitors_to_log();
+$cloacker->os_white = $os_white; 
+$cloacker->country_white = $country_white;
+$cloacker->ip_black = $ip_black; 
+$cloacker->tokens_black = $tokens_black;
+$cloacker->ua_black = $ua_black;
+$cloacker->block_without_referer = $block_without_referer;
 
 //если включен full_cloak_on, то шлём всех на white page, полностью набрасываем плащ)
-if ($full_cloak_on == 1) {
-	echo load_content($white_folder_name);
+if ($full_cloak_on) {
+	write_visitors_to_log($cloacker->detect,['full_cloak'],1,'','');
+	white();
 	return;
 }
 
+//Проверяем зашедшего пользователя
+$check_result = $cloacker->check();
+if (!isset($cloacker->result))
+	$cloacker->result=['OK'];
+
 if ($check_result == 0) //Обычный юзверь
 {
-	//A/B тестирование лендингов
-	//TODO:добавить при тестировании проброс суб-метки с номером ленда
-	$landings = explode(",", $black_folder_name);
-	$r = rand(0, count($landings) - 1);
-	echo load_content($landings[$r]);
-} else //Обнаружили бота или модера
+	//если мы используем прокладки
+	if ($preland_folder_name!='')
+	{
+		//A-B тестирование прокладок
+		$prelandings = explode(",", $preland_folder_name);
+		$r = rand(0, count($prelandings) - 1);
+
+		//A-B тестирование лендингов
+		$landings = explode(",", $land_folder_name);
+		$t = rand(0, count($landings) - 1);
+		
+		write_visitors_to_log($cloacker->detect,$cloacker->result,$check_result,$prelandings[$r],$landings[$t]);
+		echo load_content($prelandings[$r],$t);
+	}
+	else //если у нас только ленды без прокл
+	{ 
+		//A-B тестирование лендингов
+		$landings = explode(",", $land_folder_name);
+		$r = rand(0, count($landings) - 1);
+		write_visitors_to_log($cloacker->detect,$cloacker->result,$check_result,'',$landings[$r]);
+		echo load_content($landings[$r],-1);
+	}
+} 
+else //Обнаружили бота или модера
 {
-	echo load_content($white_folder_name);
+	write_visitors_to_log($cloacker->detect,$cloacker->result,$check_result,'','');
+	white();
+	return;
+}
+
+function white(){
+	global $white_action,$white_folder_name,$redirect_url,$redirect_type,$curl_url,$error_code;
+	switch($white_action){
+		case 'error':
+  	        http_response_code($error_code);
+    		break;
+		case 'site':
+			echo load_content($white_folder_name,-1);
+			break;
+		case 'curl':
+			echo load_white_curl($curl_url);
+			break;
+		case 'redirect':
+			if ($redirect_type==302){
+				header('Location: '.$redirect_url);
+				exit;
+			}
+			else{
+				header('Location: '.$redirect_url, true, $redirect_type);
+				exit;
+			}
+			break;
+	}
+	return;
 }
 ?>
