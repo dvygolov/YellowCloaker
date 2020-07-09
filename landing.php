@@ -10,7 +10,7 @@
 	
 	$l=isset($_GET['l'])?$_GET['l']:-1;
 	//A-B тестирование лендингов
-	$landings = explode(",", $land_folder_name);
+	$landings = explode(",", $black_land_folder_name);
 	if ($l<count($landings) && $l>=0)
 		echo load_content($landings[$l],-1);
 	else{

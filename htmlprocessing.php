@@ -1,6 +1,7 @@
 <?php
 //Подгрузка контента из другой папки через CURL
 function load_content($url,$land_number) {
+	global $fb_use_pageview;
 	$domain = $_SERVER['HTTP_HOST'];
 	$prefix = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
 	$fullpath = $prefix.$domain.'/'.$url.'/';
@@ -26,8 +27,9 @@ function load_content($url,$land_number) {
 	$html = insert_gtm_script($html);
 	//добавляем в страницу скрипт Yandex Metrika
 	$html = insert_yandex_script($html);
-	//добавляем в страницу скрипт Facebook Pixel
-	$html = insert_fb_pixel_script($html,'PageView');
+	//добавляем в страницу скрипт Facebook Pixel с событием PageView
+	if ($fb_use_pageview)
+		$html = insert_fb_pixel_script($html,'PageView');
 	//добавляем во все формы сабы
 	$html = insert_subs($html);
 	//добавляем в формы id пикселя фб

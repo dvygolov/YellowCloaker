@@ -21,9 +21,11 @@ $black_land_folder_name = 'land';
 $black_redirect_url = 'http://ya.ru';
 $black_redirect_type = 301; //можно использовать 301 или 302 редирект
 
-//Настройка скриптов
+//Настройка скриптов и пикселей
 $gtm_id=''; //идентификатор Google Tag Manager
 $ya_id=''; //идентификатор Яндекс.Метрики
+$fb_use_pageview = false; //добавлять ли на проклы-ленды событие PageView
+$fb_thankyou_event = 'Lead'; //какое событие будем посылать со страницы Спасибо (Обычно Lead или Purchase)
 
 
 //Настройка TDS
