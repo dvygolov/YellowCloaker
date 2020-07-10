@@ -1,4 +1,5 @@
 <?php
+	include 'settings.php';
     /* =============================================================
     /   * CSV Viewer
     	* Version 1.0 (05/07/2017)
@@ -24,10 +25,9 @@
     //------------------------------------------------
     //Configuration
     //
-    $fileName = "visitors.csv"; //CSV file location
+	$fileName = "logs/".date("m.d.y").".csv";
     $delimiter = ","; //CSV delimiter character: , ; /t
     $enclosure = '"'; //CSV enclosure character: " ' 
-    $password = ''; //Optional to prevent abuse. If set to [your_password] will require the &Password=[your_password] GET parameter to open the file
     $ignorePreHeader = 0; //Number of characters to ignore before the table header. Windows UTF-8 BOM has 3 characters.
     //------------------------------------------------
      
@@ -36,7 +36,7 @@
     $tableOutput = "<b>No data loaded</b>";
      
     //Verify the password (if set)
-    if($_GET["Password"] === $password || $password === ""){
+    if($_GET["Password"] === $log_password || $log_password === ""){
      
     		if(file_exists($fileName)){ // File exists
      

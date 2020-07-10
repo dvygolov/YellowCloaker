@@ -27,7 +27,6 @@ $ya_id=''; //идентификатор Яндекс.Метрики
 $fb_use_pageview = false; //добавлять ли на проклы-ленды событие PageView
 $fb_thankyou_event = 'Lead'; //какое событие будем посылать со страницы Спасибо (Обычно Lead или Purchase)
 
-
 //Настройка TDS
 $full_cloak_on = false; //если true, то всегда возвращает whitepage, используем при модерации
 $os_white = 'Android,iOS,Windows'; //Список разрешённых ОС
@@ -36,4 +35,13 @@ $ip_black = '0.0.0.1'; //Доп. список адресов через запя
 $tokens_black = ''; //Список слов через запятую, при наличии которых в адресе перехода (в ссылке, по которой перешли), юзер будет отправлен на whitepage
 $ua_black = 'facebook,Facebot,curl,gce-spider,yandex.com/bots'; //Список слова через запятую, при наличии которых в UserAgent, юзер будет отправлен на whitepage
 $block_without_referer = false; //при =true все запросы без referer будут идти на whitepage
+$log_password = '12345'; //пароль для просмотра лог-файла, добавлять как: logviewer.php?Password=xxxxx
+
+//Настройка суб-меток
+$sub_ids = array(
+	"subid"=> "sub_id",
+	"prelanding" => "utm_source",
+	"cn" => "utm_campaign",
+	"an" => "utm_content"
+);
 ?>

@@ -60,17 +60,18 @@ function load_white_curl($url){
 
 //вставляет все сабы в hidden полях каждой формы
 function insert_subs($html) {
+	global $sub_ids;
 	$all_subs = '';
-	if (!empty($_GET['sub1']))
-		$all_subs = $all_subs.'<input type="hidden" name="sub1" value="'.$_GET['sub1'].'"/>';
-	if (!empty($_GET['sub2']))
-		$all_subs = $all_subs.'<input type="hidden" name="sub2" value="'.$_GET['sub2'].'"/>';
-	if (!empty($_GET['sub3']))
-		$all_subs = $all_subs.'<input type="hidden" name="sub3" value="'.$_GET['sub3'].'"/>';
-	if (!empty($_GET['sub4']))
-		$all_subs = $all_subs.'<input type="hidden" name="sub4" value="'.$_GET['sub4'].'"/>';
-	if (!empty($_GET['sub5']))
-		$all_subs = $all_subs.'<input type="hidden" name="sub5" value="'.$_GET['sub5'].'"/>';
+	foreach ($sub_ids as $key => $value){
+		if ($key=='subid' && isset($_COOKIE['subid']))
+			$all_subs = $all_subs.'<input type="hidden" name="'.$value.'" value="'.$_COOKIE['subid'].'"/>';			
+		else if ($key=='prelanding' && isset($_COOKIE['prelanding']))
+			$all_subs = $all_subs.'<input type="hidden" name="'.$value.'" value="'.$_COOKIE['prelanding'].'"/>';
+		else if ($key=='landing' && isset($_COOKIE['landing']))
+			$all_subs = $all_subs.'<input type="hidden" name="'.$value.'" value="'.$_COOKIE['landing'].'"/>';
+		else if (!empty($_GET[$key]))
+			$all_subs = $all_subs.'<input type="hidden" name="'.$value.'" value="'.$_GET[$key].'"/>';
+	}
 	$needle = '</form>';
 	return insert_before_tag($html,$needle,$all_subs);
 }

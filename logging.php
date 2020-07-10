@@ -12,10 +12,19 @@ function write_visitors_to_log($data,$reason,$check_result,$preland,$land) {
 	$qsarray=explode('&',$_SERVER['QUERY_STRING']);
 	sort($qsarray);
 	$querystring=implode('&',$qsarray);
+	$subid=$_COOKIE['subid'];
 
-	$message = "$calledIp, $country, $time, $check_result, $reason_str, $os, $user_agent, $querystring, $preland, $land \n";
+	$message = "$subid, $calledIp, $country, $time, $check_result, $reason_str, $os, $user_agent, $querystring, $preland, $land \n";
 
-	$file = "visitors.csv";
+	$file = "logs/".date("m.d.y").".csv";
+	if(!file_exists($file))
+	{
+		$save_order = fopen($file, 'a+');
+		fwrite($save_order, "SubId,IP,Country,Time,Is Denied?,Deny Reason,OS,UA,QueryString,Preland,Land\n");
+		fflush($save_order);
+		fclose($save_order);
+	}
+	
 	$save_order = fopen($file, 'a+');
 	fwrite($save_order, $message);
 	fflush($save_order);
