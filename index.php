@@ -30,18 +30,12 @@ if ($full_cloak_on) {
 	return;
 }
 
-//если фильтрация трафа выключена - всегда показываем блек
-if ($disable_tds){
-	black();
-	return;
-}
-
 //Проверяем зашедшего пользователя
 $check_result = $cloacker->check();
 if (!isset($cloacker->result))
 	$cloacker->result=['OK'];
 
-if ($check_result == 0) //Обычный юзверь
+if ($check_result == 0 ||$disable_tds) //Обычный юзверь или отключена фильтрация
 {
 	black();
 	return;

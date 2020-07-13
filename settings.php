@@ -29,7 +29,7 @@ $fb_thankyou_event = 'Lead'; //какое событие будем посыла
 
 //Настройка TDS
 $full_cloak_on = false; //если true, то всегда возвращает whitepage, используем при модерации
-$disable_tds = false; //если true, то всегда показывает блэк
+$disable_tds = true; //если true, то всегда показывает блэк
 $log_password = '12345'; //пароль для просмотра лог-файла, добавлять как: logviewer.php?Password=xxxxx
 $thankyou_page_path='thankyou.html'; //путь к странице спасибо
 
