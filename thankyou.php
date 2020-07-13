@@ -7,7 +7,7 @@ error_reporting(E_ALL);
 include 'settings.php';
 include 'htmlprocessing.php';
 
-$html=file_get_contents('thankyou.html');
+$html=file_get_contents($thankyou_page_path);
 //добавляем в страницу скрипт GTM
 $html = insert_gtm_script($html);
 //добавляем в страницу скрипт Yandex Metrika

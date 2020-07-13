@@ -1,5 +1,5 @@
 <?php
-//Подгрузка контента из другой папки через CURL
+//Подгрузка контента блэка из другой папки через CURL
 function load_content($url,$land_number) {
 	global $fb_use_pageview;
 	$domain = $_SERVER['HTTP_HOST'];
@@ -39,6 +39,43 @@ function load_content($url,$land_number) {
 	{
 		$html = preg_replace('/(<a[^>]+href=")([^"]*)/', "\\1".$prefix.$domain.'/landing.php?l='.$land_number.'&'.(!empty($querystr)?$querystr:''), $html);
 	}
+
+	return $html;
+}
+
+//Подгрузка контента вайта через CURL
+function load_white_content($url) {
+	global $fb_use_pageview;
+	$domain = $_SERVER['HTTP_HOST'];
+	$prefix = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
+	$fullpath = $prefix.$domain.'/'.$url.'/';
+	$querystr = $_SERVER['QUERY_STRING'];
+	if (!empty($querystr))
+		$fullpath = $fullpath.'?'.$querystr;
+	
+	$curl = curl_init();
+	$optArray = array(
+			CURLOPT_URL => $fullpath,
+			CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_SSL_VERIFYPEER => false, );
+	curl_setopt_array($curl, $optArray);
+	$html = curl_exec($curl);
+	curl_close($curl);
+	$baseurl = '/'.$url.'/';
+	//переписываем все относительные src и href (не начинающиеся с http)
+	$html = preg_replace('/\ssrc=[\'\"](?!http)([^\'\"]+)[\'\"]/', " src=\"$baseurl\\1\"", $html);
+	$html = preg_replace('/\shref=[\'\"](?!http|#)([^\'\"]+)[\'\"]/', " href=\"$baseurl\\1\"", $html);
+
+	//добавляем в страницу скрипт GTM
+	$html = insert_gtm_script($html);
+	//добавляем в страницу скрипт Yandex Metrika
+	$html = insert_yandex_script($html);
+	//добавляем в страницу скрипт Facebook Pixel с событием PageView
+	if ($fb_use_pageview)
+		$html = insert_fb_pixel_script($html,'PageView');
+	
+	//если на вайте есть форма, то меняем её обработчик, чтобы у вайта и блэка была одна thankyou page
+	$html = preg_replace('/\saction=[\'\"]([^\'\"]+)[\'\"]/', " action=\"../worder.php?".http_build_query($_GET)."\"", $html);
 
 	return $html;
 }

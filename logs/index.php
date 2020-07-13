@@ -1,5 +1,5 @@
 <?php
-	include 'settings.php';
+	include '../settings.php';
     /* =============================================================
     /   * CSV Viewer
     	* Version 1.0 (05/07/2017)
@@ -25,7 +25,7 @@
     //------------------------------------------------
     //Configuration
     //
-	$fileName = "logs/".date("m.d.y").".csv";
+	$fileName = date("d.m.y").".csv";
     $delimiter = ","; //CSV delimiter character: , ; /t
     $enclosure = '"'; //CSV enclosure character: " ' 
     $ignorePreHeader = 0; //Number of characters to ignore before the table header. Windows UTF-8 BOM has 3 characters.

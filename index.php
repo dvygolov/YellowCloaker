@@ -30,6 +30,12 @@ if ($full_cloak_on) {
 	return;
 }
 
+//если фильтрация трафа выключена - всегда показываем блек
+if ($disable_tds){
+	black();
+	return;
+}
+
 //Проверяем зашедшего пользователя
 $check_result = $cloacker->check();
 if (!isset($cloacker->result))
@@ -38,6 +44,7 @@ if (!isset($cloacker->result))
 if ($check_result == 0) //Обычный юзверь
 {
 	black();
+	return;
 } 
 else //Обнаружили бота или модера
 {
@@ -53,7 +60,7 @@ function white(){
   	        http_response_code($white_error_code);
     		break;
 		case 'site':
-			echo load_content($white_folder_name,-1);
+			echo load_white_content($white_folder_name);
 			break;
 		case 'curl':
 			echo load_white_curl($white_curl_url);
