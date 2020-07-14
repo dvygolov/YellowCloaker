@@ -91,7 +91,7 @@ function black(){
 				setcookie('landing',$landings[$t],time()+60*60*24*30,'/');
 				
 				write_visitors_to_log($cloacker->detect,$cloacker->result,$check_result,$prelandings[$r],$landings[$t]);
-				echo load_content($prelandings[$r],$t);
+				echo load_prelanding($prelandings[$r],$t);
 			}
 			else //если у нас только ленды без прокл
 			{ 
@@ -101,7 +101,7 @@ function black(){
 				setcookie('landing',$landings[$r],time()+60*60*24*30,'/');
 				
 				write_visitors_to_log($cloacker->detect,$cloacker->result,$check_result,'',$landings[$r]);
-				echo load_content($landings[$r],-1);
+				echo load_landing($landings[$r]);
 			}	
 			break;
 		case 'redirect':

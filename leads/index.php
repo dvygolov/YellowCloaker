@@ -36,7 +36,7 @@
     $tableOutput = "<b>No data loaded</b>";
      
     //Verify the password (if set)
-    if($_GET["Password"] === $leads_password || $leads_password === ""){
+    if($_GET["Password"] === $log_password || $log_password === ""){
      
     		if(file_exists($fileName)){ // File exists
      
@@ -98,10 +98,10 @@
     <html>
     <head>
     <meta charset="UTF-8"> 
-    <title>Binomo Traffic Log</title>
+    <title>Binomo Leads Log</title>
     </head>
     <body>
-    <h1>Binomo Traffic Log</h1>
+    <h1>Binomo Leads Log</h1>
     <a name="top"></a>
     <hr>
     <table style="width:50%">

@@ -12,9 +12,9 @@
 	//A-B тестирование лендингов
 	$landings = explode(",", $black_land_folder_name);
 	if ($l<count($landings) && $l>=0)
-		echo load_content($landings[$l],-1);
+		echo load_landing($landings[$l]);
 	else{
 		$r = rand(0, count($landings) - 1);
-		echo load_content($landings[$r],-1);
+		echo load_landing($landings[$r]);
 	}
 ?>
