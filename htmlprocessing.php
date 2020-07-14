@@ -84,7 +84,7 @@ function load_landing($url) {
 	return $html;
 }
 
-//Подгрузка контента вайта через CURL
+//Подгрузка контента вайта ИЗ ПАПКИ
 function load_white_content($url) {
 	global $fb_use_pageview;
 	$domain = $_SERVER['HTTP_HOST'];
@@ -121,6 +121,7 @@ function load_white_content($url) {
 	return $html;
 }
 
+//когда подгружаем вайт методом CURL
 function load_white_curl($url){
 	$curl = curl_init();
 	$optArray = array(
@@ -131,6 +132,9 @@ function load_white_curl($url){
 	curl_setopt_array($curl, $optArray);
 	$html = curl_exec($curl);
 	curl_close($curl);
+	//переписываем все относительные src и href (не начинающиеся с http)
+	$html = preg_replace('/\ssrc=[\'\"](?!http)([^\'\"]+)[\'\"]/', " src=\"$url\\1\"", $html);
+	$html = preg_replace('/\shref=[\'\"](?!http|#)([^\'\"]+)[\'\"]/', " href=\"$url\\1\"", $html);
 	//добавляем в страницу скрипт Facebook Pixel
 	$html = insert_fb_pixel_script($html,'PageView');
 	return $html;	
