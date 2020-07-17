@@ -171,8 +171,10 @@ function insert_fbpixel_id($html) {
 
 //вставляет в head полный код пикселя фб с указанным в $event событим (Lead,PageView,Purchase итп)
 function insert_fb_pixel_script($html,$event){
-	$fbpixel_subname="px"; //имя параметра из querystring, в которой будет лежать ID пикселя
-	$fb_pixel = isset($_GET[$fbpixel_subname])?$_GET[$fbpixel_subname]:'';
+	//имя параметра из querystring, в которой будет лежать ID пикселя
+	$fbpixel_subname="px"; 
+	//если пиксель не лежит в querystring, то также ищем его в куки
+	$fb_pixel = isset($_GET[$fbpixel_subname])?$_GET[$fbpixel_subname]:(isset($_COOKIE[$fbpixel_subname])?$_COOKIE[$fbpixel_subname]:'');
 	if (empty($fb_pixel)) return $html;
 	$file_name='scripts/fbpxcode.js';
 	if (!file_exists($file_name)) return $html;
