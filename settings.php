@@ -15,8 +15,8 @@ $white_curl_url = 'https://ya.ru';
 $white_error_code = 404; //код ошибки для возврата вместо вайта, по умолчанию 404 = Not Found
 
 //Настройка блэка
-//папка, где лежит прокла или набор прокл через запятую (для сплит-теста), если проклы не нужны - ставим ''
 $black_action = 'site'; //по аналогии с white_action 'site' или 'redirect'
+//папка, где лежит прокла или набор прокл через запятую (для сплит-теста), если проклы не нужны - ставим ''
 $black_preland_folder_name = 'p1,p2'; 
 //папка, где лежит основной ленд или набор папок через запятую (для сплит-теста)
 $black_land_folder_name = 'land'; 
@@ -33,13 +33,11 @@ $fb_thankyou_event = 'Lead'; //какое событие будем посыла
 //Настройка TDS
 $full_cloak_on = false; //если true, то всегда возвращает whitepage, используем при модерации
 $disable_tds = false; //если true, то всегда показывает блэк
-$log_password = '12345'; //пароль для просмотра лог-файла трафика, добавлять как: logviewer.php?Password=xxxxx
-$leads_password = '12345'; //пароль для просмотра лог-файла лидов, добавлять как: logviewer.php?Password=xxxxx
-
+$log_password = '12345'; //пароль для просмотра лог-файла трафика, добавлять как: /logs?password=xxxxx
 
 //Настройка фильтров
 $os_white = 'Android,iOS,Windows,OS X'; //Список разрешённых ОС
-$country_white = 'RS'; //Строка двухбуквенных обозначений стран через запятую, допущенных к blackpage
+$country_white = 'RU,RS'; //Строка двухбуквенных обозначений стран через запятую, допущенных к blackpage
 $ip_black = '0.0.0.1'; //Доп. список адресов через запятую, которые будут отправлены на white page
 $tokens_black = ''; //Список слов через запятую, при наличии которых в адресе перехода (в ссылке, по которой перешли), юзер будет отправлен на whitepage
 $ua_black = 'facebook,Facebot,curl,gce-spider,yandex.com/bots'; //Список слова через запятую, при наличии которых в UserAgent, юзер будет отправлен на whitepage
@@ -53,8 +51,8 @@ $block_without_referer = false; //при =true все запросы без refe
 //- prelanding - названием папки преленда
 //- landing - название папки ленда
 //Пример: 
-//у вас в адресной строке было http://xxx.com?cn=MyCampaing
-//в форме на ленде добавится <input type="hidden" name="utm_campaign" value="MyCampaing"/>
+//у вас в адресной строке было http://xxx.com?cn=MyCampaign
+//в форме на ленде добавится <input type="hidden" name="utm_campaign" value="MyCampaign"/>
 $sub_ids = array(
 	"subid"=> "sub_id",
 	"prelanding" => "utm_source",

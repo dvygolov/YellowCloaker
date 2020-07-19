@@ -19,13 +19,9 @@ $cloacker->tokens_black = $tokens_black;
 $cloacker->ua_black = $ua_black;
 $cloacker->block_without_referer = $block_without_referer;
 
-//устанавливаем пользователю в куки уникальный subid, либо берём его из куки, если он уже есть
-$subid=isset($_COOKIE['subid'])?$_COOKIE['subid']:uniqid();
-setcookie('subid',$subid,time()+60*60*24*30,'/');
-
 //если включен full_cloak_on, то шлём всех на white page, полностью набрасываем плащ)
 if ($full_cloak_on) {
-	write_visitors_to_log($cloacker->detect,['full_cloak'],1,'','');
+	write_white_to_log($cloacker->detect,['full_cloak'],1,'','');
 	white();
 	return;
 }
@@ -42,7 +38,7 @@ if ($check_result == 0 ||$disable_tds) //Обычный юзверь или от
 } 
 else //Обнаружили бота или модера
 {
-	write_visitors_to_log($cloacker->detect,$cloacker->result,$check_result,'','');
+	write_white_to_log($cloacker->detect,$cloacker->result,$check_result,'','');
 	white();
 	return;
 }
@@ -75,6 +71,15 @@ function white(){
 
 function black(){
 	global $cloacker,$check_result,$black_action,$black_redirect_type, $black_redirect_url,$black_preland_folder_name,$black_land_folder_name;
+	
+	//устанавливаем пользователю в куки уникальный subid, либо берём его из куки, если он уже есть
+	$cursubid=isset($_COOKIE['subid'])?$_COOKIE['subid']:uniqid();
+	setcookie('subid',$cursubid,time()+60*60*24*5,'/');
+
+	//устанавливаем fbclid в куки, если получали его из фб
+	if (isset($_GET['fbclid']) && $_GET['fbclid']!='')
+		setcookie('fbclid',$_GET['fbclid'],time()+60*60*24*5,'/');
+	
 	switch($black_action){
 		case 'site':
 			//если мы используем прокладки
@@ -83,28 +88,29 @@ function black(){
 				//A-B тестирование прокладок
 				$prelandings = explode(",", $black_preland_folder_name);
 				$r = rand(0, count($prelandings) - 1);
-				setcookie('prelanding',$prelandings[$r],time()+60*60*24*30,'/');
+				setcookie('prelanding',$prelandings[$r],time()+60*60*24*5,'/');
 				
 				//A-B тестирование лендингов
 				$landings = explode(",", $black_land_folder_name);
 				$t = rand(0, count($landings) - 1);
-				setcookie('landing',$landings[$t],time()+60*60*24*30,'/');
-				
-				write_visitors_to_log($cloacker->detect,$cloacker->result,$check_result,$prelandings[$r],$landings[$t]);
+				setcookie('landing',$landings[$t],time()+60*60*24*5,'/');
+			
 				echo load_prelanding($prelandings[$r],$t);
+				write_black_to_log($cloacker->detect,$cloacker->result,$check_result,$prelandings[$r],$landings[$t]);
 			}
 			else //если у нас только ленды без прокл
 			{ 
 				//A-B тестирование лендингов
 				$landings = explode(",", $black_land_folder_name);
 				$r = rand(0, count($landings) - 1);
-				setcookie('landing',$landings[$r],time()+60*60*24*30,'/');
+				setcookie('landing',$landings[$r],time()+60*60*24*5,'/');
 				
-				write_visitors_to_log($cloacker->detect,$cloacker->result,$check_result,'',$landings[$r]);
 				echo load_landing($landings[$r]);
+				write_black_to_log($cloacker->detect,$cloacker->result,$check_result,'',$landings[$r]);
 			}	
 			break;
 		case 'redirect':
+			write_black_to_log($cloacker->detect,$cloacker->result,$check_result,'',$black_redirect_url);
 			if ($black_redirect_type==302){
 				header('Location: '.$black_redirect_url);
 				exit;
