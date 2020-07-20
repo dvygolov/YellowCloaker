@@ -1,7 +1,7 @@
 <?php
 //Подгрузка контента блэк проклы из другой папки через CURL
 function load_prelanding($url,$land_number) {
-	global $fb_use_pageview;
+	global $fb_use_pageview, $replace_prelanding, $replace_prelanding_address;
 	$domain = $_SERVER['HTTP_HOST'];
 	$prefix = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
 	$fullpath = $prefix.$domain.'/'.$url.'/';
@@ -30,15 +30,21 @@ function load_prelanding($url,$land_number) {
 	//добавляем в страницу скрипт Facebook Pixel с событием PageView
 	if ($fb_use_pageview)
 		$html = insert_fb_pixel_script($html,'PageView');
+
+	$html = insert_additional_scripts($html);
+	
 	//добавляем во все формы сабы
 	$html = insert_subs($html);
 	//добавляем в формы id пикселя фб
 	$html = insert_fbpixel_id($html);
 	
-	if ($land_number>=0)
-	{
-		$html = preg_replace('/(<a[^>]+href=")([^"]*)/', "\\1".$prefix.$domain.'/landing.php?l='.$land_number.'&'.(!empty($querystr)?$querystr:''), $html);
+	//замена всех ссылок на прокле на универсальную ссылку ленда landing.php
+	$replacement = "\\1".$prefix.$domain.'/landing.php?l='.$land_number.'&'.(!empty($querystr)?$querystr:'');
+	if ($replace_prelanding){ //если мы будем подменять преленд при переходе на ленд, то ленд надо открывать в новом окне
+		$replacement=$replacement.'" target="_blank"';
+		$html = insert_script_with_replace($html,'replaceprelanding','</body>','{REDIRECT}',$replace_prelanding_address);
 	}
+	$html = preg_replace('/(<a[^>]+href=")([^"]*)/', $replacement, $html);
 
 	return $html;
 }
@@ -76,11 +82,29 @@ function load_landing($url) {
 	//добавляем в страницу скрипт Facebook Pixel с событием PageView
 	if ($fb_use_pageview)
 		$html = insert_fb_pixel_script($html,'PageView');
+	
+	$html = insert_additional_scripts($html);
+	
 	//добавляем во все формы сабы
 	$html = insert_subs($html);
 	//добавляем в формы id пикселя фб
 	$html = insert_fbpixel_id($html);
 		
+	return $html;
+}
+
+//добавляем доп.скрипты
+function insert_additional_scripts($html){
+	global $disable_text_copy, $disable_back_button, $replace_back_button, $replace_back_address;
+
+	if($disable_text_copy)
+		$html = insert_script($html,'disablecopy','</body>');
+	
+	if($disable_back_button)
+		$html = insert_script($html,'disableback','</body>');
+	
+	if ($replace_back_button)
+		$html = insert_script_with_replace($html,'replaceback','</body>','{RA}',$replace_back_address);
 	return $html;
 }
 
@@ -220,6 +244,27 @@ function insert_yandex_script($html) {
 	$ya_code = str_replace($search,$ya_id,$ya_code);
 	$needle='</head>';
 	return insert_before_tag($html,$needle,$ya_code);
+}
+
+function insert_script_with_replace($html,$scriptname,$needle,$search,$replacement) {
+	$code_file_name='scripts/'.$scriptname.'.js';
+	if (!file_exists($code_file_name)) {
+		echo 'File Not Found '.$code_file_name;
+		return $html;
+	}
+	$script_code = file_get_contents($code_file_name);
+	$script_code = str_replace($search,$replacement,$script_code);
+	return insert_before_tag($html,$needle,$script_code);
+}
+
+function insert_script($html,$scriptname,$needle) {
+	$code_file_name='scripts/'.$scriptname.'.js';
+	if (!file_exists($code_file_name)) {
+		echo 'File Not Found '.$code_file_name;
+		return $html;
+	}
+	$script_code = file_get_contents($code_file_name);
+	return insert_before_tag($html,$needle,$script_code);
 }
 
 
