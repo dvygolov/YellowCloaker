@@ -2,12 +2,12 @@
 
 function write_white_to_log($data,$reason,$check_result,$preland,$land) {
 	$filename = date("d.m.y").".blocked.csv";
-	write_visitors_to_log($filename,$data,$reason,$check_result,$preland,$land);
+	write_visitors_to_log('',$filename,$data,$reason,$check_result,$preland,$land);
 }
 
-function write_black_to_log($data,$reason,$check_result,$preland,$land) {
+function write_black_to_log($subid,$data,$reason,$check_result,$preland,$land) {
 	$filename = date("d.m.y").".csv";
-	write_visitors_to_log($filename,$data,$reason,$check_result,$preland,$land);
+	write_visitors_to_log($subid,$filename,$data,$reason,$check_result,$preland,$land);
 }
 
 function write_leads_to_log($subid,$name,$phone) {
@@ -21,7 +21,7 @@ function write_leads_to_log($subid,$name,$phone) {
 	}
 	
 	$fbp=isset($_COOKIE['_fbp'])?$_COOKIE['_fbp']:'';
-	$fbclid=isset($_COOKIE['fbclid'])?$_COOKIE['fbclid']:'';
+	$fbclid=isset($_COOKIE['fbclid'])?$_COOKIE['fbclid']:(isset($_COOKIE['_fbc'])?$_COOKIE['_fbc']:'');
 	
 	$save_order = fopen($file, 'a+');
 	fwrite($save_order, "$subid, $name, $phone, $fbp, $fbclid, Lead\n");
@@ -42,7 +42,7 @@ function lead_is_duplicate($subid,$phone){
 }
 
 //Запись норм посетителей в csv файл
-function write_visitors_to_log($filename,$data,$reason,$check_result,$preland,$land) {
+function write_visitors_to_log($subid,$filename,$data,$reason,$check_result,$preland,$land) {
 	$calledIp = $data['ip'];
 	$country = $data['country'];
 	$time = date('Y-m-d H:i:s');
@@ -54,9 +54,8 @@ function write_visitors_to_log($filename,$data,$reason,$check_result,$preland,$l
 	$qsarray=explode('&',$_SERVER['QUERY_STRING']);
 	sort($qsarray);
 	$querystring=implode('&',$qsarray);
-	$cursubid=isset($_COOKIE['subid'])?$_COOKIE['subid']:'';
 
-	$message = "$cursubid, $calledIp, $country, $time, $check_result, $reason_str, $os, $user_agent, $querystring, $preland, $land \n";
+	$message = "$subid, $calledIp, $country, $time, $check_result, $reason_str, $os, $user_agent, $querystring, $preland, $land \n";
 
 	//создаёт папку для логов, если её нет
 	if (!file_exists("logs")) mkdir("logs");

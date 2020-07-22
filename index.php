@@ -96,7 +96,7 @@ function black(){
 				setcookie('landing',$landings[$t],time()+60*60*24*5,'/');
 			
 				echo load_prelanding($prelandings[$r],$t);
-				write_black_to_log($cloacker->detect,$cloacker->result,$check_result,$prelandings[$r],$landings[$t]);
+				write_black_to_log($cursubid,$cloacker->detect,$cloacker->result,$check_result,$prelandings[$r],$landings[$t]);
 			}
 			else //если у нас только ленды без прокл
 			{ 
@@ -106,11 +106,11 @@ function black(){
 				setcookie('landing',$landings[$r],time()+60*60*24*5,'/');
 				
 				echo load_landing($landings[$r]);
-				write_black_to_log($cloacker->detect,$cloacker->result,$check_result,'',$landings[$r]);
+				write_black_to_log($cursubid,$cloacker->detect,$cloacker->result,$check_result,'',$landings[$r]);
 			}	
 			break;
 		case 'redirect':
-			write_black_to_log($cloacker->detect,$cloacker->result,$check_result,'',$black_redirect_url);
+			write_black_to_log($cursubid,$cloacker->detect,$cloacker->result,$check_result,'',$black_redirect_url);
 			if ($black_redirect_type==302){
 				header('Location: '.$black_redirect_url);
 				exit;

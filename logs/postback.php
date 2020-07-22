@@ -43,6 +43,7 @@ foreach ($leadfiles as $lf){
 					$arr[5]='Trash';			
 			}
 			$line = implode(',',$arr);
+			$line = $line."\n";
 			$replaced = true;
 		}
 		fputs($writing, $line);
