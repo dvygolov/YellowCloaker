@@ -16,6 +16,7 @@
 	if ($black_land_use_url) //если используем внешний ленд
 	{ 
 		$redirect_url = replace_all_macros($black_land_url);
+		$redirect_url = add_subs_to_link($redirect_url);
 		header('Location: '.$redirect_url);
 	}
 	else //если используем локальный ленд

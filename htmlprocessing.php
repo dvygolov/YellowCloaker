@@ -47,7 +47,8 @@ function load_prelanding($url,$land_number) {
 	//если мы будем подменять преленд при переходе на ленд, то ленд надо открывать в новом окне
 	if ($replace_prelanding){ 
 		$replacement=$replacement.'" target="_blank"';
-		$url = replace_all_macros($replace_prelanding_address);
+		$url = replace_all_macros($replace_prelanding_address); //заменяем макросы
+		$url = add_subs_to_link($url); //добавляем сабы
 		$html = insert_script_with_replace($html,'replaceprelanding','</body>','{REDIRECT}',$url);
 	}
 	$html = preg_replace('/(<a[^>]+href=")([^"]*)/', $replacement, $html);
@@ -113,6 +114,7 @@ function insert_additional_scripts($html){
 	
 	if ($replace_back_button){
 		$url= replace_all_macros($replace_back_address); //заменяем макросы
+		$url = add_subs_to_link($url); //добавляем сабы
 		$html = insert_script_with_replace($html,'replaceback','</body>','{RA}',$url);
 	}
 	return $html;
@@ -190,6 +192,22 @@ function load_white_curl($url){
 	//добавляем в <head> пару доп. метатегов
 	$html= str_replace('<head>', '<head>\n<meta name="referrer" content="no-referrer">\n<meta name="robots" content="noindex, nofollow">', $html);
 	return $html;	
+}
+
+function add_subs_to_link($url){
+	global $sub_ids;
+	foreach ($sub_ids as $key => $value){
+		$delimiter= strpos($url,'?')===false?'?':'&';
+		if ($key=='subid' && isset($_COOKIE['subid']))
+			$url.= $delimiter.$value.'='.$_COOKIE['subid'];			
+		else if ($key=='prelanding' && isset($_COOKIE['prelanding']))
+			$url.= $delimiter.$value.'='.$_COOKIE['prelanding'];			
+		else if ($key=='landing' && isset($_COOKIE['landing']))
+			$url.= $delimiter.$value.'='.$_COOKIE['landing'];			
+		else if (!empty($_GET[$key]))
+			$url.= $delimiter.$value.'='.$_GET[$key];
+	}
+	return $url;
 }
 
 //вставляет все сабы в hidden полях каждой формы
