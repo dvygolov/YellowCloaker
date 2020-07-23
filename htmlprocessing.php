@@ -40,10 +40,9 @@ function load_prelanding($url,$land_number) {
 	//добавляем в формы id пикселя фб
 	$html = insert_fbpixel_id($html);
 	
-	
-	
+		
 	//замена всех ссылок на прокле на универсальную ссылку ленда landing.php
-	$replacement = "\\1".$prefix.$domain.'/landing.php?l='.$land_number.'&'.(!empty($querystr)?$querystr:'');
+	$replacement = "\\1".$prefix.$domain.'/landing.php?l='.$land_number.(!empty($querystr)?'&'.$querystr:'');
 	if ($replace_prelanding){ //если мы будем подменять преленд при переходе на ленд, то ленд надо открывать в новом окне
 		$replacement=$replacement.'" target="_blank"';
 		$html = insert_script_with_replace($html,'replaceprelanding','</body>','{REDIRECT}',$replace_prelanding_address);
@@ -117,7 +116,8 @@ function insert_additional_scripts($html){
 //если тип поля телефона - text, меняем его на tel для более удобного ввода с мобильных
 function replace_tel_type($html){
 	$html = preg_replace('/(<input[^>]*name="(phone|tel)"[^>]*type=")(text)("[^>]*>)/', "\\1tel\\4", $html);
-	$html = preg_replace('/(<input[^>]*type=")(text)("[^>]*name="(phone|tel)"[^>]*>)/', "\\1tel\\3", $html);	
+	$html = preg_replace('/(<input[^>]*type=")(text)("[^>]*name="(phone|tel)"[^>]*>)/', "\\1tel\\3", $html);
+	return $html;
 }
 
 //Подгрузка контента вайта ИЗ ПАПКИ
@@ -155,7 +155,7 @@ function load_white_content($url) {
 	$html = preg_replace('/\saction=[\'\"]([^\'\"]+)[\'\"]/', " action=\"../worder.php?".http_build_query($_GET)."\"", $html);
 	
 	//добавляем в <head> пару доп. метатегов
-	$html= str_replace('<head>', '<head>\n<meta name="referrer" content="no-referrer">\n<meta name="robots" content="noindex, nofollow">', $html);
+	$html= str_replace('<head>', '<head><meta name="referrer" content="no-referrer"><meta name="robots" content="noindex, nofollow">', $html);
 
 	return $html;
 }
