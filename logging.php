@@ -10,6 +10,7 @@ function write_black_to_log($subid,$data,$reason,$check_result,$preland,$land) {
 	write_visitors_to_log($subid,$filename,$data,$reason,$check_result,$preland,$land);
 }
 
+//пишем лиды в отдельный лог-файл
 function write_leads_to_log($subid,$name,$phone) {
 	$file = "logs/".date("d.m.y").".leads.csv";
 	if(!file_exists($file)) //если новый день а файла лога ещё нет, то пишем туда заголовки столбцов
@@ -29,6 +30,22 @@ function write_leads_to_log($subid,$name,$phone) {
 	fclose($save_order);
 }
 
+function write_lpctr_to_log($subid,$preland){
+	$file = "logs/".date("d.m.y").".lpctr.csv";
+	if(!file_exists($file)) //если новый день а файла лога ещё нет, то пишем туда заголовки столбцов
+	{
+		$save_order = fopen($file, 'a+');
+		fwrite($save_order, "SubId,Preland\n");
+		fflush($save_order);
+		fclose($save_order);
+	}
+	
+	$save_lp = fopen($file, 'a+');
+	fwrite($save_lp, "$subid, $preland\n");
+	fflush($save_lp);
+	fclose($save_lp);
+}
+
 //проверяем, есть ли в файле лидов subid текущего пользователя
 //если есть, значит ЭТО ДУБЛЬ! И нам не нужно слать его в ПП и не нужно показывать пиксель ФБ!!
 function lead_is_duplicate($subid,$phone){
@@ -41,7 +58,7 @@ function lead_is_duplicate($subid,$phone){
 		return strpos(file_get_contents($file),$phone);
 }
 
-//Запись норм посетителей в csv файл
+//общая функция записи блэк и вайт посетителей в csv файл
 function write_visitors_to_log($subid,$filename,$data,$reason,$check_result,$preland,$land) {
 	$calledIp = $data['ip'];
 	$country = $data['country'];
