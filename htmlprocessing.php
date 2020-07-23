@@ -43,9 +43,12 @@ function load_prelanding($url,$land_number) {
 		
 	//замена всех ссылок на прокле на универсальную ссылку ленда landing.php
 	$replacement = "\\1".$prefix.$domain.'/landing.php?l='.$land_number.(!empty($querystr)?'&'.$querystr:'');
-	if ($replace_prelanding){ //если мы будем подменять преленд при переходе на ленд, то ленд надо открывать в новом окне
+	
+	//если мы будем подменять преленд при переходе на ленд, то ленд надо открывать в новом окне
+	if ($replace_prelanding){ 
 		$replacement=$replacement.'" target="_blank"';
-		$html = insert_script_with_replace($html,'replaceprelanding','</body>','{REDIRECT}',$replace_prelanding_address);
+		$url = replace_all_macros($replace_prelanding_address);
+		$html = insert_script_with_replace($html,'replaceprelanding','</body>','{REDIRECT}',$url);
 	}
 	$html = preg_replace('/(<a[^>]+href=")([^"]*)/', $replacement, $html);
 
@@ -108,8 +111,10 @@ function insert_additional_scripts($html){
 	if($disable_back_button)
 		$html = insert_script($html,'disableback','</body>');
 	
-	if ($replace_back_button)
-		$html = insert_script_with_replace($html,'replaceback','</body>','{RA}',$replace_back_address);
+	if ($replace_back_button){
+		$url= replace_all_macros($replace_back_address); //заменяем макросы
+		$html = insert_script_with_replace($html,'replaceback','</body>','{RA}',$url);
+	}
 	return $html;
 }
 
@@ -267,6 +272,19 @@ function insert_yandex_script($html) {
 	$ya_code = str_replace($search,$ya_id,$ya_code);
 	$needle='</head>';
 	return insert_before_tag($html,$needle,$ya_code);
+}
+
+//заменяем все макросы на реальные значения из куки
+function replace_all_macros($url){
+	$fbpixel_subname='px';
+	$px=isset($_GET[$fbpixel_subname])?$_GET[$fbpixel_subname]:(isset($_COOKIE[$fbpixel_subname])?$_COOKIE[$fbpixel_subname]:'');
+	$prelanding = isset($_COOKIE['prelanding'])?$_COOKIE['prelanding']:'';
+	$subid = isset($_COOKIE['subid'])?$_COOKIE['subid']:'';
+	
+	$tmp_url = str_replace('{px}', $px, $url);
+	$tmp_url = str_replace('{prelanding}', $prelanding, $tmp_url);
+	$tmp_url = str_replace('{subid}', $subid, $tmp_url);
+	return $tmp_url;
 }
 
 function insert_script_with_replace($html,$scriptname,$needle,$search,$replacement) {
