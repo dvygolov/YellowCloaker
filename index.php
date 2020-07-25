@@ -44,13 +44,27 @@ else //Обнаружили бота или модера
 }
 
 function white(){
-	global $white_action,$white_folder_name,$white_redirect_url,$white_redirect_type,$white_curl_url,$white_error_code;
+	global $white_action,$white_folder_name,$white_redirect_url,$white_redirect_type,$white_curl_url,$white_error_code,$white_use_domain_specific,$white_domain_specific;
 	switch($white_action){
 		case 'error':
   	        http_response_code($white_error_code);
     		break;
 		case 'site':
-			echo load_white_content($white_folder_name);
+			if ($white_use_domain_specific){ //если у нас под каждый домен свой вайт
+				$curdomain = $_SERVER['SERVER_NAME'];
+				$match_found=false;
+				foreach ($white_domain_specific as $domain => $white){
+					if ($domain==$curdomain){
+						$match_found=true;
+						echo load_white_content($white);
+						exit;
+					}
+				}
+				if (!$match_found) //если льём на какой-то новый, не прописанный домен, то показываем "базовый" вайт
+					echo load_white_content($white_folder_name);
+			}
+			else
+				echo load_white_content($white_folder_name);
 			break;
 		case 'curl':
 			echo load_white_curl($white_curl_url);

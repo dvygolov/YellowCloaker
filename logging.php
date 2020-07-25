@@ -11,7 +11,7 @@ function write_black_to_log($subid,$data,$reason,$check_result,$preland,$land) {
 }
 
 //пишем лиды в отдельный лог-файл
-function write_leads_to_log($subid,$name,$phone) {
+function write_leads_to_log($subid,$name,$phone,$status) {
 	$file = "logs/".date("d.m.y").".leads.csv";
 	if(!file_exists($file)) //если новый день а файла лога ещё нет, то пишем туда заголовки столбцов
 	{
@@ -24,8 +24,10 @@ function write_leads_to_log($subid,$name,$phone) {
 	$fbp=isset($_COOKIE['_fbp'])?$_COOKIE['_fbp']:'';
 	$fbclid=isset($_COOKIE['fbclid'])?$_COOKIE['fbclid']:(isset($_COOKIE['_fbc'])?$_COOKIE['_fbc']:'');
 	
+	if ($status=='') $status='Lead';
+	
 	$save_order = fopen($file, 'a+');
-	fwrite($save_order, "$subid, $name, $phone, $fbp, $fbclid, Lead\n");
+	fwrite($save_order, "$subid, $name, $phone, $fbp, $fbclid, $status\n");
 	fflush($save_order);
 	fclose($save_order);
 }

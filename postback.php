@@ -5,12 +5,18 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 //Конец включения отладочной информации
 
+include 'settings.php';
+
 if (!isset($_GET['subid'])) die();
 if (!isset($_GET['status'])) die();
 $subid = $_GET['subid'];
 $status = $_GET['status'];
 
-$leadfiles = glob('*leads.csv'); //бежим по всем файлам лидов в папке
+if (){
+	write_leads_to_log($subid,$name,$phone,$status);
+}
+
+$leadfiles = glob('logs/*leads.csv'); //бежим по всем файлам лидов в папке
 
 foreach ($leadfiles as $lf){
 	echo nl2br("Processing file: ".$lf."\n");

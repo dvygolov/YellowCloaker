@@ -9,10 +9,15 @@ $thankyou_page_path='thankyou.html'; //путь к странице спасиб
 //если 'error' - возвращает ошибку $error_code
 $white_action = 'site'; 
 $white_folder_name = 'white'; //папка, где лежит вайтпейдж
-$white_redirect_url = 'http://ya.ru';
+$white_redirect_url = 'http://ya.ru'; //если вместо локального вайта юзаем редирект
 $white_redirect_type = 302; //можно использовать 301 или 302 редирект, 303 и 307 тоже катят.
-$white_curl_url = 'https://ya.ru';
+$white_curl_url = 'https://ya.ru'; //если используем curl вайт
 $white_error_code = 404; //код ошибки для возврата вместо вайта, по умолчанию 404 = Not Found
+$white_use_domain_specific=false; //если true, то проверяется доменное имя и показывается локальный вайт именно для него
+$white_domain_specific=array(
+	"keto.ya.ru" => "white",
+	"diet.ya.ru" => "white2"
+);
 
 //-----Настройка блэка-----
 $black_action = 'site'; //по аналогии с white_action 'site' или 'redirect'
@@ -34,6 +39,7 @@ $black_land_use_url=true; //установить в true, если хотите 
 //{subid} - уникальный идентификатор пользователя (для постбэка)
 //{px} - идентификатор пикселя фб 
 //{prelanding} - имя папки проклы 
+//Также к этому урлу будут добавлены все сабы, которые были у вашей ссылки, переписанные по правилам $sub_ids
 $black_land_url = "http://ya.ru?pixel={px}";
 
 //-----Настройка метрик и пикселей-----

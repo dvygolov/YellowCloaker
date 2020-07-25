@@ -13,7 +13,7 @@
 		include_once $_COOKIE['landing'].'/'.$black_land_conversion_script;
 		header_remove("Location"); //удаляем редирект из файла заказа ПП
 		//пишем лида в базу и редиректим на Спасибо
-		write_leads_to_log($subid,$name,$phone);
+		write_leads_to_log($subid,$name,$phone,'');
 		header("Location: thankyou.php?".http_build_query($_GET));
 	}
 	else
