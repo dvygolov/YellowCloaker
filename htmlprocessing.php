@@ -174,7 +174,8 @@ function load_white_curl($url){
 			CURLOPT_URL => $url,
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_SSL_VERIFYPEER => false, 
-			CURLOPT_FOLLOWLOCATION => true);
+			CURLOPT_FOLLOWLOCATION => true,
+			CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML like Gecko) Chrome/84.0.4147.89 Safari/537.36');
 	curl_setopt_array($curl, $optArray);
 	$html = curl_exec($curl);
 	curl_close($curl);
@@ -190,7 +191,7 @@ function load_white_curl($url){
 	$html = insert_fb_pixel_script($html,'PageView');
 	
 	//добавляем в <head> пару доп. метатегов
-	$html= str_replace('<head>', '<head>\n<meta name="referrer" content="no-referrer">\n<meta name="robots" content="noindex, nofollow">', $html);
+	$html= str_replace('<head>', '<head><meta name="referrer" content="no-referrer"><meta name="robots" content="noindex, nofollow">', $html);
 	return $html;	
 }
 

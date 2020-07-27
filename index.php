@@ -45,37 +45,55 @@ else //Обнаружили бота или модера
 
 function white(){
 	global $white_action,$white_folder_name,$white_redirect_url,$white_redirect_type,$white_curl_url,$white_error_code,$white_use_domain_specific,$white_domain_specific;
-	switch($white_action){
+	
+	$action = $white_action;
+	$folder_name= $white_folder_name;
+	$redirect_url= $white_redirect_url;
+	$curl_url= $white_curl_url;
+	$error_code= $white_error_code;
+	
+	if ($white_use_domain_specific){ //если у нас под каждый домен свой вайт
+		$curdomain = $_SERVER['SERVER_NAME'];
+		foreach ($white_domain_specific as $domain => $what_to_do){
+			if ($domain==$curdomain){
+				$wtd_arr = explode(":",$what_to_do,2);
+				$action = $wtd_arr[0];
+				switch ($action){
+					case 'error':
+						$error_code= intval($wtd_arr[1]);
+						break;
+					case 'site':
+						$folder_name = $wtd_arr[1];
+						break;
+					case 'curl':
+						$curl_url = $wtd_arr[1];
+						break;
+					case 'redirect':
+						$redirect_url = $wtd_arr[1];
+						break;
+				}
+				break;
+			}
+		}
+	}
+	
+	switch($action){
 		case 'error':
-  	        http_response_code($white_error_code);
+  	        http_response_code($error_code);
     		break;
 		case 'site':
-			if ($white_use_domain_specific){ //если у нас под каждый домен свой вайт
-				$curdomain = $_SERVER['SERVER_NAME'];
-				$match_found=false;
-				foreach ($white_domain_specific as $domain => $white){
-					if ($domain==$curdomain){
-						$match_found=true;
-						echo load_white_content($white);
-						exit;
-					}
-				}
-				if (!$match_found) //если льём на какой-то новый, не прописанный домен, то показываем "базовый" вайт
-					echo load_white_content($white_folder_name);
-			}
-			else
-				echo load_white_content($white_folder_name);
+			echo load_white_content($folder_name);
 			break;
 		case 'curl':
-			echo load_white_curl($white_curl_url);
+			echo load_white_curl($curl_url);
 			break;
 		case 'redirect':
 			if ($white_redirect_type==302){
-				header('Location: '.$white_redirect_url);
+				header('Location: '.$redirect_url);
 				exit;
 			}
 			else{
-				header('Location: '.$white_redirect_url, true, $white_redirect_type);
+				header('Location: '.$redirect_url, true, $white_redirect_type);
 				exit;
 			}
 			break;

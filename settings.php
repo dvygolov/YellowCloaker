@@ -15,8 +15,11 @@ $white_curl_url = 'https://ya.ru'; //если используем curl вайт
 $white_error_code = 404; //код ошибки для возврата вместо вайта, по умолчанию 404 = Not Found
 $white_use_domain_specific=false; //если true, то проверяется доменное имя и показывается локальный вайт именно для него
 $white_domain_specific=array(
-	"keto.ya.ru" => "white",
-	"diet.ya.ru" => "white2"
+	"awlah.com" => "site:white3",
+	"keto.awlah.com" => "curl:https://ya.ru",
+	"diet.awlah.com" => "site:white2",
+	"ketopro.awlah.com" => "redirect:https://ya.ru",
+	"proketo.awlah.com" => "error:404"
 );
 
 //-----Настройка блэка-----
