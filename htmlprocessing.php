@@ -58,7 +58,7 @@ function load_prelanding($url,$land_number) {
 
 //Подгрузка контента блэк ленда из другой папки через CURL
 function load_landing($url) {
-	global $fb_use_pageview;
+	global $fb_use_pageview,$black_land_use_phone_mask;
 	$domain = $_SERVER['HTTP_HOST'];
 	$prefix = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
 	$fullpath = $prefix.$domain.'/'.$url.'/';
@@ -97,7 +97,10 @@ function load_landing($url) {
 	//добавляем в формы id пикселя фб
 	$html = insert_fbpixel_id($html);
 	
+	//заменяем поле с телефоном на более удобный тип - tel
 	$html = replace_tel_type($html);
+	if ($black_land_use_phone_mask)
+		$html = insert_phone_mask($html);
 		
 	return $html;
 }
@@ -124,6 +127,16 @@ function insert_additional_scripts($html){
 function replace_tel_type($html){
 	$html = preg_replace('/(<input[^>]*name="(phone|tel)"[^>]*type=")(text)("[^>]*>)/', "\\1tel\\4", $html);
 	$html = preg_replace('/(<input[^>]*type=")(text)("[^>]*name="(phone|tel)"[^>]*>)/', "\\1tel\\3", $html);
+	return $html;
+}
+
+function insert_phone_mask($html){
+	global $black_land_phone_mask;
+	$html = insert_before_tag($html,'</head>','<script src="scripts/inputmask.js"></script>');
+	$html = insert_before_tag($html,'</head>','<script src="scripts/inputmaskbinding.js"></script>');
+	$html = preg_replace('/(<input[^>]*name="(phone|tel)"[^>]*)(>)/', 
+		"\\1 data-inputmask=\"'mask': '".$black_land_phone_mask."'\">", $html);
+	
 	return $html;
 }
 
