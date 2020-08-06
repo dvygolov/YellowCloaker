@@ -5,7 +5,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 //Конец включения отладочной информации
 
-require 'bnc.php';
+require 'core.php';
 include 'settings.php';
 include 'htmlprocessing.php';
 include 'logging.php';

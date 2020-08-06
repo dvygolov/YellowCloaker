@@ -1,25 +1,20 @@
 <?php
-	include '../settings.php';
-      
+//Включение отладочной информации
+ini_set('display_errors','1'); 
+ini_set('display_startup_errors', 1); 
+error_reporting(E_ALL);
+//Конец включения отладочной информации
+
+include '../settings.php';
+
     //------------------------------------------------
     //Configuration
     //
-	$filter=isset($_GET['filter'])?$_GET['filter']:'';
-	$fileName='';
-	switch($filter){
-		case '':
-			$fileName = date("d.m.y").".csv";
-			break;
-		case 'leads':
-			$fileName = date("d.m.y").".leads.csv";
-		break;
-		case 'blocked':
-			$fileName = date("d.m.y").".blocked.csv";
-		break;
-		case 'emails':
-			$fileName = date("d.m.y").".emails.csv";
-		break;
-	}
+	$date=isset($_GET['date'])?$_GET['date']:date("d.m.y");
+
+	$traf_fn=$date.'.csv';
+	$ctr_fn=$date.'.lpctr.csv';
+	$leads_fn=$date.'.leads.csv';
 
     $delimiter = ","; //CSV delimiter character: , ; /t
     $enclosure = '"'; //CSV enclosure character: " ' 
@@ -54,8 +49,12 @@
 					$tableOutput.="<thead class='thead-dark'>";
     				$tableOutput.="<TR>";
     				$tableOutput.="<TH scope='col'>Row</TH>"; 
-    				foreach ($logOriginalHeader as $field)
-    					$tableOutput.="<TH scope='col'>".$field."</TH>"; //Add the columns
+    				$tableOutput.="<TH scope='col'>Clicks</TH>"; 
+    				$tableOutput.="<TH scope='col'>Unique</TH>"; 
+    				$tableOutput.="<TH scope='col'>CR% all</TH>"; 
+    				$tableOutput.="<TH scope='col'>CR% sales</TH>"; 
+    				$tableOutput.="<TH scope='col'>App% (without trash)</TH>"; 
+    				$tableOutput.="<TH scope='col'>App% (total)</TH>"; 
     				$tableOutput.="</TR></thead><tbody>";
      
     				//Get each line of the array and print the table files
@@ -93,23 +92,19 @@
     	else $tableOutput = "<b>File not found</b>";
     }
     else $tableOutput = "<b>Invalid password.</b> Enter the password using this URL format: ".$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']."?Password=<b>your_password</b>";
-     
-    ?>
+?>
     <!DOCTYPE html>
     <html>
     <head>
     <meta charset="UTF-8"> 
-    <title>Binomo Cloaker Log</title>
+    <title>Binomo Cloaker Statistics</title>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     </head>
     <body>
-    <h1>Binomo Cloaker Log</h1> 
+    <h1>Binomo Cloaker Statistics</h1> 
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
 	  <div class="collapse navbar-collapse" id="navbarNav">
 		<ul class="navbar-nav">
-		  <li class="nav-item">
-			<a class="nav-link" href="statistics.php?password=<?=$_GET['password']?>">Statistics</a>
-		  </li>
 		  <li class="nav-item">
 			<a class="nav-link" href="index.php?password=<?=$_GET['password']?>">Allowed</a>
 		  </li>
@@ -119,18 +114,9 @@
 		  <li class="nav-item">
 			<a class="nav-link" href="index.php?filter=blocked&password=<?=$_GET['password']?>">Blocked</a>
 		  </li>
-		  <li class="nav-item">
-			<a class="nav-link" href="index.php?filter=emails&password=<?=$_GET['password']?>">Emails</a>
-		  </li>
 		  <li class="divider"></li>
 		  <li class="nav-item">
 			<a class="nav-link" href="" onClick="location.reload()">Refresh</a>
-		  </li>
-		  <li class="nav-item">
-			<a class="nav-link" href="<?=$fileName ?>">Download</a>
-		  </li>
-		  <li class="nav-item">
-			<a class="nav-link" href="#bottom">Go to bottom</a>
 		  </li>
 		</ul>
 	  </div>

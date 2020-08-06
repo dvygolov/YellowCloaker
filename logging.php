@@ -32,6 +32,22 @@ function write_leads_to_log($subid,$name,$phone,$status) {
 	fclose($save_order);
 }
 
+function write_mail_to_log($subid,$name,$phone,$email){
+	$file = "logs/".date("d.m.y").".emails.csv";
+	if(!file_exists($file)) //если новый день а файла лога ещё нет, то пишем туда заголовки столбцов
+	{
+		$save_order = fopen($file, 'a+');
+		fwrite($save_order, "SubId,Name,Phone,Email\n");
+		fflush($save_order);
+		fclose($save_order);
+	}
+
+	$save_order = fopen($file, 'a+');
+	fwrite($save_order, "$subid, $name, $phone, $email\n");
+	fflush($save_order);
+	fclose($save_order);
+}
+
 function write_lpctr_to_log($subid,$preland){
 	$file = "logs/".date("d.m.y").".lpctr.csv";
 	if(!file_exists($file)) //если новый день а файла лога ещё нет, то пишем туда заголовки столбцов

@@ -8,6 +8,11 @@
 			
 	$is_duplicate = lead_is_duplicate($subid,$phone);
 
+	$cookietime=time()+60*60*24*5; //время, на которое ставятся куки, по умолчанию - 5 дней
+	//устанавливаем пользователю в куки его имя и телефон, чтобы показать их на стр Спасибо
+	setcookie('name',$name,$cookietime,'/');
+	setcookie('phone',$phone,$cookietime,'/');
+
 	//шлём в ПП только если это не дубль	
 	if (!$is_duplicate){ 
 		include_once $_COOKIE['landing'].'/'.$black_land_conversion_script;
