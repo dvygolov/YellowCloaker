@@ -101,9 +101,10 @@
     <meta charset="UTF-8"> 
     <title>Binomo Cloaker Log</title>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link rel="shortcut icon" type="image/png" href="favicon.png"/>
     </head>
     <body>
-    <h1>Binomo Cloaker Log</h1> 
+    <img src="binomocloaker.png" width="300px"/>
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
 	  <div class="collapse navbar-collapse" id="navbarNav">
 		<ul class="navbar-nav">
