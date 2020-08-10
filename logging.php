@@ -65,15 +65,20 @@ function write_lpctr_to_log($subid,$preland){
 }
 
 //проверяем, есть ли в файле лидов subid текущего пользователя
-//если есть, значит ЭТО ДУБЛЬ! И нам не нужно слать его в ПП и не нужно показывать пиксель ФБ!!
+//если есть, и также есть такой же номер - значит ЭТО ДУБЛЬ! 
+//И нам не нужно слать его в ПП и не нужно показывать пиксель ФБ!!
 function lead_is_duplicate($subid,$phone){
 	$file = "logs/".date("d.m.y").".leads.csv";
 	if(!file_exists($file)) return false;
-	if($subid!='')
-		return strpos(file_get_contents($file),$subid);
-	else 
+	if($subid!=''){
+		$exist = strpos(file_get_contents($file),$subid);
+		if ($exists>=0) {return strpos(file_get_contents($file),$phone);}
+		else {return false;}
+	}
+	else {
 		//если куки c subid у нас почему-то нет, то проверяем по номеру телефона
 		return strpos(file_get_contents($file),$phone);
+	}
 }
 
 //общая функция записи блэк и вайт посетителей в csv файл

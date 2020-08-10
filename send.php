@@ -19,11 +19,15 @@
 		header_remove("Location"); //удаляем редирект из файла заказа ПП
 		//пишем лида в базу и редиректим на Спасибо
 		write_leads_to_log($subid,$name,$phone,'');
-		header("Location: thankyou.php?".http_build_query($_GET));
+		Redirect("thankyou.php?".http_build_query($_GET));
 	}
 	else
 	{
-		header_remove("Location"); //удаляем редирект из файла заказа ПП
 		header("Location: thankyou.php");
+	}
+	
+	function Redirect($url){
+		echo "<script type='text/javascript'> window.location='$url';</script>";
+		return;
 	}
 ?>
