@@ -14,7 +14,7 @@ if($_GET["password"] !== $log_password && $log_password !== "") exit();
 //Configuration
 //
 $startdate=isset($_GET['startdate'])?DateTime::createFromFormat('d.m.y',$_GET['startdate']):new DateTime();
-$enddate=isset($_GET['enddate'])?new DateTime($_GET['enddate']):new DateTime();
+$enddate=isset($_GET['enddate'])?DateTime::createFromFormat('d.m.y',$_GET['enddate']):new DateTime();
 
 $delimiter = ","; //CSV delimiter character: , ; /t
 $enclosure = '"'; //CSV enclosure character: " ' 
@@ -40,17 +40,11 @@ $tableOutput.="<TH scope='col'>App% (w/o trash)</TH>";
 $tableOutput.="<TH scope='col'>App% (total)</TH>"; 
 $tableOutput.="</TR></thead><tbody>";
 
-//Open the lpctr table tag
-$lpctrTableOutput="<TABLE class='table w-auto table-striped'>";
-$lpctrTableOutput.="<thead class='thead-dark'>";
-$lpctrTableOutput.="<TR>";
-$lpctrTableOutput.="<TH scope='col'>Prelanding</TH>"; 
-$lpctrTableOutput.="<TH scope='col'>LP Clicks</TH>"; 
-$lpctrTableOutput.="<TH scope='col'>LP CTR</TH>"; 
-$lpctrTableOutput.="</TR></thead><tbody>";
-
 $lpctr_array = array();
 $lpdest_array=array();
+$landclicks_array=array();
+$landconv_array=array();
+$creatives_array=array();
  
 $total_clicks=0;
 $total_uniques=0;
@@ -78,25 +72,15 @@ while ($date<=$enddate){
 	$leads_count = ($leads_file===array())?0:count($leads_file)-1;
 	$total_leads+=$leads_count;
 	
-	//count lp ctrs
-	foreach ($ctr_file as $ctr_line){
-		$ctr_line_fields = array_map('trim', str_getcsv($ctr_line, $delimiter, $enclosure));
-		$lp_name=$ctr_line_fields[count($ctr_line_fields)-1];
-		if ($lp_name=='Preland') continue;
-		if ($lp_name=='') $lp_name='Direct';
-		if (array_key_exists($lp_name,$lpctr_array)){ 
-			$lpctr_array[$lp_name]++;
-		}
-		else{
-			$lpctr_array[$lp_name]=1;
-		}
-	}
-
-	//count unique clicks
+	
+	//count unique clicks 
+	$sub_land_dest = array();
 	$unique_clicks = array();
 	foreach($traf_file as $traf_line){
 		$traf_line_fields = array_map('trim', str_getcsv($traf_line, $delimiter, $enclosure));
+		$land_name=$traf_line_fields[count($traf_line_fields)-1];
 		$lp_name=$traf_line_fields[count($traf_line_fields)-2];
+		$sub_land_dest[$traf_line_fields[0]]= $land_name;
 		if (!in_array($traf_line_fields[0],$unique_clicks)){ //subid в словаре? значит не уник
 			array_push($unique_clicks,$traf_line_fields[0]);
 		}
@@ -108,6 +92,26 @@ while ($date<=$enddate){
 		}
 	}
 
+	//count lp ctrs
+	foreach ($ctr_file as $ctr_line){
+		$ctr_line_fields = array_map('trim', str_getcsv($ctr_line, $delimiter, $enclosure));
+		$lp_name=$ctr_line_fields[count($ctr_line_fields)-1];
+		if ($lp_name=='Preland'||$lp_name=='') continue;
+		if (array_key_exists($lp_name,$lpctr_array)){ 
+			$lpctr_array[$lp_name]++;
+		}
+		else{
+			$lpctr_array[$lp_name]=1;
+		}
+		//count landing clicks
+		$subid_lp = $ctr_line_fields[0];
+		$dest_land = $sub_land_dest[$subid_lp];
+		if (array_key_exists($dest_land,$landclicks_array))
+			$landclicks_array[$dest_land]++;
+		else
+			$landclicks_array[$dest_land]=1;
+	}
+	
 	//count leads
 	$purchase_count=0;
 	$hold_count=0;
@@ -134,8 +138,15 @@ while ($date<=$enddate){
 				$trash_count++;
 				break;
 		}
+		$subid_lead = $lead_line_fields[0];
+		$conv_land= $sub_land_dest[$subid_lead];
+		if (array_key_exists($conv_land,$landconv_array))
+			$landconv_array[$conv_land]++;
+		else
+			$landconv_array[$conv_land]=1;
 	}
-
+	
+	//Add all data to main table
 	$tableOutput.="<TR>";
 	$tableOutput.="<TD scope='col'>".$date->format('d.m.y')."</TD>"; 
 	$clicks = count($traf_file)-1;
@@ -187,6 +198,14 @@ $tableOutput.="</TR>";
 $tableOutput.="</tbody></TABLE>";
 
 
+//Open the lpctr table tag
+$lpctrTableOutput="<TABLE class='table w-auto table-striped'>";
+$lpctrTableOutput.="<thead class='thead-dark'>";
+$lpctrTableOutput.="<TR>";
+$lpctrTableOutput.="<TH scope='col'>Prelanding</TH>"; 
+$lpctrTableOutput.="<TH scope='col'>LP Clicks</TH>"; 
+$lpctrTableOutput.="<TH scope='col'>LP CTR</TH>"; 
+$lpctrTableOutput.="</TR></thead><tbody>";
 
 //Add all data to LP CTR Table
 foreach($lpctr_array as $lp_name => $lp_count){
@@ -199,6 +218,30 @@ foreach($lpctr_array as $lp_name => $lp_count){
 }
 
 $lpctrTableOutput.="</tbody></TABLE>";
+
+//Open the landcr table tag
+$landcrTableOutput="<TABLE class='table w-auto table-striped'>";
+$landcrTableOutput.="<thead class='thead-dark'>";
+$landcrTableOutput.="<TR>";
+$landcrTableOutput.="<TH scope='col'>Landing</TH>"; 
+$landcrTableOutput.="<TH scope='col'>Clicks</TH>"; 
+$landcrTableOutput.="<TH scope='col'>Conversions</TH>"; 
+$landcrTableOutput.="<TH scope='col'>CR%</TH>"; 
+$landcrTableOutput.="</TR></thead><tbody>";
+
+//Add all data to landcr table
+foreach($landclicks_array as $land_name => $land_clicks){
+	$landcrTableOutput.="<TR>";
+	$landcrTableOutput.="<TD scope='col'>".$land_name."</TD>"; 
+	$landcrTableOutput.="<TD scope='col'>".$land_clicks."</TD>"; 
+	$cur_conv=$landconv_array[$land_name];
+	$landcrTableOutput.="<TD scope='col'>".$cur_conv."</TD>"; 
+	$cur_cr = $cur_conv*100/$land_clicks;
+	$landcrTableOutput.="<TD scope='col'>".number_format($cur_cr, 2, '.', '')."%</TD>"; 
+	$landcrTableOutput.="</TR>";
+}
+
+$landcrTableOutput.="</tbody></TABLE>";
 ?>
     <!DOCTYPE html>
     <html>
@@ -226,6 +269,9 @@ $lpctrTableOutput.="</tbody></TABLE>";
 		  <li class="nav-item">
 			<a class="nav-link" href="index.php?filter=blocked&password=<?=$_GET['password']?>">Blocked</a>
 		  </li>
+  		  <li class="nav-item">
+			<a class="nav-link" href="index.php?filter=emails&password=<?=$_GET['password']?>">Emails</a>
+		  </li>
 		  <li class="divider"></li>
 		  <li class="nav-item">
 			<a class="nav-link" href="" onClick="location.reload()">Refresh</a>
@@ -250,6 +296,7 @@ $lpctrTableOutput.="</tbody></TABLE>";
     <a name="top"></a>
     <?=$tableOutput ?>
 	<?=$lpctrTableOutput ?>
+	<?=$landcrTableOutput ?>
     <a name="bottom"></a>
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
