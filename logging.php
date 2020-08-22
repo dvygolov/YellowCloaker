@@ -87,9 +87,8 @@ function write_visitors_to_log($subid,$filename,$data,$reason,$check_result,$pre
 	$country = $data['country'];
 	$time = date('Y-m-d H:i:s');
 	$os = $data['os'];
-	$isp = $data['isp'];
-
-	$user_agent = str_replace(',',' ',$data['ua']); //заменяем все зпт на пробелы, чтобы в csv-файле это было одним полем
+	$isp = str_replace(',',' ',$data['isp']);//заменяем все зпт на пробелы, чтобы в csv-файле это было одним полем
+	$user_agent = str_replace(',',' ',$data['ua']); 
 	$reason_str = isset($reason)? implode(";", $reason):'';
 
 	$qsarray=explode('&',$_SERVER['QUERY_STRING']);
