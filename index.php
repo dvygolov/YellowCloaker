@@ -18,6 +18,7 @@ $cloacker->ip_black = $ip_black;
 $cloacker->tokens_black = $tokens_black;
 $cloacker->ua_black = $ua_black;
 $cloacker->block_without_referer = $block_without_referer;
+$cloacker->isp_black = $isp_black;
 
 //если включен full_cloak_on, то шлём всех на white page, полностью набрасываем плащ)
 if ($full_cloak_on) {

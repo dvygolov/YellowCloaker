@@ -29,23 +29,19 @@ foreach ($leadfiles as $lf){
 		$line = fgets($reading);
 		if (stristr($line,$subid)) {
 			$arr = explode(',',$line);
-			//!!!далее идут настройки статусов для ПП CTR, если вам нужна другая ПП, 
+			//!!!далее идут настройки статусов для ПП Adcombo, если вам нужна другая ПП, 
 			//смотрите, какие она шлёт статусы в постбэке!!!
 			switch($status){
-				case '0': //это два статуса, когда лид только попал в ПП, а у нас он уже записан, ничего делать не нужно
-				case '1':
+				case 'Lead': //это два статуса, когда лид только попал в ПП, а у нас он уже записан, ничего делать не нужно
+				case 'Hold':
 					break;
-				case '3':
+				case 'Purchase':
 					$arr[5]='Purchase';
 					break;
-				case '4':
+				case 'Reject':
 					$arr[5]='Reject';					
 					break;
-				case '13':						
-					$arr[5]='Duplicate';			
-				case '77':												
-				case '88':
-				case '99':
+				case 'Trash':												
 					$arr[5]='Trash';			
 			}
 			$line = implode(',',$arr);

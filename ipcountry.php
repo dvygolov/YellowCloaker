@@ -39,4 +39,11 @@ function getcountry($ip){
     $record = $reader->country($ip);
 	return $record->country->isoCode;
 }
+
+// AlexSloth ISP
+function getisp($ip){
+	$reader = new Reader(__DIR__.'/bases/GeoLite2-ASN.mmdb');
+    $record = $reader->asn($ip);
+	return $record->autonomousSystemOrganization;
+}
 ?>

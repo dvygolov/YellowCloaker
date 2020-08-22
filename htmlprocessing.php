@@ -31,8 +31,6 @@ function load_prelanding($url,$land_number) {
 	if ($fb_use_pageview)
 		$html = insert_fb_pixel_script($html,'PageView');
 
-	$html = insert_additional_scripts($html);
-	
 	$html = replace_tel_type($html);
 	
 	//добавляем во все формы сабы
@@ -49,10 +47,12 @@ function load_prelanding($url,$land_number) {
 		$replacement=$replacement.'" target="_blank"';
 		$url = replace_all_macros($replace_prelanding_address); //заменяем макросы
 		$url = add_subs_to_link($url); //добавляем сабы
-		$html = insert_script_with_replace($html,'replaceprelanding','</body>','{REDIRECT}',$url);
+		$html = insert_file_content_with_replace($html,'replaceprelanding.js','</body>','{REDIRECT}',$url);
 	}
 	$html = preg_replace('/(<a[^>]+href=")([^"]*)/', $replacement, $html);
 
+	$html = insert_additional_scripts($html);
+	
 	return $html;
 }
 
@@ -107,18 +107,22 @@ function load_landing($url) {
 
 //добавляем доп.скрипты
 function insert_additional_scripts($html){
-	global $disable_text_copy, $disable_back_button, $replace_back_button, $replace_back_address;
+	global $disable_text_copy, $disable_back_button, $replace_back_button, $replace_back_address, $add_tos;
 
 	if($disable_text_copy)
-		$html = insert_script($html,'disablecopy','</body>');
+		$html = insert_file_content($html,'disablecopy.js','</body>');
 	
 	if($disable_back_button)
-		$html = insert_script($html,'disableback','</body>');
+		$html = insert_file_content($html,'disableback.js','</body>');
 	
 	if ($replace_back_button){
 		$url= replace_all_macros($replace_back_address); //заменяем макросы
 		$url = add_subs_to_link($url); //добавляем сабы
-		$html = insert_script_with_replace($html,'replaceback','</body>','{RA}',$url);
+		$html = insert_file_content_with_replace($html,'replaceback.js','</body>','{RA}',$url);
+	}
+	
+	if ($add_tos){
+		$html = insert_file_content($html,'tos.html','</body>');
 	}
 	return $html;
 }
@@ -319,8 +323,8 @@ function replace_all_macros($url){
 	return $tmp_url;
 }
 
-function insert_script_with_replace($html,$scriptname,$needle,$search,$replacement) {
-	$code_file_name='scripts/'.$scriptname.'.js';
+function insert_file_content_with_replace($html,$scriptname,$needle,$search,$replacement) {
+	$code_file_name='scripts/'.$scriptname;
 	if (!file_exists($code_file_name)) {
 		echo 'File Not Found '.$code_file_name;
 		return $html;
@@ -330,8 +334,8 @@ function insert_script_with_replace($html,$scriptname,$needle,$search,$replaceme
 	return insert_before_tag($html,$needle,$script_code);
 }
 
-function insert_script($html,$scriptname,$needle) {
-	$code_file_name='scripts/'.$scriptname.'.js';
+function insert_file_content($html,$scriptname,$needle) {
+	$code_file_name='scripts/'.$scriptname;
 	if (!file_exists($code_file_name)) {
 		echo 'File Not Found '.$code_file_name;
 		return $html;

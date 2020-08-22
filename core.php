@@ -15,6 +15,7 @@ class Cloacker{
 	var $ua_black;
 	var $ip_black;
 	var $block_without_referer;
+	var $isp_black;
 
 	function __construct(){
 		$this->detect();
@@ -82,6 +83,21 @@ class Cloacker{
 				}
 			}
 		}
+		
+		if(!empty($this->isp_black))
+		{
+			$isp=$this->detect['isp'];
+			$isp_black_list=explode(',',$this->isp_black);
+			
+			foreach($isp_black_list as $isp_black_single){
+				if(!empty(stristr($isp,$isp_black_single))){
+					$result=1;
+					$this->result[]='isp';
+					break;
+				}
+			}
+		}
+		
 		return $result;
 	}
 
@@ -100,6 +116,7 @@ class Cloacker{
 		$a['ip'] = getip();
 		$a['ua']=$_SERVER['HTTP_USER_AGENT'];
 		$a['country'] = getcountry($a['ip']);
+		$a['isp'] = getisp($a['ip']);
 		$this->detect=$a;
 	}
 }
