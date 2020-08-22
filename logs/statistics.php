@@ -78,6 +78,7 @@ while ($date<=$enddate){
 	$unique_clicks = array();
 	foreach($traf_file as $traf_line){
 		$traf_line_fields = array_map('trim', str_getcsv($traf_line, $delimiter, $enclosure));
+		if ($traf_line_fields[0]=='SubId') continue;
 		$land_name=$traf_line_fields[count($traf_line_fields)-1];
 		$lp_name=$traf_line_fields[count($traf_line_fields)-2];
 		$sub_land_dest[$traf_line_fields[0]]= $land_name;
@@ -168,7 +169,7 @@ while ($date<=$enddate){
 	$clicks = count($traf_file)-1;
 	$total_clicks+=$clicks;
 	$tableOutput.="<TD scope='col'>".$clicks."</TD>"; 
-	$unique_clicks_count = count($unique_clicks)-1;
+	$unique_clicks_count = count($unique_clicks);
 	$total_uniques+=$unique_clicks_count;
 	$tableOutput.="<TD scope='col'>".$unique_clicks_count."</TD>"; 
 	$tableOutput.="<TD scope='col'>".$leads_count."</TD>"; 
@@ -247,7 +248,7 @@ foreach($landclicks_array as $land_name => $land_clicks){
 	$landcrTableOutput.="<TR>";
 	$landcrTableOutput.="<TD scope='col'>".$land_name."</TD>"; 
 	$landcrTableOutput.="<TD scope='col'>".$land_clicks."</TD>"; 
-	$cur_conv=$landconv_array[$land_name];
+	$cur_conv=array_key_exists($land_name,$landconv_array)?$landconv_array[$land_name]:0;
 	$landcrTableOutput.="<TD scope='col'>".$cur_conv."</TD>"; 
 	$cur_cr = $cur_conv*100/$land_clicks;
 	$landcrTableOutput.="<TD scope='col'>".number_format($cur_cr, 2, '.', '')."%</TD>"; 
