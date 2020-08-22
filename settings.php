@@ -102,6 +102,14 @@ $sub_ids = array(
 	"cn" => "utm_campaign",
 	"an" => "utm_content"
 );
+
+//-----Настройка постбэка------
+//Здесь необходимо прописать статусы лидов, в том виде, как их вам отправляет в постбэке ПП
+$lead_status_name = 'Lead';
+$purchase_status_name = 'Purchase';
+$reject_status_name = 'Reject';
+$trash_status_name = 'Trash';
+
 //-----Настройка страницы спасибо-----
 $thankyou_page_language = 'SK'; //Язык, на котором показывать страницу Спасибо
 ?>

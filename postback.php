@@ -12,10 +12,6 @@ if (!isset($_GET['status'])) die();
 $subid = $_GET['subid'];
 $status = $_GET['status'];
 
-if (){
-	write_leads_to_log($subid,$name,$phone,$status);
-}
-
 $leadfiles = glob('logs/*leads.csv'); //бежим по всем файлам лидов в папке
 
 foreach ($leadfiles as $lf){
@@ -29,19 +25,16 @@ foreach ($leadfiles as $lf){
 		$line = fgets($reading);
 		if (stristr($line,$subid)) {
 			$arr = explode(',',$line);
-			//!!!далее идут настройки статусов для ПП Adcombo, если вам нужна другая ПП, 
-			//смотрите, какие она шлёт статусы в постбэке!!!
 			switch($status){
-				case 'Lead': //это два статуса, когда лид только попал в ПП, а у нас он уже записан, ничего делать не нужно
-				case 'Hold':
+				case $lead_status_name: 
 					break;
-				case 'Purchase':
+				case $purchase_status_name:
 					$arr[5]='Purchase';
 					break;
-				case 'Reject':
+				case $reject_status_name:
 					$arr[5]='Reject';					
 					break;
-				case 'Trash':												
+				case $trash_status_name:												
 					$arr[5]='Trash';			
 			}
 			$line = implode(',',$arr);
