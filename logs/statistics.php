@@ -90,6 +90,22 @@ while ($date<=$enddate){
 		else{
 			$lpdest_array[$lp_name]=1;
 		}
+		
+		$cur_creo='Unknown';
+		$cur_query = explode('&',$traf_line_fields[count($traf_line_fields)-3]);
+		foreach($cur_query as $query_item){
+			if (substr($query_item,0,strlen($creative_sub_name))===$creative_sub_name){
+				$qsplit = explode('=',$query_item);
+				$cur_creo = $qsplit[1];
+				break;
+			}
+		}
+		if (array_key_exists($cur_creo,$creatives_array)){ 
+			$creatives_array[$cur_creo]++;
+		}
+		else{
+			$creatives_array[$cur_creo]=1;
+		}
 	}
 
 	//count lp ctrs
@@ -206,7 +222,6 @@ $lpctrTableOutput.="<TH scope='col'>Prelanding</TH>";
 $lpctrTableOutput.="<TH scope='col'>LP Clicks</TH>"; 
 $lpctrTableOutput.="<TH scope='col'>LP CTR</TH>"; 
 $lpctrTableOutput.="</TR></thead><tbody>";
-
 //Add all data to LP CTR Table
 foreach($lpctr_array as $lp_name => $lp_count){
 	$lpctrTableOutput.="<TR>";
@@ -216,7 +231,6 @@ foreach($lpctr_array as $lp_name => $lp_count){
 	$lpctrTableOutput.="<TD scope='col'>".number_format($cur_ctr, 2, '.', '')."%</TD>"; 
 	$lpctrTableOutput.="</TR>";
 }
-
 $lpctrTableOutput.="</tbody></TABLE>";
 
 //Open the landcr table tag
@@ -228,7 +242,6 @@ $landcrTableOutput.="<TH scope='col'>Clicks</TH>";
 $landcrTableOutput.="<TH scope='col'>Conversions</TH>"; 
 $landcrTableOutput.="<TH scope='col'>CR%</TH>"; 
 $landcrTableOutput.="</TR></thead><tbody>";
-
 //Add all data to landcr table
 foreach($landclicks_array as $land_name => $land_clicks){
 	$landcrTableOutput.="<TR>";
@@ -240,8 +253,23 @@ foreach($landclicks_array as $land_name => $land_clicks){
 	$landcrTableOutput.="<TD scope='col'>".number_format($cur_cr, 2, '.', '')."%</TD>"; 
 	$landcrTableOutput.="</TR>";
 }
-
 $landcrTableOutput.="</tbody></TABLE>";
+
+//Open the creatives table tag
+$creoTableOutput="<TABLE class='table w-auto table-striped'>";
+$creoTableOutput.="<thead class='thead-dark'>";
+$creoTableOutput.="<TR>";
+$creoTableOutput.="<TH scope='col'>Creative</TH>"; 
+$creoTableOutput.="<TH scope='col'>Clicks</TH>"; 
+$creoTableOutput.="</TR></thead><tbody>";
+//Add all data to creatives table
+foreach($creatives_array as $creo_name => $creo_clicks){
+	$creoTableOutput.="<TR>";
+	$creoTableOutput.="<TD scope='col'>".$creo_name."</TD>"; 
+	$creoTableOutput.="<TD scope='col'>".$creo_clicks."</TD>"; 
+	$creoTableOutput.="</TR>";
+}
+$creoTableOutput.="</tbody></TABLE>";
 ?>
     <!DOCTYPE html>
     <html>
@@ -297,6 +325,7 @@ $landcrTableOutput.="</tbody></TABLE>";
     <?=$tableOutput ?>
 	<?=$lpctrTableOutput ?>
 	<?=$landcrTableOutput ?>
+	<?=$creoTableOutput ?>
     <a name="bottom"></a>
 	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
