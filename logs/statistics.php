@@ -67,9 +67,12 @@ while ($date<=$enddate){
 	 
 	// Reads lines of all files to array
 	$traf_file = file_exists($traf_fn)?file($traf_fn, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES):array();
+	array_shift($traf_file);
 	$ctr_file = file_exists($ctr_fn)?file($ctr_fn, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES):array();
+	array_shift($ctr_file);
 	$leads_file = file_exists($leads_fn)?file($leads_fn, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES):array();
-	$leads_count = ($leads_file===array())?0:count($leads_file)-1;
+	array_shift($leads_file);
+	$leads_count = ($leads_file===array())?0:count($leads_file);
 	$total_leads+=$leads_count;
 	
 	
@@ -78,7 +81,6 @@ while ($date<=$enddate){
 	$unique_clicks = array();
 	foreach($traf_file as $traf_line){
 		$traf_line_fields = array_map('trim', str_getcsv($traf_line, $delimiter, $enclosure));
-		if ($traf_line_fields[0]=='SubId') continue;
 		$land_name=$traf_line_fields[count($traf_line_fields)-1];
 		$lp_name=$traf_line_fields[count($traf_line_fields)-2];
 		$sub_land_dest[$traf_line_fields[0]]= $land_name;
@@ -113,7 +115,7 @@ while ($date<=$enddate){
 	foreach ($ctr_file as $ctr_line){
 		$ctr_line_fields = array_map('trim', str_getcsv($ctr_line, $delimiter, $enclosure));
 		$lp_name=$ctr_line_fields[count($ctr_line_fields)-1];
-		if ($lp_name=='Preland'||$lp_name=='') continue;
+		if ($lp_name=='') continue;
 		if (array_key_exists($lp_name,$lpctr_array)){ 
 			$lpctr_array[$lp_name]++;
 		}
@@ -166,7 +168,7 @@ while ($date<=$enddate){
 	//Add all data to main table
 	$tableOutput.="<TR>";
 	$tableOutput.="<TD scope='col'>".$date->format('d.m.y')."</TD>"; 
-	$clicks = count($traf_file)-1;
+	$clicks = count($traf_file)==0?0:count($traf_file);
 	$total_clicks+=$clicks;
 	$tableOutput.="<TD scope='col'>".$clicks."</TD>"; 
 	$unique_clicks_count = count($unique_clicks);
@@ -177,10 +179,10 @@ while ($date<=$enddate){
 	$tableOutput.="<TD scope='col'>".$hold_count."</TD>"; 
 	$tableOutput.="<TD scope='col'>".$reject_count."</TD>"; 
 	$tableOutput.="<TD scope='col'>".$trash_count."</TD>"; 	
-	$cr_all = $leads_count/$unique_clicks_count*100;
+	$cr_all = $unique_clicks_count==0?0:$leads_count/$unique_clicks_count*100;
 	array_push($total_cr_all,$cr_all);
 	$tableOutput.="<TD scope='col'>".number_format($cr_all, 2, '.', '')."</TD>"; 
-	$cr_sales = $purchase_count/$unique_clicks_count*100;
+	$cr_sales = $unique_clicks_count==0?0:$purchase_count/$unique_clicks_count*100;
 	array_push($total_cr_sales,$cr_sales);
 	$tableOutput.="<TD scope='col'>".number_format($cr_sales, 2, '.', '')."</TD>"; 
 	$approve_wo_trash = ($leads_count-$trash_count==0)?0:$purchase_count*100/($leads_count-$trash_count);

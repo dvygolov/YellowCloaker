@@ -60,6 +60,7 @@
      
     				//Get each line of the array and print the table files
     				$countLines = 0;
+					$fileLines = array_reverse($fileLines);
     				foreach ($fileLines as $line) {
     					if(trim($line) !== ''){ //Remove blank lines
     							$countLines++;
