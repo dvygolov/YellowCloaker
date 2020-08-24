@@ -15,7 +15,8 @@ class Cloacker{
 	var $ua_black;
 	var $ip_black;
 	var $block_without_referer;
-	var $isp_black;
+    var $isp_black;
+    var $result;
 
 	function __construct(){
 		$this->detect();
@@ -28,7 +29,7 @@ class Cloacker{
 		$country_white_checker = stristr($this->country_white, $this->detect['country']);
 		$current_ip=$this->detect['ip'];
 		
-		$cidr = file("bases/bots.txt", FILE_IGNORE_NEW_LINES);
+		$cidr = file(__DIR__."/bases/bots.txt", FILE_IGNORE_NEW_LINES);
 		$checked=IpUtils::checkIp($current_ip, $cidr);
 		if ($checked)
 		{
@@ -114,7 +115,7 @@ class Cloacker{
 		$os = new Os();
 	    $a['os']=$os->getName();
 		$a['ip'] = getip();
-		$a['ua']=$_SERVER['HTTP_USER_AGENT'];
+		$a['ua']=isset($_SERVER['HTTP_USER_AGENT'])?$_SERVER['HTTP_USER_AGENT']:'Not Found!';
 		$a['country'] = getcountry($a['ip']);
 		$a['isp'] = getisp($a['ip']);
 		$this->detect=$a;

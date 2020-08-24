@@ -264,7 +264,7 @@ function insert_fb_pixel_script($html,$event){
 	//если пиксель не лежит в querystring, то также ищем его в куки
 	$fb_pixel = isset($_GET[$fbpixel_subname])?$_GET[$fbpixel_subname]:(isset($_COOKIE[$fbpixel_subname])?$_COOKIE[$fbpixel_subname]:'');
 	if (empty($fb_pixel)) return $html;
-	$file_name='scripts/fbpxcode.js';
+	$file_name=__DIR__.'/scripts/fbpxcode.js';
 	if (!file_exists($file_name)) return $html;
 	$px_code = file_get_contents($file_name);	
 	if (empty($px_code)) return $html;
@@ -283,7 +283,7 @@ function insert_gtm_script($html) {
 	global $gtm_id;
 	if ($gtm_id=='' || empty($gtm_id)) return $html;
 
-	$code_file_name='scripts/gtmcode.js';
+	$code_file_name=__DIR__.'/scripts/gtmcode.js';
 	if (!file_exists($code_file_name)) return $html;
 	$gtm_code = file_get_contents($code_file_name);
 	if (empty($gtm_code))	return $html;
@@ -299,7 +299,7 @@ function insert_yandex_script($html) {
 	global $ya_id;
 	if ($ya_id=='' || empty($ya_id)) return $html;
 	
-	$code_file_name='scripts/yacode.js';
+	$code_file_name=__DIR__.'/scripts/yacode.js';
 	if (!file_exists($code_file_name)) return $html;
 	$ya_code = file_get_contents($code_file_name);
 	if (empty($ya_code))	return $html;
@@ -324,7 +324,7 @@ function replace_all_macros($url){
 }
 
 function insert_file_content_with_replace($html,$scriptname,$needle,$search,$replacement) {
-	$code_file_name='scripts/'.$scriptname;
+	$code_file_name=__DIR__.'/scripts/'.$scriptname;
 	if (!file_exists($code_file_name)) {
 		echo 'File Not Found '.$code_file_name;
 		return $html;
@@ -335,7 +335,7 @@ function insert_file_content_with_replace($html,$scriptname,$needle,$search,$rep
 }
 
 function insert_file_content($html,$scriptname,$needle) {
-	$code_file_name='scripts/'.$scriptname;
+	$code_file_name=__DIR__.'/scripts/'.$scriptname;
 	if (!file_exists($code_file_name)) {
 		echo 'File Not Found '.$code_file_name;
 		return $html;
