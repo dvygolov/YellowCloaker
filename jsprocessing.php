@@ -35,7 +35,7 @@ if ($check_result == 0 || $disable_tds) //Обычный юзверь или о�
 		$url = "http://";   
 	$url.= $_SERVER['HTTP_HOST'];  
 
-	echo "window.location='{$url}';";
+	echo "window.location='{$url}'+window.location.search;";
 } 
 else
 	echo 'console.log("OK");';
