@@ -1,5 +1,7 @@
 <?php
-// Разместить в корне сайта
+//Этот файл необходимо подключить к любому конструктору, используя
+//следующий код: <script src="https://ваш.домен/js/indexr.php"></script>
+//в случае прохождения пользователем проверки, будет совершен редирект на https://ваш.домен
 
 // Включаем доступ к скрипту сторонним сайтам
 header('Access-Control-Allow-Origin: *');
@@ -11,8 +13,8 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 //Конец включения отладочной информации
 
-require 'core.php';
-include 'settings.php';
+require '../core.php';
+include '../settings.php';
 
 //передаём все параметры в кло
 $cloacker = new Cloacker();
