@@ -1,4 +1,4 @@
-# Binomo Cloaker
+# Binomo Cloaker Yellow Web Edition
 Модифицированный скрипт клоакинга, изначально найденный на просторах [Black Hat World](http://blackhatworld.com).
 
 [Стрим на котором подробно разобрана кло со всеми функциями](https://www.youtube.com/watch?v=XMua15r2dwg&feature=youtu.be)
