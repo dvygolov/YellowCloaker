@@ -3,16 +3,21 @@ var domain = '{DOMAIN}';
 var xhr = new XMLHttpRequest();
 xhr.withCredentials = true;
 var url = 'https://'+domain+'/js/jsprocessing.php';
-var refandurl="referrer=" + escape(document.referrer) + "&uri=" + escape(window.location.href);
-if (window.location.search!==''){
-    url+=window.location.search;
-    url+="&"+refandurl;
+url += "?uri=" + escape(window.location.href);
+var referrer = escape(document.referrer);
+if (referrer!==''){
+	url+="&referrer="+referrer;
 }
-else
-    url+="?"+refandurl;
+if (window.location.search!==''){
+    url+="&"+window.location.search.substring(1);
+}
+
 xhr.open("GET", url, true);
 xhr.onload = function() {
-     if(xhr.status !== 200) return;
+     if(xhr.status !== 200) {
+		 console.log("An error occured: "+xhr.status);
+		 return;
+	 }
 
      if (xhr.getResponseHeader("YWBRedirect") === "true") {
             console.log(xhr.getResponseHeader("YWBLocation"));
