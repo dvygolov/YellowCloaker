@@ -1,32 +1,30 @@
 # Binomo Cloaker Yellow Web Edition
 
-**ВНИМАНИЕ: Корректная работа кло гарантируется ТОЛЬКО на доменах с HTTPS!!! Не CloudFlare, нормальный, человеческий HTTPS**
-
-Если вы идёте в логи и видите, что поле SubID на вкладке Leads у вас пусто, то вы ТОЧНО льёте без https.
-
-Модифицированный скрипт клоакинга, изначально найденный на просторах [Black Hat World](http://blackhatworld.com).
-
-[Стрим на котором подробно разобрана кло со всеми функциями](https://www.youtube.com/watch?v=XMua15r2dwg&feature=youtu.be)
-
-[Видео с обзором новых возможностей тут.](https://www.youtube.com/watch?v=x-Z2Y4lEOc0&t=656s)
-
-[Описание настройки первых версий тут!](https://yellowweb.top/%d0%ba%d0%bb%d0%be%d0%b0%d0%ba%d0%b8%d0%bd%d0%b3-%d0%b4%d0%bb%d1%8f-%d0%b1%d0%b5%d0%b4%d0%bd%d0%be%d0%b3%d0%be-%d0%bd%d0%be-%d1%83%d0%bc%d0%bd%d0%be%d0%b3%d0%be-%d0%b0%d1%80%d0%b1%d0%b8%d1%82%d1%80/)
-
+**ВНИМАНИЕ:** Корректная работа кло гарантируется ТОЛЬКО на доменах с HTTPS!!! НЕ CloudFlare, нормальный, человеческий HTTPS!
+## Описание
+Модифицированный скрипт клоакинга для арбитража трафика, изначально найденный на просторах [Black Hat World](http://blackhatworld.com).
+## Справочные материалы
+- [Стрим на котором подробно разобрана кло со всеми функциями](https://www.youtube.com/watch?v=XMua15r2dwg&feature=youtu.be)
+- [Видео с обзором новых возможностей тут.](https://www.youtube.com/watch?v=x-Z2Y4lEOc0&t=656s)
+- [Описание настройки первых версий тут!](https://yellowweb.top/%d0%ba%d0%bb%d0%be%d0%b0%d0%ba%d0%b8%d0%bd%d0%b3-%d0%b4%d0%bb%d1%8f-%d0%b1%d0%b5%d0%b4%d0%bd%d0%be%d0%b3%d0%be-%d0%bd%d0%be-%d1%83%d0%bc%d0%bd%d0%be%d0%b3%d0%be-%d0%b0%d1%80%d0%b1%d0%b8%d1%82%d1%80/)
 
 ВНИМАНИЕ: лог трафика и статистика находится в http://ваш.домен/logs?password=ваш_пароль
-
+# Контакты
 По всем вопросам пишите Issues на GitHub либо в паблик http://vk.com/yellowweb
+# Поддержка
+Если вы хотите, чтобы этот проект и дальше развивался, [**поддержите автора соткой-другой**!](https://capu.st/yellowweb)
 
-[**Поддержать автора проекта**!](https://capu.st/yellowweb)
 
-
-# JS-интеграция кло
-**Способ 1**: в случае подключения этим способом, после проверки пользователя будет совершён редирект на блэк
+# JS-интеграция кло с конструкторами
+## Способ №1
+В случае подключения этим способом, после проверки пользователя будет совершён редирект на блэк
 `<script src = 'https://your.domain/js/indexr.php'></script>`
 
-**Способ 2**: в случае подключения этим способом, после проверки пользователя будет совершена полная подмена страницы на блэк
+## Способ №2
+В случае подключения этим способом, после проверки пользователя будет совершена полная подмена страницы на блэк
 `<script src = 'https://your.domain/js'></script>`
-
+# Description
+Modified cloaking script for affiliate marketing found somewhere on [Black Hat World](http://blackhatworld.com).
 # Installation
 Just download the latest copy of all files from this repository and upload them to your hosting. Your hosting should allow to run PHP-scripts and you SHOULD create a HTTPS-certificate for your domain. **Without HTTPS the cloaker won't work properly!** I can definitely [recommend Beget Hosting for the cloaker](https://yellowweb.top/beget). It's cheap and convenient.
 
@@ -80,8 +78,13 @@ Fill the **$black_preland_folder_name**. For example, for two prelandings:
 Then change **$black_land_use_url** to *true*. Last step: put full redirect url int **$black_land_url**
 ### Redirect
 If you just want to redirect all of your black traffic, then use **$black_action = *'redirect'*** and put the full url of the website, where you want to redirect people into **$black_redirect_url**. Also choose a redirect type. It can be 301,302,303 or 307. Google the difference if you need. Enter the value into **$black_redirect_type**.
-### Setting up the landing's conversion script
-
+### Setting up the local landing's conversion script
+Each landing page has an ability to send leads to your affiliate network. And each affiliate network, that provide you these landings has their own script and mechanics for sending this info.
+By default the cloaker will look for the *order.php* file, that should be located in the landing's folder. But if your script has a different name, then you should rename the value of **$black_land_conversion_script**. If your script is in some folder, the put this folder name before the script name like this:
+`$black_land_conversion_script='folder/conversion.php';`
+After setting this up send a test lead to your aff network. If you can't see the lead in you network's statistics, then open your conversion script and look for these kind of lines:
+`exit();`
+Remove or comment all of them. Then send a test lead again.
 ### Setting up the "Thank you" page
 Thankyou page is a page, where the visitor is redirected after filling the lead form on you black landing OR on your whitepage (if you have one there). Thankyou page's content is loaded from the *thankyou* folder of the cloaker. It has several html-files there, named after the 2-symbol language code. Put the name of your required language into **$thankyou_page_language**. 
 
@@ -93,6 +96,21 @@ If you want to use your own thankyou page - just rename it using the same 2-symb
 The default thankyou page has a built in email collect form. If you dont' need it - just delete it in code. But if you do, you need to create one more page: the one that the visitor will be redirected AFTER submitting the email form. It should be called using the same 2-symbols language code+email in the end. For example: *SKemail.html*.
 
 ## Pixels Setup
+You can add various pixels on your prelandings and landings. Full list includes:
+- Yandex Metrika
+- Google Tag Manager
+- Facebook Pixel
+
+### Yandex Metrika
+To add Yandex Metrika's script to your prelandings and landings just fill your Yandex Metrika id. Put it into **$ya_id**.
+### Google Tag Manager
+To add the Google Tag Manager's script to your prelandings and landings just fill your GTM id. Put it into **$gtm_id**.
+### Facebook Pixel
+Facebook Pixel's id is taken from the link, that you put into your traffic source. It should be in format *px=1234567890*. For example:
+`https://your.domain?px=5499284990`
+If the url has this *px* parameter, then the full javascript code of the Facebook Pixel will be added to the Thankyou page. You can set the Facebook Pixel's event in **$fb_thankyou_event** variable. By default it is *Lead* but you can change it to *Purchase* or anything that you need.
+You can also use the pixel's *PageView* event. To do so, change **$fb_use_pageview** to *true*. If you do so, then the pixel's code will be added to all of your local prelandings and landings and they will send the *PageView* event for each visitor to Facebook.
+Use Facebook Pixel Helper plugin for Google Chrome to check, if the pixel's event fire correctly!
 ## Cloaker's Filters Setup
 The cloaker can filter traffic based on:
 - Built in IP database
@@ -127,15 +145,53 @@ If you have any additional IP addresses that you want to get rid of - put them i
 And last but not least: if you want to block *direct* visitors from seeing your black page, then change **$block_without_referer** to *true*. **Warning**: some OSes and browsers don't pass the referer correctly, so test this first on a small amount of traffic or you'll loose money.
 
 ## Traffic Distibution Setup
+You can temporary disable all of your filters and send all traffic to the whitepage. For example, you can use it for moderation. To do so, change **$full_cloak_on** to *true*.
+You can also disable the filters and always show the blackpage. For example, for testing purposes. To do so change **$disable_tds** to *true*.
+You can save the user's flow (the prelandings and the landgins which will be shown to the visitor) so (s)he will always see the same pages when (s)he visits the site for the second time or even just refreshes the page. To do so, change **$save_user_flow** to *true*.
 ## Statistics and Postback Setup
-## Thankyou Page Setup
-## Additional Scripts Setup
+Your statistics is protected with a password, to set it, please fill the **$log_password** variable.
+If you name your creatives properly and pass their names from the traffic source, you can see the number of clicks for each of the creative in the Statistics. To do so, please put the parameter name in which you pass the creative name into **$creative_sub_name** variable. For example, if you link looks like this:
+`https://your.domain?mycreoname=greatcreo`
+then you need to do it like this:
+`$creative_sub_name = 'mycreoname';`
+### Postback setup
 
+## Thankyou Page Setup
+
+## Additional Scripts Setup
+### Disable Back Button
+### Replace Back Button
+### Disable Text Selection, Copying and Context Menu
+### Replacing Prelanding
+### Phone Masks
 # Check Up
+Add your own country to the cloaker's filters to be able to see the black page. Then go through all of the funnel's components. Send a test lead, verify that it reached your aff network.
 # Running traffic and Statistics
+After you started running traffic you can monitor it and also look at the statistics. To do so just go to a link like this:
+`https://your.domain/logs?password=yourpassword`
+where *yourpassword* is a value of **$log_password** from the settings.php file.
+
+# Javascript Integration
+You can connect this cloaker to any website or website-builder that allows adding Javascript. For example: *GitHub, Wix, Shopify* and so on.
+When you do so you run traffic to the website-builder and after the visitor comes to this site a little script checks, if (s)he is allowed to view the blackpage. If (s)he is, then 2 things can happen:
+- A redirect to your blackpage
+- Website builder's content is replaced by the blackpage
+
+## Redirect
+Just add this script to your website builder:
+`<script src = 'https://your.domain/js/indexr.php'></script>`
+
+## Content replacing
+Just add this script to your website builder:
+`<script src = 'https://your.domain/js'></script>`
+
 # Technical Details
+## Used components
 This cloaker uses:
 - MaxMind Databases for ISP, Country and City detection
 - Bot IP Ranges from various sources collected all over from the Internet in CIDR format
 - Sinergi BrowserDetector for (surprise!) browser detection
 - IP Utils from Symphony for checking if the IP address is in a selected range
+
+## Traffic flow
+After the visitor passes the cloaker's filters he is usually shown the prelanding (if you have one). On the prelanding all links are being replaced by the link to the *landing.php* script. After the visitor clicks on the link, the *landing.php* script gets the landing's content, replaces action of all of the forms to *send.php*, adds all additional scripts and shows the content to the visitor. When the visitor fills the form and sends it *send.php* calls the original send script and then removes all of the redirects from it. After that *send.php* redirects to the *thankyou.php* which shows the thankyou page as described in the sections above.
