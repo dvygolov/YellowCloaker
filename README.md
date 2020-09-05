@@ -155,15 +155,42 @@ If you name your creatives properly and pass their names from the traffic source
 then you need to do it like this:
 `$creative_sub_name = 'mycreoname';`
 ### Postback setup
+The cloaker is able to receive postbacks from your aff network. To do so, first of all you need to pass the unique visitor's id (called subid here) to your network. Subid is created for each visitor and is stored in a cookie. You should ask your aff manager, how should you pass this id (they know it as "clickid") and what sub-parameter should you use. Usually it is done using sub-parameters like *sub1* or *subacc*. Let's stick to *sub1* for this example. So, we should edit the **$sub_ids** array, the part, that has *subid* on the left side to look like this:
+`$sub_ids = array("subid"=> "sub1", .....);`
+This way we tell the cloaker to take the value of *subid* and add it to all forms on the landing in the form of *sub1* (or add it to your redirect link, if you don't have local landing). So if the *subid* was *12uion34i2* we will have:
+- in case of local landing
+`<input type="hidden" name="sub1" value="12uion34i2"`
+- in case of redirect `http://redirect.link?sub1=12uion34i2`
 
-## Thankyou Page Setup
+Now we need to tell the aff network where to send the postback info. The cloaker has *postback.php* file in its root folder. It is the file, which receives and processes postbacks. We need to receive 2 parameters from the aff network: *subid* and lead status. Using this two things we can change the lead status in our logs and show this change in statistics.
+Look in help or ask your manager: what macros does your network use to send *status*, usually it is called the same: *{status}*. So, returning to our example: we sent *subid* in *sub1* so the macros to receive back our *subid* will be *{sub1}*. Let's create a full postback url. You should put this url in the Postback field of your Aff Network. For example:
+`https://your.domain/postback.php?subid={sub1}&status={status}`
+Now, ask your aff manager or look in their help section, what are the statuses, that they send us in postback. Usually they are:
+- Lead
+- Purchase
+- Reject
+- Trash
+
+If your aff network uses other statuses then change these variable values accordingly:
+- **$lead_status_name**
+- **$purchase_status_name**
+- **$reject_status_name**
+- **$trash_status_name**
+
+After setting this up send a test lead and watch on the Leads page how the status changes to *Trash* after a while.
 
 ## Additional Scripts Setup
 ### Disable Back Button
+You can disable the back button in the visitor's browser, so (s)he can't leave your page. To do so change **$$disable_back_button** to *true*.
 ### Replace Back Button
-### Disable Text Selection, Copying and Context Menu
+You can replace the url of the back button in the visitor's browser. So after (s)he clicks on it, (s)he will be redirected to some other place, for example to another offer. To do so change **$replace_back_button** to *true* and put the url that you want into **$replace_back_address**.
+**Warning:** Don't use this script with **Disable Back Button** script!!!
+### Disable Text Selection, Ctrl+S and Context Menu
+You can disable the ability to select text on your prelandings and landings, disable the ability to save the page using Ctrl+S keys and also disable the browser's context menu. To do so just change **$disable_text_copy** to *true*.
 ### Replacing Prelanding
+You can make the cloaker to open the landing page in a separate browser's tab and then redirect the tab with the prelanding to another url. After the user closes your landing page tabe (s)he'll see the tab with this url. Use it to show another offer to the user. To do so change **$replace_prelanding** to *true* and put your url into **$replace_prelanding_address**.
 ### Phone Masks
+You can tell the cloaker to use masks for the phone field on your local landings. When you do so, the visitor won't be able to add any letters into the phone field, only numbers. The mask defines numbers count and delimeters. To enable masks just change **$black_land_use_phone_mask** to *true* and edit your mask in **$black_land_phone_mask**.
 # Check Up
 Add your own country to the cloaker's filters to be able to see the black page. Then go through all of the funnel's components. Send a test lead, verify that it reached your aff network.
 # Running traffic and Statistics
