@@ -69,7 +69,7 @@ class Cloacker{
 			$this->result[]='ip';
 		}
 		
-		if($this->block_without_referer && (int)$this->detect['referer']==0){
+		if($this->block_without_referer===true && (int)$this->detect['referer']==0){
 			$result=1;
 			$this->result[]='referer';
 		}
