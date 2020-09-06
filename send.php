@@ -10,8 +10,8 @@
 
 	$cookietime=time()+60*60*24*5; //время, на которое ставятся куки, по умолчанию - 5 дней
 	//устанавливаем пользователю в куки его имя и телефон, чтобы показать их на стр Спасибо
-	setcookie('name',$name,$cookietime,'/');
-	setcookie('phone',$phone,$cookietime,'/');
+	header("Set-Cookie: name={$name}; Expires={$cookietime}; Path=/; SameSite=None; Secure");
+	header("Set-Cookie: phone={$phone}; Expires={$cookietime}; Path=/; SameSite=None; Secure");
 
 	//шлём в ПП только если это не дубль	
 	if (!$is_duplicate){ 

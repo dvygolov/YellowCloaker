@@ -71,11 +71,11 @@ function black($clkrdetect, $clkrresult, $check_result){
 	$cookietime=time()+60*60*24*5; //время, на которое ставятся куки, по умолчанию - 5 дней
 	//устанавливаем пользователю в куки уникальный subid, либо берём его из куки, если он уже есть
 	$cursubid=isset($_COOKIE['subid'])?$_COOKIE['subid']:uniqid();
-	setcookie('subid',$cursubid,$cookietime,'/; SameSite=None; Secure');
+	ywbsetcookie('subid',$cursubid,$cookietime,'/');
 
 	//устанавливаем fbclid в куки, если получали его из фб
 	if (isset($_GET['fbclid']) && $_GET['fbclid']!='')
-		setcookie('fbclid',$_GET['fbclid'],$cookietime,'/; SameSite=None; Secure');
+		ywbsetcookie('fbclid',$_GET['fbclid'],$cookietime,'/');
 	
 	switch($black_action){
 		case 'site':
@@ -91,7 +91,7 @@ function black($clkrdetect, $clkrresult, $check_result){
 					$prelandings = explode(",", $black_preland_folder_name);
 					$r = rand(0, count($prelandings) - 1);
 					$prelanding = $prelandings[$r];
-					setcookie('prelanding',$prelanding,$cookietime,'/; SameSite=None; Secure');
+					ywbsetcookie('prelanding',$prelanding,$cookietime,'/');
 				}
 				
 				$landing='';
@@ -105,7 +105,7 @@ function black($clkrdetect, $clkrresult, $check_result){
 					//A-B тестирование лендингов
 					$t = rand(0, count($landings) - 1);
 					$landing = $landings[$t];
-					setcookie('landing',$landing,$cookietime,'/; SameSite=None; Secure');
+					ywbsetcookie('landing',$landing,$cookietime,'/');
 				}
 			
 				echo load_prelanding($prelanding,$t);
@@ -116,7 +116,7 @@ function black($clkrdetect, $clkrresult, $check_result){
 				//A-B тестирование лендингов
 				$landings = explode(",", $black_land_folder_name);
 				$r = rand(0, count($landings) - 1);
-				setcookie('landing',$landings[$r],$cookietime,'/; SameSite=None; Secure');
+				ywbsetcookie('landing',$landings[$r],$cookietime,'/');
 				
 				echo load_landing($landings[$r]);
 				write_black_to_log($cursubid,$clkrdetect,$clkrresult,$check_result,'',$landings[$r]);
@@ -134,4 +134,10 @@ function black($clkrdetect, $clkrresult, $check_result){
 	}
     return;
 }
+
+function ywbsetcookie($name,$value,$expires,$path){
+	header("Set-Cookie: {$name}={$value}; Expires={$expires}; Path={$path}; SameSite=None; Secure");
+}
+
+
 ?>
