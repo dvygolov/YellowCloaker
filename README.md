@@ -1,30 +1,97 @@
 # Binomo Cloaker Yellow Web Edition
 
-**ВНИМАНИЕ:** Корректная работа кло гарантируется ТОЛЬКО на доменах с HTTPS!!! НЕ CloudFlare, нормальный, человеческий HTTPS!
-## Описание
+# Поддержка
+Если вы хотите, чтобы этот проект и дальше развивался, [**поддержите автора соткой-другой**!](https://capu.st/yellowweb)
+
+# Описание
 Модифицированный скрипт клоакинга для арбитража трафика, изначально найденный на просторах [Black Hat World](http://blackhatworld.com).
-## Справочные материалы
+# Справочные материалы
 - [Стрим на котором подробно разобрана кло со всеми функциями](https://www.youtube.com/watch?v=XMua15r2dwg&feature=youtu.be)
 - [Видео с обзором новых возможностей тут.](https://www.youtube.com/watch?v=x-Z2Y4lEOc0&t=656s)
 - [Описание настройки первых версий тут!](https://yellowweb.top/%d0%ba%d0%bb%d0%be%d0%b0%d0%ba%d0%b8%d0%bd%d0%b3-%d0%b4%d0%bb%d1%8f-%d0%b1%d0%b5%d0%b4%d0%bd%d0%be%d0%b3%d0%be-%d0%bd%d0%be-%d1%83%d0%bc%d0%bd%d0%be%d0%b3%d0%be-%d0%b0%d1%80%d0%b1%d0%b8%d1%82%d1%80/)
 
-ВНИМАНИЕ: лог трафика и статистика находится в http://ваш.домен/logs?password=ваш_пароль
+# Установка
+Скачайте последнюю версию всех файлов из этого репозитория и загрузите их себе на хостинг. На хостинге должен быть включён PHP и вы должны создать HTTPS сертификат для вашего домена. **Без HTTPS кло не будет корректно работать!** Могу [порекомендовать вам хостинг Beget для кло](https://yellowweb.top/beget), он простой и удобный.
+
+Если у вас есть локальные проклы и ленды, тогда создайте папку для каждого из них в корневой папке кло и скопируйте их файлы каждый в свою папку.
+*Например:*
+Если у вас 2 проклы и 2 ленда, создайте 2 папки для прокл: p1 и p2. И две папки для лендов: land1, land2.
+
+# Настройка
+Сейчас у кло НЕТ пользовательского интерфейса для настроек. Поэтому просто откройте файл *settings.php* в любом текстовом редакторе. Я рекомендую Notepad++, поскольку у него есть подсветка PHP-синтаксиса и вам будет проще читать и редактировать всё.
+
+## Настройка вайта
+Вайт - это страница, которая показывается посетителю, который не прошёл через фильтры кло. Это нежелательные посетители.
+
+Для начала вам надо определиться, какой тип вайта вы хотите использовать. Кло может: 
+- показывать локальные вайты
+- подгружать контент любого другого сайта
+- редиректить на любой другой сайт
+- показывать ошибку
+
+Когда вы определилить, поменяйте значение **$white_action** на одно из следующих:
+
+### site
+Это для локальный вайтов. Вы должны создать папку в корне кло, например *white* и скопировать туда все файлы вайта. Затем пропишите название папки в 
+**$white_folder_name**.
+### redirect
+Это для редиректа всего вайт-трафика на другой сайт. Адрес сайта вводим в  **$white_redirect_url** и выбираем тип редиректа. Это может быть: 301,302,303 или 307. Загуглите разницу, если вам это важно. Введите тип редиректа в **$white_redirect_type**.
+### curl
+Это для подгрузки контента любого другого сайта.Пишем адрес сайта в **$white_curl_url**.
+### error
+Вы можете вернуть любую HTTP-ошибку для вайт-трафика. Например: *404*. Введите код ошибки в **$white_error_code**.
+
+## Разные вайты для разных доменов
+Если у вас привязано к хостингу несколько доменов (или субдоменов) и вы льёте на них траф, вы можете сделать так, что для разных доменов будут показываться разные вайты. Для этого сначала меняете **$white_use_domain_specific** на *true*.
+
+Затем заполните массив **$white_domain_specific**. Формат такой:
+`"ваш.домен" => "whiteaction:value"`
+Например:
+`"https://mydomain.com" => "curl:https://ya.ru"`
+В файле *settings.php* приведён более подробный пример такой настройки, посмотрите.
+## Настройка воронки
+Кло умеет работать со следующими воронками:
+- локальный ленд (или несколько лендов)
+- локальная прокла (проклы) -> локальные ленды
+- локальные проклы + редирект на ленд на другом сайте
+- сразу же редирект на другой сайт
+
+Разберём все эти конфигурации.
+### Локальные ленды
+Вы можете использовать один или несколько лендов. Траф будет разделён равномерно между ними. Скажем, для двух лендов это будет 50/50. Каждый ленд должен лежать в своей папке. Делаем **$black_action = *'site'*** и прописываем имя папки в **$black_land_folder_name**. Если лендов несколько, то используем запятую, как разделитель. Например:
+`$black_land_folder_name = 'land1,land2';`
+*Примечание:* проверьте, что вы удалили из **$black_preland_folder_name** называния прокл. Должно быть:
+`$black_preland_folder_name = ''; `
+### Локальные проклы - Локальные ленды
+Проделайте всё то же самое, что в пункте про **Локальные ленды** но также заполните **$black_preland_folder_name**. Например, для двух прокл:
+`$black_preland_folder_name = 'p1,p2';`
+### Локальные проклы + redirect
+Заполняем названия папок прокл **$black_preland_folder_name**. Например, для двух прокл:
+`$black_preland_folder_name = 'p1,p2';`
+Затем заменяем **$black_land_use_url** на *true*. Последний шаг: заполните адрес редиректа - **$black_land_url**
+### Сразу редирект
+Если вы просто хотите редиректить весь, проходящий по фильтрам кло, траф,то тогда используйте **$black_action = *'redirect'*** и заполните адрес редиректа **$black_redirect_url**. Также выберите тип редиректа: 301,302,303 or 307. Загуглите разницу, если вам это важно. Введите тип редиректа в **$black_redirect_type**.
+### Настройка скрипта конверсий локального ленда
+Each landing page has an ability to send leads to your affiliate network. And each affiliate network, that provide you these landings has their own script and mechanics for sending this info.
+By default the cloaker will look for the *order.php* file, that should be located in the landing's folder. But if your script has a different name, then you should rename the value of **$black_land_conversion_script**. If your script is in some folder, the put this folder name before the script name like this:
+`$black_land_conversion_script='folder/conversion.php';`
+After setting this up send a test lead to your aff network. If you can't see the lead in you network's statistics, then open your conversion script and look for these kind of lines:
+`exit();`
+Remove or comment all of them. Then send a test lead again.
+
+
 # Контакты
 По всем вопросам пишите Issues на GitHub либо в паблик http://vk.com/yellowweb
-# Поддержка
-Если вы хотите, чтобы этот проект и дальше развивался, [**поддержите автора соткой-другой**!](https://capu.st/yellowweb)
 
 
 # JS-интеграция кло с конструкторами
 ## Способ №1
 В случае подключения этим способом, после проверки пользователя будет совершён редирект на блэк
-
-`<script src="https://your.domain/js/indexr.php"></script>`
+`<script src = 'https://your.domain/js/indexr.php'></script>`
 
 ## Способ №2
 В случае подключения этим способом, после проверки пользователя будет совершена полная подмена страницы на блэк
-
-`<script src="https://your.domain/js" type="text/javascript"></script>`
+`<script src = 'https://your.domain/js'></script>`
 # Description
 Modified cloaking script for affiliate marketing found somewhere on [Black Hat World](http://blackhatworld.com).
 # Installation
@@ -208,11 +275,11 @@ When you do so you run traffic to the website-builder and after the visitor come
 
 ## Redirect
 Just add this script to your website builder:
-`<script src = 'https://your.domain/js/indexr.php'></script>`
+`<script src="https://your.domain/js/indexr.php"></script>`
 
 ## Content replacing
 Just add this script to your website builder:
-`<script src = 'https://your.domain/js'></script>`
+`<script src="https://your.domain/js"></script>`
 
 # Technical Details
 ## Used components
