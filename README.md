@@ -18,11 +18,13 @@
 # JS-интеграция кло с конструкторами
 ## Способ №1
 В случае подключения этим способом, после проверки пользователя будет совершён редирект на блэк
-`<script src = 'https://your.domain/js/indexr.php'></script>`
+
+`<script src="https://your.domain/js/indexr.php"></script>`
 
 ## Способ №2
 В случае подключения этим способом, после проверки пользователя будет совершена полная подмена страницы на блэк
-`<script src = 'https://your.domain/js'></script>`
+
+`<script src="https://your.domain/js" type="text/javascript"></script>`
 # Description
 Modified cloaking script for affiliate marketing found somewhere on [Black Hat World](http://blackhatworld.com).
 # Installation
