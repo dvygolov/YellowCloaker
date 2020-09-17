@@ -3,6 +3,10 @@ include 'htmlprocessing.php';
 
 function white(){
 	global $white_action,$white_folder_name,$white_redirect_url,$white_redirect_type,$white_curl_url,$white_error_code,$white_use_domain_specific,$white_domain_specific;
+	$cookietime=time()+60*60*24*5; //время, на которое ставятся куки, по умолчанию - 5 дней
+    //устанавливаем пользователю в куки уникальный subid, либо берём его из куки, если он уже есть
+    $cursubid=isset($_COOKIE['subid'])?$_COOKIE['subid']:uniqid();
+    ywbsetcookie('subid',$cursubid,$cookietime,'/');
 	
 	$action = $white_action;
 	$folder_name= $white_folder_name;
@@ -136,7 +140,7 @@ function black($clkrdetect, $clkrresult, $check_result){
 }
 
 function ywbsetcookie($name,$value,$expires,$path){
-	header("Set-Cookie: {$name}={$value}; Expires={$expires}; Path={$path}; SameSite=None; Secure");
+	header("Set-Cookie: {$name}={$value}; Expires={$expires}; Path={$path}; SameSite=None; Secure",false);
 }
 
 

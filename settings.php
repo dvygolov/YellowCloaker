@@ -50,6 +50,7 @@ $gtm_id=''; //идентификатор Google Tag Manager
 $ya_id=''; //идентификатор Яндекс.Метрики
 $fb_use_pageview = true; //добавлять ли на проклы-ленды событие PageView
 $fb_thankyou_event = 'Lead'; //какое событие будем посылать со страницы Спасибо (Обычно Lead или Purchase)
+$fbpixel_subname = 'px'; //имя параметра из querystring, в котором будет лежать ID пикселя
 
 //-----Настройка TDS-----
 $full_cloak_on = false; //если true, то всегда возвращает whitepage, используем при модерации

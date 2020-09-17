@@ -1,14 +1,15 @@
 <?php
 //Подгрузка контента блэк проклы из другой папки через CURL
-function load_prelanding($url,$land_number) {
+function load_prelanding($url, $land_number)
+{
 	global $fb_use_pageview, $replace_prelanding, $replace_prelanding_address;
 	$domain = $_SERVER['HTTP_HOST'];
 	$prefix = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
 	$fullpath = $prefix.$domain.'/'.$url.'/';
 	$querystr = $_SERVER['QUERY_STRING'];
-	if (!empty($querystr))
+    if (!empty($querystr)) {
 		$fullpath = $fullpath.'?'.$querystr;
-	
+    }
 	$curl = curl_init();
 	$optArray = array(
 			CURLOPT_URL => $fullpath,
@@ -28,8 +29,9 @@ function load_prelanding($url,$land_number) {
 	//добавляем в страницу скрипт Yandex Metrika
 	$html = insert_yandex_script($html);
 	//добавляем в страницу скрипт Facebook Pixel с событием PageView
-	if ($fb_use_pageview)
+    if ($fb_use_pageview) {
 		$html = insert_fb_pixel_script($html,'PageView');
+    }
 
 	$html = replace_tel_type($html);
 	
@@ -57,15 +59,16 @@ function load_prelanding($url,$land_number) {
 }
 
 //Подгрузка контента блэк ленда из другой папки через CURL
-function load_landing($url) {
+function load_landing($url)
+{
 	global $fb_use_pageview,$black_land_use_phone_mask;
 	$domain = $_SERVER['HTTP_HOST'];
 	$prefix = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
 	$fullpath = $prefix.$domain.'/'.$url.'/';
 	$querystr = $_SERVER['QUERY_STRING'];
-	if (!empty($querystr))
+    if (!empty($querystr)) {
 		$fullpath = $fullpath.'?'.$querystr;
-	
+    }
 	$curl = curl_init();
 	$optArray = array(
 			CURLOPT_URL => $fullpath,
@@ -87,9 +90,9 @@ function load_landing($url) {
 	//добавляем в страницу скрипт Yandex Metrika
 	$html = insert_yandex_script($html);
 	//добавляем в страницу скрипт Facebook Pixel с событием PageView
-	if ($fb_use_pageview)
+    if ($fb_use_pageview) {
 		$html = insert_fb_pixel_script($html,'PageView');
-	
+    }
 	$html = insert_additional_scripts($html);
 	
 	//добавляем во все формы сабы
@@ -99,9 +102,9 @@ function load_landing($url) {
 	
 	//заменяем поле с телефоном на более удобный тип - tel
 	$html = replace_tel_type($html);
-	if ($black_land_use_phone_mask)
+    if ($black_land_use_phone_mask) {
 		$html = insert_phone_mask($html);
-		
+    }
 	return $html;
 }
 
@@ -248,26 +251,35 @@ function insert_subs($html) {
 
 //если в querystring есть id пикселя фб, то встраиваем его скрытым полем в форму на лендинге
 //чтобы потом передать его на страницу "Спасибо" через send.php и там отстучать Lead
-function insert_fbpixel_id($html) {
-	$fbpixel_subname="px"; //имя параметра из querystring, в которой будет лежать ID пикселя
+function insert_fbpixel_id($html)
+{
+    global $fbpixel_subname;
 	$fb_pixel = isset($_GET[$fbpixel_subname])?$_GET[$fbpixel_subname]:'';
-	if (empty($fb_pixel)) return $html;
+    if (empty($fb_pixel)) {
+        return $html;
+    }
 	$fb_input = '<input type="hidden" name="'.$fbpixel_subname.'" value="'.$fb_pixel.'"/>';
 	$needle = '</form>';
 	return insert_before_tag($html,$needle,$fb_input);
 }
 
 //вставляет в head полный код пикселя фб с указанным в $event событим (Lead,PageView,Purchase итп)
-function insert_fb_pixel_script($html,$event){
-	//имя параметра из querystring, в которой будет лежать ID пикселя
-	$fbpixel_subname="px"; 
+function insert_fb_pixel_script($html, $event)
+{
+    global $fbpixel_subname;
 	//если пиксель не лежит в querystring, то также ищем его в куки
 	$fb_pixel = isset($_GET[$fbpixel_subname])?$_GET[$fbpixel_subname]:(isset($_COOKIE[$fbpixel_subname])?$_COOKIE[$fbpixel_subname]:'');
-	if (empty($fb_pixel)) return $html;
+    if (empty($fb_pixel)) {
+        return $html;
+    }
 	$file_name=__DIR__.'/scripts/fbpxcode.js';
-	if (!file_exists($file_name)) return $html;
+    if (!file_exists($file_name)) {
+        return $html;
+    }
 	$px_code = file_get_contents($file_name);	
-	if (empty($px_code)) return $html;
+    if (empty($px_code)) {
+        return $html;
+    }
 
 	$search='{PIXELID}';
 	$px_code = str_replace($search,$fb_pixel,$px_code);
@@ -311,13 +323,16 @@ function insert_yandex_script($html) {
 }
 
 //заменяем все макросы на реальные значения из куки
-function replace_all_macros($url){
-	$fbpixel_subname='px';
+function replace_all_macros($url)
+{
+    global $fbpixel_subname;
 	$px=isset($_GET[$fbpixel_subname])?$_GET[$fbpixel_subname]:(isset($_COOKIE[$fbpixel_subname])?$_COOKIE[$fbpixel_subname]:'');
+    $landing = isset($_COOKIE['landing'])?$_COOKIE['landing']:'';
 	$prelanding = isset($_COOKIE['prelanding'])?$_COOKIE['prelanding']:'';
 	$subid = isset($_COOKIE['subid'])?$_COOKIE['subid']:'';
 	
 	$tmp_url = str_replace('{px}', $px, $url);
+    $tmp_url = str_replace('{landing}', $landing, $tmp_url);
 	$tmp_url = str_replace('{prelanding}', $prelanding, $tmp_url);
 	$tmp_url = str_replace('{subid}', $subid, $tmp_url);
 	return $tmp_url;

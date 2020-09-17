@@ -72,7 +72,9 @@ function lead_is_duplicate($subid,$phone){
 	if(!file_exists($file)) return false;
 	if($subid!=''){
 		$exist = strpos(file_get_contents($file),$subid);
-		if ($exists>=0) {return strpos(file_get_contents($file),$phone);}
+		if (isset($exists) && $exists>=0) {
+			return strpos(file_get_contents($file),$phone);
+		}
 		else {return false;}
 	}
 	else {
@@ -98,7 +100,7 @@ function write_visitors_to_log($subid,$filename,$data,$reason,$check_result,$pre
 	$message = "$subid, $calledIp, $country, $isp, $time, $check_result, $reason_str, $os, $user_agent, $querystring, $preland, $land \n";
 
 	//создаёт папку для логов, если её нет
-	if (!file_exists("logs")) mkdir("logs");
+	if (!file_exists(__DIR__."/logs")) mkdir(__DIR__."/logs");
 	
 	$file = __DIR__."/logs/".$filename;
 	if(!file_exists($file)) //если новый день и файла лога ещё нет, то пишем туда заголовки столбцов
