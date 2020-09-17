@@ -7,10 +7,27 @@ error_reporting(E_ALL);
 
 include 'settings.php';
 
-if (!isset($_GET['subid'])) die();
-if (!isset($_GET['status'])) die();
-$subid = $_GET['subid'];
-$status = $_GET['status'];
+$subid= isset($_GET['subid'])?$_GET['subid']:(isset($_POST['subid'])?$_POST['subid']:'');
+$status= isset($_GET['status'])?$_GET['status']:(isset($_POST['status'])?$_POST['status']:'');
+
+//создаёт папку для логов, если её нет
+if (!file_exists(__DIR__."/pblogs")) mkdir(__DIR__."/pblogs");
+
+
+$file = __DIR__."/pblogs/".date("d.m.y").".pb.log";
+$save_order = fopen($file, 'a+');
+if ($subid==='' || $status==='') {
+	fwrite($save_order, date("Y-m-d H:i:s")." Error! No subid or status!\n");
+	fflush($save_order);
+	fclose($save_order);
+	die();
+}
+else{
+	fwrite($save_order, date("Y-m-d H:i:s")." $subid, $status\n");
+	fflush($save_order);
+	fclose($save_order);
+}
+
 
 $leadfiles = glob('logs/*leads.csv'); //бежим по всем файлам лидов в папке
 
