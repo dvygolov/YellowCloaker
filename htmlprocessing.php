@@ -61,11 +61,11 @@ function load_prelanding($url, $land_number)
 //Подгрузка контента блэк ленда из другой папки через CURL
 function load_landing($url)
 {
-	global $fb_use_pageview,$black_land_use_phone_mask;
-	$domain = $_SERVER['HTTP_HOST'];
-	$prefix = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
-	$fullpath = $prefix.$domain.'/'.$url.'/';
-	$querystr = $_SERVER['QUERY_STRING'];
+    global $fb_use_pageview,$fb_thankyou_event,$black_land_use_phone_mask,$fb_add_button_pixel;
+    $domain = $_SERVER['HTTP_HOST'];
+    $prefix = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
+    $fullpath = $prefix.$domain.'/'.$url.'/';
+    $querystr = $_SERVER['QUERY_STRING'];
     if (!empty($querystr)) {
 		$fullpath = $fullpath.'?'.$querystr;
     }
@@ -93,15 +93,23 @@ function load_landing($url)
     if ($fb_use_pageview) {
 		$html = insert_fb_pixel_script($html,'PageView');
     }
-	$html = insert_additional_scripts($html);
+	else if ($fb_add_button_pixel){
+		$html = insert_fb_pixel_script($html, '');
+	}
 	
-	//добавляем во все формы сабы
-	$html = insert_subs($html);
-	//добавляем в формы id пикселя фб
-	$html = insert_fbpixel_id($html);
-	
-	//заменяем поле с телефоном на более удобный тип - tel
-	$html = replace_tel_type($html);
+	if ($fb_add_button_pixel){
+		$html = insert_fb_pixel_button_conversion_script($html,$fb_thankyou_event);
+	}
+    
+    $html = insert_additional_scripts($html);
+    
+    //добавляем во все формы сабы
+    $html = insert_subs($html);
+    //добавляем в формы id пикселя фб
+    $html = insert_fbpixel_id($html);
+    
+    //заменяем поле с телефоном на более удобный тип - tel
+    $html = replace_tel_type($html);
     if ($black_land_use_phone_mask) {
 		$html = insert_phone_mask($html);
     }
@@ -266,13 +274,17 @@ function insert_fbpixel_id($html)
 //вставляет в head полный код пикселя фб с указанным в $event событим (Lead,PageView,Purchase итп)
 function insert_fb_pixel_script($html, $event)
 {
-    global $fbpixel_subname;
-	//если пиксель не лежит в querystring, то также ищем его в куки
-	$fb_pixel = isset($_GET[$fbpixel_subname])?$_GET[$fbpixel_subname]:(isset($_COOKIE[$fbpixel_subname])?$_COOKIE[$fbpixel_subname]:'');
+    global $fbpixel_subname,$use_cloaked_pixel;
+    //если пиксель не лежит в querystring, то также ищем его в куки
+    $fb_pixel = isset($_GET[$fbpixel_subname])?$_GET[$fbpixel_subname]:(isset($_COOKIE[$fbpixel_subname])?$_COOKIE[$fbpixel_subname]:'');
     if (empty($fb_pixel)) {
         return $html;
     }
-	$file_name=__DIR__.'/scripts/fbpxcode.js';
+	$file_name='';
+	if ($use_cloaked_pixel)
+	    $file_name=__DIR__.'/scripts/fbpxcloaked.js';
+	else
+		$file_name=__DIR__.'/scripts/fbpxcode.js';
     if (!file_exists($file_name)) {
         return $html;
     }
@@ -281,8 +293,37 @@ function insert_fb_pixel_script($html, $event)
         return $html;
     }
 
-	$search='{PIXELID}';
-	$px_code = str_replace($search,$fb_pixel,$px_code);
+    $search='{PIXELID}';
+    $px_code = str_replace($search, $fb_pixel, $px_code);
+	if ($event===''){ //если не передали Event, значит добавляем только код пикселя без передачи событий
+		$search = "fbq('track', '{EVENT}');";
+		$px_code = str_replace($search, $event, $px_code);
+	}
+	else{
+		$search='{EVENT}';
+		$px_code = str_replace($search, $event, $px_code);
+	}
+
+    $needle='</head>';
+    return insert_before_tag($html, $needle, $px_code);
+}
+
+function insert_fb_pixel_button_conversion_script($html, $event){
+	global $fbpixel_subname;
+    //если пиксель не лежит в querystring, то также ищем его в куки
+    $fb_pixel = isset($_GET[$fbpixel_subname])?$_GET[$fbpixel_subname]:(isset($_COOKIE[$fbpixel_subname])?$_COOKIE[$fbpixel_subname]:'');
+    if (empty($fb_pixel)) {
+        return $html;
+    }
+	$file_name=__DIR__.'/scripts/fbpxbuttonconversion.js';
+    if (!file_exists($file_name)) {
+        return $html;
+    }
+    $px_code = file_get_contents($file_name);
+    if (empty($px_code)) {
+        return $html;
+    }
+
 	$search='{EVENT}';
 	$px_code = str_replace($search,$event,$px_code);
 

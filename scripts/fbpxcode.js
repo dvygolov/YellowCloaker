@@ -8,7 +8,8 @@
   t.src=v;s=b.getElementsByTagName(e)[0];
   s.parentNode.insertBefore(t,s)}(window, document,'script',
   'https://connect.facebook.net/en_US/fbevents.js');
-  fbq('init', {PIXELID});
+  fbq('set', 'autoConfig', false, '{PIXELID}');
+  fbq('init', '{PIXELID}');
   fbq('track', '{EVENT}');
 </script>
 <!-- End Facebook Pixel Code -->

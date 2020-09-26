@@ -159,12 +159,14 @@ while ($date<=$enddate) {
                 break;
         }
         $subid_lead = $lead_line_fields[0];
-        $conv_land= $sub_land_dest[$subid_lead];
-        if (array_key_exists($conv_land, $landconv_array)) {
-            $landconv_array[$conv_land]++;
-        } else {
-            $landconv_array[$conv_land]=1;
-        }
+		if (array_key_exists($subid_lead, $sub_land_dest)){
+			$conv_land= $sub_land_dest[$subid_lead];
+			if (array_key_exists($conv_land, $landconv_array)) {
+				$landconv_array[$conv_land]++;
+			} else {
+				$landconv_array[$conv_land]=1;
+			}
+		}
     }
     
     //Add all data to main table
@@ -224,6 +226,7 @@ $lpctrTableOutput="<TABLE class='table w-auto table-striped'>";
 $lpctrTableOutput.="<thead class='thead-dark'>";
 $lpctrTableOutput.="<TR>";
 $lpctrTableOutput.="<TH scope='col'>Prelanding</TH>";
+$lpctrTableOutput.="<TH scope='col'>Traffic</TH>";
 $lpctrTableOutput.="<TH scope='col'>LP Clicks</TH>";
 $lpctrTableOutput.="<TH scope='col'>LP CTR</TH>";
 $lpctrTableOutput.="</TR></thead><tbody>";
@@ -231,6 +234,7 @@ $lpctrTableOutput.="</TR></thead><tbody>";
 foreach ($lpctr_array as $lp_name => $lp_count) {
     $lpctrTableOutput.="<TR>";
     $lpctrTableOutput.="<TD scope='col'>".$lp_name."</TD>";
+    $lpctrTableOutput.="<TD scope='col'>".$lpdest_array[$lp_name]."</TD>";
     $lpctrTableOutput.="<TD scope='col'>".$lp_count."</TD>";
     $cur_ctr = $lp_count*100/$lpdest_array[$lp_name];
     $lpctrTableOutput.="<TD scope='col'>".number_format($cur_ctr, 2, '.', '')."%</TD>";

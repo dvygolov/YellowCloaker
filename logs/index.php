@@ -19,6 +19,13 @@ ini_set('display_startup_errors', 1);
 
     $startdate=isset($_GET['startdate'])?DateTime::createFromFormat('d.m.y', $_GET['startdate']):new DateTime();
     $enddate=isset($_GET['enddate'])?DateTime::createFromFormat('d.m.y', $_GET['enddate']):new DateTime();
+	
+	$date_str='';
+	if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
+		$startstr = $_GET['startdate'];
+		$endstr = $_GET['enddate'];
+		$date_str="&startdate={$startstr}&enddate={$endstr}";
+	}
 
     $filter=isset($_GET['filter'])?$_GET['filter']:'';
     $fileName='';
@@ -39,26 +46,10 @@ ini_set('display_startup_errors', 1);
             $fileName = $formatteddate.".emails.csv";
         break;
     }
-    
-    if (file_exists($fileName)) { // File exists
-        $fileLines = file($fileName, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        //Open the table tag
-        $tableOutput="<TABLE class='table w-auto table-striped'>";
+	$tableOutput='';
 
-        //Print the table header
-        $tableOutput.="<thead class='thead-dark'>";
-        $tableOutput.="<TR>";
-        $tableOutput.="<TH scope='col'>Row</TH>";
-        //Extract the existing header from the file
-        $lineHeader = array_shift($fileLines);
-        $logOriginalHeader = array_map('trim', str_getcsv(substr($lineHeader, $ignorePreHeader), $delimiter, $enclosure));
-    
-        foreach ($logOriginalHeader as $field) {
-            $tableOutput.="<TH scope='col'>".$field."</TH>";
-        } //Add the columns
-        $tableOutput.="</TR></thead><tbody>";
-    }
-    
+    $logOriginalHeader = array();
+	$headerSet=false;
     $countLines = 0;
     while ($date<=$enddate) {
         $formatteddate = $date->format('d.m.y');
@@ -80,8 +71,26 @@ ini_set('display_startup_errors', 1);
         //Variable initialization
         $logLines = array();
      
-        //Verify the password (if set)
         if (file_exists($fileName)) { // File exists
+			if (!$headerSet){
+		        $fileLines = file($fileName, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+				//Open the table tag
+				$tableOutput="<TABLE class='table w-auto table-striped'>";
+
+				//Print the table header
+				$tableOutput.="<thead class='thead-dark'>";
+				$tableOutput.="<TR>";
+				$tableOutput.="<TH scope='col'>Row</TH>";
+				//Extract the existing header from the file
+				$lineHeader = array_shift($fileLines);
+				$logOriginalHeader = array_map('trim', str_getcsv(substr($lineHeader, $ignorePreHeader), $delimiter, $enclosure));
+			
+				foreach ($logOriginalHeader as $field) {
+					$tableOutput.="<TH scope='col'>".$field."</TH>";
+				} //Add the columns
+				$tableOutput.="</TR></thead><tbody>";
+				$headerSet=true;
+			}
      
             // Reads lines of file to array
             $fileLines = file($fileName, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -104,7 +113,7 @@ ini_set('display_startup_errors', 1);
                             foreach ($arrayFields as $field) {
                                 $i++;
                                 if ($i==1 && $filter=='leads') {
-                                    $tableOutput.="<TD><a href='index.php?password=".$_GET['password']."#".$field."'>".$field."</a></TD>";
+                                    $tableOutput.="<TD><a href='index.php?password=".$_GET['password'].($date_str!==''?$date_str:'')."#".$field."'>".$field."</a></TD>";
                                     continue;
                                 }
                                 if ($i==1 && $filter=='') {
@@ -140,14 +149,6 @@ ini_set('display_startup_errors', 1);
     <a href="index.php?password=<?=$_GET['password']?>">
         <img src="binomocloaker.png" width="300px"/>
     </a>
-    <?php
-        $date_str='';
-        if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
-            $startstr = $_GET['startdate'];
-            $endstr = $_GET['enddate'];
-            $date_str="&startdate={$startstr}&enddate={$endstr}";
-        }
-    ?>
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
 	  <div class="collapse navbar-collapse" id="navbarNav">
 		<ul class="navbar-nav">
