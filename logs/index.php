@@ -150,7 +150,7 @@ ini_set('display_startup_errors', 1);
         <img src="binomocloaker.png" width="300px"/>
     </a>
 	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-	  <div class="collapse navbar-collapse" id="navbarNav">
+	  <div id="navbarNav">
 		<ul class="navbar-nav">
 		  <li class="nav-item">
 			<a class="nav-link" href="#" id='litepicker'>Date:</a>

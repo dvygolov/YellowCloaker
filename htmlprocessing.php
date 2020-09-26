@@ -2,11 +2,13 @@
 //Подгрузка контента блэк проклы из другой папки через CURL
 function load_prelanding($url, $land_number)
 {
-	global $fb_use_pageview, $replace_prelanding, $replace_prelanding_address;
-	$domain = $_SERVER['HTTP_HOST'];
-	$prefix = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
-	$fullpath = $prefix.$domain.'/'.$url.'/';
-	$querystr = $_SERVER['QUERY_STRING'];
+    global $fb_use_pageview, $fb_use_viewcontent, $fb_view_content_time, $fb_view_content_percent; 
+	global $replace_prelanding, $replace_prelanding_address;
+	
+    $domain = $_SERVER['HTTP_HOST'];
+    $prefix = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
+    $fullpath = $prefix.$domain.'/'.$url.'/';
+    $querystr = $_SERVER['QUERY_STRING'];
     if (!empty($querystr)) {
 		$fullpath = $fullpath.'?'.$querystr;
     }
@@ -32,6 +34,15 @@ function load_prelanding($url, $land_number)
     if ($fb_use_pageview) {
 		$html = insert_fb_pixel_script($html,'PageView');
     }
+		
+	if ($fb_use_viewcontent){
+		if ($fb_view_content_time>0){
+	        $html = insert_fb_pixel_viewcontent_time_script($html, $fb_view_content_time, $url);
+		}
+		if ($fb_view_content_percent>0){
+	        $html = insert_fb_pixel_viewcontent_percent_script($html, $fb_view_content_percent, $url);
+		}
+	}
 
 	$html = replace_tel_type($html);
 	
@@ -61,7 +72,10 @@ function load_prelanding($url, $land_number)
 //Подгрузка контента блэк ленда из другой папки через CURL
 function load_landing($url)
 {
-    global $fb_use_pageview,$fb_thankyou_event,$black_land_use_phone_mask,$fb_add_button_pixel;
+    global $fb_use_pageview,$fb_thankyou_event,$fb_add_button_pixel;
+	global $fb_use_viewcontent, $fb_view_content_time, $fb_view_content_percent;
+	
+	
     $domain = $_SERVER['HTTP_HOST'];
     $prefix = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
     $fullpath = $prefix.$domain.'/'.$url.'/';
@@ -97,6 +111,15 @@ function load_landing($url)
 		$html = insert_fb_pixel_script($html, '');
 	}
 	
+	if ($fb_use_viewcontent){
+		if ($fb_view_content_time>0){
+	        $html = insert_fb_pixel_viewcontent_time_script($html, $fb_view_content_time, $url);
+		}
+		if ($fb_view_content_percent>0){
+	        $html = insert_fb_pixel_viewcontent_percent_script($html, $fb_view_content_percent, $url);
+		}
+	}
+	
 	if ($fb_add_button_pixel){
 		$html = insert_fb_pixel_button_conversion_script($html,$fb_thankyou_event);
 	}
@@ -110,10 +133,9 @@ function load_landing($url)
     
     //заменяем поле с телефоном на более удобный тип - tel
     $html = replace_tel_type($html);
-    if ($black_land_use_phone_mask) {
-		$html = insert_phone_mask($html);
-    }
-	return $html;
+    $html = insert_phone_mask($html);
+        
+    return $html;
 }
 
 //добавляем доп.скрипты
@@ -145,14 +167,19 @@ function replace_tel_type($html){
 	return $html;
 }
 
-function insert_phone_mask($html){
-	global $black_land_phone_mask;
-	$html = insert_before_tag($html,'</head>','<script src="scripts/inputmask.js"></script>');
-	$html = insert_before_tag($html,'</head>','<script src="scripts/inputmaskbinding.js"></script>');
-	$html = preg_replace('/(<input[^>]*name="(phone|tel)"[^>]*)(>)/', 
-		"\\1 data-inputmask=\"'mask': '".$black_land_phone_mask."'\">", $html);
-	
-	return $html;
+function insert_phone_mask($html)
+{
+    global $black_land_use_phone_mask,$black_land_phone_mask;
+	if (!$black_land_use_phone_mask) return $html;
+    $html = insert_before_tag($html, '</head>', '<script src="scripts/inputmask.js"></script>');
+    $html = insert_before_tag($html, '</head>', '<script src="scripts/inputmaskbinding.js"></script>');
+    $html = preg_replace(
+        '/(<input[^>]*name="(phone|tel)"[^>]*)(>)/',
+        "\\1 data-inputmask=\"'mask': '".$black_land_phone_mask."'\">",
+        $html
+    );
+    
+    return $html;
 }
 
 //Подгрузка контента вайта ИЗ ПАПКИ
@@ -262,24 +289,22 @@ function insert_subs($html) {
 function insert_fbpixel_id($html)
 {
     global $fbpixel_subname;
-	$fb_pixel = isset($_GET[$fbpixel_subname])?$_GET[$fbpixel_subname]:'';
-    if (empty($fb_pixel)) {
-        return $html;
-    }
-	$fb_input = '<input type="hidden" name="'.$fbpixel_subname.'" value="'.$fb_pixel.'"/>';
-	$needle = '</form>';
-	return insert_before_tag($html,$needle,$fb_input);
+    $fb_pixel = getpixel();
+    if (empty($fb_pixel)) return $html;
+	
+    $fb_input = '<input type="hidden" name="'.$fbpixel_subname.'" value="'.$fb_pixel.'"/>';
+    $needle = '</form>';
+    return insert_before_tag($html, $needle, $fb_input);
 }
 
-//вставляет в head полный код пикселя фб с указанным в $event событим (Lead,PageView,Purchase итп)
+//вставляет в head полный код пикселя фб с указанным в $event событием (Lead,PageView,Purchase итп)
+//если событие не указано, то и не шлём его
 function insert_fb_pixel_script($html, $event)
 {
-    global $fbpixel_subname,$use_cloaked_pixel;
-    //если пиксель не лежит в querystring, то также ищем его в куки
-    $fb_pixel = isset($_GET[$fbpixel_subname])?$_GET[$fbpixel_subname]:(isset($_COOKIE[$fbpixel_subname])?$_COOKIE[$fbpixel_subname]:'');
-    if (empty($fb_pixel)) {
-        return $html;
-    }
+    global $use_cloaked_pixel;
+    $fb_pixel = getpixel();
+    if (empty($fb_pixel)) return $html;
+	
 	$file_name='';
 	if ($use_cloaked_pixel)
 	    $file_name=__DIR__.'/scripts/fbpxcloaked.js';
@@ -309,12 +334,9 @@ function insert_fb_pixel_script($html, $event)
 }
 
 function insert_fb_pixel_button_conversion_script($html, $event){
-	global $fbpixel_subname;
-    //если пиксель не лежит в querystring, то также ищем его в куки
-    $fb_pixel = isset($_GET[$fbpixel_subname])?$_GET[$fbpixel_subname]:(isset($_COOKIE[$fbpixel_subname])?$_COOKIE[$fbpixel_subname]:'');
-    if (empty($fb_pixel)) {
-        return $html;
-    }
+	$fb_pixel = getpixel();
+    if (empty($fb_pixel)) return $html;
+	
 	$file_name=__DIR__.'/scripts/fbpxbuttonconversion.js';
     if (!file_exists($file_name)) {
         return $html;
@@ -329,6 +351,57 @@ function insert_fb_pixel_button_conversion_script($html, $event){
 
 	$needle='</head>';
 	return insert_before_tag($html,$needle,$px_code);
+}
+
+function insert_fb_pixel_viewcontent_time_script($html, $seconds, $page){
+	$fb_pixel = getpixel();
+    if (empty($fb_pixel)) return $html;
+    
+	$file_name=__DIR__.'/scripts/fbpxviewcontenttime.js';
+    if (!file_exists($file_name)) {
+        return $html;
+    }
+    $px_code = file_get_contents($file_name);
+    if (empty($px_code)) {
+        return $html;
+    }
+
+	$search='{SECONDS}';
+	$px_code = str_replace($search, $seconds, $px_code);
+	$search='{PAGE}';
+	$px_code = str_replace($search, $page, $px_code);
+	
+    $needle='</head>';
+    return insert_before_tag($html, $needle, $px_code);
+}
+
+function insert_fb_pixel_viewcontent_percent_script($html, $percent, $page){
+	$fb_pixel = getpixel();
+    if (empty($fb_pixel)) return $html;
+    
+	$file_name=__DIR__.'/scripts/fbpxviewcontentpercent.js';
+    if (!file_exists($file_name)) {
+        return $html;
+    }
+    $px_code = file_get_contents($file_name);
+    if (empty($px_code)) {
+        return $html;
+    }
+
+	$search='{PERCENT}';
+	$px_code = str_replace($search, $percent, $px_code);
+	$search='{PAGE}';
+	$px_code = str_replace($search, $page, $px_code);
+	
+    $needle='</head>';
+    return insert_before_tag($html, $needle, $px_code);
+}
+
+function getpixel(){
+	global $fbpixel_subname;
+    //если пиксель не лежит в querystring, то также ищем его в куки
+    $fb_pixel = isset($_GET[$fbpixel_subname])?$_GET[$fbpixel_subname]:(isset($_COOKIE[$fbpixel_subname])?$_COOKIE[$fbpixel_subname]:'');
+	return $fb_pixel;
 }
 
 //если задан ID Google Tag Manager, то вставляем его скрипт
