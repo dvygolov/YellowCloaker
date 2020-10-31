@@ -71,9 +71,15 @@ function lead_is_duplicate($subid,$phone){
 	$file = __DIR__."/logs/".date("d.m.y").".leads.csv";
 	if(!file_exists($file)) return false;
 	if($subid!=''){
-		$exist = strpos(file_get_contents($file),$subid);
-		if (isset($exists) && $exists>=0) {
-			return strpos(file_get_contents($file),$phone);
+		$subexists = strpos(file_get_contents($file),$subid);
+		if (isset($subexists) && $subexists>=0) {
+			$phoneexists = strpos(file_get_contents($file),$phone);
+			if (isset($phoneexists) && $phoneexists>=0){
+				return true;
+			}
+			else{
+				return false;
+			}
 		}
 		else {return false;}
 	}

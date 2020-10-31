@@ -16,7 +16,19 @@ function load_prelanding($url, $land_number)
 	$optArray = array(
 			CURLOPT_URL => $fullpath,
 			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_SSL_VERIFYPEER => false, );
+			CURLOPT_SSL_VERIFYPEER => false, 
+			CURLOPT_HTTPHEADER => array(
+				'X-YWBCLO-UIP: '.$_SERVER['REMOTE_ADDR'], 
+				'X-FORWARDED-FOR '.$_SERVER['REMOTE_ADDR'], 
+				'CF-CONNECTING-IP: '.$_SERVER['REMOTE_ADDR'],
+				'FORWARDED-FOR: '.$_SERVER['REMOTE_ADDR'],
+				'X-COMING-FROM: '.$_SERVER['REMOTE_ADDR'], 
+				'COMING-FROM: '.$_SERVER['REMOTE_ADDR'], 
+				'FORWARDED-FOR-IP: '.$_SERVER['REMOTE_ADDR'],
+				'CLIENT-IP: '.$_SERVER['REMOTE_ADDR'], 
+				'X_REAL-IP: '.$_SERVER['REMOTE_ADDR'], 
+				'REMOTE-ADDR: '.$_SERVER['REMOTE_ADDR'])
+			);
 	curl_setopt_array($curl, $optArray);
 	$html = curl_exec($curl);
 	curl_close($curl);
@@ -87,7 +99,19 @@ function load_landing($url)
 	$optArray = array(
 			CURLOPT_URL => $fullpath,
 			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_SSL_VERIFYPEER => false, );
+			CURLOPT_SSL_VERIFYPEER => false,
+			CURLOPT_HTTPHEADER => array(
+				'X-YWBCLO-UIP: '.$_SERVER['REMOTE_ADDR'], 
+				'X-FORWARDED-FOR '.$_SERVER['REMOTE_ADDR'], 
+				'CF-CONNECTING-IP: '.$_SERVER['REMOTE_ADDR'],
+				'FORWARDED-FOR: '.$_SERVER['REMOTE_ADDR'],
+				'X-COMING-FROM: '.$_SERVER['REMOTE_ADDR'], 
+				'COMING-FROM: '.$_SERVER['REMOTE_ADDR'], 
+				'FORWARDED-FOR-IP: '.$_SERVER['REMOTE_ADDR'],
+				'CLIENT-IP: '.$_SERVER['REMOTE_ADDR'], 
+				'X_REAL-IP: '.$_SERVER['REMOTE_ADDR'], 
+				'REMOTE-ADDR: '.$_SERVER['REMOTE_ADDR'])
+			);
 	curl_setopt_array($curl, $optArray);
 	$html = curl_exec($curl);
 	curl_close($curl);

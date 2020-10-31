@@ -1,5 +1,6 @@
 <?php
 include 'htmlprocessing.php';
+include 'cookies.php';
 
 function white(){
 	global $white_action,$white_folder_name,$white_redirect_url,$white_redirect_type,$white_curl_url,$white_error_code,$white_use_domain_specific,$white_domain_specific;
@@ -138,10 +139,4 @@ function black($clkrdetect, $clkrresult, $check_result){
 	}
     return;
 }
-
-function ywbsetcookie($name,$value,$expires,$path){
-	header("Set-Cookie: {$name}={$value}; Expires={$expires}; Path={$path}; SameSite=None; Secure",false);
-}
-
-
 ?>
