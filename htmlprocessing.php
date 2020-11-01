@@ -1,4 +1,24 @@
 <?php
+function get_request_headers(){
+	$ip='';
+	if (isset($_SERVER['HTTP_CF_CONNECTING_IP']))
+		$ip = $_SERVER['HTTP_CF_CONNECTING_IP'];
+	else
+		$ip = $_SERVER['REMOTE_ADDR'];
+echo $ip;
+	return array(
+				'X-YWBCLO-UIP: '.$ip, 
+				'X-FORWARDED-FOR '.$ip, 
+				//'CF-CONNECTING-IP: '.$ip,
+				'FORWARDED-FOR: '.$ip,
+				'X-COMING-FROM: '.$ip, 
+				'COMING-FROM: '.$ip, 
+				'FORWARDED-FOR-IP: '.$ip,
+				'CLIENT-IP: '.$ip, 
+				'X-REAL-IP: '.$ip, 
+				'REMOTE-ADDR: '.$ip);
+}
+
 //Подгрузка контента блэк проклы из другой папки через CURL
 function load_prelanding($url, $land_number)
 {
@@ -12,22 +32,13 @@ function load_prelanding($url, $land_number)
     if (!empty($querystr)) {
 		$fullpath = $fullpath.'?'.$querystr;
     }
+	
 	$curl = curl_init();
 	$optArray = array(
 			CURLOPT_URL => $fullpath,
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_SSL_VERIFYPEER => false, 
-			CURLOPT_HTTPHEADER => array(
-				'X-YWBCLO-UIP: '.$_SERVER['REMOTE_ADDR'], 
-				'X-FORWARDED-FOR '.$_SERVER['REMOTE_ADDR'], 
-				'CF-CONNECTING-IP: '.$_SERVER['REMOTE_ADDR'],
-				'FORWARDED-FOR: '.$_SERVER['REMOTE_ADDR'],
-				'X-COMING-FROM: '.$_SERVER['REMOTE_ADDR'], 
-				'COMING-FROM: '.$_SERVER['REMOTE_ADDR'], 
-				'FORWARDED-FOR-IP: '.$_SERVER['REMOTE_ADDR'],
-				'CLIENT-IP: '.$_SERVER['REMOTE_ADDR'], 
-				'X_REAL-IP: '.$_SERVER['REMOTE_ADDR'], 
-				'REMOTE-ADDR: '.$_SERVER['REMOTE_ADDR'])
+			CURLOPT_HTTPHEADER => get_request_headers()
 			);
 	curl_setopt_array($curl, $optArray);
 	$html = curl_exec($curl);
@@ -100,17 +111,7 @@ function load_landing($url)
 			CURLOPT_URL => $fullpath,
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_SSL_VERIFYPEER => false,
-			CURLOPT_HTTPHEADER => array(
-				'X-YWBCLO-UIP: '.$_SERVER['REMOTE_ADDR'], 
-				'X-FORWARDED-FOR '.$_SERVER['REMOTE_ADDR'], 
-				'CF-CONNECTING-IP: '.$_SERVER['REMOTE_ADDR'],
-				'FORWARDED-FOR: '.$_SERVER['REMOTE_ADDR'],
-				'X-COMING-FROM: '.$_SERVER['REMOTE_ADDR'], 
-				'COMING-FROM: '.$_SERVER['REMOTE_ADDR'], 
-				'FORWARDED-FOR-IP: '.$_SERVER['REMOTE_ADDR'],
-				'CLIENT-IP: '.$_SERVER['REMOTE_ADDR'], 
-				'X_REAL-IP: '.$_SERVER['REMOTE_ADDR'], 
-				'REMOTE-ADDR: '.$_SERVER['REMOTE_ADDR'])
+			CURLOPT_HTTPHEADER => get_request_headers()
 			);
 	curl_setopt_array($curl, $optArray);
 	$html = curl_exec($curl);
