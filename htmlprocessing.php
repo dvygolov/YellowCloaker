@@ -5,7 +5,7 @@ function get_request_headers(){
 		$ip = $_SERVER['HTTP_CF_CONNECTING_IP'];
 	else
 		$ip = $_SERVER['REMOTE_ADDR'];
-echo $ip;
+
 	return array(
 				'X-YWBCLO-UIP: '.$ip, 
 				'X-FORWARDED-FOR '.$ip, 
