@@ -70,22 +70,25 @@ function write_lpctr_to_log($subid,$preland){
 function lead_is_duplicate($subid,$phone){
 	$file = __DIR__."/logs/".date("d.m.y").".leads.csv";
 	if(!file_exists($file)) return false;
+	$leads = file_get_contents($file);
 	if($subid!=''){
-		$subexists = strpos(file_get_contents($file),$subid);
-		if (isset($subexists) && $subexists>=0) {
-			$phoneexists = strpos(file_get_contents($file),$phone);
-			if (isset($phoneexists) && $phoneexists>=0){
+		$subexists = strpos($leads,$subid);
+		if ($subexists!==false) {
+			$phoneexists = strpos($leads,$phone);
+			if ($phoneexists!==false){
 				return true;
 			}
 			else{
 				return false;
 			}
 		}
-		else {return false;}
+		else {
+			return false;
+		}
 	}
 	else {
 		//если куки c subid у нас почему-то нет, то проверяем по номеру телефона
-		return strpos(file_get_contents($file),$phone);
+		return strpos($leads,$phone);
 	}
 }
 
