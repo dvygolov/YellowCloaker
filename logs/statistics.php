@@ -59,6 +59,8 @@ $total_cr_sales=array();
 $total_app_wo_trash=array();
 $total_app=array();
 
+$noprelanding= $black_preland_folder_name==='';
+
 $date = $startdate;
 while ($date<=$enddate) {
     $formatteddate = $date->format('d.m.y');
@@ -93,6 +95,14 @@ while ($date<=$enddate) {
         } else {
             $lpdest_array[$lp_name]=1;
         }
+		//if we don't have prelandings then we should count offer clicks here
+		if ($noprelanding){
+			if (array_key_exists($land_name, $landclicks_array)) {
+				$landclicks_array[$land_name]++;
+			} else {
+				$landclicks_array[$land_name]=1;
+			}
+		}
         
         $cur_creo='Unknown';
         $cur_query = explode('&', $traf_line_fields[count($traf_line_fields)-3]);
@@ -109,28 +119,31 @@ while ($date<=$enddate) {
             $creatives_array[$cur_creo]=1;
         }
     }
-
-    //count lp ctrs
-    foreach ($ctr_file as $ctr_line) {
-        $ctr_line_fields = array_map('trim', str_getcsv($ctr_line, $delimiter, $enclosure));
-        $lp_name=$ctr_line_fields[count($ctr_line_fields)-1];
-        if ($lp_name=='') {
-            continue;
-        }
-        if (array_key_exists($lp_name, $lpctr_array)) {
-            $lpctr_array[$lp_name]++;
-        } else {
-            $lpctr_array[$lp_name]=1;
-        }
-        //count landing clicks
-        $subid_lp = $ctr_line_fields[0];
-        $dest_land = $sub_land_dest[$subid_lp];
-        if (array_key_exists($dest_land, $landclicks_array)) {
-            $landclicks_array[$dest_land]++;
-        } else {
-            $landclicks_array[$dest_land]=1;
-        }
-    }
+	
+	if ($noprelanding) //count only if we have prelanders
+	{
+		//count lp ctrs
+		foreach ($ctr_file as $ctr_line) {
+			$ctr_line_fields = array_map('trim', str_getcsv($ctr_line, $delimiter, $enclosure));
+			$lp_name=$ctr_line_fields[count($ctr_line_fields)-1];
+			if ($lp_name=='') {
+				continue;
+			}
+			if (array_key_exists($lp_name, $lpctr_array)) {
+				$lpctr_array[$lp_name]++;
+			} else {
+				$lpctr_array[$lp_name]=1;
+			}
+			//count landing clicks
+			$subid_lp = $ctr_line_fields[0];
+			$dest_land = $sub_land_dest[$subid_lp];
+			if (array_key_exists($dest_land, $landclicks_array)) {
+				$landclicks_array[$dest_land]++;
+			} else {
+				$landclicks_array[$dest_land]=1;
+			}
+		}
+	}
     
     //count leads
     $purchase_count=0;
