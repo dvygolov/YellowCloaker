@@ -28,6 +28,9 @@ if (!isset($cloacker->result)||
     $cloacker->result=['OK'];
 }
 
+//Добавляем, по какому из js-событий пользователь прошёл сюда
+array_push($cloacker->result,$_GET['reason']);
+
 if ($check_result === 0 || $disable_tds) { //Обычный юзверь или отключена фильтрация
     header("Access-Control-Expose-Headers: YWBRedirect", false, 200);
     header("YWBRedirect: false", true, 200);
@@ -41,7 +44,10 @@ if ($check_result === 0 || $disable_tds) { //Обычный юзверь или 
             header("YWBLocation: ".$black_redirect_url, true, 200);
         }
     }
-} else { //это бот!
+} else if ($check_result===1 || $full_cloak_on) 
+{ 
+	//это бот, который прошёл javascript-проверку!
+	write_white_to_log($cloacker->detect, $cloacker->result, $check_result, '', '');
     header("Access-Control-Expose-Headers: YWBRedirect", false, 200);
     header("YWBRedirect: false", true, 200);
     header('Access-Control-Allow-Credentials: true');

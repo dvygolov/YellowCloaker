@@ -302,6 +302,11 @@ $creoTableOutput.="</tbody></TABLE>";
 	<script src="https://cdn.jsdelivr.net/npm/litepicker/dist/js/main.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
 	<link rel="shortcut icon" type="image/png" href="favicon.png"/>
+	<style>
+	body {font-size: 80%;}
+    .table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgb(216 218 255 / 5%);}
+    </style>
     </head>
     <body>
     <a href="index.php?password=<?=$_GET['password']?>">

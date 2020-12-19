@@ -1,11 +1,11 @@
 <?php
+include __DIR__.'/js/obfuscator.php';
 function get_request_headers(){
 	$ip='';
 	if (isset($_SERVER['HTTP_CF_CONNECTING_IP']))
 		$ip = $_SERVER['HTTP_CF_CONNECTING_IP'];
 	else
 		$ip = $_SERVER['REMOTE_ADDR'];
-
 	return array(
 				'X-YWBCLO-UIP: '.$ip, 
 				'X-FORWARDED-FOR '.$ip, 
@@ -30,32 +30,31 @@ function load_prelanding($url, $land_number)
     $fullpath = $prefix.$domain.'/'.$url.'/';
     $querystr = $_SERVER['QUERY_STRING'];
     if (!empty($querystr)) {
-		$fullpath = $fullpath.'?'.$querystr;
+        $fullpath = $fullpath.'?'.$querystr;
     }
-	
-	$curl = curl_init();
-	$optArray = array(
-			CURLOPT_URL => $fullpath,
-			CURLOPT_RETURNTRANSFER => true,
+    
+    $curl = curl_init();
+    $optArray = array(
+            CURLOPT_URL => $fullpath,
+            CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_SSL_VERIFYPEER => false, 
 			CURLOPT_HTTPHEADER => get_request_headers()
 			);
-	curl_setopt_array($curl, $optArray);
-	$html = curl_exec($curl);
-	curl_close($curl);
-	$baseurl = '/'.$url.'/';
-	//переписываем все относительные src,href & action (не начинающиеся с http)
-	$html = preg_replace('/\ssrc=[\'\"](?!http)([^\'\"]+)[\'\"]/', " src=\"$baseurl\\1\"", $html);
-	$html = preg_replace('/\shref=[\'\"](?!http|#)([^\'\"]+)[\'\"]/', " href=\"$baseurl\\1\"", $html);
-	$html = preg_replace('/\saction=[\'\"](?!http)([^\'\"]+)[\'\"]/', " action=\"$baseurl\\1\"", $html);
+    curl_setopt_array($curl, $optArray);
+    $html = curl_exec($curl);
+    curl_close($curl);
+    $baseurl = '/'.$url.'/';
+    //переписываем все относительные src,href & action (не начинающиеся с http)
+	$html = rewrite_relative_urls($html,$baseurl);
+    $html = preg_replace('/\saction=[\'\"](?!http|\/\/)([^\'\"]+)[\'\"]/', " action=\"$baseurl\\1\"", $html);
 
-	//добавляем в страницу скрипт GTM
-	$html = insert_gtm_script($html);
-	//добавляем в страницу скрипт Yandex Metrika
-	$html = insert_yandex_script($html);
-	//добавляем в страницу скрипт Facebook Pixel с событием PageView
-    if ($fb_use_pageview) {
-		$html = insert_fb_pixel_script($html,'PageView');
+    //добавляем в страницу скрипт GTM
+    $html = insert_gtm_script($html);
+    //добавляем в страницу скрипт Yandex Metrika
+    $html = insert_yandex_script($html);
+    //добавляем в страницу скрипт Facebook Pixel с событием PageView
+    if ($fb_use_pageview){
+        $html = insert_fb_pixel_script($html, 'PageView');
     }
 		
 	if ($fb_use_viewcontent){
@@ -67,29 +66,29 @@ function load_prelanding($url, $land_number)
 		}
 	}
 
-	$html = replace_tel_type($html);
-	
-	//добавляем во все формы сабы
-	$html = insert_subs($html);
-	//добавляем в формы id пикселя фб
-	$html = insert_fbpixel_id($html);
-	
-		
-	//замена всех ссылок на прокле на универсальную ссылку ленда landing.php
-	$replacement = "\\1".$prefix.$domain.'/landing.php?l='.$land_number.(!empty($querystr)?'&'.$querystr:'');
-	
-	//если мы будем подменять преленд при переходе на ленд, то ленд надо открывать в новом окне
-	if ($replace_prelanding){ 
-		$replacement=$replacement.'" target="_blank"';
-		$url = replace_all_macros($replace_prelanding_address); //заменяем макросы
-		$url = add_subs_to_link($url); //добавляем сабы
-		$html = insert_file_content_with_replace($html,'replaceprelanding.js','</body>','{REDIRECT}',$url);
-	}
-	$html = preg_replace('/(<a[^>]+href=")([^"]*)/', $replacement, $html);
+    $html = replace_tel_type($html);
+    
+    //добавляем во все формы сабы
+    $html = insert_subs($html);
+    //добавляем в формы id пикселя фб
+    $html = insert_fbpixel_id($html);
+    
+        
+    //замена всех ссылок на прокле на универсальную ссылку ленда landing.php
+    $replacement = "\\1".$prefix.$domain.'/landing.php?l='.$land_number.(!empty($querystr)?'&'.$querystr:'');
+    
+    //если мы будем подменять преленд при переходе на ленд, то ленд надо открывать в новом окне
+    if ($replace_prelanding) {
+        $replacement=$replacement.'" target="_blank"';
+        $url = replace_all_macros($replace_prelanding_address); //заменяем макросы
+        $url = add_subs_to_link($url); //добавляем сабы
+        $html = insert_file_content_with_replace($html, 'replaceprelanding.js', '</body>', '{REDIRECT}', $url);
+    }
+    $html = preg_replace('/(<a[^>]+href=")([^"]*)/', $replacement, $html);
 
-	$html = insert_additional_scripts($html);
-	
-	return $html;
+    $html = insert_additional_scripts($html);
+    
+    return $html;
 }
 
 //Подгрузка контента блэк ленда из другой папки через CURL
@@ -97,40 +96,48 @@ function load_landing($url)
 {
     global $fb_use_pageview,$fb_thankyou_event,$fb_add_button_pixel;
 	global $fb_use_viewcontent, $fb_view_content_time, $fb_view_content_percent;
+	global $black_land_log_conversions_on_button_click,$fb_add_button_pixel;
 	
 	
     $domain = $_SERVER['HTTP_HOST'];
     $prefix = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
     $fullpath = $prefix.$domain.'/'.$url.'/';
+    $fpwqs = $fullpath;
     $querystr = $_SERVER['QUERY_STRING'];
     if (!empty($querystr)) {
-		$fullpath = $fullpath.'?'.$querystr;
+        $fpwqs = $fullpath.'?'.$querystr;
     }
-	$curl = curl_init();
-	$optArray = array(
-			CURLOPT_URL => $fullpath,
-			CURLOPT_RETURNTRANSFER => true,
+    
+    $curl = curl_init();
+    $optArray = array(
+            CURLOPT_URL => $fpwqs,
+            CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_SSL_VERIFYPEER => false,
 			CURLOPT_HTTPHEADER => get_request_headers()
 			);
-	curl_setopt_array($curl, $optArray);
-	$html = curl_exec($curl);
-	curl_close($curl);
-	$baseurl = '/'.$url.'/';
-	//переписываем все относительные src,href & action (не начинающиеся с http)
-	$html = preg_replace('/\ssrc=[\'\"](?!http)([^\'\"]+)[\'\"]/', " src=\"$baseurl\\1\"", $html);
-	$html = preg_replace('/\shref=[\'\"](?!http|#)([^\'\"]+)[\'\"]/', " href=\"$baseurl\\1\"", $html);
-	
-	//меняем обработчик формы, чтобы у вайта и блэка была одна thankyou page
-	$html = preg_replace('/\saction=[\'\"]([^\'\"]+)[\'\"]/', " action=\"../send.php?".http_build_query($_GET)."\"", $html);
+    curl_setopt_array($curl, $optArray);
+    $html = curl_exec($curl);
+    curl_close($curl);
+    $baseurl = '/'.$url.'/';
+    //если отстукиваем пиксель не на странице Спасибо, а просто по кнопке на ленде, то используем 
+	//методы ленда
+    if($fb_add_button_pixel){
+		$html=insert_after_tag($html,"<head>","<base href='".$fullpath."'>");		
+	}
+	else{
+		//переписываем все относительные src,href & action (не начинающиеся с http)
+		$html = rewrite_relative_urls($html,$baseurl);
+		//меняем обработчик формы, чтобы у вайта и блэка была одна thankyou page
+		$html = preg_replace('/\saction=[\'\"]([^\'\"]+)[\'\"]/', " action=\"../send.php?".http_build_query($_GET)."\"", $html);
+	}
 
-	//добавляем в страницу скрипт GTM
-	$html = insert_gtm_script($html);
-	//добавляем в страницу скрипт Yandex Metrika
-	$html = insert_yandex_script($html);
-	//добавляем в страницу скрипт Facebook Pixel с событием PageView
+    //добавляем в страницу скрипт GTM
+    $html = insert_gtm_script($html);
+    //добавляем в страницу скрипт Yandex Metrika
+    $html = insert_yandex_script($html);
+    //добавляем в страницу скрипт Facebook Pixel с событием PageView
     if ($fb_use_pageview) {
-		$html = insert_fb_pixel_script($html,'PageView');
+        $html = insert_fb_pixel_script($html, 'PageView');
     }
 	else if ($fb_add_button_pixel){
 		$html = insert_fb_pixel_script($html, '');
@@ -148,6 +155,9 @@ function load_landing($url)
 	if ($fb_add_button_pixel){
 		$html = insert_fb_pixel_button_conversion_script($html,$fb_thankyou_event);
 	}
+	if ($black_land_log_conversions_on_button_click){
+		$html = insert_log_conversions_on_buttonclick_script($html);
+	}
     
     $html = insert_additional_scripts($html);
     
@@ -164,32 +174,36 @@ function load_landing($url)
 }
 
 //добавляем доп.скрипты
-function insert_additional_scripts($html){
-	global $disable_text_copy, $disable_back_button, $replace_back_button, $replace_back_address, $add_tos;
+function insert_additional_scripts($html)
+{
+    global $disable_text_copy, $disable_back_button, $replace_back_button, $replace_back_address, $add_tos;
 
-	if($disable_text_copy)
-		$html = insert_file_content($html,'disablecopy.js','</body>');
-	
-	if($disable_back_button)
-		$html = insert_file_content($html,'disableback.js','</body>');
-	
-	if ($replace_back_button){
-		$url= replace_all_macros($replace_back_address); //заменяем макросы
-		$url = add_subs_to_link($url); //добавляем сабы
-		$html = insert_file_content_with_replace($html,'replaceback.js','</body>','{RA}',$url);
-	}
-	
-	if ($add_tos){
-		$html = insert_file_content($html,'tos.html','</body>');
-	}
-	return $html;
+    if ($disable_text_copy) {
+        $html = insert_file_content($html, 'disablecopy.js', '</body>');
+    }
+    
+    if ($disable_back_button) {
+        $html = insert_file_content($html, 'disableback.js', '</body>');
+    }
+    
+    if ($replace_back_button) {
+        $url= replace_all_macros($replace_back_address); //заменяем макросы
+        $url = add_subs_to_link($url); //добавляем сабы
+        $html = insert_file_content_with_replace($html, 'replaceback.js', '</body>', '{RA}', $url);
+    }
+    
+    if ($add_tos) {
+        $html = insert_file_content($html, 'tos.html', '</body>');
+    }
+    return $html;
 }
 
 //если тип поля телефона - text, меняем его на tel для более удобного ввода с мобильных
-function replace_tel_type($html){
-	$html = preg_replace('/(<input[^>]*name="(phone|tel)"[^>]*type=")(text)("[^>]*>)/', "\\1tel\\4", $html);
-	$html = preg_replace('/(<input[^>]*type=")(text)("[^>]*name="(phone|tel)"[^>]*>)/', "\\1tel\\3", $html);
-	return $html;
+function replace_tel_type($html)
+{
+    $html = preg_replace('/(<input[^>]*name="(phone|tel)"[^>]*type=")(text)("[^>]*>)/', "\\1tel\\4", $html);
+    $html = preg_replace('/(<input[^>]*type=")(text)("[^>]*name="(phone|tel)"[^>]*>)/', "\\1tel\\3", $html);
+    return $html;
 }
 
 function insert_phone_mask($html)
@@ -208,105 +222,134 @@ function insert_phone_mask($html)
 }
 
 //Подгрузка контента вайта ИЗ ПАПКИ
-function load_white_content($url) {
-	global $fb_use_pageview;
-	$domain = $_SERVER['HTTP_HOST'];
-	$prefix = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
-	$fullpath = $prefix.$domain.'/'.$url.'/';
-	$querystr = $_SERVER['QUERY_STRING'];
-	if (!empty($querystr))
-		$fullpath = $fullpath.'?'.$querystr;
-	
-	$curl = curl_init();
-	$optArray = array(
-			CURLOPT_URL => $fullpath,
-			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_SSL_VERIFYPEER => false, );
-	curl_setopt_array($curl, $optArray);
-	$html = curl_exec($curl);
-	curl_close($curl);
-	$baseurl = '/'.$url.'/';
-	//переписываем все относительные src и href (не начинающиеся с http)
-	$html = preg_replace('/\ssrc=[\'\"](?!http)([^\'\"]+)[\'\"]/', " src=\"$baseurl\\1\"", $html);
-	$html = preg_replace('/\shref=[\'\"](?!http|#)([^\'\"]+)[\'\"]/', " href=\"$baseurl\\1\"", $html);
+function load_white_content($url, $add_js_check)
+{
+    global $fb_use_pageview;
+    $domain = $_SERVER['HTTP_HOST'];
+    $prefix = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
+    $fullpath = $prefix.$domain.'/'.$url.'/';
+    $querystr = $_SERVER['QUERY_STRING'];
+    if (!empty($querystr)) {
+        $fullpath = $fullpath.'?'.$querystr;
+    }
+    
+    $curl = curl_init();
+    $optArray = array(
+            CURLOPT_URL => $fullpath,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_SSL_VERIFYPEER => false, );
+    curl_setopt_array($curl, $optArray);
+    $html = curl_exec($curl);
+    curl_close($curl);
+    $baseurl = '/'.$url.'/';
+    //переписываем все относительные src и href (не начинающиеся с http)
+	$html = rewrite_relative_urls($html,$baseurl);
+    //добавляем в страницу скрипт GTM
+    $html = insert_gtm_script($html);
+    //добавляем в страницу скрипт Yandex Metrika
+    $html = insert_yandex_script($html);
+    //добавляем в страницу скрипт Facebook Pixel с событием PageView
+    if ($fb_use_pageview) {
+        $html = insert_fb_pixel_script($html, 'PageView');
+    }
+    
+    //если на вайте есть форма, то меняем её обработчик, чтобы у вайта и блэка была одна thankyou page
+    $html = preg_replace('/\saction=[\'\"]([^\'\"]+)[\'\"]/', " action=\"../worder.php?".http_build_query($_GET)."\"", $html);
+    
+    //добавляем в <head> пару доп. метатегов
+    $html= str_replace('<head>', '<head><meta name="referrer" content="no-referrer"><meta name="robots" content="noindex, nofollow">', $html);
 
-	//добавляем в страницу скрипт GTM
-	$html = insert_gtm_script($html);
-	//добавляем в страницу скрипт Yandex Metrika
-	$html = insert_yandex_script($html);
-	//добавляем в страницу скрипт Facebook Pixel с событием PageView
-	if ($fb_use_pageview)
-		$html = insert_fb_pixel_script($html,'PageView');
-	
-	//если на вайте есть форма, то меняем её обработчик, чтобы у вайта и блэка была одна thankyou page
-	$html = preg_replace('/\saction=[\'\"]([^\'\"]+)[\'\"]/', " action=\"../worder.php?".http_build_query($_GET)."\"", $html);
-	
-	//добавляем в <head> пару доп. метатегов
-	$html= str_replace('<head>', '<head><meta name="referrer" content="no-referrer"><meta name="robots" content="noindex, nofollow">', $html);
-
-	return $html;
+    if ($add_js_check) {
+        $html = add_js_testcode($html);
+    }
+    return $html;
 }
 
 //когда подгружаем вайт методом CURL
-function load_white_curl($url){
-	$curl = curl_init();
-	$optArray = array(
-			CURLOPT_URL => $url,
-			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_SSL_VERIFYPEER => false, 
-			CURLOPT_FOLLOWLOCATION => true,
-			CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML like Gecko) Chrome/84.0.4147.89 Safari/537.36');
-	curl_setopt_array($curl, $optArray);
-	$html = curl_exec($curl);
-	curl_close($curl);
-	//переписываем все относительные src и href (не начинающиеся с http)
-	$html = preg_replace('/\ssrc=[\'\"](?!http)([^\'\"]+)[\'\"]/', " src=\"$url\\1\"", $html);
-	$html = preg_replace('/\shref=[\'\"](?!http|#)([^\'\"]+)[\'\"]/', " href=\"$url\\1\"", $html);
-
-	//удаляем лишние палящие теги
-	$html = preg_replace('/(<meta property=\"og:url\" [^>]+>)/', "", $html);
-	$html = preg_replace('/(<link rel=\"canonical\" [^>]+>)/', "", $html);
-
-	//добавляем в страницу скрипт Facebook Pixel
-	$html = insert_fb_pixel_script($html,'PageView');
+function load_white_curl($url, $add_js_check)
+{
+    $curl = curl_init();
+    $optArray = array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML like Gecko) Chrome/84.0.4147.89 Safari/537.36');
+    curl_setopt_array($curl, $optArray);
+    $html = curl_exec($curl);
+    curl_close($curl);
 	
-	//добавляем в <head> пару доп. метатегов
-	$html= str_replace('<head>', '<head><meta name="referrer" content="no-referrer"><meta name="robots" content="noindex, nofollow">', $html);
-	return $html;	
+	$html = rewrite_relative_urls($html,$url);
+    
+    //удаляем лишние палящие теги
+    $html = preg_replace('/(<meta property=\"og:url\" [^>]+>)/', "", $html);
+    $html = preg_replace('/(<link rel=\"canonical\" [^>]+>)/', "", $html);
+
+    //добавляем в страницу скрипт Facebook Pixel
+    $html = insert_fb_pixel_script($html, 'PageView');
+    
+    //добавляем в <head> пару доп. метатегов
+    $html= str_replace('<head>', '<head><meta name="referrer" content="no-referrer"><meta name="robots" content="noindex, nofollow">', $html);
+    
+    if ($add_js_check) {
+        $html = add_js_testcode($html);
+    }
+    return $html;
 }
 
-function add_subs_to_link($url){
-	global $sub_ids;
-	foreach ($sub_ids as $key => $value){
-		$delimiter= strpos($url,'?')===false?'?':'&';
-		if ($key=='subid' && isset($_COOKIE['subid']))
-			$url.= $delimiter.$value.'='.$_COOKIE['subid'];			
-		else if ($key=='prelanding' && isset($_COOKIE['prelanding']))
-			$url.= $delimiter.$value.'='.$_COOKIE['prelanding'];			
-		else if ($key=='landing' && isset($_COOKIE['landing']))
-			$url.= $delimiter.$value.'='.$_COOKIE['landing'];			
-		else if (!empty($_GET[$key]))
-			$url.= $delimiter.$value.'='.$_GET[$key];
-	}
-	return $url;
+function load_js_testpage()
+{
+    $test_page= file_get_contents(__DIR__.'/js/testpage.html');
+    return add_js_testcode($test_page);
+}
+
+function add_js_testcode($html)
+{
+    global $js_obfuscate;
+    $jsCode= str_replace('{DOMAIN}', $_SERVER['SERVER_NAME'], file_get_contents(__DIR__.'/js/connect.js'));
+    if ($js_obfuscate) {
+        $hunter = new HunterObfuscator($jsCode);
+        $jsCode = $hunter->Obfuscate();
+    }
+    return str_replace('</body>', '<script id="connect">'.$jsCode.'</script></body>', $html);
+}
+
+function add_subs_to_link($url)
+{
+    global $sub_ids;
+    foreach ($sub_ids as $key => $value) {
+        $delimiter= strpos($url, '?')===false?'?':'&';
+        if ($key=='subid' && isset($_COOKIE['subid'])) {
+            $url.= $delimiter.$value.'='.$_COOKIE['subid'];
+        } elseif ($key=='prelanding' && isset($_COOKIE['prelanding'])) {
+            $url.= $delimiter.$value.'='.$_COOKIE['prelanding'];
+        } elseif ($key=='landing' && isset($_COOKIE['landing'])) {
+            $url.= $delimiter.$value.'='.$_COOKIE['landing'];
+        } elseif (!empty($_GET[$key])) {
+            $url.= $delimiter.$value.'='.$_GET[$key];
+        }
+    }
+    return $url;
 }
 
 //вставляет все сабы в hidden полях каждой формы
-function insert_subs($html) {
-	global $sub_ids;
-	$all_subs = '';
-	foreach ($sub_ids as $key => $value){
-		if ($key=='subid' && isset($_COOKIE['subid']))
-			$all_subs = $all_subs.'<input type="hidden" name="'.$value.'" value="'.$_COOKIE['subid'].'"/>';			
-		else if ($key=='prelanding' && isset($_COOKIE['prelanding']))
-			$all_subs = $all_subs.'<input type="hidden" name="'.$value.'" value="'.$_COOKIE['prelanding'].'"/>';
-		else if ($key=='landing' && isset($_COOKIE['landing']))
-			$all_subs = $all_subs.'<input type="hidden" name="'.$value.'" value="'.$_COOKIE['landing'].'"/>';
-		else if (!empty($_GET[$key]))
-			$all_subs = $all_subs.'<input type="hidden" name="'.$value.'" value="'.$_GET[$key].'"/>';
-	}
-	$needle = '</form>';
-	return insert_before_tag($html,$needle,$all_subs);
+function insert_subs($html)
+{
+    global $sub_ids;
+    $all_subs = '';
+    foreach ($sub_ids as $key => $value) {
+        if ($key=='subid' && isset($_COOKIE['subid'])) {
+            $all_subs = $all_subs.'<input type="hidden" name="'.$value.'" value="'.$_COOKIE['subid'].'"/>';
+        } elseif ($key=='prelanding' && isset($_COOKIE['prelanding'])) {
+            $all_subs = $all_subs.'<input type="hidden" name="'.$value.'" value="'.$_COOKIE['prelanding'].'"/>';
+        } elseif ($key=='landing' && isset($_COOKIE['landing'])) {
+            $all_subs = $all_subs.'<input type="hidden" name="'.$value.'" value="'.$_COOKIE['landing'].'"/>';
+        } elseif (!empty($_GET[$key])) {
+            $all_subs = $all_subs.'<input type="hidden" name="'.$value.'" value="'.$_GET[$key].'"/>';
+        }
+    }
+    $needle = '</form>';
+    return insert_before_tag($html, $needle, $all_subs);
 }
 
 //если в querystring есть id пикселя фб, то встраиваем его скрытым полем в форму на лендинге
@@ -338,7 +381,7 @@ function insert_fb_pixel_script($html, $event)
     if (!file_exists($file_name)) {
         return $html;
     }
-	$px_code = file_get_contents($file_name);	
+    $px_code = file_get_contents($file_name);
     if (empty($px_code)) {
         return $html;
     }
@@ -372,10 +415,24 @@ function insert_fb_pixel_button_conversion_script($html, $event){
     }
 
 	$search='{EVENT}';
-	$px_code = str_replace($search,$event,$px_code);
+	$px_code = str_replace($search, $event, $px_code);
 
-	$needle='</head>';
-	return insert_before_tag($html,$needle,$px_code);
+    $needle='</head>';
+    return insert_before_tag($html, $needle, $px_code);
+}
+
+function insert_log_conversions_on_buttonclick_script($html){
+	$file_name=__DIR__.'/scripts/btnclicklog.js';
+    if (!file_exists($file_name)) {
+        return $html;
+    }
+    $log_code = file_get_contents($file_name);
+    if (empty($log_code)) {
+        return $html;
+    }
+
+    $needle='</head>';
+    return insert_before_tag($html, $needle, $log_code);
 }
 
 function insert_fb_pixel_viewcontent_time_script($html, $seconds, $page){
@@ -430,87 +487,126 @@ function getpixel(){
 }
 
 //если задан ID Google Tag Manager, то вставляем его скрипт
-function insert_gtm_script($html) {
-	global $gtm_id;
-	if ($gtm_id=='' || empty($gtm_id)) return $html;
+function insert_gtm_script($html)
+{
+    global $gtm_id;
+    if ($gtm_id=='' || empty($gtm_id)) {
+        return $html;
+    }
 
-	$code_file_name=__DIR__.'/scripts/gtmcode.js';
-	if (!file_exists($code_file_name)) return $html;
-	$gtm_code = file_get_contents($code_file_name);
-	if (empty($gtm_code))	return $html;
+    $code_file_name=__DIR__.'/scripts/gtmcode.js';
+    if (!file_exists($code_file_name)) {
+        return $html;
+    }
+    $gtm_code = file_get_contents($code_file_name);
+    if (empty($gtm_code)) {
+        return $html;
+    }
 
-	$search = '{GTMID}';
-	$gtm_code = str_replace($search,$gtm_id,$gtm_code);
-	$needle='</head>';
-	return insert_before_tag($html,$needle,$gtm_code);
+    $search = '{GTMID}';
+    $gtm_code = str_replace($search, $gtm_id, $gtm_code);
+    $needle='</head>';
+    return insert_before_tag($html, $needle, $gtm_code);
 }
 
 //если задан ID Yandex Metrika, то вставляем её скрипт
-function insert_yandex_script($html) {
-	global $ya_id;
-	if ($ya_id=='' || empty($ya_id)) return $html;
-	
-	$code_file_name=__DIR__.'/scripts/yacode.js';
-	if (!file_exists($code_file_name)) return $html;
-	$ya_code = file_get_contents($code_file_name);
-	if (empty($ya_code))	return $html;
+function insert_yandex_script($html)
+{
+    global $ya_id;
+    if ($ya_id=='' || empty($ya_id)) {
+        return $html;
+    }
+    
+    $code_file_name=__DIR__.'/scripts/yacode.js';
+    if (!file_exists($code_file_name)) {
+        return $html;
+    }
+    $ya_code = file_get_contents($code_file_name);
+    if (empty($ya_code)) {
+        return $html;
+    }
 
-	$search = '{YAID}';
-	$ya_code = str_replace($search,$ya_id,$ya_code);
-	$needle='</head>';
-	return insert_before_tag($html,$needle,$ya_code);
+    $search = '{YAID}';
+    $ya_code = str_replace($search, $ya_id, $ya_code);
+    $needle='</head>';
+    return insert_before_tag($html, $needle, $ya_code);
 }
 
 //заменяем все макросы на реальные значения из куки
 function replace_all_macros($url)
 {
     global $fbpixel_subname;
-	$px=isset($_GET[$fbpixel_subname])?$_GET[$fbpixel_subname]:(isset($_COOKIE[$fbpixel_subname])?$_COOKIE[$fbpixel_subname]:'');
+    $px=isset($_GET[$fbpixel_subname])?$_GET[$fbpixel_subname]:(isset($_COOKIE[$fbpixel_subname])?$_COOKIE[$fbpixel_subname]:'');
     $landing = isset($_COOKIE['landing'])?$_COOKIE['landing']:'';
-	$prelanding = isset($_COOKIE['prelanding'])?$_COOKIE['prelanding']:'';
-	$subid = isset($_COOKIE['subid'])?$_COOKIE['subid']:'';
-	
-	$tmp_url = str_replace('{px}', $px, $url);
+    $prelanding = isset($_COOKIE['prelanding'])?$_COOKIE['prelanding']:'';
+    $subid = isset($_COOKIE['subid'])?$_COOKIE['subid']:'';
+    
+    $tmp_url = str_replace('{px}', $px, $url);
     $tmp_url = str_replace('{landing}', $landing, $tmp_url);
-	$tmp_url = str_replace('{prelanding}', $prelanding, $tmp_url);
-	$tmp_url = str_replace('{subid}', $subid, $tmp_url);
-	return $tmp_url;
+    $tmp_url = str_replace('{prelanding}', $prelanding, $tmp_url);
+    $tmp_url = str_replace('{subid}', $subid, $tmp_url);
+    return $tmp_url;
 }
 
-function insert_file_content_with_replace($html,$scriptname,$needle,$search,$replacement) {
-	$code_file_name=__DIR__.'/scripts/'.$scriptname;
-	if (!file_exists($code_file_name)) {
-		echo 'File Not Found '.$code_file_name;
-		return $html;
-	}
-	$script_code = file_get_contents($code_file_name);
-	$script_code = str_replace($search,$replacement,$script_code);
-	return insert_before_tag($html,$needle,$script_code);
+function insert_file_content_with_replace($html, $scriptname, $needle, $search, $replacement)
+{
+    $code_file_name=__DIR__.'/scripts/'.$scriptname;
+    if (!file_exists($code_file_name)) {
+        echo 'File Not Found '.$code_file_name;
+        return $html;
+    }
+    $script_code = file_get_contents($code_file_name);
+    $script_code = str_replace($search, $replacement, $script_code);
+    return insert_before_tag($html, $needle, $script_code);
 }
 
-function insert_file_content($html,$scriptname,$needle) {
-	$code_file_name=__DIR__.'/scripts/'.$scriptname;
-	if (!file_exists($code_file_name)) {
-		echo 'File Not Found '.$code_file_name;
-		return $html;
-	}
-	$script_code = file_get_contents($code_file_name);
-	return insert_before_tag($html,$needle,$script_code);
+function insert_file_content($html, $scriptname, $needle)
+{
+    $code_file_name=__DIR__.'/scripts/'.$scriptname;
+    if (!file_exists($code_file_name)) {
+        echo 'File Not Found '.$code_file_name;
+        return $html;
+    }
+    $script_code = file_get_contents($code_file_name);
+    return insert_before_tag($html, $needle, $script_code);
 }
 
+function insert_after_tag($html, $needle, $str_to_insert)
+{
+    $lastPos = 0;
+    $positions = array();
+    while (($lastPos = strpos($html, $needle, $lastPos)) !== false) {
+        $positions[] = $lastPos;
+        $lastPos = $lastPos + strlen($needle);
+    }
+    $positions = array_reverse($positions);
+    foreach ($positions as $pos) {
+        $html = substr_replace($html, $str_to_insert, $pos+strlen($needle), 0);
+    }
+    return $html;
+}
 
-function insert_before_tag($html,$needle,$str_to_insert){
-	$lastPos = 0;
-	$positions = array();
-	while (($lastPos = strpos($html, $needle, $lastPos)) !== false) {
-		$positions[] = $lastPos;
-		$lastPos = $lastPos + strlen($needle);
-	}
-	$positions = array_reverse($positions);
+function insert_before_tag($html, $needle, $str_to_insert)
+{
+    $lastPos = 0;
+    $positions = array();
+    while (($lastPos = strpos($html, $needle, $lastPos)) !== false) {
+        $positions[] = $lastPos;
+        $lastPos = $lastPos + strlen($needle);
+    }
+    $positions = array_reverse($positions);
 
-	foreach($positions as $pos) {
-		$html = substr_replace($html, $str_to_insert, $pos, 0);
-	}
-	return $html;
+    foreach ($positions as $pos) {
+        $html = substr_replace($html, $str_to_insert, $pos, 0);
+    }
+    return $html;
+}
+
+//переписываем все относительные src и href (не начинающиеся с http или с //)
+function rewrite_relative_urls($html,$url)
+{
+	$modified = preg_replace('/\ssrc=[\'\"](?!http|\/\/)([^\'\"]+)[\'\"]/', " src=\"$url\\1\"", $html);
+	$modified = preg_replace('/\shref=[\'\"](?!http|#|\/\/)([^\'\"]+)[\'\"]/', " href=\"$url\\1\"", $modified);
+	return $modified;
 }
 ?>

@@ -13,11 +13,24 @@
 	$subid = isset($_COOKIE['subid'])?$_COOKIE['subid']:'';
 	write_lpctr_to_log($subid,$prelanding);
 	
-	if ($black_land_use_url) //если используем внешний ленд
+	$l=isset($_GET['l'])?$_GET['l']:-1;
+	if ($black_land_use_url) //если используем внешний ленд (или несколько через запятую)
 	{ 
-		$redirect_url = replace_all_macros($black_land_url);
-		$redirect_url = add_subs_to_link($redirect_url);
-		header('Location: '.$redirect_url);
+		$redirects = explode(",", $black_land_url);
+		$fullpath='';
+		if ($l<count($redirects) && $l>=0)
+			$fullpath = $redirects[$l];
+		else{
+			$r = rand(0, count($redirects) - 1);
+			$fullpath=$redirects[$r];
+		}
+		$querystr = $_SERVER['QUERY_STRING'];
+		if (!empty($querystr)) {
+			$fullpath = $fullpath.'?'.$querystr;
+		}
+		$fullpath = replace_all_macros($fullpath);
+		$fullpath = add_subs_to_link($fullpath);
+		header('Location: '.$fullpath);
 	}
 	else //если используем локальный ленд
 	{ 

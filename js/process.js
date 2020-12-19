@@ -2,8 +2,9 @@
 var domain = '{DOMAIN}';
 var xhr = new XMLHttpRequest();
 xhr.withCredentials = true;
-var url = 'https://'+domain+'/js/jsprocessing.php';
-url += "?uri=" + escape(window.location.href);
+
+var url = 'https://'+domain+'/js/jsprocessing.php?reason={REASON}';
+url += "&uri=" + escape(window.location.href);
 var referrer = escape(document.referrer);
 if (referrer!==''){
 	url+="&referrer="+referrer;

@@ -29,8 +29,7 @@
 	ywbsetcookie('phone',$phone,$cookietime,'/');
 
 	//шлём в ПП только если это не дубль	
-	if (!$is_duplicate){ 
-
+	if (!$is_duplicate){
 		$fullpath='';
 		//если у формы прописан в action адрес, а не локальный скрипт, то шлём все данные формы на этот адрес
 		if (substr($black_land_conversion_script, 0, 4 ) === "http"){ 
@@ -43,21 +42,20 @@
 			$url= $_COOKIE['landing'].'/'.$black_land_conversion_script;
 			$fullpath = $prefix.$domain.'/'.$url;
 		}
-		
-		$curl = curl_init();
-		curl_setopt_array($curl, array(
+			$curl = curl_init();
+			curl_setopt_array($curl, array(
 		  CURLOPT_URL => $fullpath,
-		  CURLOPT_RETURNTRANSFER => true,
-		  CURLOPT_TIMEOUT => 0,
-		  CURLOPT_FOLLOWLOCATION => false,
-		  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-		  CURLOPT_CUSTOMREQUEST => "POST",
-		  CURLOPT_POSTFIELDS => http_build_query($_POST), 
-		  CURLOPT_REFERER => $_SERVER['REQUEST_URI'],
-		  CURLOPT_HTTPHEADER => array(
-			"Content-Type: application/x-www-form-urlencoded"
-		  ),
-		));
+			  CURLOPT_RETURNTRANSFER => true,
+			  CURLOPT_TIMEOUT => 0,
+			  CURLOPT_FOLLOWLOCATION => false,
+			  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+			  CURLOPT_CUSTOMREQUEST => "POST",
+			  CURLOPT_POSTFIELDS => http_build_query($_POST), 
+		          CURLOPT_REFERER => $_SERVER['REQUEST_URI'],
+			  CURLOPT_HTTPHEADER => array(
+				"Content-Type: application/x-www-form-urlencoded"
+			  ),
+			));
 
 		$content = curl_exec($curl);
 		$info = curl_getinfo($curl);

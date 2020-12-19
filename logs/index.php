@@ -108,7 +108,7 @@ ini_set('display_startup_errors', 1);
                         if (trim($line) !== '') { //Remove blank lines
                             $countLines++;
                             $arrayFields = array_map('trim', str_getcsv($line, $delimiter, $enclosure)); //Convert line to array
-                            $tableOutput.="<TR><TD style='background-color: lightgray;'>".$countLines."</TD>";
+                            $tableOutput.="<TR><TD style='background-color: #b7aafd;'>".$countLines."</TD>";
                             $i=0;
                             foreach ($arrayFields as $field) {
                                 $i++;
@@ -144,6 +144,11 @@ ini_set('display_startup_errors', 1);
 	<script src="https://cdn.jsdelivr.net/npm/litepicker/dist/js/main.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
 	<link rel="shortcut icon" type="image/png" href="favicon.png"/>
+	<style>
+	body {font-size: 80%; line-height: 1.2;}
+    .table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgb(216 218 255 / 5%);}
+    </style>
     </head>
     <body>
     <a href="index.php?password=<?=$_GET['password']?>">
