@@ -120,7 +120,7 @@ while ($date<=$enddate) {
         }
     }
 	
-	if ($noprelanding) //count only if we have prelanders
+	if (!$noprelanding) //count only if we have prelanders
 	{
 		//count lp ctrs
 		foreach ($ctr_file as $ctr_line) {
