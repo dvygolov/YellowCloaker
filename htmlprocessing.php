@@ -26,7 +26,7 @@ function load_prelanding($url, $land_number)
 	global $replace_prelanding, $replace_prelanding_address;
 	
     $domain = $_SERVER['HTTP_HOST'];
-    $prefix = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
+    $prefix = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off')  ? 'https://' : 'http://';
     $fullpath = $prefix.$domain.'/'.$url.'/';
     $querystr = $_SERVER['QUERY_STRING'];
     if (!empty($querystr)) {
@@ -100,7 +100,7 @@ function load_landing($url)
 	
 	
     $domain = $_SERVER['HTTP_HOST'];
-    $prefix = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
+    $prefix = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off')  ? 'https://' : 'http://';
     $fullpath = $prefix.$domain.'/'.$url.'/';
     $fpwqs = $fullpath;
     $querystr = $_SERVER['QUERY_STRING'];

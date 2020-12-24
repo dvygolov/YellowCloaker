@@ -18,6 +18,9 @@
 [Dd]ebugPublic/
 [Rr]elease/
 [Rr]eleases/
+lrl/
+lrpl/
+white/
 x64/
 x86/
 [Aa][Rr][Mm]/
@@ -26,6 +29,7 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
+logs/*.csv
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
