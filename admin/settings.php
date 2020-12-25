@@ -632,7 +632,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Выберите метод: </label>
+                                                                <label class="login2 pull-left pull-left-pro">Выберите метод загрузки прокладок: </label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
@@ -641,7 +641,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-																						<input type="radio" value="option1" name="a5" onclick="(document.getElementById('b_7').style.display='none'); (document.getElementById('b_8').style.display='block')"> Локальный блэк из папки </label>
+																						<input type="radio" value="option1" name="black.prelanding.action" onclick="(document.getElementById('b_7').style.display='none'); (document.getElementById('b_8').style.display='block')"> Локальный блэк из папки </label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -649,7 +649,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-																						<input type="radio" value="option2" name="a5" onclick="(document.getElementById('b_7').style.display='block'); (document.getElementById('b_8').style.display='none')"> Редирект </label>
+																						<input type="radio" value="option2" name="black.prelanding.action" onclick="(document.getElementById('b_7').style.display='block'); (document.getElementById('b_8').style.display='none')"> Редирект </label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -684,7 +684,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-																						<input type="radio" value="option1" name="a6"> 301 </label>
+																						<input type="radio" value="301" name="black.prelanding.redirect.type"> 301 </label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -692,7 +692,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-																						<input type="radio" checked="" value="option2" name="a6"> 302 </label>
+																						<input type="radio"  value="302" name="black.prelanding.redirect.type"> 302 </label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -700,7 +700,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-																						<input type="radio" value="option1" name="a6">  303 </label>
+																						<input type="radio" value="303" name="black.prelanding.redirect.type">  303 </label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -708,7 +708,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-																						<input type="radio" value="option1" name="a6">  307 </label>
+																						<input type="radio" value="307" name="black.prelanding.redirect.type">  307 </label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
