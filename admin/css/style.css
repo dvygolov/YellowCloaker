@@ -2458,7 +2458,7 @@ ul.tab-custon-design li.active a, ul.tab-review-design li.active a{
     margin-bottom: 0;
 }
 .form-control {
-    background-color: #152036;
+    background-color: #5880c7;
     background-image: none;
     border: 1px solid #152036;
     border-radius: 1px;
@@ -2467,8 +2467,8 @@ ul.tab-custon-design li.active a, ul.tab-review-design li.active a{
     padding: 6px 12px;
     transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
     width: 100%;
-	height:40px;
-	color:#fff;
+    height: 40px;
+    color: #fff;
 }
 .custom-go-button .btn-primary, .custom-dropdowns-button .dropdown-toggle, .dropdown-segmented .dropdown-toggle, .dropdown-segmented .btn-white {
     background-color: #e12503;

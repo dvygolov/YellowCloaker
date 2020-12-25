@@ -1,15 +1,15 @@
 {
 	"white": {
-		"action": "folder",
+		"action": "curl",
 		"folder": {
 			"name": "white"
 		},
 		"redirect": {
 			"url": "https://ya.ru",
-			"type": 302
+			"type": 303
 		},
 		"curl": {
-			"url": "https://ya.ru"
+			"url": "https://yandex.ru"
 		},
 		"error": {
 			"code": 404
