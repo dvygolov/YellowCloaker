@@ -1,0 +1,60 @@
+/*----------------------------------------*/
+/*  1.  tab CSS
+/*----------------------------------------*/
+.custon-tab-style1{
+	background:#fff;
+	padding:20px;
+}
+.custon-tab-style1 p{
+	font-size:14px;
+	color:#303030;
+	line-height:24px;
+}
+.custon-tab-menu-style1 .tab-custon-ic{
+	margin-right:10px;
+}
+.tab-menu-right li{
+	float:right
+}
+.custom-menu-wrap.custon-tab-menu-style1 li a{
+	margin-right:0px;
+}
+.nav-tabs.custom-menu-wrap.custon-tab-menu-style1 li a, .nav-tabs.custom-menu-wrap.custon-tab-menu-style1 li.active a{
+	font-size:14px;
+}
+.tab-content-details{
+	text-align:center;
+	background:#fff;
+	padding:20px 100px;
+	border: 1px solid rgba(0,0,0,.12);
+}
+.tab-content-details h2{
+	font-size:20px;
+	color:#303030;
+}
+.tab-content-details p{
+	font-size:14px;
+	color:#303030;
+	line-height:24px;
+}
+.nav-tabs.custom-menu-wrap li a:hover{
+	background:#303030;
+	color:#fff;
+}
+.nav-tabs.custom-menu-wrap li a{
+	color:#444;
+}
+.nav-tabs.custom-menu-wrap li.active a{
+	color:#303030;
+}
+.nav-tabs.custom-menu-wrap li.active a:hover{
+	color:#fff;
+}
+.nav-tabs.custom-menu-wrap li a, .nav-tabs.custom-menu-wrap li.active a{
+	border:1px solid transparent;
+	padding:15px 25px;
+	font-size:15px;
+}
+.tab-custon-menu-bg-style ul.main-menu-dropdown li a:hover{
+	color:#fff;
+}

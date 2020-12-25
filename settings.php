@@ -1,6 +1,5 @@
 <?php
 use Noodlehaus\Config;
-use Noodlehaus\Parser\Json;
 require 'config/ConfigInterface.php';
 require 'config/AbstractConfig.php';
 require 'config/Config.php';
@@ -49,11 +48,11 @@ $fb_view_content_time = $conf['pixels.fb.viewcontent.time'];
 $fb_view_content_percent = $conf['pixels.fb.viewcontent.percent'];
 $fb_thankyou_event = $conf['pixels.fb.conversion.event'];
 $fb_add_button_pixel= $conf['pixels.fb.conversion.fireonbutton'];
-$use_cloacked_pixel = $conf['pixels.fb.cloak'];
+$use_cloaked_pixel = $conf['pixels.fb.cloak'];
 
 $full_cloak_on = $conf['tds.fullcloak'];
 $disable_tds = $conf['tds.disable'];
-$save_user_flow = $conf['tds.save_user_flow'];
+$save_user_flow = $conf['tds.saveuserflow'];
 
 $os_white = $conf['tds.filters.allowed.os'];
 $country_white = $conf['tds.filters.allowed.countries'];
@@ -62,22 +61,22 @@ $url_should_contain =$conf['tds.filters.allowed.inurl'];
 $ip_black = $conf['tds.filters.blocked.ips'];
 $tokens_black = $conf['tds.filters.blocked.tokens'];
 $ua_black = $conf['tds.filters.blocked.useragents'];
-$block_without_referer = $conf['tds.filters.blocked.without_referer'];
 $isp_black = $conf['tds.filters.blocked.isps'];
+$block_without_referer = $conf['tds.filters.blocked.withoutreferer'];
 
 $disable_back_button = $conf['scripts.back.disable'];
 $replace_back_button = $conf['scripts.back.replace.use'];
 $replace_back_address = $conf['scripts.back.replace.url'];
-$disable_text_copy = $conf['scripts.disable_text_copy'];
-$replace_prelanding = $conf['scripts.prelanding_replace.use'];
-$replace_prelanding_address = $conf['scripts.prelanding_replace.url'];
-$black_land_use_phone_mask = $conf['scripts.phone_mask.use'];
-$black_land_phone_mask = $conf['scripts.phone_mask.mask'];
+$disable_text_copy = $conf['scripts.disabletextcopy'];
+$replace_prelanding = $conf['scripts.prelandingreplace.use'];
+$replace_prelanding_address = $conf['scripts.prelandingreplace.url'];
+$black_land_use_phone_mask = $conf['scripts.phonemask.use'];
+$black_land_phone_mask = $conf['scripts.phonemask.mask'];
 
 $sub_ids = $conf['subids'];
 
 $log_password = $conf['statistics.password']; 
-$creative_sub_name = $conf['statistics.creative_sub_name'];
+$creative_sub_name = $conf['statistics.creativesubname'];
 $lead_status_name = $conf['statistics.postback.lead'];
 $purchase_status_name = $conf['statistics.postback.purchase'];
 $reject_status_name = $conf['statistics.postback.reject'];

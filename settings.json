@@ -26,7 +26,7 @@
 			]
 		},
 		"jschecks": {
-			"enabled": false,
+			"enabled": true,
 			"events": [
 				"mousemove",
 				"keydown",
@@ -53,7 +53,7 @@
 			}
 		},
 		"landing": {
-			"action": "redirect",
+			"action": "folder",
 			"folder": {
 				"names": [
 					"lrl"],
@@ -100,11 +100,11 @@
 	"tds": {
 		"fullcloak": false,
 		"disable": false,
-		"save_user_flow": false,
+		"saveuserflow": false,
 		"filters": {
 			"allowed": {
 				"countries": [
-					"RU", "UA"
+					"RU", "UA", "BY"
 				],
 				"os": [
 					"Android",
@@ -137,7 +137,7 @@
 					"azure",
 					"digitalocean"
 				],
-				"without_referer": false
+				"withoutreferer": false
 			}
 		}
 	},
@@ -149,13 +149,13 @@
 				"url": "https://ya.ru"
 			}
 		},
-		"disable_text_copy": true,
-		"prelanding_replace": {
-			"use": false,
+		"disabletextcopy": true,
+		"prelandingreplace": {
+			"use": true,
 			"url": "https://ya.ru"
 		},
-		"phone_mask": {
-			"use": false,
+		"phonemask": {
+			"use": true,
 			"mask": "+421 999 999 999"
 		}
 	},
@@ -175,7 +175,7 @@
 	],
 	"statistics": {
 		"password": "12345",
-		"creative_sub_name": "an",
+		"creativesubname": "an",
 		"postback": {
 			"lead": "Lead",
 			"purchase": "Purchase",

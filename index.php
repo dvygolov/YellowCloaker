@@ -33,6 +33,7 @@ else{
 	}
 
 	if ($check_result == 0 || $disable_tds) { //Обычный юзверь или отключена фильтрация
+		if ($disable_tds) $cloacker->result=['TDS_DISABLED'];
 		black($cloaker->detect, $cloaker->result, $check_result);
 		return;
 	} else { //Обнаружили бота или модера

@@ -4,6 +4,12 @@ use GeoIp2\Database\Reader;
 
 function getip(){
 	if (!isset($ipfound)){
+        if (isset($_SERVER['HTTP_CF_CONNECTING_IP']))
+			//echo 'Cloud';
+            $ipfound = $_SERVER['HTTP_CF_CONNECTING_IP'];
+    }
+
+	if (!isset($ipfound)){
 		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
 			//echo 'Client';
 			$ipfound = $_SERVER['HTTP_CLIENT_IP'];
