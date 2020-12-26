@@ -42,8 +42,8 @@
 	},
 	"black": {
 		"prelanding": {
-			"action": "folder",
-			"folders": ["lrpl"],
+			"action": "redirect",
+			"folders": ["lrpl","n2","n3444"],
 			"redirect": {
 				"urls": [
 					"https://ya.ru",
@@ -56,7 +56,7 @@
 			"action": "folder",
 			"folder": {
 				"names": [
-					"lrl"],
+					"lrl","lrl2","lrl3"],
 				"conversions": {
 					"script": "order.php",
 					"logonbuttonclick": true
