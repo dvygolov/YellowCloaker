@@ -38,7 +38,7 @@ class Json extends AbstractWriter
      */
     public function toString($config, $pretty = true)
     {
-        return json_encode($config, $pretty ? (JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) : 0);
+        return json_encode($config, $pretty ? (JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT | JSON_NUMERIC_CHECK) : 0);
     }
 
     /**

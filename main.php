@@ -1,6 +1,7 @@
 <?php
 include 'htmlprocessing.php';
 include 'cookies.php';
+include 'redirect.php';
 
 //Включение отладочной информации
 ini_set('display_errors', '1');
@@ -74,9 +75,9 @@ function white($use_js_checks)
                 break;
             case 'redirect':
                 if ($white_redirect_type===302) {
-                    header('Location: '.$redirect_url);
+                    redirect($redirect_url);
                 } else {
-                    header('Location: '.$redirect_url, true, $white_redirect_type);
+                    redirect($redirect_url, $white_redirect_type);
                 }
                 break;
         }
@@ -182,18 +183,5 @@ function select_landing($save_user_flow,$landings){
         ywbsetcookie('landing',$landing,'/');
     }
     return array($landing,$t);
-}
-
-
-function redirect($url,$redirect_type){
-    $querystr = $_SERVER['QUERY_STRING'];
-	if (!empty($querystr)) {
-		$url = $url.'?'.$querystr;
-	}
-    if ($redirect_type===302) {
-        header('Location: '.$url);
-    } else {
-        header('Location: '.$url, true, $redirect_type);
-    }
 }
 ?>

@@ -8,6 +8,7 @@ error_reporting(E_ALL);
 include 'settings.php';
 include 'logging.php';
 include 'cookies.php';
+include 'redirect.php';
 
 $name = '';
 if (isset($_POST['name']))
@@ -44,7 +45,7 @@ if (!$is_duplicate){
     }
     $curl = curl_init();
     curl_setopt_array($curl, array(
-  CURLOPT_URL => $fullpath,
+      CURLOPT_URL => $fullpath,
       CURLOPT_RETURNTRANSFER => true,
       CURLOPT_TIMEOUT => 0,
       CURLOPT_FOLLOWLOCATION => false,
@@ -65,12 +66,12 @@ if (!$is_duplicate){
     switch($info["http_code"]){
         case 302:
             write_leads_to_log($subid,$name,$phone,'');
-            header("Location: ".$info["redirect_url"]);
+            redirect($info["redirect_url"]);
             break;
         case 200:
             write_leads_to_log($subid,$name,$phone,'');
             if ($use_custom_thankyou_page){
-                Redirect("thankyou.php?".http_build_query($_GET));
+                jsredirect("thankyou.php?".http_build_query($_GET));
             }
             else{
                 echo $content;
@@ -84,11 +85,7 @@ if (!$is_duplicate){
 }
 else
 {
-    header("Location: thankyou.php");
+    redirect('thankyou.php');
 }
 
-function Redirect($url){
-    echo "<script type='text/javascript'> window.location='$url';</script>";
-    return;
-}
 ?>

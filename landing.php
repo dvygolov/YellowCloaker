@@ -2,6 +2,7 @@
 include 'settings.php';
 include 'htmlprocessing.php';
 include 'logging.php';
+include 'redirect.php';
 //Включение отладочной информации
 ini_set('display_errors','1');
 ini_set('display_startup_errors', 1);
@@ -45,7 +46,7 @@ switch ($black_land_action){
         }
         $fullpath = replace_all_macros($fullpath);
         $fullpath = add_subs_to_link($fullpath);
-        header('Location: '.$fullpath);
+        redirect($fullpath);
         break;
 }
 ?>

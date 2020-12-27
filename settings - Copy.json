@@ -1,0 +1,186 @@
+{
+	"white": {
+		"action": "curl",
+		"folder": {
+			"name": "white"
+		},
+		"redirect": {
+			"url": "https://ya.ru",
+			"type": 303
+		},
+		"curl": {
+			"url": "https://yandex.ru"
+		},
+		"error": {
+			"code": 404
+		},
+		"domainfilter": {
+			"use": true,
+			"domains": [{
+					"name": "awlah.com",
+					"action": "site:white3"
+				}, {
+					"name": "keto.awlah.com",
+					"action": "curl:https://ya.ru"
+				}
+			]
+		},
+		"jschecks": {
+			"enabled": true,
+			"events": [
+				"mousemove",
+				"keydown",
+				"scroll",
+				"wheel",
+				"touch",
+				"devicemotion",
+				"deviceorientation"
+			],
+			"timeout": 10000,
+			"obfuscate": true
+		}
+	},
+	"black": {
+		"prelanding": {
+			"action": "redirect",
+			"folders": ["lrpl","n2","n3444"],
+			"redirect": {
+				"urls": [
+					"https://ya.ru",
+					"https://google.com"
+				],
+				"type": 302
+			}
+		},
+		"landing": {
+			"action": "folder",
+			"folder": {
+				"names": [
+					"lrl","lrl2","lrl3"],
+				"conversions": {
+					"script": "order.php",
+					"logonbuttonclick": true
+				},
+				"customthankyoupage": {
+					"use": true,
+					"language": "EN"
+				}
+			},
+			"redirect": {
+				"urls": [
+					"https://ya.ru",
+					"https://google.com"
+				],
+				"type": 307
+			}
+		}
+	},
+	"pixels": {
+		"ya": {
+			"id": "1234124"
+		},
+		"gtm": {
+			"id": "12341234"
+		},
+		"fb": {
+			"subname": "px",
+			"pageview": true,
+			"viewcontent": {
+				"use": true,
+				"time": 30,
+				"percent": 75
+			},
+			"conversion": {
+				"event": "Lead",
+				"fireonbutton": true
+			},
+			"cloak": false
+		}
+	},
+	"tds": {
+		"fullcloak": false,
+		"disable": false,
+		"saveuserflow": false,
+		"filters": {
+			"allowed": {
+				"countries": [
+					"RU", "UA", "BY"
+				],
+				"os": [
+					"Android",
+					"iOS",
+					"Windows",
+					"OS X"
+				],
+				"inurl": [
+
+				]
+			},
+			"blocked": {
+				"ips": [
+					"0.0.0.1"				],
+				"tokens": [
+					"test"
+				],
+				"useragents": [
+					"facebook",
+					"Facebot",
+					"curl",
+					"gce-spider",
+					"yandex.com/bots"
+				],
+				"isps": [
+					"facebook",
+					"google",
+					"yandex",
+					"amazon",
+					"azure",
+					"digitalocean"
+				],
+				"withoutreferer": false
+			}
+		}
+	},
+	"scripts": {
+		"back": {
+			"disable": false,
+			"replace": {
+				"use": false,
+				"url": "https://ya.ru"
+			}
+		},
+		"disabletextcopy": true,
+		"prelandingreplace": {
+			"use": true,
+			"url": "https://ya.ru"
+		},
+		"phonemask": {
+			"use": true,
+			"mask": "+421 999 999 999"
+		}
+	},
+	"subids": [{
+			"name": "subid",
+			"rewrite": "sub_id"
+		}, {
+			"name": "prelanding",
+			"rewrite": "utm_source"
+		}, {
+			"name": "cn",
+			"rewrite": "utm_campaign"
+		}, {
+			"name": "an",
+			"rewrite": "utm_content"
+		}
+	],
+	"statistics": {
+		"password": "12345",
+		"creativesubname": "an",
+		"postback": {
+			"lead": "Lead",
+			"purchase": "Purchase",
+			"reject": "Reject",
+			"trash": "Trash"
+		}
+	}
+}

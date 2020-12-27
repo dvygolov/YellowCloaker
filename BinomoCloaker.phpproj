@@ -65,12 +65,8 @@
     <Compile Include="config\Parser\AbstractParser.php" />
     <Compile Include="config\Parser\Json.php" />
     <Compile Include="config\Parser\ParserInterface.php" />
-    <Compile Include="config\Parser\Properties.php" />
-    <Compile Include="config\Parser\Serialize.php" />
     <Compile Include="config\Writer\AbstractWriter.php" />
     <Compile Include="config\Writer\Json.php" />
-    <Compile Include="config\Writer\Properties.php" />
-    <Compile Include="config\Writer\Serialize.php" />
     <Compile Include="config\Writer\WriterInterface.php" />
     <Compile Include="config\AbstractConfig.php" />
     <Compile Include="config\Config.php" />
@@ -204,6 +200,7 @@
     <Compile Include="lrpl\js\moment-with-locales.min.js" />
     <Compile Include="lrpl\js\utils.js" />
     <Compile Include="lrpl\index.php" />
+    <Compile Include="redirect.php" />
     <Compile Include="scripts\btnclicklog.js" />
     <Compile Include="scripts\disableback.js" />
     <Compile Include="scripts\disablecopy.js" />
@@ -690,6 +687,6 @@
     <Content Include="admin\js\wizard\jquery.steps.js" />
     <Content Include="admin\js\wizard\steps-active.js" />
     <Content Include="admin\js\wow.min.js" />
-    <Content Include="admin\saved.json" />
+    <Content Include="settings - Copy.json" />
   </ItemGroup>
 </Project>

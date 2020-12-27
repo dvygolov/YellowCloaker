@@ -5,6 +5,12 @@ ini_set('display_errors', '1');
 ini_set('display_startup_errors', 1);
 //Конец включения отладочной информации
 include '../settings.php';
+
+if ($log_password!==''&&(empty($_GET['password'])||$_GET['password'] !== $log_password)) {
+    echo 'No Password Given!';
+    exit();
+}
+
 $startdate=isset($_GET['startdate'])?DateTime::createFromFormat('d.m.y', $_GET['startdate']):new DateTime();
 $enddate=isset($_GET['enddate'])?DateTime::createFromFormat('d.m.y', $_GET['enddate']):new DateTime();
 
@@ -772,7 +778,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                         </div>
                                                     </div>
                                                 </div>
-<div id="b_landings_folder" style="display:<?=$black_land_action==='folder'?'block':'none'?>;">
+                                                <div id="b_landings_folder" style="display:<?=$black_land_action==='folder'?'block':'none'?>;">
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -781,19 +787,6 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                                 <div class="input-group custom-go-button">
                                                                     <input type="text" class="form-control" placeholder="l1,l2" name="black.landing.folder.names" value="<?=implode(',',$black_land_folder_names)?>">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro"> Путь от корня лендинга до скрипта отправки даных с формы:</label>
-                                                            </div>
-                                                            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
-                                                                <div class="input-group custom-go-button">
-                                                                    <input type="text" class="form-control" placeholder="order.php" name="black.landing.conversions.script" value="<?=$black_land_conversion_script?>">
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -811,7 +804,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-																						<input type="radio" <?=$black_land_log_conversions_on_button_click===false?'checked':''?> value="false" name="black.landing.conversions.logonbuttonclick"> Нет </label>
+																						<input type="radio" <?=$black_land_log_conversions_on_button_click===false?'checked':''?> value="false" name="black.landing.folder.conversions.logonbuttonclick"> Нет </label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -819,7 +812,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-																						<input type="radio" <?=$black_land_log_conversions_on_button_click===true?'checked':''?> value="true" name="black.landing.conversions.logonbuttonclick"> Да </label>
+																						<input type="radio" <?=$black_land_log_conversions_on_button_click===true?'checked':''?> value="true" name="black.landing.folder.conversions.logonbuttonclick"> Да </label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -840,7 +833,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-																						<input type="radio" <?=$black_land_use_custom_thankyou_page===true?'checked':''?> value="true" name="black.landing.customthankyoupage.use" onclick="(document.getElementById('ctpage').style.display='block')"> Кастомную, на стороне кло </label>
+																						<input type="radio" <?=$black_land_use_custom_thankyou_page===true?'checked':''?> value="true" name="black.landing.folder.customthankyoupage.use" onclick="(document.getElementById('ctpage').style.display='block')"> Кастомную, на стороне кло </label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -848,7 +841,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-																						<input type="radio" <?=$black_land_use_custom_thankyou_page===false?'checked':''?> value="false" name="black.landing.customthankyoupage.use" onclick="(document.getElementById('ctpage').style.display='none')"> Обычную, на стороне ПП </label>
+																						<input type="radio" <?=$black_land_use_custom_thankyou_page===false?'checked':''?> value="false" name="black.landing.folder.customthankyoupage.use" onclick="(document.getElementById('ctpage').style.display='none')"> Обычную, на стороне ПП </label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -864,7 +857,19 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                                 <div class="input-group custom-go-button">
-                                                                    <input type="text" class="form-control" placeholder="EN" name="black.landing.customthankyoupage.language" value="<?=$black_land_thankyou_page_language?>">
+                                                                    <input type="text" class="form-control" placeholder="EN" name="black.landing.folder.customthankyoupage.language" value="<?=$black_land_thankyou_page_language?>">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group-inner">
+                                                        <div class="row">
+                                                            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+                                                                <label class="login2 pull-left pull-left-pro"> Путь от корня лендинга до скрипта отправки данных с формы:</label>
+                                                            </div>
+                                                            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+                                                                <div class="input-group custom-go-button">
+                                                                    <input type="text" class="form-control" placeholder="order.php" name="black.landing.folder.conversions.script" value="<?=$black_land_conversion_script?>">
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1030,7 +1035,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                         </div>
                                                     </div>
                                                     
-                                                <div id="b_8-2" style="display:<?=$fb_use_viewcontent===true?'block':'none'?>;">
+                                                    <div id="b_8-2" style="display:<?=$fb_use_viewcontent===true?'block':'none'?>;">
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -1060,7 +1065,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Какое событие будем использовать для конверсии? Например: Lead или Purchase</label>
+                                                                <label class="login2 pull-left pull-left-pro">Какое событие будем использовать для конверсии? <small>Например: Lead или Purchase</small></label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="input-group custom-go-button">
@@ -1102,7 +1107,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Клоачить ли пиксель? <small>по методу https://tgraph.me/Kloachim-FB-Pixel-bez-iframe-02-15</small></label>
+                                                                <label class="login2 pull-left pull-left-pro">Клоачить ли пиксель? <small>по методу <a href="https://tgraph.me/Kloachim-FB-Pixel-bez-iframe-02-15">из вот этой статьи</a></small></label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
@@ -1478,7 +1483,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-																						<input type="radio" <?=$black_land_use_phone_mask===false?'checked':''?> value="false" name="sripts.phonemask.use" onclick="(document.getElementById('b_11').style.display='none')"> Нет </label>
+																						<input type="radio" <?=$black_land_use_phone_mask===false?'checked':''?> value="false" name="scripts.phonemask.use" onclick="(document.getElementById('b_11').style.display='none')"> Нет </label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -1486,7 +1491,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-																						<input type="radio" <?=$black_land_use_phone_mask===true?'checked':''?> value="true" name="sripts.phonemask.use" onclick="(document.getElementById('b_11').style.display='block')"> Да, добавить маску </label>
+																						<input type="radio" <?=$black_land_use_phone_mask===true?'checked':''?> value="true" name="scripts.phonemask.use" onclick="(document.getElementById('b_11').style.display='block')"> Да, добавить маску </label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -1641,7 +1646,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                                 <div class="input-group custom-go-button">
-                                                                    <input type="text" name="statistics.postback.creativesubname" class="form-control" placeholder="an" value="<?=$creative_sub_name?>">
+                                                                    <input type="text" name="statistics.creativesubname" class="form-control" placeholder="an" value="<?=$creative_sub_name?>">
                                                                 </div>
                                                             </div>
                                                         </div>

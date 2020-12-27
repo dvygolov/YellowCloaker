@@ -1,14 +1,14 @@
 <?php
 use Noodlehaus\Config;
-require 'config/ConfigInterface.php';
-require 'config/AbstractConfig.php';
-require 'config/Config.php';
-require 'config/Parser/ParserInterface.php';
-require 'config/Parser/Json.php';
-require 'config/ErrorException.php';
-require 'config/Exception.php';
-require 'config/Exception/ParseException.php';
-require 'config/Exception/FileNotFoundException.php';
+require_once 'config/ConfigInterface.php';
+require_once 'config/AbstractConfig.php';
+require_once 'config/Config.php';
+require_once 'config/Parser/ParserInterface.php';
+require_once 'config/Parser/Json.php';
+require_once 'config/ErrorException.php';
+require_once 'config/Exception.php';
+require_once 'config/Exception/ParseException.php';
+require_once 'config/Exception/FileNotFoundException.php';
 
 $conf = Config::load(__DIR__.'/settings.json');
 
@@ -34,10 +34,10 @@ $black_land_action = $conf['black.landing.action'];
 $black_land_folder_names = $conf['black.landing.folder.names'];
 $black_land_redirect_urls = $conf['black.landing.redirect.urls'];
 $black_land_redirect_type = $conf['black.landing.redirect.type']; 
-$black_land_conversion_script = $conf['black.landing.conversions.script']; 
-$black_land_log_conversions_on_button_click = $conf['black.landing.conversions.logonbuttonclick']; 
-$black_land_use_custom_thankyou_page = $conf['black.landing.customthankyoupage.use']; 
-$black_land_thankyou_page_language = $conf['black.landing.customthankyoupage.language'];
+$black_land_conversion_script = $conf['black.landing.folder.conversions.script']; 
+$black_land_log_conversions_on_button_click = $conf['black.landing.folder.conversions.logonbuttonclick']; 
+$black_land_use_custom_thankyou_page = $conf['black.landing.folder.customthankyoupage.use']; 
+$black_land_thankyou_page_language = $conf['black.landing.folder.customthankyoupage.language'];
 
 $ya_id= $conf['pixels.ya.id'];
 $gtm_id= $conf['pixels.gtm.id'];
@@ -56,9 +56,9 @@ $save_user_flow = $conf['tds.saveuserflow'];
 
 $os_white = $conf['tds.filters.allowed.os'];
 $country_white = $conf['tds.filters.allowed.countries'];
-$url_should_contain =$conf['tds.filters.allowed.inurl'];
+$url_should_contain =$conf->get('tds.filters.allowed.inurl',[]);
 
-$ip_black = $conf['tds.filters.blocked.ips'];
+$ip_black = $conf->get('tds.filters.blocked.ips',['0.0.0.1']);
 $tokens_black = $conf['tds.filters.blocked.tokens'];
 $ua_black = $conf['tds.filters.blocked.useragents'];
 $isp_black = $conf['tds.filters.blocked.isps'];
@@ -75,7 +75,7 @@ $black_land_phone_mask = $conf['scripts.phonemask.mask'];
 
 $sub_ids = $conf['subids'];
 
-$log_password = $conf['statistics.password']; 
+$log_password = strval($conf['statistics.password']); 
 $creative_sub_name = $conf['statistics.creativesubname'];
 $lead_status_name = $conf['statistics.postback.lead'];
 $purchase_status_name = $conf['statistics.postback.purchase'];
