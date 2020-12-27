@@ -15,15 +15,16 @@ require_once '../config/Exception/ParseException.php';
 require_once '../config/Exception/FileNotFoundException.php';
 require_once '../redirect.php';
 
-//var_dump($_POST);
 $conf = new Config('../settings.json');
 foreach($_POST as $key=>$value){
     $confkey=str_replace('_','.',$key);
     if (is_string($value)&&strpos($value,',')!==false){
         $value=explode(',',$value);
     }
-    else if (is_string($value)&&($value==='false'|| $value==='true'))
+    else if ($value==='false'|| $value==='true')
         $value=filter_var($value,FILTER_VALIDATE_BOOLEAN);
+    else if ($value===''&&$conf[$confkey]===[])
+        $value=[];
 
     $conf[$confkey]=$value;
 }

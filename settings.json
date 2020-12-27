@@ -37,7 +37,7 @@
                 "devicemotion",
                 "deviceorientation"
             ],
-            "timeout": 20000,
+            "timeout": 10000,
             "obfuscate": true
         }
     },
@@ -114,7 +114,8 @@
                 "countries": [
                     "RU",
                     "UA",
-                    "BY"
+                    "BY",
+                    "UK"
                 ],
                 "os": [
                     "Android",
@@ -122,10 +123,10 @@
                     "Windows",
                     "OS X"
                 ],
-                "inurl": ""
+                "inurl": []
             },
             "blocked": {
-                "ips": "0.0.0.1",
+                "ips": [],
                 "tokens": [
                     "test"
                 ],
