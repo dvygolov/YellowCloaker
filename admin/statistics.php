@@ -443,8 +443,6 @@ $creoTableOutput.="</tbody></TABLE>";
 	<?=$landcrTableOutput ?>
 	<?=$creoTableOutput ?>
     <a name="bottom"></a>
-	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-kj3o2dktikvyik3uenzmm7kckrr/re9/qpg6aazgjwfdmvna/gpgff93hxpg5kkn" crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-apnbgh9b+y1qktv3rn7w3mgpxhu9k/scqsap7huibx39j7fakfpskvxusvfa0b4q" crossorigin="anonymous"></script>
     </div>
     <!-- jquery
 		============================================ -->

@@ -145,9 +145,6 @@ if (isset($tableOutput)) {
     <!-- nalika Icon CSS
 		============================================ -->
     <link rel="stylesheet" href="css/nalika-icon.css" />
-    <!-- animate CSS
-		============================================ -->
-    <link rel="stylesheet" href="css/animate.css" />
     <!-- main CSS
 		============================================ -->
     <link rel="stylesheet" href="css/main.css" />

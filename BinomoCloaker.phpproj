@@ -157,12 +157,11 @@
     <Folder Include="404" />
     <Folder Include="admin\" />
     <Folder Include="admin\css\" />
-    <Folder Include="admin\css\data-table\" />
     <Folder Include="admin\css\metisMenu\" />
-    <Folder Include="admin\css\morrisjs\" />
     <Folder Include="admin\fonts\" />
     <Folder Include="admin\img\" />
     <Folder Include="admin\img\logo\" />
+    <Folder Include="admin\img\notification\" />
     <Folder Include="admin\js\" />
     <Folder Include="admin\js\metisMenu\" />
     <Folder Include="admin\js\vendor\" />
@@ -180,25 +179,13 @@
     <Folder Include="tos" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="admin\css\accordions.css" />
-    <Content Include="admin\css\alerts.css" />
-    <Content Include="admin\css\animate.css" />
     <Content Include="admin\css\bootstrap.min.css" />
-    <Content Include="admin\css\buttons.css" />
-    <Content Include="admin\css\data-table\bootstrap-editable.css" />
-    <Content Include="admin\css\data-table\bootstrap-table.css" />
     <Content Include="admin\css\font-awesome.min.css" />
     <Content Include="admin\css\main.css" />
-    <Content Include="admin\css\meanmenu.min.css" />
     <Content Include="admin\css\metisMenu\metisMenu-vertical.css" />
     <Content Include="admin\css\metisMenu\metisMenu.min.css" />
-    <Content Include="admin\css\modals.css" />
-    <Content Include="admin\css\morrisjs\morris.css" />
     <Content Include="admin\css\nalika-icon.css" />
-    <Content Include="admin\css\normalize.css" />
-    <Content Include="admin\css\responsive.css" />
     <Content Include="admin\css\style.css" />
-    <Content Include="admin\css\tabs.css" />
     <Content Include="admin\fonts\fontawesome-webfont.eot" />
     <Content Include="admin\fonts\fontawesome-webfont.svg" />
     <Content Include="admin\fonts\fontawesome-webfont.ttf" />
@@ -216,8 +203,8 @@
     <Content Include="admin\img\favicon.png" />
     <Content Include="admin\img\green1.png" />
     <Content Include="admin\img\logo\logo.png" />
+    <Content Include="admin\img\notification\4.jpg" />
     <Content Include="admin\js\bootstrap.min.js" />
-    <Content Include="admin\js\jquery.meanmenu.js" />
     <Content Include="admin\js\jquery.sticky.js" />
     <Content Include="admin\js\main.js" />
     <Content Include="admin\js\metisMenu\metisMenu-active.js" />
