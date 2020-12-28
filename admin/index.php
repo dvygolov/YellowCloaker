@@ -31,28 +31,13 @@
     $filter=isset($_GET['filter'])?$_GET['filter']:'';
     $fileName='';
     
-    $date = $startdate;
-    $formatteddate = $date->format('d.m.y');
-    switch ($filter) {
-        case '':
-            $fileName = "../logs/".$formatteddate.".csv";
-            break;
-        case 'leads':
-            $fileName = "../logs/".$formatteddate.".leads.csv";
-        break;
-        case 'blocked':
-            $fileName = "../logs/".$formatteddate.".blocked.csv";
-        break;
-        case 'emails':
-            $fileName = "../logs/".$formatteddate.".emails.csv";
-        break;
-    }
+    $date = $enddate;
 	$tableOutput='';
 
     $logOriginalHeader = array();
 	$headerSet=false;
     $countLines = 0;
-    while ($date<=$enddate) {
+    while ($date>=$startdate) {
         $formatteddate = $date->format('d.m.y');
         switch ($filter) {
             case '':
@@ -129,7 +114,7 @@
                 }
             }
         }
-        $date->add(new DateInterval('P1D'));
+        $date->sub(new DateInterval('P1D'));
     }
     //Close the table tag
     if (isset($tableOutput)) {
@@ -224,12 +209,13 @@
                   <ul class="metismenu" id="menu1">
                         <li class="active">
                             
-                            <a class="has-arrow" href="index.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>" aria-expanded="false"><i class="icon nalika-bar-chart icon-wrap"></i> <span class="mini-click-non">Statistics</span></a>
+                            <a class="has-arrow" href="index.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>" aria-expanded="false"><i class="icon nalika-bar-chart icon-wrap"></i> <span class="mini-click-non">Traffic</span></a>
                             <ul class="submenu-angle" aria-expanded="false">
-                                <li><a title="Bar Charts" href="index.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Allowed</span></a></li>
-                                <li><a title="Line Charts" href="index.php?filter=leads&password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Leads</span></a></li>
-                                <li><a title="Area Charts" href="index.php?filter=blocked&password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Blocked</span></a></li>
-                                <li><a title="Rounded Charts" href="index.php?filter=emails&password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Emails</span></a></li>
+                                <li><a title="Стата" href="statistics.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Statistics</span></a></li>
+                                <li><a title="Разрешённый" href="index.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Allowed</span></a></li>
+                                <li><a title="Лиды" href="index.php?filter=leads&password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Leads</span></a></li>
+                                <li><a title="Заблокированный" href="index.php?filter=blocked&password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Blocked</span></a></li>
+                                <li><a title="Почты" href="index.php?filter=emails&password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Emails</span></a></li>
                                 
                                 <li><a title="Peity Charts" href="#bottom"><span class="mini-sub-pro">Go to bottom</span></a></li>
                             </ul>

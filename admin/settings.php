@@ -101,7 +101,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
 			<div class="nalika-profile">
 				<div class="profile-dtl">
 					<a href="https://t.me/yellow_web"><img src="img/notification/4.jpg" alt="" /></a>
-					<h2>Yellow <span class="min-dtn">WEB</span></h2>
+					<h2><a href="https://yellowweb.top" target="_blank">Yellow <span class="min-dtn">Web</span></a></h2>
 				</div>
 			</div>
             <div class="left-custom-menu-adp-wrap comment-scrollbar">
@@ -109,12 +109,13 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                   <ul class="metismenu" id="menu1">
                         <li class="active">
                             
-                            <a class="has-arrow" href="index.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>" aria-expanded="false"><i class="icon nalika-bar-chart icon-wrap"></i> <span class="mini-click-non">Statistics</span></a>
+                            <a class="has-arrow" href="index.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>" aria-expanded="false"><i class="icon nalika-bar-chart icon-wrap"></i> <span class="mini-click-non">Traffic</span></a>
                             <ul class="submenu-angle" aria-expanded="false">
-                                <li><a title="Bar Charts" href="index.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Allowed</span></a></li>
-                                <li><a title="Line Charts" href="index.php?filter=leads&password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Leads</span></a></li>
-                                <li><a title="Area Charts" href="index.php?filter=blocked&password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Blocked</span></a></li>
-                                <li><a title="Rounded Charts" href="index.php?filter=emails&password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Emails</span></a></li>
+                                <li><a title="Стата" href="statistics.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Statistics</span></a></li>
+                                <li><a title="Разрешённый" href="index.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Allowed</span></a></li>
+                                <li><a title="Лиды" href="index.php?filter=leads&password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Leads</span></a></li>
+                                <li><a title="Заблокированный" href="index.php?filter=blocked&password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Blocked</span></a></li>
+                                <li><a title="Почты" href="index.php?filter=emails&password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Emails</span></a></li>
                                 
                                 <li><a title="Peity Charts" href="#bottom"><span class="mini-sub-pro">Go to bottom</span></a></li>
                             </ul>
@@ -178,7 +179,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
         </div>
     <a name="top"></a>
         
-    <form action="savesettings.php" method="post">
+    <form action="savesettings.php?password=<?=$log_password?>" method="post">
         <div class="basic-form-area mg-tb-15">
             <div class="container-fluid">
                 

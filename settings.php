@@ -81,6 +81,4 @@ $lead_status_name = $conf['statistics.postback.lead'];
 $purchase_status_name = $conf['statistics.postback.purchase'];
 $reject_status_name = $conf['statistics.postback.reject'];
 $trash_status_name = $conf['statistics.postback.trash'];
-
-//var_dump($conf);
 ?>
