@@ -1,33 +1,38 @@
 <?php
 include 'htmlprocessing.php';
 include 'cookies.php';
+include 'redirect.php';
+
+//Включение отладочной информации
+ini_set('display_errors', '1');
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+//Конец включения отладочной информации
 
 function white($use_js_checks)
 {
-    global $white_action,$white_folder_name,$white_redirect_url,$white_redirect_type,$white_curl_url,$white_error_code,$white_use_domain_specific,$white_domain_specific;
-    
-    $cookietime=time()+60*60*24*5; //время, на которое ставятся куки, по умолчанию - 5 дней
-    //устанавливаем пользователю в куки уникальный subid, либо берём его из куки, если он уже есть
-    $cursubid=isset($_COOKIE['subid'])?$_COOKIE['subid']:uniqid();
-    ywbsetcookie('subid',$cursubid,$cookietime,'/');
-	
+    global $white_action,$white_folder_name,$white_redirect_url,$white_redirect_type;
+	global $white_curl_url,$white_error_code,$white_use_domain_specific,$white_domain_specific;
+
+
+	set_subid();
     $action = $white_action;
     $folder_name= $white_folder_name;
     $redirect_url= $white_redirect_url;
     $curl_url= $white_curl_url;
     $error_code= $white_error_code;
-    
+
     if ($white_use_domain_specific) { //если у нас под каждый домен свой вайт
         $curdomain = $_SERVER['SERVER_NAME'];
-        foreach ($white_domain_specific as $domain => $what_to_do) {
-            if ($domain==$curdomain) {
-                $wtd_arr = explode(":", $what_to_do, 2);
+        foreach ($white_domain_specific as $wds) {
+            if ($wds['name']==$curdomain) {
+                $wtd_arr = explode(":", $wds['action'], 2);
                 $action = $wtd_arr[0];
                 switch ($action) {
                     case 'error':
                         $error_code= intval($wtd_arr[1]);
                         break;
-                    case 'site':
+                    case 'folder':
                         $folder_name = $wtd_arr[1];
                         break;
                     case 'curl':
@@ -41,40 +46,40 @@ function white($use_js_checks)
             }
         }
     }
-    
+
     //при js-проверках либо показываем специально подготовленный вайт
     //либо вставляем в имеющийся вайт код проверки
     if ($use_js_checks) {
         switch ($action) {
-        case 'error':
-        case 'redirect':
-            echo load_js_testpage();
-            break;
-        case 'site':
-            echo load_white_content($folder_name, $use_js_checks);
-            break;
-        case 'curl':
-            echo load_white_curl($curl_url, $use_js_checks);
-            break;
+            case 'error':
+            case 'redirect':
+                echo load_js_testpage();
+                break;
+            case 'folder':
+                echo load_white_content($folder_name, $use_js_checks);
+                break;
+            case 'curl':
+                echo load_white_curl($curl_url, $use_js_checks);
+                break;
         }
     } else {
         switch ($action) {
-        case 'error':
-            http_response_code($error_code);
-            break;
-        case 'site':
-            echo load_white_content($folder_name, false);
-            break;
-        case 'curl':
-            echo load_white_curl($curl_url,false);
-            break;
-        case 'redirect':
-            if ($white_redirect_type===302) {
-                header('Location: '.$redirect_url);
-            } else {
-                header('Location: '.$redirect_url, true, $white_redirect_type);
-            }
-            break;
+            case 'error':
+                http_response_code($error_code);
+                break;
+            case 'folder':
+                echo load_white_content($folder_name, false);
+                break;
+            case 'curl':
+                echo load_white_curl($curl_url,false);
+                break;
+            case 'redirect':
+                if ($white_redirect_type===302) {
+                    redirect($redirect_url);
+                } else {
+                    redirect($redirect_url, $white_redirect_type);
+                }
+                break;
         }
     }
     return;
@@ -82,85 +87,101 @@ function white($use_js_checks)
 
 function black($clkrdetect, $clkrresult, $check_result)
 {
-    global $black_action,$black_redirect_type, $black_redirect_url,$black_preland_folder_name,$black_land_folder_name,$save_user_flow;
-	global $black_land_use_url,$black_land_url;
-    
+    global $black_preland_action,$black_preland_redirect_type, $black_preland_redirect_urls, $black_preland_folder_names;
+	global $black_land_action, $black_land_folder_names, $save_user_flow;
+	global $black_land_redirect_type,$black_land_redirect_urls;
+
     header('Access-Control-Allow-Credentials: true');
     if (isset($_SERVER['HTTP_REFERER'])) {
         $parsed_url=parse_url($_SERVER['HTTP_REFERER']);
         header('Access-Control-Allow-Origin: '.$parsed_url['scheme'].'://'.$parsed_url['host']);
     }
-    
-    $cookietime=time()+60*60*24*5; //время, на которое ставятся куки, по умолчанию - 5 дней
-    //устанавливаем пользователю в куки уникальный subid, либо берём его из куки, если он уже есть
-    $cursubid=isset($_COOKIE['subid'])?$_COOKIE['subid']:uniqid();
-    ywbsetcookie('subid',$cursubid,$cookietime,'/');
+
+	$cursubid=set_subid();
 
     //устанавливаем fbclid в куки, если получали его из фб
 	if (isset($_GET['fbclid']) && $_GET['fbclid']!='')
-		ywbsetcookie('fbclid',$_GET['fbclid'],$cookietime,'/');
-	
-    
-    switch ($black_action) {
-        case 'site':
-            //если мы используем прокладки
-            if ($black_preland_folder_name!='') {
+	{
+		ywbsetcookie('fbclid',$_GET['fbclid'],'/');
+	}
+
+
+	$landings=[];
+	if ($black_land_action=='redirect')
+		$landings = $black_land_redirect_urls;
+	else if ($black_land_action=='folder')
+		$landings = $black_land_folder_names;
+
+	$prelandings=[];
+	if ($black_preland_action=='redirect')
+		$prelandings=$black_preland_redirect_urls;
+	else if ($black_preland_action=='folder')
+		$prelandings = $black_preland_folder_names;
+
+    switch ($black_preland_action) {
+        case 'none':
+            $res=select_landing($save_user_flow,$landings);
+            $landing=$res[0];
+            write_black_to_log($cursubid, $clkrdetect, $clkrresult, $check_result, '', $landing);
+
+            switch ($black_land_action){
+                case 'folder':
+                    echo load_landing($landing);
+                    break;
+                case 'redirect':
+                    redirect($landing,$black_land_redirect_type);
+                    break;
+            }
+
+            break;
+        case 'folder':
+			//если мы используем локальные проклы
+            if ($prelandings != []) {
                 $prelanding='';
                 if ($save_user_flow && isset($_COOKIE['prelanding'])) {
                     $prelanding = $_COOKIE['prelanding'];
-                } else {
+					if (array_search($prelanding,$prelandings)===false)
+						$prelanding='';
+                }
+				if ($prelanding==='') {
                     //A-B тестирование прокладок
-                    $prelandings = explode(",", $black_preland_folder_name);
                     $r = rand(0, count($prelandings) - 1);
                     $prelanding = $prelandings[$r];
-		    ywbsetcookie('prelanding',$prelanding,$cookietime,'/');
+					ywbsetcookie('prelanding',$prelanding,'/');
                 }
-                
-                $landing='';
-                $t=0;
-				$landings=[];
-				if ($black_land_use_url)
-					$landings = explode(",", $black_land_url);
-				else
-                $landings = explode(",", $black_land_folder_name);
-                if ($save_user_flow && isset($_COOKIE['landing'])) {
-                    $landing = $_COOKIE['landing'];
-                    $t = array_search($landing, $landings);
-                } else {
-                    //A-B тестирование лендингов
-                    $t = rand(0, count($landings) - 1);
-                    $landing = $landings[$t];
-		    ywbsetcookie('landing',$landing,$cookietime,'/');
-                }
-            
+
+                $res=select_landing($save_user_flow,$landings);
+                $landing=$res[0];
+                $t=$res[1];
+
                 echo load_prelanding($prelanding, $t);
                 write_black_to_log($cursubid, $clkrdetect, $clkrresult, $check_result, $prelanding, $landing);
-            } else { //если у нас только ленды без прокл
-                //A-B тестирование лендингов
-                $landings = explode(",", $black_land_folder_name);
-                $r = rand(0, count($landings) - 1);
-		ywbsetcookie('landing',$landings[$r],$cookietime,'/');
-                
-                echo load_landing($landings[$r]);
-                write_black_to_log($cursubid, $clkrdetect, $clkrresult, $check_result, '', $landings[$r]);
             }
-            break;
+			break;
         case 'redirect':
-			$redirects = explode(",", $black_redirect_url);
-			$r = rand(0, count($redirects) - 1);
-			$fullpath=$redirects[$r];
-            write_black_to_log($cursubid, $clkrdetect, $clkrresult, $check_result, '', $fullpath);
-			$querystr = $_SERVER['QUERY_STRING'];
-			if (!empty($querystr)) {
-				$fullpath = $fullpath.'?'.$querystr;
-			}
-            if ($black_redirect_type===302) {
-                header('Location: '.$fullpath);
-            } else {
-                header('Location: '.$fullpath, true, $black_redirect_type);
-            }
+			$r = rand(0, count($prelandings) - 1);
+			$redirect=$prelandings[$r];
+            write_black_to_log($cursubid, $clkrdetect, $clkrresult, $check_result, '', $redirect);
+            redirect($redirect,$black_preland_redirect_type);
             break;
     }
     return;
+}
+
+function select_landing($save_user_flow,$landings){
+    $landing='';
+    if ($save_user_flow && isset($_COOKIE['landing'])) {
+        $landing = $_COOKIE['landing'];
+        $t=array_search($landing, $landings);
+        if ($t===false)
+            $landing='';
+    }
+    if ($landing===''){
+        //A-B тестирование лендингов
+        $t = rand(0, count($landings) - 1);
+        $landing = $landings[$t];
+        ywbsetcookie('landing',$landing,'/');
+    }
+    return array($landing,$t);
 }
 ?>

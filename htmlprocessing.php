@@ -1,43 +1,41 @@
 <?php
 include __DIR__.'/js/obfuscator.php';
+require_once 'ipcountry.php';
+
 function get_request_headers(){
-	$ip='';
-	if (isset($_SERVER['HTTP_CF_CONNECTING_IP']))
-		$ip = $_SERVER['HTTP_CF_CONNECTING_IP'];
-	else
-		$ip = $_SERVER['REMOTE_ADDR'];
-	return array(
-				'X-YWBCLO-UIP: '.$ip, 
-				'X-FORWARDED-FOR '.$ip, 
+	$ip=getip();
+    return array(
+				'X-YWBCLO-UIP: '.$ip,
+				'X-FORWARDED-FOR '.$ip,
 				//'CF-CONNECTING-IP: '.$ip,
 				'FORWARDED-FOR: '.$ip,
-				'X-COMING-FROM: '.$ip, 
-				'COMING-FROM: '.$ip, 
+				'X-COMING-FROM: '.$ip,
+				'COMING-FROM: '.$ip,
 				'FORWARDED-FOR-IP: '.$ip,
-				'CLIENT-IP: '.$ip, 
-				'X-REAL-IP: '.$ip, 
+				'CLIENT-IP: '.$ip,
+				'X-REAL-IP: '.$ip,
 				'REMOTE-ADDR: '.$ip);
 }
 
 //Подгрузка контента блэк проклы из другой папки через CURL
 function load_prelanding($url, $land_number)
 {
-    global $fb_use_pageview, $fb_use_viewcontent, $fb_view_content_time, $fb_view_content_percent; 
+    global $fb_use_pageview, $fb_use_viewcontent, $fb_view_content_time, $fb_view_content_percent;
 	global $replace_prelanding, $replace_prelanding_address;
-	
+
     $domain = $_SERVER['HTTP_HOST'];
-    $prefix = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
+    $prefix = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off')  ? 'https://' : 'http://';
     $fullpath = $prefix.$domain.'/'.$url.'/';
     $querystr = $_SERVER['QUERY_STRING'];
     if (!empty($querystr)) {
         $fullpath = $fullpath.'?'.$querystr;
     }
-    
+
     $curl = curl_init();
     $optArray = array(
             CURLOPT_URL => $fullpath,
             CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_SSL_VERIFYPEER => false, 
+			CURLOPT_SSL_VERIFYPEER => false,
 			CURLOPT_HTTPHEADER => get_request_headers()
 			);
     curl_setopt_array($curl, $optArray);
@@ -45,6 +43,7 @@ function load_prelanding($url, $land_number)
     curl_close($curl);
     $baseurl = '/'.$url.'/';
     //переписываем все относительные src,href & action (не начинающиеся с http)
+    //TODO:сделать полный путь к форме в случае js-подключения
 	$html = rewrite_relative_urls($html,$baseurl);
     $html = preg_replace('/\saction=[\'\"](?!http|\/\/)([^\'\"]+)[\'\"]/', " action=\"$baseurl\\1\"", $html);
 
@@ -56,7 +55,7 @@ function load_prelanding($url, $land_number)
     if ($fb_use_pageview){
         $html = insert_fb_pixel_script($html, 'PageView');
     }
-		
+
 	if ($fb_use_viewcontent){
 		if ($fb_view_content_time>0){
 	        $html = insert_fb_pixel_viewcontent_time_script($html, $fb_view_content_time, $url);
@@ -67,16 +66,16 @@ function load_prelanding($url, $land_number)
 	}
 
     $html = replace_tel_type($html);
-    
+
     //добавляем во все формы сабы
     $html = insert_subs($html);
     //добавляем в формы id пикселя фб
     $html = insert_fbpixel_id($html);
-    
-        
+
+
     //замена всех ссылок на прокле на универсальную ссылку ленда landing.php
     $replacement = "\\1".$prefix.$domain.'/landing.php?l='.$land_number.(!empty($querystr)?'&'.$querystr:'');
-    
+
     //если мы будем подменять преленд при переходе на ленд, то ленд надо открывать в новом окне
     if ($replace_prelanding) {
         $replacement=$replacement.'" target="_blank"';
@@ -87,7 +86,7 @@ function load_prelanding($url, $land_number)
     $html = preg_replace('/(<a[^>]+href=")([^"]*)/', $replacement, $html);
 
     $html = insert_additional_scripts($html);
-    
+
     return $html;
 }
 
@@ -96,18 +95,18 @@ function load_landing($url)
 {
     global $fb_use_pageview,$fb_thankyou_event,$fb_add_button_pixel;
 	global $fb_use_viewcontent, $fb_view_content_time, $fb_view_content_percent;
-	global $black_land_log_conversions_on_button_click,$fb_add_button_pixel;
-	
-	
+	global $black_land_log_conversions_on_button_click,$black_land_use_custom_thankyou_page;
+
+
     $domain = $_SERVER['HTTP_HOST'];
-    $prefix = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
+    $prefix = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off')  ? 'https://' : 'http://';
     $fullpath = $prefix.$domain.'/'.$url.'/';
     $fpwqs = $fullpath;
     $querystr = $_SERVER['QUERY_STRING'];
     if (!empty($querystr)) {
         $fpwqs = $fullpath.'?'.$querystr;
     }
-    
+
     $curl = curl_init();
     $optArray = array(
             CURLOPT_URL => $fpwqs,
@@ -119,10 +118,9 @@ function load_landing($url)
     $html = curl_exec($curl);
     curl_close($curl);
     $baseurl = '/'.$url.'/';
-    //если отстукиваем пиксель не на странице Спасибо, а просто по кнопке на ленде, то используем 
-	//методы ленда
-    if($fb_add_button_pixel){
-		$html=insert_after_tag($html,"<head>","<base href='".$fullpath."'>");		
+    //если используем стр Спасибо от ПП, то используем методы ленда
+    if($black_land_use_custom_thankyou_page){
+		$html=insert_after_tag($html,"<head>","<base href='".$fullpath."'>");
 	}
 	else{
 		//переписываем все относительные src,href & action (не начинающиеся с http)
@@ -142,7 +140,7 @@ function load_landing($url)
 	else if ($fb_add_button_pixel){
 		$html = insert_fb_pixel_script($html, '');
 	}
-	
+
 	if ($fb_use_viewcontent){
 		if ($fb_view_content_time>0){
 	        $html = insert_fb_pixel_viewcontent_time_script($html, $fb_view_content_time, $url);
@@ -151,25 +149,25 @@ function load_landing($url)
 	        $html = insert_fb_pixel_viewcontent_percent_script($html, $fb_view_content_percent, $url);
 		}
 	}
-	
+
 	if ($fb_add_button_pixel){
 		$html = insert_fb_pixel_button_conversion_script($html,$fb_thankyou_event);
 	}
 	if ($black_land_log_conversions_on_button_click){
 		$html = insert_log_conversions_on_buttonclick_script($html);
 	}
-    
+
     $html = insert_additional_scripts($html);
-    
+
     //добавляем во все формы сабы
     $html = insert_subs($html);
     //добавляем в формы id пикселя фб
     $html = insert_fbpixel_id($html);
-    
+
     //заменяем поле с телефоном на более удобный тип - tel
     $html = replace_tel_type($html);
     $html = insert_phone_mask($html);
-        
+
     return $html;
 }
 
@@ -181,17 +179,17 @@ function insert_additional_scripts($html)
     if ($disable_text_copy) {
         $html = insert_file_content($html, 'disablecopy.js', '</body>');
     }
-    
+
     if ($disable_back_button) {
         $html = insert_file_content($html, 'disableback.js', '</body>');
     }
-    
+
     if ($replace_back_button) {
         $url= replace_all_macros($replace_back_address); //заменяем макросы
         $url = add_subs_to_link($url); //добавляем сабы
         $html = insert_file_content_with_replace($html, 'replaceback.js', '</body>', '{RA}', $url);
     }
-    
+
     if ($add_tos) {
         $html = insert_file_content($html, 'tos.html', '</body>');
     }
@@ -217,7 +215,7 @@ function insert_phone_mask($html)
         "\\1 data-inputmask=\"'mask': '".$black_land_phone_mask."'\">",
         $html
     );
-    
+
     return $html;
 }
 
@@ -232,7 +230,7 @@ function load_white_content($url, $add_js_check)
     if (!empty($querystr)) {
         $fullpath = $fullpath.'?'.$querystr;
     }
-    
+
     $curl = curl_init();
     $optArray = array(
             CURLOPT_URL => $fullpath,
@@ -252,10 +250,10 @@ function load_white_content($url, $add_js_check)
     if ($fb_use_pageview) {
         $html = insert_fb_pixel_script($html, 'PageView');
     }
-    
+
     //если на вайте есть форма, то меняем её обработчик, чтобы у вайта и блэка была одна thankyou page
     $html = preg_replace('/\saction=[\'\"]([^\'\"]+)[\'\"]/', " action=\"../worder.php?".http_build_query($_GET)."\"", $html);
-    
+
     //добавляем в <head> пару доп. метатегов
     $html= str_replace('<head>', '<head><meta name="referrer" content="no-referrer"><meta name="robots" content="noindex, nofollow">', $html);
 
@@ -278,19 +276,19 @@ function load_white_curl($url, $add_js_check)
     curl_setopt_array($curl, $optArray);
     $html = curl_exec($curl);
     curl_close($curl);
-	
+
 	$html = rewrite_relative_urls($html,$url);
-    
+
     //удаляем лишние палящие теги
     $html = preg_replace('/(<meta property=\"og:url\" [^>]+>)/', "", $html);
     $html = preg_replace('/(<link rel=\"canonical\" [^>]+>)/', "", $html);
 
     //добавляем в страницу скрипт Facebook Pixel
     $html = insert_fb_pixel_script($html, 'PageView');
-    
+
     //добавляем в <head> пару доп. метатегов
     $html= str_replace('<head>', '<head><meta name="referrer" content="no-referrer"><meta name="robots" content="noindex, nofollow">', $html);
-    
+
     if ($add_js_check) {
         $html = add_js_testcode($html);
     }
@@ -359,7 +357,7 @@ function insert_fbpixel_id($html)
     global $fbpixel_subname;
     $fb_pixel = getpixel();
     if (empty($fb_pixel)) return $html;
-	
+
     $fb_input = '<input type="hidden" name="'.$fbpixel_subname.'" value="'.$fb_pixel.'"/>';
     $needle = '</form>';
     return insert_before_tag($html, $needle, $fb_input);
@@ -372,7 +370,7 @@ function insert_fb_pixel_script($html, $event)
     global $use_cloaked_pixel;
     $fb_pixel = getpixel();
     if (empty($fb_pixel)) return $html;
-	
+
 	$file_name='';
 	if ($use_cloaked_pixel)
 	    $file_name=__DIR__.'/scripts/fbpxcloaked.js';
@@ -404,7 +402,7 @@ function insert_fb_pixel_script($html, $event)
 function insert_fb_pixel_button_conversion_script($html, $event){
 	$fb_pixel = getpixel();
     if (empty($fb_pixel)) return $html;
-	
+
 	$file_name=__DIR__.'/scripts/fbpxbuttonconversion.js';
     if (!file_exists($file_name)) {
         return $html;
@@ -438,7 +436,7 @@ function insert_log_conversions_on_buttonclick_script($html){
 function insert_fb_pixel_viewcontent_time_script($html, $seconds, $page){
 	$fb_pixel = getpixel();
     if (empty($fb_pixel)) return $html;
-    
+
 	$file_name=__DIR__.'/scripts/fbpxviewcontenttime.js';
     if (!file_exists($file_name)) {
         return $html;
@@ -452,7 +450,7 @@ function insert_fb_pixel_viewcontent_time_script($html, $seconds, $page){
 	$px_code = str_replace($search, $seconds, $px_code);
 	$search='{PAGE}';
 	$px_code = str_replace($search, $page, $px_code);
-	
+
     $needle='</head>';
     return insert_before_tag($html, $needle, $px_code);
 }
@@ -460,7 +458,7 @@ function insert_fb_pixel_viewcontent_time_script($html, $seconds, $page){
 function insert_fb_pixel_viewcontent_percent_script($html, $percent, $page){
 	$fb_pixel = getpixel();
     if (empty($fb_pixel)) return $html;
-    
+
 	$file_name=__DIR__.'/scripts/fbpxviewcontentpercent.js';
     if (!file_exists($file_name)) {
         return $html;
@@ -474,7 +472,7 @@ function insert_fb_pixel_viewcontent_percent_script($html, $percent, $page){
 	$px_code = str_replace($search, $percent, $px_code);
 	$search='{PAGE}';
 	$px_code = str_replace($search, $page, $px_code);
-	
+
     $needle='</head>';
     return insert_before_tag($html, $needle, $px_code);
 }
@@ -516,7 +514,7 @@ function insert_yandex_script($html)
     if ($ya_id=='' || empty($ya_id)) {
         return $html;
     }
-    
+
     $code_file_name=__DIR__.'/scripts/yacode.js';
     if (!file_exists($code_file_name)) {
         return $html;
@@ -540,7 +538,7 @@ function replace_all_macros($url)
     $landing = isset($_COOKIE['landing'])?$_COOKIE['landing']:'';
     $prelanding = isset($_COOKIE['prelanding'])?$_COOKIE['prelanding']:'';
     $subid = isset($_COOKIE['subid'])?$_COOKIE['subid']:'';
-    
+
     $tmp_url = str_replace('{px}', $px, $url);
     $tmp_url = str_replace('{landing}', $landing, $tmp_url);
     $tmp_url = str_replace('{prelanding}', $prelanding, $tmp_url);

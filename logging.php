@@ -1,8 +1,8 @@
 <?php
 
-function write_white_to_log($data,$reason,$check_result,$preland,$land) {
+function write_white_to_log($data,$reason,$check_result) {
 	$filename = date("d.m.y").".blocked.csv";
-	write_visitors_to_log('',$filename,$data,$reason,$check_result,$preland,$land);
+	write_visitors_to_log('',$filename,$data,$reason,$check_result,'','');
 }
 
 function write_black_to_log($subid,$data,$reason,$check_result,$preland,$land) {

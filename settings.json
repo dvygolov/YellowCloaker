@@ -1,0 +1,196 @@
+{
+    "white": {
+        "action": "folder",
+        "folder": {
+            "name": "white"
+        },
+        "redirect": {
+            "url": "https://ya.ru",
+            "type": 303
+        },
+        "curl": {
+            "url": "https://yandex.ru"
+        },
+        "error": {
+            "code": 404
+        },
+        "domainfilter": {
+            "use": false,
+            "domains": [
+                {
+                    "name": "awlah.com",
+                    "action": "site:white3"
+                },
+                {
+                    "name": "keto.awlah.com",
+                    "action": "curl:https://ya.ru"
+                }
+            ]
+        },
+        "jschecks": {
+            "enabled": false,
+            "events": [
+                "mousemove",
+                "keydown",
+                "scroll",
+                "wheel",
+                "devicemotion",
+                "deviceorientation"
+            ],
+            "timeout": 10000,
+            "obfuscate": true
+        }
+    },
+    "black": {
+        "prelanding": {
+            "action": "folder",
+            "folders": [
+                "p1",
+                "p2"
+            ],
+            "redirect": {
+                "urls": [
+                    "https://ya.ru",
+                    "https://google.com"
+                ],
+                "type": 302
+            }
+        },
+        "landing": {
+            "action": "folder",
+            "folder": {
+                "names": [
+                    "l1",
+                    "l2",
+                    "l3"
+                ],
+                "conversions": {
+                    "script": "order.php",
+                    "logonbuttonclick": true
+                },
+                "customthankyoupage": {
+                    "use": false,
+                    "language": "EN"
+                }
+            },
+            "redirect": {
+                "urls": [
+                    "https://ya.ru",
+                    "https://google.com"
+                ],
+                "type": 307
+            }
+        }
+    },
+    "pixels": {
+        "ya": {
+            "id": ""
+        },
+        "gtm": {
+            "id": ""
+        },
+        "fb": {
+            "subname": "px",
+            "pageview": true,
+            "viewcontent": {
+                "use": false,
+                "time": 30,
+                "percent": 75
+            },
+            "conversion": {
+                "event": "Lead",
+                "fireonbutton": true
+            },
+            "cloak": false
+        }
+    },
+    "tds": {
+        "fullcloak": false,
+        "disable": false,
+        "saveuserflow": false,
+        "filters": {
+            "allowed": {
+                "countries": [
+                    "RU",
+                    "UA",
+                    "BY"
+                ],
+                "os": [
+                    "Android",
+                    "iOS",
+                    "Windows",
+                    "OS X"
+                ],
+                "inurl": []
+            },
+            "blocked": {
+                "ips": [],
+                "tokens": [
+                    "test"
+                ],
+                "useragents": [
+                    "facebook",
+                    "Facebot",
+                    "curl",
+                    "gce-spider",
+                    "yandex.com/bots"
+                ],
+                "isps": [
+                    "facebook",
+                    "google",
+                    "yandex",
+                    "amazon",
+                    "azure",
+                    "digitalocean"
+                ],
+                "withoutreferer": false
+            }
+        }
+    },
+    "scripts": {
+        "back": {
+            "disable": false,
+            "replace": {
+                "use": false,
+                "url": "https://ya.ru"
+            }
+        },
+        "disabletextcopy": true,
+        "prelandingreplace": {
+            "use": false,
+            "url": "https://ya.ru"
+        },
+        "phonemask": {
+            "use": false,
+            "mask": "+421 999 999 999"
+        }
+    },
+    "subids": [
+        {
+            "name": "subid",
+            "rewrite": "sub_id"
+        },
+        {
+            "name": "prelanding",
+            "rewrite": "utm_source"
+        },
+        {
+            "name": "cn",
+            "rewrite": "utm_campaign"
+        },
+        {
+            "name": "an",
+            "rewrite": "utm_content"
+        }
+    ],
+    "statistics": {
+        "password": 12345,
+        "creativesubname": "an",
+        "postback": {
+            "lead": "Lead",
+            "purchase": "Purchase",
+            "reject": "Reject",
+            "trash": "Trash"
+        }
+    }
+}

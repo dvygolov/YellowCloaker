@@ -1,0 +1,247 @@
+@font-face {
+  font-family: 'nalika';
+  src:
+    url('../fonts/nalika.ttf?nukgc0') format('truetype'),
+    url('../fonts/nalika.woff?nukgc0') format('woff'),
+    url('../panel/fonts/nalika.svg?nukgc0#nalika') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.icon {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'nalika' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.nalika-alarm:before {
+  content: "\e900";
+}
+.nalika-alarm-clock:before {
+  content: "\e901";
+}
+.nalika-analytics:before {
+  content: "\e902";
+}
+.nalika-arrow-back:before {
+  content: "\e903";
+}
+.nalika-arrow-next:before {
+  content: "\e904";
+}
+.nalika-back:before {
+  content: "\e905";
+}
+.nalika-bar-chart:before {
+  content: "\e906";
+}
+.nalika-chat:before {
+  content: "\e907";
+}
+.nalika-close:before {
+  content: "\e908";
+}
+.nalika-cloud:before {
+  content: "\e909";
+}
+.nalika-credit-cards:before {
+  content: "\e90a";
+}
+.nalika-delete-button:before {
+  content: "\e90b";
+}
+.nalika-desktop:before {
+  content: "\e90c";
+}
+.nalika-diamond:before {
+  content: "\e90d";
+}
+.nalika-down-arrow:before {
+  content: "\e90e";
+}
+.nalika-download:before {
+  content: "\e90f";
+}
+.nalika-edit:before {
+  content: "\e910";
+}
+.nalika-exit:before {
+  content: "\e911";
+}
+.nalika-eye:before {
+  content: "\e912";
+}
+.nalika-facebook:before {
+  content: "\e913";
+}
+.nalika-favorites:before {
+  content: "\e914";
+}
+.nalika-favorites-button:before {
+  content: "\e915";
+}
+.nalika-flag:before {
+  content: "\e916";
+}
+.nalika-folder:before {
+  content: "\e917";
+}
+.nalika-forms:before {
+  content: "\e918";
+}
+.nalika-gear:before {
+  content: "\e919";
+}
+.nalika-google-plus:before {
+  content: "\e91a";
+}
+.nalika-half-filled-rating-star:before {
+  content: "\e91b";
+}
+.nalika-happiness:before {
+  content: "\e91c";
+}
+.nalika-home:before {
+  content: "\e91d";
+}
+.nalika-honeymoon:before {
+  content: "\e91e";
+}
+.nalika-inbox:before {
+  content: "\e91f";
+}
+.nalika-info:before {
+  content: "\e920";
+}
+.nalika-like:before {
+  content: "\e921";
+}
+.nalika-linkedin:before {
+  content: "\e922";
+}
+.nalika-mail:before {
+  content: "\e923";
+}
+.nalika-mastercard:before {
+  content: "\e924";
+}
+.nalika-menu:before {
+  content: "\e925";
+}
+.nalika-menu-task:before {
+  content: "\e926";
+}
+.nalika-new-file:before {
+  content: "\e927";
+}
+.nalika-next:before {
+  content: "\e928";
+}
+.nalika-paperclip-document-outline:before {
+  content: "\e929";
+}
+.nalika-paper-plane:before {
+  content: "\e92a";
+}
+.nalika-paypal-logo-in-rectangular-black-card:before {
+  content: "\e92b";
+}
+.nalika-pdf:before {
+  content: "\e92c";
+}
+.nalika-picture:before {
+  content: "\e92d";
+}
+.nalika-pie-chart:before {
+  content: "\e92e";
+}
+.nalika-pinterest:before {
+  content: "\e92f";
+}
+.nalika-placeholder:before {
+  content: "\e930";
+}
+.nalika-ppt:before {
+  content: "\e931";
+}
+.nalika-price-tag:before {
+  content: "\e932";
+}
+.nalika-printer:before {
+  content: "\e933";
+}
+.nalika-refresh-button:before {
+  content: "\e934";
+}
+.nalika-right-arrow-angle:before {
+  content: "\e935";
+}
+.nalika-rss:before {
+  content: "\e936";
+}
+.nalika-search:before {
+  content: "\e937";
+}
+.nalika-settings:before {
+  content: "\e938";
+}
+.nalika-share:before {
+  content: "\e939";
+}
+.nalika-shopping-cart:before {
+  content: "\e93a";
+}
+.nalika-smartphone-call:before {
+  content: "\e93b";
+}
+.nalika-speakers:before {
+  content: "\e93c";
+}
+.nalika-table:before {
+  content: "\e93d";
+}
+.nalika-team:before {
+  content: "\e93e";
+}
+.nalika-thumb-up:before {
+  content: "\e93f";
+}
+.nalika-tick:before {
+  content: "\e940";
+}
+.nalika-twitter:before {
+  content: "\e941";
+}
+.nalika-unlocked:before {
+  content: "\e942";
+}
+.nalika-upload:before {
+  content: "\e943";
+}
+.nalika-user:before {
+  content: "\e944";
+}
+.nalika-warning-sign:before {
+  content: "\e945";
+}
+.nalika-xls:before {
+  content: "\e946";
+}
+.nalika-youtube:before {
+  content: "\e947";
+}
+.nalika-youtube-logotype:before {
+  content: "\e948";
+}
+.nalika-zip:before {
+  content: "\e949";
+}
