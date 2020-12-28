@@ -306,8 +306,7 @@ $creoTableOutput.="</tbody></TABLE>";
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Binomo Cloaker - Dashboard V.1.0</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <title>Binomo Cloaker - Dashboard v1.0.0</title>
     <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/js/main.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
 	
@@ -325,9 +324,6 @@ $creoTableOutput.="</tbody></TABLE>";
     <!-- nalika Icon CSS
 		============================================ -->
     <link rel="stylesheet" href="css/nalika-icon.css" />
-    <!-- animate CSS
-		============================================ -->
-    <link rel="stylesheet" href="css/animate.css" />
     <!-- main CSS
 		============================================ -->
     <link rel="stylesheet" href="css/main.css" />

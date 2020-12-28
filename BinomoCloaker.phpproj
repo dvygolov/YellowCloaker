@@ -186,17 +186,6 @@
     <Content Include="admin\css\metisMenu\metisMenu.min.css" />
     <Content Include="admin\css\nalika-icon.css" />
     <Content Include="admin\css\style.css" />
-    <Content Include="admin\fonts\fontawesome-webfont.eot" />
-    <Content Include="admin\fonts\fontawesome-webfont.svg" />
-    <Content Include="admin\fonts\fontawesome-webfont.ttf" />
-    <Content Include="admin\fonts\fontawesome-webfont.woff" />
-    <Content Include="admin\fonts\fontawesome-webfont.woff2" />
-    <Content Include="admin\fonts\FontAwesome.otf" />
-    <Content Include="admin\fonts\glyphicons-halflings-regular.eot" />
-    <Content Include="admin\fonts\glyphicons-halflings-regular.svg" />
-    <Content Include="admin\fonts\glyphicons-halflings-regular.ttf" />
-    <Content Include="admin\fonts\glyphicons-halflings-regular.woff" />
-    <Content Include="admin\fonts\glyphicons-halflings-regular.woff2" />
     <Content Include="admin\fonts\nalika.svg" />
     <Content Include="admin\fonts\nalika.ttf" />
     <Content Include="admin\fonts\nalika.woff" />

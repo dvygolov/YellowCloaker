@@ -27,7 +27,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Binomo Cloaker - Dashboard V.1</title>
+    <title>Binomo Cloaker - Dashboard v1.0.0</title>
     <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/js/main.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
 	
@@ -45,9 +45,6 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
     <!-- nalika Icon CSS
 		============================================ -->
     <link rel="stylesheet" href="css/nalika-icon.css" />
-    <!-- animate CSS
-		============================================ -->
-    <link rel="stylesheet" href="css/animate.css" />
     <!-- main CSS
 		============================================ -->
     <link rel="stylesheet" href="css/main.css" />
