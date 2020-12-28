@@ -24,7 +24,7 @@ if ($log_password!==''&&(empty($_GET['password'])||$_GET['password'] !== $log_pa
 $conf = new Config('../settings.json');
 foreach($_POST as $key=>$value){
     $confkey=str_replace('_','.',$key);
-    if (is_string($value)&&strpos($value,',')!==false){
+    if (is_string($value)&&is_array($conf[$confkey])){
         $value=explode(',',$value);
     }
     else if ($value==='false'|| $value==='true')
