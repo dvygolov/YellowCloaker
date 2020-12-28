@@ -119,7 +119,7 @@ function load_landing($url)
     curl_close($curl);
     $baseurl = '/'.$url.'/';
     //если используем стр Спасибо от ПП, то используем методы ленда
-    if($black_land_use_custom_thankyou_page){
+    if($black_land_use_custom_thankyou_page===false){
 		$html=insert_after_tag($html,"<head>","<base href='".$fullpath."'>");
 	}
 	else{
@@ -335,15 +335,15 @@ function insert_subs($html)
 {
     global $sub_ids;
     $all_subs = '';
-    foreach ($sub_ids as $key => $value) {
-        if ($key=='subid' && isset($_COOKIE['subid'])) {
-            $all_subs = $all_subs.'<input type="hidden" name="'.$value.'" value="'.$_COOKIE['subid'].'"/>';
-        } elseif ($key=='prelanding' && isset($_COOKIE['prelanding'])) {
-            $all_subs = $all_subs.'<input type="hidden" name="'.$value.'" value="'.$_COOKIE['prelanding'].'"/>';
-        } elseif ($key=='landing' && isset($_COOKIE['landing'])) {
-            $all_subs = $all_subs.'<input type="hidden" name="'.$value.'" value="'.$_COOKIE['landing'].'"/>';
-        } elseif (!empty($_GET[$key])) {
-            $all_subs = $all_subs.'<input type="hidden" name="'.$value.'" value="'.$_GET[$key].'"/>';
+    foreach ($sub_ids as $sid) {
+        if ($sid['name']=='subid' && isset($_COOKIE['subid'])) {
+            $all_subs = $all_subs.'<input type="hidden" name="'.$sid['rewrite'].'" value="'.$_COOKIE['subid'].'"/>';
+        } elseif ($sid['name']=='prelanding' && isset($_COOKIE['prelanding'])) {
+            $all_subs = $all_subs.'<input type="hidden" name="'.$sid['rewrite'].'" value="'.$_COOKIE['prelanding'].'"/>';
+        } elseif ($sid['name']=='landing' && isset($_COOKIE['landing'])) {
+            $all_subs = $all_subs.'<input type="hidden" name="'.$sid['rewrite'].'" value="'.$_COOKIE['landing'].'"/>';
+        } elseif (!empty($_GET[$sid['name']])) {
+            $all_subs = $all_subs.'<input type="hidden" name="'.$sid['rewrite'].'" value="'.$_GET[$sid['name']].'"/>';
         }
     }
     $needle = '</form>';
