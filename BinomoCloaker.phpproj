@@ -38,7 +38,6 @@
     <Compile Include="404\style.css" />
     <Compile Include="admin\index.php" />
     <Compile Include="admin\statistics.php" />
-    <Compile Include="admin\pixelfb.php" />
     <Compile Include="admin\savesettings.php" />
     <Compile Include="admin\settings.php" />
     <Compile Include="bases\browser\AcceptLanguage.php" />

@@ -374,7 +374,7 @@ $creoTableOutput.="</tbody></TABLE>";
     <div class="left-sidebar-pro">
         <nav id="sidebar" class="">
             <div class="sidebar-header">
-                <a href="/panel/index.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><img class="main-logo" src="img/logo/logo.png" alt="" /></a>
+                <a href="/admin/index.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><img class="main-logo" src="img/logo/logo.png" alt="" /></a>
                 <strong><img src="img/favicon.png" alt="" style="width:50px"/></strong>
             </div>
 			<div class="nalika-profile">
@@ -400,17 +400,14 @@ $creoTableOutput.="</tbody></TABLE>";
                             </ul>
                         </li>
                         <li>
-                            <a class="has-arrow" href="settings.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>" aria-expanded="false"><i class="icon nalika-table icon-wrap"></i> <span class="mini-click-non">Settings</span></a>
-                        </li><li>
-                            <a class="has-arrow" href="pixelfb.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>" aria-expanded="false"><i class="icon nalika-alarm icon-wrap"></i> <span class="mini-click-non">Pixel FB</span></a>
+                            <a href="settings.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>" aria-expanded="false"><i class="icon nalika-table icon-wrap"></i> <span class="mini-click-non">Settings</span></a>
                         </li>
-                    </ul>
-                    
+                  </ul>
                 </nav>
             </div>
         </nav>
     </div>
-    <!-- Start Welcome area -->
+    <!-- start welcome area -->
     <div class="all-content-wrapper">
         <div class="container-fluid">
             <div class="row">
@@ -430,7 +427,7 @@ $creoTableOutput.="</tbody></TABLE>";
                                 <div class="row">
                                     <div class="col-lg-1 col-md-0 col-sm-1 col-xs-12">
                                         <div class="menu-switcher-pro">
-                                            <button type="button" id="sidebarCollapse" class="btn bar-button-pro header-drl-controller-btn btn-info navbar-btn">
+                                            <button type="button" id="sidebarcollapse" class="btn bar-button-pro header-drl-controller-btn btn-info navbar-btn">
 													<i class="icon nalika-menu-task"></i>
 												</button>
                                         </div>
@@ -439,11 +436,24 @@ $creoTableOutput.="</tbody></TABLE>";
                                     <div class="col-lg-11 col-md-1 col-sm-12 col-xs-12">
                                         <div class="header-right-info">
                                             <ul class="nav navbar-nav mai-top-nav header-right-menu">
-                                                <li class="nav-item dropdown">
-                             <li class="nav-item">
-                            <a class="nav-link" href="" onClick="location.reload()">Refresh</a>
-                            </li> 
-                                                </i>
+                                                <li class="nav-item">
+                                                    <a class="nav-link" href="" onclick="location.reload()">Refresh</a>
+                                                    <a class="nav-link" href="#" id='litepicker'>Date:</a>
+                                                    <a class="nav-link">
+                                                        <?php
+                                                            $calendsd=isset($_GET['startdate'])?$_GET['startdate']:'';
+                                                            $calended=isset($_GET['enddate'])?$_GET['enddate']:'';
+                                                            if ($calendsd!==''&&$calended!=='') {
+                                                            if ($calendsd===$calended) {
+                                                            echo $calendsd;
+                                                            } else {
+                                                            echo "{$calendsd} - {$calended}";
+                                                            }
+                                                            } else {
+                                                            echo $formatteddate;
+                                                            } ?>
+                                                    </a>
+                                                </li>
                                             </ul>
                                         </div>
                                     </div>
@@ -463,61 +473,61 @@ $creoTableOutput.="</tbody></TABLE>";
 	<?=$landcrTableOutput ?>
 	<?=$creoTableOutput ?>
     <a name="bottom"></a>
-	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-kj3o2dktikvyik3uenzmm7kckrr/re9/qpg6aazgjwfdmvna/gpgff93hxpg5kkn" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-apnbgh9b+y1qktv3rn7w3mgpxhu9k/scqsap7huibx39j7fakfpskvxusvfa0b4q" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-jzr6spejh4u02d8jot6vlehfe/jqgirrsqqxsffwpi1mquvdayjuar5+76pvcmyl" crossorigin="anonymous"></script>
 
     </div>
     <!-- jquery
 		============================================ -->
     <script src="js/vendor/jquery-1.12.4.min.js"></script>
-    <!-- bootstrap JS
+    <!-- bootstrap js
 		============================================ -->
     <script src="js/bootstrap.min.js"></script>
-    <!-- wow JS
+    <!-- wow js
 		============================================ -->
-    <script src="js/wow.min.js"></script>
+    <!--<script src="js/wow.min.js"></script>-->
     <!-- price-slider JS
 		============================================ -->
-    <script src="js/jquery-price-slider.js"></script>
+    <!--<script src="js/jquery-price-slider.js"></script>-->
     <!-- meanmenu JS
 		============================================ -->
-    <script src="js/jquery.meanmenu.js"></script>
+    <!--<script src="js/jquery.meanmenu.js"></script>-->
     <!-- owl.carousel JS
 		============================================ -->
-    <script src="js/owl.carousel.min.js"></script>
+    <!--<script src="js/owl.carousel.min.js"></script>-->
     <!-- sticky JS
 		============================================ -->
     <script src="js/jquery.sticky.js"></script>
     <!-- scrollUp JS
 		============================================ -->
-    <script src="js/jquery.scrollUp.min.js"></script>
+    <!--<script src="js/jquery.scrollUp.min.js"></script>-->
     <!-- mCustomScrollbar JS
 		============================================ -->
-    <script src="js/scrollbar/jquery.mCustomScrollbar.concat.min.js"></script>
-    <script src="js/scrollbar/mCustomScrollbar-active.js"></script>
+    <!--<script src="js/scrollbar/jquery.mCustomScrollbar.concat.min.js"></script>-->
+    <!--<script src="js/scrollbar/mCustomScrollbar-active.js"></script>-->
     <!-- metisMenu JS
 		============================================ -->
     <script src="js/metisMenu/metisMenu.min.js"></script>
     <script src="js/metisMenu/metisMenu-active.js"></script>
     <!-- sparkline JS
 		============================================ -->
-    <script src="js/sparkline/jquery.sparkline.min.js"></script>
-    <script src="js/sparkline/jquery.charts-sparkline.js"></script>
+    <!--<script src="js/sparkline/jquery.sparkline.min.js"></script>-->
+    <!--<script src="js/sparkline/jquery.charts-sparkline.js"></script>-->
     <!-- calendar JS
 		============================================ -->
     <script src="js/calendar/moment.min.js"></script>
-    <script src="js/calendar/fullcalendar.min.js"></script>
-    <script src="js/calendar/fullcalendar-active.js"></script>
+    <!--<script src="js/calendar/fullcalendar.min.js"></script>-->
+    <!--<script src="js/calendar/fullcalendar-active.js"></script>-->
 	<!-- float JS
 		============================================ -->
-    <script src="js/flot/jquery.flot.js"></script>
+    <!--<script src="js/flot/jquery.flot.js"></script>
     <script src="js/flot/jquery.flot.resize.js"></script>
     <script src="js/flot/curvedLines.js"></script>
-    <script src="js/flot/flot-active.js"></script>
+    <script src="js/flot/flot-active.js"></script>-->
     <!-- plugins JS
 		============================================ -->
-    <script src="js/plugins.js"></script>
+    <!--<script src="js/plugins.js"></script>-->
     <!-- main JS
 		============================================ -->
     <script src="js/main.js"></script>

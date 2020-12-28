@@ -1,6 +1,6 @@
 {
     "white": {
-        "action": "curl",
+        "action": "folder",
         "folder": {
             "name": "white"
         },
@@ -15,7 +15,7 @@
             "code": 404
         },
         "domainfilter": {
-            "use": true,
+            "use": false,
             "domains": [
                 {
                     "name": "awlah.com",
@@ -28,7 +28,7 @@
             ]
         },
         "jschecks": {
-            "enabled": true,
+            "enabled": false,
             "events": [
                 "mousemove",
                 "keydown",
@@ -43,11 +43,10 @@
     },
     "black": {
         "prelanding": {
-            "action": "redirect",
+            "action": "folder",
             "folders": [
-                "lrpl",
-                "n2",
-                "n3444"
+                "p1",
+                "p2"
             ],
             "redirect": {
                 "urls": [
@@ -61,16 +60,16 @@
             "action": "folder",
             "folder": {
                 "names": [
-                    "lrl",
-                    "lrl2",
-                    "lrl3"
+                    "l1",
+                    "l2",
+                    "l3"
                 ],
                 "conversions": {
                     "script": "order.php",
                     "logonbuttonclick": true
                 },
                 "customthankyoupage": {
-                    "use": true,
+                    "use": false,
                     "language": "EN"
                 }
             },
@@ -85,16 +84,16 @@
     },
     "pixels": {
         "ya": {
-            "id": 1234124
+            "id": ""
         },
         "gtm": {
-            "id": 12341234
+            "id": ""
         },
         "fb": {
             "subname": "px",
             "pageview": true,
             "viewcontent": {
-                "use": true,
+                "use": false,
                 "time": 30,
                 "percent": 75
             },
@@ -114,8 +113,7 @@
                 "countries": [
                     "RU",
                     "UA",
-                    "BY",
-                    "UK"
+                    "BY"
                 ],
                 "os": [
                     "Android",
@@ -159,11 +157,11 @@
         },
         "disabletextcopy": true,
         "prelandingreplace": {
-            "use": true,
+            "use": false,
             "url": "https://ya.ru"
         },
         "phonemask": {
-            "use": true,
+            "use": false,
             "mask": "+421 999 999 999"
         }
     },
