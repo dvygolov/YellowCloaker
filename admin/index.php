@@ -128,7 +128,6 @@ if (isset($tableOutput)) {
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <title>Binomo Cloaker - Dashboard V.1</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous" />
     <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/js/main.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
 
@@ -143,52 +142,22 @@ if (isset($tableOutput)) {
     <!-- Bootstrap CSS
 		============================================ -->
     <link rel="stylesheet" href="css/bootstrap.min.css" />
-    <!-- Bootstrap CSS
-		============================================ -->
-    <link rel="stylesheet" href="css/font-awesome.min.css" />
     <!-- nalika Icon CSS
 		============================================ -->
     <link rel="stylesheet" href="css/nalika-icon.css" />
-    <!-- owl.carousel CSS
-		============================================ -->
-    <link rel="stylesheet" href="css/owl.carousel.css" />
-    <link rel="stylesheet" href="css/owl.theme.css" />
-    <link rel="stylesheet" href="css/owl.transitions.css" />
     <!-- animate CSS
 		============================================ -->
     <link rel="stylesheet" href="css/animate.css" />
-    <!-- normalize CSS
-		============================================ -->
-    <link rel="stylesheet" href="css/normalize.css" />
-    <!-- meanmenu icon CSS
-		============================================ -->
-    <link rel="stylesheet" href="css/meanmenu.min.css" />
     <!-- main CSS
 		============================================ -->
     <link rel="stylesheet" href="css/main.css" />
-    <!-- morrisjs CSS
-		============================================ -->
-    <link rel="stylesheet" href="css/morrisjs/morris.css" />
-    <!-- mCustomScrollbar CSS
-		============================================ -->
-    <link rel="stylesheet" href="css/scrollbar/jquery.mCustomScrollbar.min.css" />
     <!-- metisMenu CSS
 		============================================ -->
     <link rel="stylesheet" href="css/metisMenu/metisMenu.min.css" />
     <link rel="stylesheet" href="css/metisMenu/metisMenu-vertical.css" />
-    <!-- calendar CSS
-		============================================ -->
-    <link rel="stylesheet" href="css/calendar/fullcalendar.min.css" />
-    <link rel="stylesheet" href="css/calendar/fullcalendar.print.min.css" />
     <!-- style CSS
 		============================================ -->
     <link rel="stylesheet" href="css/style.css" />
-    <!-- responsive CSS
-		============================================ -->
-    <link rel="stylesheet" href="css/responsive.css" />
-    <!-- modernizr JS
-		============================================ -->
-    <script src="js/vendor/modernizr-2.8.3.min.js"></script>
 </head>
 
 <body>
@@ -347,12 +316,8 @@ if (isset($tableOutput)) {
         </script>
 
         <a name="top"></a>
-        <?=isset($tableoutput)?$tableoutput:'' ?>
+        <?=isset($tableOutput)?$tableOutput:'' ?>
         <a name="bottom"></a>
-        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-
     </div>
     <!-- jquery
 		============================================ -->
@@ -360,47 +325,16 @@ if (isset($tableOutput)) {
     <!-- bootstrap JS
 		============================================ -->
     <script src="js/bootstrap.min.js"></script>
-    <!-- wow JS
-		============================================ -->
-    <script src="js/wow.min.js"></script>
-    <!-- price-slider JS
-		============================================ -->
-    <script src="js/jquery-price-slider.js"></script>
     <!-- meanmenu JS
 		============================================ -->
     <script src="js/jquery.meanmenu.js"></script>
-    <!-- owl.carousel JS
-		============================================ -->
-    <script src="js/owl.carousel.min.js"></script>
     <!-- sticky JS
 		============================================ -->
     <script src="js/jquery.sticky.js"></script>
-    <!-- scrollUp JS
-		============================================ -->
-    <script src="js/jquery.scrollUp.min.js"></script>
-    <!-- mCustomScrollbar JS
-		============================================ -->
-    <script src="js/scrollbar/jquery.mCustomScrollbar.concat.min.js"></script>
-    <script src="js/scrollbar/mCustomScrollbar-active.js"></script>
     <!-- metisMenu JS
 		============================================ -->
     <script src="js/metisMenu/metisMenu.min.js"></script>
     <script src="js/metisMenu/metisMenu-active.js"></script>
-    <!-- sparkline JS
-		============================================ -->
-    <script src="js/sparkline/jquery.sparkline.min.js"></script>
-    <script src="js/sparkline/jquery.charts-sparkline.js"></script>
-    <!-- calendar JS
-		============================================ -->
-    <script src="js/calendar/moment.min.js"></script>
-    <script src="js/calendar/fullcalendar.min.js"></script>
-    <script src="js/calendar/fullcalendar-active.js"></script>
-    <!-- float JS
-		============================================ -->
-    <script src="js/flot/jquery.flot.js"></script>
-    <script src="js/flot/jquery.flot.resize.js"></script>
-    <script src="js/flot/curvedLines.js"></script>
-    <script src="js/flot/flot-active.js"></script>
     <!-- plugins JS
 		============================================ -->
     <script src="js/plugins.js"></script>
