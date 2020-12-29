@@ -27,13 +27,18 @@ if ($check_result === 0 || $disable_tds) { //Обычный юзверь или 
     header("Access-Control-Expose-Headers: YWBRedirect", false, 200);
     header("YWBRedirect: false", true, 200);
     black($cloaker->detect, $cloaker->result, $check_result);
-    if (!headers_sent()) {
+
+	if (!headers_sent()) {
         //если был редирект, то для js xhr запроса надо его модифицировать
-        if (strpos(implode(',', headers_list()), "Location")!==false) {
-            header_remove("Location"); //удаляем редирект
+		$all_headers=implode(',', headers_list());
+        if (strpos($all_headers, "Location")!==false) {
+			header_remove("Location"); //удаляем редирект
+			$matches=[];
+			preg_match("/Location: ([^ ]+)/",$all_headers,$matches);
+			$redirect_url=$matches[1];
             header("Access-Control-Expose-Headers: YWBLocation", false, 200);
             header("YWBRedirect: true", true, 200);
-            header("YWBLocation: ".$black_redirect_url, true, 200);
+            header("YWBLocation: ".$redirect_url, true, 200);
         }
     }
 } else if ($check_result===1 || $full_cloak_on) 
