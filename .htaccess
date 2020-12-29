@@ -3,3 +3,6 @@ ErrorDocument 404 /404/index.php
   Order Allow,Deny
   Deny from all
 </Files>
+php_flag  display_errors 1
+php_flag  display_startup_errors 1
+php_value  error_reporting 2047

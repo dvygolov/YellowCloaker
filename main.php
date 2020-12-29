@@ -105,19 +105,18 @@ function black($clkrdetect, $clkrresult, $check_result)
 		ywbsetcookie('fbclid',$_GET['fbclid'],'/');
 	}
 
-
-	$landings=[];
-	if ($black_land_action=='redirect')
-		$landings = $black_land_redirect_urls;
-	else if ($black_land_action=='folder')
-		$landings = $black_land_folder_names;
-
 	$prelandings=[];
 	if ($black_preland_action=='redirect')
 		$prelandings=$black_preland_redirect_urls;
 	else if ($black_preland_action=='folder')
 		$prelandings = $black_preland_folder_names;
 
+	$landings=[];
+	if ($black_land_action=='redirect')
+		$landings = $black_land_redirect_urls;
+	else if ($black_land_action=='folder')
+		$landings = $black_land_folder_names;
+	
     switch ($black_preland_action) {
         case 'none':
             $res=select_landing($save_user_flow,$landings);

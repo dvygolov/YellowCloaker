@@ -11,30 +11,22 @@ include '../logging.php';
 include '../main.php';
 
 //передаём все параметры в кло
-$cloacker = new Cloacker();
-$cloacker->os_white = $os_white;
-$cloacker->country_white = $country_white;
-$cloacker->ip_black = $ip_black;
-$cloacker->tokens_black = $tokens_black;
-$cloacker->ua_black = $ua_black;
-$cloacker->block_without_referer = $block_without_referer;
-$cloacker->isp_black = $isp_black;
-
+$cloaker = new Cloaker($os_white,$country_white,$ip_black,$tokens_black,$ua_black,$isp_black,$block_without_referer);
 //Проверяем зашедшего пользователя
-$check_result = $cloacker->check();
+$check_result = $cloaker->check();
 
-if (!isset($cloacker->result)||
-     count($cloacker->result)==0) {
-    $cloacker->result=['OK'];
+if (!isset($cloaker->result)||
+     count($cloaker->result)==0) {
+    $cloaker->result=['OK'];
 }
 
 //Добавляем, по какому из js-событий пользователь прошёл сюда
-array_push($cloacker->result,$_GET['reason']);
+array_push($cloaker->result,$_GET['reason']);
 
 if ($check_result === 0 || $disable_tds) { //Обычный юзверь или отключена фильтрация
     header("Access-Control-Expose-Headers: YWBRedirect", false, 200);
     header("YWBRedirect: false", true, 200);
-    black($cloacker->detect, $cloacker->result, $check_result);
+    black($cloaker->detect, $cloaker->result, $check_result);
     if (!headers_sent()) {
         //если был редирект, то для js xhr запроса надо его модифицировать
         if (strpos(implode(',', headers_list()), "Location")!==false) {
@@ -47,7 +39,7 @@ if ($check_result === 0 || $disable_tds) { //Обычный юзверь или 
 } else if ($check_result===1 || $full_cloak_on) 
 { 
 	//это бот, который прошёл javascript-проверку!
-	write_white_to_log($cloacker->detect, $cloacker->result, $check_result, '', '');
+	write_white_to_log($cloaker->detect, $cloaker->result, $check_result, '', '');
     header("Access-Control-Expose-Headers: YWBRedirect", false, 200);
     header("YWBRedirect: false", true, 200);
     header('Access-Control-Allow-Credentials: true');

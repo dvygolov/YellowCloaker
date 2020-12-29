@@ -118,7 +118,7 @@ function load_landing($url)
     $html = curl_exec($curl);
     curl_close($curl);
     $baseurl = '/'.$url.'/';
-    //если используем стр Спасибо от ПП, то используем методы ленда
+
     if($black_land_use_custom_thankyou_page===false){
 		$html=insert_after_tag($html,"<head>","<base href='".$fullpath."'>");
 	}

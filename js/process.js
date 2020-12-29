@@ -35,7 +35,11 @@ xhr.onload = function() {
                 return;
             }
             document.open();
-            var respText=xhr.responseText.replace('<head>','<head><base href="https://'+domain+'"/>');
+			var respText='';
+			if (!xhr.responseText.includes('<base'))
+				respText=xhr.responseText.replace('<head>','<head><base href="https://'+domain+'"/>');
+			else
+				respText=xhr.responseText;
             document.write(respText);
             document.close();
     }
