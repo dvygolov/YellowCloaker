@@ -1487,99 +1487,28 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                        у вас в адресной строке было http://xxx.com?cn=MyCampaign<br>
                                                        в форме на ленде добавится <pre>&lt;input type="hidden" name="utm_campaign" value="MyCampaign"/&gt;</pre>
                                                     </p>
+                                                <?php  for ($i=0;$i<count($sub_ids);$i++){?>
                                                 
                                                     <div class="form-group-inner">
                                                         <div class="row">
-                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">SubID => inputName</label>
-                                                            </div>
                                                             <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                                                                 <div class="row">
                                                                     <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
-                                                                     <div class="input-group">
-                                                                    <span class="input-group-addon"> <input type="checkbox" checked> </span>
-                                                                    <input type="text" class="form-control" placeholder="subid">
+                                                                         <div class="input-group">
+                                                                            <input type="text" class="form-control" placeholder="subid" value="<?=$sub_ids[$i]["name"]?>">
+                                                                        </div>
                                                                     </div>
-                                                                </div><p>=></p>
                                                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                                                <div class="input-group custom-go-button">
-                                                                    <input type="text" class="form-control" placeholder="sub_id">
-                                                                </div>
-                                                            </div>
+                                                                        <div class="input-group custom-go-button">
+                                                                            <input type="text" class="form-control" placeholder="sub_id" value="<?=$sub_ids[$i]["rewrite"]?>">
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
+                                                <?php }?>
                                                     
-                                                    <div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">SubID => inputName</label>
-                                                            </div>
-                                                            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
-                                                                <div class="row">
-                                                                    <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
-                                                                     <div class="input-group">
-                                                                    <span class="input-group-addon"> <input type="checkbox" checked> </span>
-                                                                    <input type="text" class="form-control" placeholder="prelanding">
-                                                                    </div>
-                                                                </div><p>=></p>
-                                                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                                                <div class="input-group custom-go-button">
-                                                                    <input type="text" class="form-control" placeholder="utm_source">
-                                                                </div>
-                                                            </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">SubID => inputName</label>
-                                                            </div>
-                                                            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
-                                                                <div class="row">
-                                                                    <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
-                                                                     <div class="input-group">
-                                                                    <span class="input-group-addon"> <input type="checkbox" checked> </span>
-                                                                    <input type="text" class="form-control" placeholder="cn">
-                                                                    </div>
-                                                                </div><p>=></p>
-                                                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                                                <div class="input-group custom-go-button">
-                                                                    <input type="text" class="form-control" placeholder="utm_campaign">
-                                                                </div>
-                                                            </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">SubID => inputName</label>
-                                                            </div>
-                                                            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
-                                                                <div class="row">
-                                                                    <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
-                                                                     <div class="input-group">
-                                                                    <span class="input-group-addon"> <input type="checkbox" checked> </span>
-                                                                    <input type="text" class="form-control" placeholder="an">
-                                                                    </div>
-                                                                </div><p>=></p>
-                                                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                                                <div class="input-group custom-go-button">
-                                                                    <input type="text" class="form-control" placeholder="utm_content">
-                                                                </div>
-                                                            </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
                                                     <br>
                                                     <hr>
                                                     <h4>#9 Настройка статистики и постбэка</h4>
