@@ -480,120 +480,28 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                     </div>
                                                 
                                                 <div id="b_6" style="display:<?=$white_use_domain_specific===true?'block':'none'?>;">
+                                                    <?php for($j=0;$j<count($white_domain_specific);$j++){ ?>
                                                     <div class="form-group-inner">
                                                         <div class="row">
-                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                                                                 <label class="login2 pull-left pull-left-pro">Домен => Метод:Направление</label>
                                                             </div>
-                                                            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
-                                                                <div class="row">
-                                                                    <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
+                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                                                                      <div class="input-group">
-                                                                    <span class="input-group-addon"> <input type="checkbox" checked> </span>
-                                                                    <input type="text" class="form-control" placeholder="awlah.com">
+                                                                    <input type="text" class="form-control" placeholder="xxx.yyy.com" value="<?=$white_domain_specific[$j]["name"]?>">
                                                                     </div>
-                                                                </div><p>=></p>
-                                                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                                                <div class="input-group custom-go-button">
-                                                                    <input type="text" class="form-control" placeholder="site:white3">
-                                                                </div>
                                                             </div>
+                                                            <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
+                                                                    =>
+                                                            </div>
+                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                                                                <div class="input-group custom-go-button">
+                                                                    <input type="text" class="form-control" placeholder="site:white" value="<?=$white_domain_specific[$j]["action"]?>">
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
-                                                    <div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Домен => Метод:Направление</label>
-                                                            </div>
-                                                            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
-                                                                <div class="row">
-                                                                    <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
-                                                                     <div class="input-group">
-                                                                    <span class="input-group-addon"> <input type="checkbox" checked> </span>
-                                                                    <input type="text" class="form-control" placeholder="keto.awlah.com">
-                                                                    </div>
-                                                                </div><p>=></p>
-                                                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                                                <div class="input-group custom-go-button">
-                                                                    <input type="text" class="form-control" placeholder="curl:https://ya.ru">
-                                                                </div>
-                                                            </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Домен => Метод:Направление</label>
-                                                            </div>
-                                                            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
-                                                                <div class="row">
-                                                                    <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
-                                                                     <div class="input-group">
-                                                                    <span class="input-group-addon"> <input type="checkbox" checked> </span>
-                                                                    <input type="text" class="form-control" placeholder="diet.awlah.com">
-                                                                    </div>
-                                                                </div><p>=></p>
-                                                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                                                <div class="input-group custom-go-button">
-                                                                    <input type="text" class="form-control" placeholder="site:white2">
-                                                                </div>
-                                                            </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Домен => Метод:Направление</label>
-                                                            </div>
-                                                            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
-                                                                <div class="row">
-                                                                    <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
-                                                                     <div class="input-group">
-                                                                    <span class="input-group-addon"> <input type="checkbox" checked> </span>
-                                                                    <input type="text" class="form-control" placeholder="ketopro.awlah.com">
-                                                                    </div>
-                                                                </div><p>=></p>
-                                                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                                                <div class="input-group custom-go-button">
-                                                                    <input type="text" class="form-control" placeholder="redirect:https://ya.ru">
-                                                                </div>
-                                                            </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Домен => Метод:Направление</label>
-                                                            </div>
-                                                            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
-                                                                <div class="row">
-                                                                    <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
-                                                                     <div class="input-group">
-                                                                    <span class="input-group-addon"> <input type="checkbox" checked> </span>
-                                                                    <input type="text" class="form-control" placeholder="proketo.awlah.com">
-                                                                    </div>
-                                                                </div><p>=></p>
-                                                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                                                <div class="input-group custom-go-button">
-                                                                    <input type="text" class="form-control" placeholder="error:404">
-                                                                </div>
-                                                            </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                                    <?php } ?>
                                                 </div>
                                                 
                                                     <br>
