@@ -174,9 +174,8 @@ if (isset($tableOutput)) {
                         <img src="img/notification/4.jpg" alt="" />
                     </a>
                     <h2>
-                        <a href="https://yellowweb.top" target="_blank">
-                            Yellow
-                            <span class="min-dtn">Web</span>
+                        <a href="https://yellowweb.top/donate" target="_blank">
+                           Помощь автору проекта! 
                         </a>
                     </h2>
                 </div>

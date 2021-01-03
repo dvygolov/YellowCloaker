@@ -20,19 +20,28 @@ if ($log_password!==''&&(empty($_GET['password'])||$_GET['password'] !== $log_pa
     echo 'No Password For Settings Save!';
     exit();
 }
-
 $conf = new Config('../settings.json');
 foreach($_POST as $key=>$value){
     $confkey=str_replace('_','.',$key);
     if (is_string($value)&&is_array($conf[$confkey])){
         $value=explode(',',$value);
+        $conf[$confkey]=$value;
     }
-    else if ($value==='false'|| $value==='true')
+    else if ($value==='false'|| $value==='true'){
         $value=filter_var($value,FILTER_VALIDATE_BOOLEAN);
-    else if ($value===''&&$conf[$confkey]===[])
+        $conf[$confkey]=$value;
+    }
+    else if ($value===''&&$conf[$confkey]===[]){
         $value=[];
+        $conf[$confkey]=$value;
+    }
+    else if (is_array($value)){
+        $conf[$confkey]=$value;
+    }
+    else{
+        $conf[$confkey]=$value;
+    }
 
-    $conf[$confkey]=$value;
 }
 $conf->toFile('../settings.json',new Json());
 require('../settings.php');

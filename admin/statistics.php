@@ -346,7 +346,7 @@ $creoTableOutput.="</tbody></TABLE>";
 			<div class="nalika-profile">
 				<div class="profile-dtl">
 					<a href="https://t.me/yellow_web"><img src="img/notification/4.jpg" alt="" /></a>
-					<h2><a href="https://yellowweb.top" target="_blank">Yellow <span class="min-dtn">Web</span></a></h2>
+					<h2><a href="https://yellowweb.top/donate" target="_blank">Помощь автору проекта!</a></h2>
 				</div>
 			</div>
             <div class="left-custom-menu-adp-wrap comment-scrollbar">

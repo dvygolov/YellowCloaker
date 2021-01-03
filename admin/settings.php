@@ -67,7 +67,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
 			<div class="nalika-profile">
 				<div class="profile-dtl">
 					<a href="https://t.me/yellow_web"><img src="img/notification/4.jpg" alt="" /></a>
-					<h2><a href="https://yellowweb.top" target="_blank">Yellow <span class="min-dtn">Web</span></a></h2>
+					<h2><a href="https://yellowweb.top/donate" target="_blank">Помощь автору проекта! </a></h2>
 				</div>
 			</div>
             <div class="left-custom-menu-adp-wrap comment-scrollbar">
@@ -488,7 +488,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                                                                      <div class="input-group">
-                                                                    <input type="text" class="form-control" placeholder="xxx.yyy.com" value="<?=$white_domain_specific[$j]["name"]?>">
+                                                                    <input type="text" class="form-control" placeholder="xxx.yyy.com" value="<?=$white_domain_specific[$j]["name"]?>" name="white.domainfilter.domains[<?=$j?>][name]">
                                                                     </div>
                                                             </div>
                                                             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
@@ -496,7 +496,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                                                                 <div class="input-group custom-go-button">
-                                                                    <input type="text" class="form-control" placeholder="site:white" value="<?=$white_domain_specific[$j]["action"]?>">
+                                                                    <input type="text" class="form-control" placeholder="site:white" value="<?=$white_domain_specific[$j]["action"]?>" name="white.domainfilter.domains[<?=$j?>][action]">
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1390,9 +1390,10 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                        Есть 3 "зашитые" метки: <br>
                                                        - subid - уникальный идентификатор пользователя, создаётся при заходе пользователя на блэк, хранится в куки<br>
                                                        - prelanding - название папки преленда<br>
-                                                       - landing - название папки ленда<br>
+                                                       - landing - название папки ленда<br><br />
                                                        Пример: <br>
                                                        у вас в адресной строке было http://xxx.com?cn=MyCampaign<br>
+                                                       вы написали в настройке: cn => utm_campaign <br />
                                                        в форме на ленде добавится <pre>&lt;input type="hidden" name="utm_campaign" value="MyCampaign"/&gt;</pre>
                                                     </p>
                                                 <?php  for ($i=0;$i<count($sub_ids);$i++){?>
@@ -1403,12 +1404,12 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                 <div class="row">
                                                                     <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
                                                                          <div class="input-group">
-                                                                            <input type="text" class="form-control" placeholder="subid" value="<?=$sub_ids[$i]["name"]?>">
+                                                                            <input type="text" class="form-control" placeholder="subid" value="<?=$sub_ids[$i]["name"]?>" name="subids[<?=$i?>][name]">
                                                                         </div>
                                                                     </div>
                                                                     <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                                                         <div class="input-group custom-go-button">
-                                                                            <input type="text" class="form-control" placeholder="sub_id" value="<?=$sub_ids[$i]["rewrite"]?>">
+                                                                            <input type="text" class="form-control" placeholder="sub_id" value="<?=$sub_ids[$i]["rewrite"]?>" name="subids[<?=$i?>][rewrite]">
                                                                         </div>
                                                                     </div>
                                                                 </div>
