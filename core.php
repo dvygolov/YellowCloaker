@@ -81,7 +81,9 @@ class Cloaker{
 			$this->result[]='os';
 		}
 		
-		if(!empty($this->country_white) && $country_white_checker===false){
+		if($this->country_white!=[] && 
+			in_array('WW',$this->country_white)===false && 
+			$country_white_checker===false){
 			$result=1;
 			$this->result[]='country';
 		}
