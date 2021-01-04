@@ -455,8 +455,7 @@ $creoTableOutput.="</tbody></TABLE>";
                                                             }
                                                             } else {
                                                             echo $formatteddate;
-                                                            } 
-                                                          ?>
+                                                            } ?>
                                                     </a>
                                                 </li>
                                             </ul>
@@ -474,11 +473,25 @@ $creoTableOutput.="</tbody></TABLE>";
 
         <a name="top"></a>
         <?=$tableOutput ?>
-	    <?=$lpctrTableOutput ?>
-	    <?=$landcrTableOutput ?>
-	    <?=$creoTableOutput ?>
+        <?=$lpctrTableOutput ?>
+        <?=$landcrTableOutput ?>
+        <?=$creoTableOutput ?>
         <a name="bottom"></a>
     </div>
+    <script>
+		var picker = new Litepicker({
+			element: document.getElementById('litepicker'),
+			format: 'DD.MM.YY',
+			autoApply:false,
+			singleMode:false,
+			onSelect: function(date1, date2) {
+				var searchParams = new URLSearchParams(window.location.search);
+				searchParams.set('startdate', moment(date1).format('DD.MM.YY'));
+				searchParams.set('enddate', moment(date2).format('DD.MM.YY'));
+				window.location.search = searchParams.toString();
+			}
+		});
+    </script>
 
     <!-- jquery
 		============================================ -->
