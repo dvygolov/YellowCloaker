@@ -351,7 +351,7 @@ $creoTableOutput.="</tbody></TABLE>";
                         <img src="img/notification/4.jpg" alt="" />
                     </a>
                     <h2>
-                        <a href="https://yellowweb.top/donate" target="_blank">Помощь автору проекта!</a>
+                        <a href="https://yellowweb.top/donate" target="_blank">Помощь автору!</a>
                     </h2>
                 </div>
             </div>

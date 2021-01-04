@@ -173,7 +173,7 @@ if (isset($tableOutput)) {
                     </a>
                     <h2>
                         <a href="https://yellowweb.top/donate" target="_blank">
-                           Помощь автору проекта! 
+                           Помощь автору! 
                         </a>
                     </h2>
                 </div>
