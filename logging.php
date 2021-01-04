@@ -115,7 +115,7 @@ function write_visitors_to_log($subid,$filename,$data,$reason,$check_result,$pre
 	if(!file_exists($file)) //если новый день и файла лога ещё нет, то пишем туда заголовки столбцов
 	{
 		$save_order = fopen($file, 'a+');
-		fwrite($save_order, "SubId,IP,Country,ISP,Time,Is Denied?,Reason,OS,UA,QueryString,Preland,Land\n");
+		fwrite($save_order, "SubId,IP,Country,ISP,Time,Denied?,Reason,OS,UA,QueryString,Preland,Land\n");
 		fflush($save_order);
 		fclose($save_order);
 	}
