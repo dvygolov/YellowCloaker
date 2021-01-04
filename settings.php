@@ -64,9 +64,8 @@ $ua_black = $conf['tds.filters.blocked.useragents'];
 $isp_black = $conf['tds.filters.blocked.isps'];
 $block_without_referer = $conf['tds.filters.blocked.withoutreferer'];
 
-$disable_back_button = $conf['scripts.back.disable'];
-$replace_back_button = $conf['scripts.back.replace.use'];
-$replace_back_address = $conf['scripts.back.replace.url'];
+$back_button_action = $conf['scripts.back.action'];
+$replace_back_address = $conf['scripts.back.value'];
 $disable_text_copy = $conf['scripts.disabletextcopy'];
 $replace_prelanding = $conf['scripts.prelandingreplace.use'];
 $replace_prelanding_address = $conf['scripts.prelandingreplace.url'];

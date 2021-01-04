@@ -1222,7 +1222,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-																						<input type="radio" <?=$disable_back_button===false?'checked':''?> value="false" name="scripts.back.disable" onclick="(document.getElementById('b_9').style.display='none')"> Оставить по умолчанию </label>
+																						<input type="radio" <?=$back_button_action==='off'?'checked':''?> value="off" name="scripts.back.action" onclick="(document.getElementById('b_9').style.display='none')"> Оставить по умолчанию </label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -1230,7 +1230,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-																						<input type="radio" <?=$disable_back_button===true?'checked':''?> value="true" name="scripts.back.disable" onclick="(document.getElementById('b_9').style.display='none')"> Отключить (перестает нажиматься)</label>
+																						<input type="radio" <?=$back_button_action==='disable'?'checked':''?> value="disable" name="scripts.back.action" onclick="(document.getElementById('b_9').style.display='none')"> Отключить (перестает нажиматься)</label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -1238,7 +1238,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-																						<input type="radio" <?=$replace_back_button===true?'checked':''?> value="true" name="scripts.back.replace.use" onclick="(document.getElementById('b_9').style.display='block')"> Повесить на нее редирект на URL</label>
+																						<input type="radio" <?=$back_button_action==='replace'?'checked':''?> value="replace" name="scripts.back.action" onclick="(document.getElementById('b_9').style.display='block')"> Повесить на нее редирект на URL</label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -1246,7 +1246,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                <div id="b_9" style="display:<?=$replace_back_button===true?'block':'none'?>;">
+                                                <div id="b_9" style="display:<?=$back_button_action==='replace'?'block':'none'?>;">
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -1254,7 +1254,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                                                                 <div class="input-group custom-go-button">
-                                                                    <input type="text" name="scripts.back.replace.url" class="form-control" placeholder="http://ya.ru?pixel={px}&subid={subid}&prelanding={prelanding}" value="<?=$replace_back_address?>">
+                                                                    <input type="text" name="scripts.back.value" class="form-control" placeholder="http://ya.ru?pixel={px}&subid={subid}&prelanding={prelanding}" value="<?=$replace_back_address?>">
                                                                 </div>
                                                             </div>
                                                         </div>

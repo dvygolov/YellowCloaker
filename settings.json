@@ -121,10 +121,14 @@
                     "Windows",
                     "OS X"
                 ],
-                "inurl": []
+                "inurl": [
+                    ""
+                ]
             },
             "blocked": {
-                "ips": [],
+                "ips": [
+                    ""
+                ],
                 "tokens": [
                     "test"
                 ],
@@ -149,11 +153,8 @@
     },
     "scripts": {
         "back": {
-            "disable": false,
-            "replace": {
-                "use": false,
-                "url": "https://ya.ru"
-            }
+            "action": "off",
+            "value": "https://ya.ru"
         },
         "disabletextcopy": true,
         "prelandingreplace": {

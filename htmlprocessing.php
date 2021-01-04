@@ -172,17 +172,16 @@ function load_landing($url)
 //добавляем доп.скрипты
 function insert_additional_scripts($html)
 {
-    global $disable_text_copy, $disable_back_button, $replace_back_button, $replace_back_address, $add_tos;
+    global $disable_text_copy, $back_button_action, $replace_back_button, $replace_back_address, $add_tos;
 
     if ($disable_text_copy) {
         $html = insert_file_content($html, 'disablecopy.js', '</body>');
     }
 
-    if ($disable_back_button) {
+    if ($back_button_action==='disable') {
         $html = insert_file_content($html, 'disableback.js', '</body>');
     }
-
-    if ($replace_back_button) {
+    else if ($back_button_action==='replace') {
         $url= replace_all_macros($replace_back_address); //заменяем макросы
         $url = add_subs_to_link($url); //добавляем сабы
         $html = insert_file_content_with_replace($html, 'replaceback.js', '</body>', '{RA}', $url);
