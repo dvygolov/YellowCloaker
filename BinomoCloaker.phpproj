@@ -24,9 +24,6 @@
     <IncludeDebugInformation>false</IncludeDebugInformation>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include=".vs\BinomoYWE\config\applicationhost.config" />
-    <Compile Include=".vs\slnx.sqlite" />
-    <Compile Include=".vs\VSWorkspaceState.json" />
     <Compile Include="404\image.png" />
     <Compile Include="404\image1.png" />
     <Compile Include="404\image2.png" />
@@ -150,10 +147,6 @@
     <Compile Include="worder.php" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include=".vs\BinomoYWE\config" />
-    <Folder Include=".vs\BinomoYWE\v16" />
-    <Folder Include=".vs\BinomoYWE" />
-    <Folder Include=".vs" />
     <Folder Include="404" />
     <Folder Include="admin\" />
     <Folder Include="admin\css\" />
@@ -164,7 +157,6 @@
     <Folder Include="admin\img\notification\" />
     <Folder Include="admin\js\" />
     <Folder Include="admin\js\metisMenu\" />
-    <Folder Include="admin\js\vendor\" />
     <Folder Include="bases\browser" />
     <Folder Include="bases" />
     <Folder Include="config\Exception" />
@@ -193,12 +185,12 @@
     <Content Include="admin\img\green1.png" />
     <Content Include="admin\img\logo\logo.png" />
     <Content Include="admin\img\notification\4.jpg" />
-    <Content Include="admin\js\bootstrap.min.js" />
+    <Content Include="admin\js\cloneData.js" />
+    <Content Include="admin\js\jquery.meanmenu.js" />
     <Content Include="admin\js\jquery.sticky.js" />
     <Content Include="admin\js\main.js" />
     <Content Include="admin\js\metisMenu\metisMenu-active.js" />
     <Content Include="admin\js\metisMenu\metisMenu.min.js" />
     <Content Include="admin\js\plugins.js" />
-    <Content Include="admin\js\vendor\jquery-1.12.4.min.js" />
   </ItemGroup>
 </Project>

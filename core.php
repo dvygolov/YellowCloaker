@@ -1,4 +1,4 @@
-<?php 
+<?php
 require 'bases/browser/DetectorInterface.php';
 require 'bases/browser/UserAgent.php';
 require 'bases/browser/Os.php';
@@ -16,7 +16,7 @@ class Cloaker{
 	var $block_without_referer;
     var $isp_black;
     var $result;
-	
+
 	public function __construct($os_white,$country_white,$ip_black,$tokens_black,$ua_black,$isp_black,$block_without_referer){
 		$this->os_white = $os_white;
 		$this->country_white = $country_white;
@@ -46,14 +46,14 @@ class Cloaker{
 		$a['isp'] = getisp($a['ip']);
 		$this->detect=$a;
 	}
-	
+
 	public function check(){
 		$result=0;
-		
+
 		$os_white_checker = in_array($this->detect['os'],$this->os_white);
 		$country_white_checker = in_array($this->detect['country'],$this->country_white);
 		$current_ip=$this->detect['ip'];
-		
+
 		$cidr = file(__DIR__."/bases/bots.txt", FILE_IGNORE_NEW_LINES);
 		$checked=IpUtils::checkIp($current_ip, $cidr);
 		if($this->ua_black!=[])
@@ -66,10 +66,10 @@ class Cloaker{
 				}
 			}
 		}
-		
+
 		if(!$checked && !empty($this->ip_black))
 		{
-			$ip_black_checker=  in_array($current_ip, $this->ip_black);
+            $ip_black_checker=  in_array($current_ip, $this->ip_black);
 			if($ip_black_checker===true){
 				$result=1;
 				$this->result[]='ip';
@@ -80,21 +80,19 @@ class Cloaker{
 			$result=1;
 			$this->result[]='os';
 		}
-		
-		if($this->country_white!=[] && 
-			in_array('WW',$this->country_white)===false && 
+
+		if($this->country_white!=[] &&
+			in_array('WW',$this->country_white)===false &&
 			$country_white_checker===false){
 			$result=1;
 			$this->result[]='country';
 		}
-		
 
-		
 		if($this->block_without_referer===true && (int)$this->detect['referer']==0){
 			$result=1;
 			$this->result[]='referer';
 		}
-		
+
 		if(!empty($this->tokens_black)){
 			foreach($_GET AS $token){
 				if(empty($token)){$token='Unknown';}
@@ -104,7 +102,7 @@ class Cloaker{
 				}
 			}
 		}
-		
+
 		if(!empty($this->isp_black))
 		{
 			$isp=$this->detect['isp'];
@@ -115,7 +113,7 @@ class Cloaker{
 				}
 			}
 		}
-		
+
 		return $result;
 	}
 }

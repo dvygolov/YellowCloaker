@@ -22,7 +22,7 @@ if ($full_cloak_on) {
 
 //если используются js-проверки, то сначала используются они
 //проверка же обычная идёт далее в файле js/jsprocessing.php
-if ($use_js_checks===true) { 
+if ($use_js_checks===true) {
 	white(true);
 }
 else{

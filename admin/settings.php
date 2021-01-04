@@ -20,7 +20,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
     $endstr = $_GET['enddate'];
     $date_str="&startdate={$startstr}&enddate={$endstr}";
 }
-?>      
+?>
 <!doctype html>
 <html lang="en">
 
@@ -30,7 +30,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
     <title>Binomo Cloaker - Dashboard v1.0.0</title>
     <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/js/main.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
-	
+
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- favicon
@@ -39,11 +39,9 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
     <!-- Google Fonts
 		============================================ -->
     <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,700,900" rel="stylesheet" />
-    <!-- Bootstrap CSS
-		============================================ -->
-    <link rel="stylesheet" href="css/bootstrap.min.css" />
     <!-- nalika Icon CSS
 		============================================ -->
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
     <link rel="stylesheet" href="css/nalika-icon.css" />
     <!-- main CSS
 		============================================ -->
@@ -74,7 +72,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                 <nav class="sidebar-nav left-sidebar-menu-pro">
                   <ul class="metismenu" id="menu1">
                         <li class="active">
-                            
+
                             <a class="has-arrow" href="index.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>" aria-expanded="false"><i class="icon nalika-bar-chart icon-wrap"></i> <span class="mini-click-non">Traffic</span></a>
                             <ul class="submenu-angle" aria-expanded="false">
                                 <li><a title="Стата" href="statistics.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Statistics</span></a></li>
@@ -82,7 +80,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                 <li><a title="Лиды" href="index.php?filter=leads&password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Leads</span></a></li>
                                 <li><a title="Заблокированный" href="index.php?filter=blocked&password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Blocked</span></a></li>
                                 <li><a title="Почты" href="index.php?filter=emails&password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Emails</span></a></li>
-                                
+
                                 <li><a title="Peity Charts" href="#bottom"><span class="mini-sub-pro">Go to bottom</span></a></li>
                             </ul>
                         </li>
@@ -119,50 +117,45 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
 												</button>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="col-lg-11 col-md-1 col-sm-12 col-xs-12">
                                         <div class="header-right-info">
                                             <ul class="nav navbar-nav mai-top-nav header-right-menu">
                                                 <li class="nav-item dropdown">
                              <li class="nav-item">
                             <a class="nav-link" href="" onClick="location.reload()">Refresh</a>
-                            </li> 
+                            </li>
                                                 </i>
                                             </ul>
                                         </div>
                                     </div>
-                                
+
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-                            
+
         </div>
     <a name="top"></a>
-        
+
     <form action="savesettings.php?password=<?=$log_password?>" method="post">
         <div class="basic-form-area mg-tb-15">
             <div class="container-fluid">
-                
+
                 <div class="row">
                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <div class="sparkline12-list">
-                            <div class="sparkline12-hd">
-                                <div class="main-sparkline12-hd">
-                                    <h1>Cloaker Settings</h1>
-                                </div>
-                            </div>
                             <div class="sparkline12-graph">
                                 <div class="basic-login-form-ad">
                                     <div class="row">
                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                             <div class="all-form-element-inner">
-                                                    
+
                                                     <hr>
                                                     <h4>#1 Настройка Javascript-проверок</h4>
-                                                    
+
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
@@ -190,7 +183,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                 <div id="jscheckssettings" style="display:<?=$use_js_checks===true?'block':'none'?>;">
                                                     <div class="form-group-inner">
                                                         <div class="row">
@@ -199,7 +192,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
-                                                                    
+
                                                                     <div class="row">
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
@@ -248,11 +241,11 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                                                    
+
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        
+
                                                         <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
@@ -260,7 +253,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
-                                                                    
+
                                                                     <div class="row">
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
@@ -277,13 +270,12 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                                                    
+
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
-                                                    
+
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -296,9 +288,9 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <p>Если проверка по JS включена, то пользователь всегда попадает вначале на вайт, и только если проверки пройдены, тогда ему показывается блэк.                                                     
+                                                    <p>Если проверка по JS включена, то пользователь всегда попадает вначале на вайт, и только если проверки пройдены, тогда ему показывается блэк.
                                                 </div>
-                                            </div>  
+                                            </div>
                                                     <br>
                                                     <hr>
                                                     <h4>#2 Настройка вайта</h4>
@@ -309,7 +301,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
-                                                                    
+
                                                                     <div class="row">
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
@@ -373,7 +365,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
@@ -381,7 +373,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
-                                                                    
+
                                                                     <div class="row">
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
@@ -419,7 +411,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                
+
                                                 <div id="b_4" style="display:<?=$white_action==='curl'?'block':'none'?>;">
                                                     <div class="form-group-inner">
                                                         <div class="row">
@@ -434,7 +426,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                
+
                                                 <div id="b_5" style="display:<?=$white_action==='error'?'block':'none'?>;">
                                                     <div class="form-group-inner">
                                                         <div class="row">
@@ -449,7 +441,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                
+
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
@@ -457,7 +449,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
-                                                                    
+
                                                                     <div class="row">
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
@@ -478,8 +470,9 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                
+
                                                 <div id="b_6" style="display:<?=$white_use_domain_specific===true?'block':'none'?>;">
+                                                    <div id="white_domainspecific">
                                                     <?php for($j=0;$j<count($white_domain_specific);$j++){ ?>
                                                     <div class="form-group-inner">
                                                         <div class="row">
@@ -487,23 +480,28 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                 <label class="login2 pull-left pull-left-pro">Домен => Метод:Направление</label>
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                                                                     <div class="input-group">
+                                                                 <div class="input-group">
                                                                     <input type="text" class="form-control" placeholder="xxx.yyy.com" value="<?=$white_domain_specific[$j]["name"]?>" name="white.domainfilter.domains[<?=$j?>][name]">
-                                                                    </div>
+                                                                </div>
                                                             </div>
                                                             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
-                                                                    =>
+                                                                 <p>=></p>  
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                                                                <div class="input-group custom-go-button">
+                                                                <div class="input-group">
                                                                     <input type="text" class="form-control" placeholder="site:white" value="<?=$white_domain_specific[$j]["action"]?>" name="white.domainfilter.domains[<?=$j?>][action]">
                                                                 </div>
+                                                            </div>
+                                                            <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
+                                                                <a href="javascript:void(0)" class="remove-domain-item btn btn-sm btn-primary">Удалить</a>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <?php } ?>
+                                                    </div>
+                                                    <a id="add-domain-item" class="btn btn-sm btn-primary" href="javascript:;">Добавить</a>
                                                 </div>
-                                                
+
                                                     <br>
                                                     <hr>
                                                     <h4>#3 Настройка блэка</h4>
@@ -514,7 +512,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
-                                                                    
+
                                                                     <div class="row">
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
@@ -543,8 +541,8 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                 
-                                                <div id="b_7" style="display:<?=$black_preland_action==='redirect'?'block':'none'?>;">  
+
+                                                <div id="b_7" style="display:<?=$black_preland_action==='redirect'?'block':'none'?>;">
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -557,7 +555,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
@@ -565,7 +563,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
-                                                                    
+
                                                                     <div class="row">
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
@@ -598,14 +596,13 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                                                    
-                                                                    
+
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                
+
                                                 <div id="b_8" style="display:<?=$black_preland_action==='folder'?'block':'none'?>;">
                                                     <div class="form-group-inner">
                                                         <div class="row">
@@ -619,9 +616,9 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                            
+
                                                 </div>
-                                                
+
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
@@ -629,7 +626,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                         </div>
                                                         <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                             <div class="bt-df-checkbox pull-left">
-                                                                
+
                                                                 <div class="row">
                                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                         <div class="i-checks pull-left">
@@ -663,7 +660,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
@@ -671,7 +668,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
-                                                                    
+
                                                                     <div class="row">
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
@@ -692,7 +689,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div id="ctpage" class="form-group-inner" style="display:<?=$black_land_use_custom_thankyou_page===true?'block':'none'?>">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -722,7 +719,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
-                                                                    
+
                                                                     <div class="row">
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
@@ -748,7 +745,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
-                                                                    
+
                                                                     <div class="row">
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
@@ -783,7 +780,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
@@ -791,7 +788,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
-                                                                    
+
                                                                     <div class="row">
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
@@ -824,8 +821,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                                                    
-                                                                    
+
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -858,7 +854,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -871,7 +867,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
@@ -879,7 +875,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
-                                                                    
+
                                                                     <div class="row">
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
@@ -900,7 +896,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
@@ -908,7 +904,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
-                                                                    
+
                                                                     <div class="row">
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
@@ -929,7 +925,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div id="b_8-2" style="display:<?=$fb_use_viewcontent===true?'block':'none'?>;">
                                                     <div class="form-group-inner">
                                                         <div class="row">
@@ -943,7 +939,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -962,7 +958,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                                                                 <label class="login2 pull-left pull-left-pro">Какое событие будем использовать для конверсии? <small>Например: Lead или Purchase</small></label>
                                                             </div>
-                                                            <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
+                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                                 <div class="input-group custom-go-button">
                                                                     <input type="text" class="form-control" placeholder="Lead" name="pixels.fb.conversion.event" value="<?=$fb_thankyou_event?>">
                                                                 </div>
@@ -976,7 +972,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
-                                                                    
+
                                                                     <div class="row">
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
@@ -997,7 +993,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <br>
                                                     <hr>
                                                     <h4>#5 Настройка TDS</h4>
@@ -1008,7 +1004,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
-                                                                    
+
                                                                     <div class="row">
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
@@ -1029,7 +1025,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
@@ -1037,7 +1033,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
-                                                                    
+
                                                                     <div class="row">
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
@@ -1058,7 +1054,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
@@ -1066,7 +1062,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
-                                                                    
+
                                                                     <div class="row">
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
@@ -1087,7 +1083,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <br>
                                                     <hr>
                                                     <h4>#6 Настройка фильтров</h4>
@@ -1103,7 +1099,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -1116,7 +1112,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -1129,7 +1125,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -1142,7 +1138,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -1155,7 +1151,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -1168,7 +1164,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -1181,7 +1177,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
@@ -1189,7 +1185,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
-                                                                    
+
                                                                     <div class="row">
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
@@ -1210,7 +1206,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <br>
                                                     <hr>
                                                     <h4>#7 Настройка дополнительных скриптов</h4>
@@ -1221,7 +1217,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
-                                                                    
+
                                                                     <div class="row">
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
@@ -1250,7 +1246,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                <div id="b_9" style="display:<?=$replace_back_button===true?'block':'none'?>;">  
+                                                <div id="b_9" style="display:<?=$replace_back_button===true?'block':'none'?>;">
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -1271,7 +1267,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
-                                                                    
+
                                                                     <div class="row">
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
@@ -1292,7 +1288,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
@@ -1300,7 +1296,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
-                                                                    
+
                                                                     <div class="row">
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
@@ -1321,7 +1317,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                
+
                                                 <div id="b_10" style="display:<?=$replace_prelanding===true?'block':'none'?>;">
                                                     <div class="form-group-inner">
                                                         <div class="row">
@@ -1343,7 +1339,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
-                                                                    
+
                                                                     <div class="row">
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
@@ -1364,8 +1360,8 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                   
-                                                <div id="b_11" style="display:<?=$black_land_use_phone_mask===true?'block':'none'?>;"> 
+
+                                                <div id="b_11" style="display:<?=$black_land_use_phone_mask===true?'block':'none'?>;">
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -1396,28 +1392,32 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                        вы написали в настройке: cn => utm_campaign <br />
                                                        в форме на ленде добавится <pre>&lt;input type="hidden" name="utm_campaign" value="MyCampaign"/&gt;</pre>
                                                     </p>
-                                                <?php  for ($i=0;$i<count($sub_ids);$i++){?>
-                                                
-                                                    <div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+                                                    <div id="subs_container">
+                                                        <?php  for ($i=0;$i<count($sub_ids);$i++){?>
+                                                            <div class="form-group-inner">
                                                                 <div class="row">
-                                                                    <div class="col-lg-5 col-md-5 col-sm-5 col-xs-12">
+                                                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                                                                          <div class="input-group">
                                                                             <input type="text" class="form-control" placeholder="subid" value="<?=$sub_ids[$i]["name"]?>" name="subids[<?=$i?>][name]">
                                                                         </div>
                                                                     </div>
-                                                                    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                                                    <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
+                                                                        <p>=></p>
+                                                                    </div>
+                                                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                                                                         <div class="input-group custom-go-button">
                                                                             <input type="text" class="form-control" placeholder="sub_id" value="<?=$sub_ids[$i]["rewrite"]?>" name="subids[<?=$i?>][rewrite]">
                                                                         </div>
                                                                     </div>
+                                                                    <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
+                                                                        <a href="javascript:void(0)" class="remove-sub-item btn btn-sm btn-primary">Удалить</a>
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
+                                                        <?php }?>
+                                                        <a id="add-sub-item" class="btn btn-sm btn-primary" href="javascript:;">Добавить</a>
                                                     </div>
-                                                <?php }?>
-                                                    
+
                                                     <br>
                                                     <hr>
                                                     <h4>#9 Настройка статистики и постбэка</h4>
@@ -1433,7 +1433,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -1460,7 +1460,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -1473,7 +1473,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -1486,7 +1486,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -1499,8 +1499,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                
-                                                    
+
                                                     <hr>
                                                     <div class="form-group-inner">
                                                         <div class="login-btn-inner">
@@ -1508,7 +1507,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                 <div class="col-lg-3"></div>
                                                                 <div class="col-lg-9">
                                                                     <div class="login-horizental cancel-wp pull-left">
-                                                                        <button class="btn btn-sm btn-primary login-submit-cs" type="submit">Сохранить настройки</button>
+                                                                        <button class="btn btn-sm btn-primary" type="submit"><strong>Сохранить настройки</strong></button>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -1525,15 +1524,36 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
             </div>
         </div>
     </form>
-    
+
     <a name="bottom"></a>
     </div>
     <!-- jquery
 		============================================ -->
-    <script src="js/vendor/jquery-1.12.4.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <!-- bootstrap JS
 		============================================ -->
-    <script src="js/bootstrap.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!--cloneData-->
+    <script src="js/cloneData.js"></script>
+    <script>
+    $('#add-domain-item').cloneData({
+        mainContainerId: 'white_domainspecific',
+        cloneContainer: 'form-group-inner',
+        removeButtonClass: 'remove-domain-item',
+        maxLimit: 5,
+        minLimit: 1,
+        removeConfirm: false
+    });
+
+    $('#add-sub-item').cloneData({
+        mainContainerId: 'subs_container',
+        cloneContainer: 'form-group-inner',
+        removeButtonClass: 'remove-sub-item',
+        maxLimit: 10,
+        minLimit: 1,
+        removeConfirm: false
+    });
+    </script>
     <!-- meanmenu JS
 		============================================ -->
     <script src="js/jquery.meanmenu.js"></script>

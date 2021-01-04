@@ -72,7 +72,6 @@ function load_prelanding($url, $land_number)
     //добавляем в формы id пикселя фб
     $html = insert_fbpixel_id($html);
 
-
     //замена всех ссылок на прокле на универсальную ссылку ленда landing.php
     $replacement = "\\1".$prefix.$domain.'/landing.php?l='.$land_number.(!empty($querystr)?'&'.$querystr:'');
 
@@ -96,7 +95,6 @@ function load_landing($url)
     global $fb_use_pageview,$fb_thankyou_event,$fb_add_button_pixel;
 	global $fb_use_viewcontent, $fb_view_content_time, $fb_view_content_percent;
 	global $black_land_log_conversions_on_button_click,$black_land_use_custom_thankyou_page;
-
 
     $domain = $_SERVER['HTTP_HOST'];
     $prefix = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off')  ? 'https://' : 'http://';

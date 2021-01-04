@@ -75,7 +75,7 @@ while ($date>=$startdate) {
     $traf_fn="../logs/".$formatteddate.'.csv';
     $ctr_fn="../logs/".$formatteddate.'.lpctr.csv';
     $leads_fn="../logs/".$formatteddate.'.leads.csv';
-    
+
     // Reads lines of all files to array
     $traf_file = file_exists($traf_fn)?file($traf_fn, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES):array();
     array_shift($traf_file);
@@ -85,8 +85,7 @@ while ($date>=$startdate) {
     array_shift($leads_file);
     $leads_count = ($leads_file===array())?0:count($leads_file);
     $total_leads+=$leads_count;
-    
-    
+
     //count unique clicks
     $sub_land_dest = array();
     $unique_clicks = array();
@@ -111,7 +110,7 @@ while ($date>=$startdate) {
 				$landclicks_array[$land_name]=1;
 			}
 		}
-        
+
         $cur_creo='Unknown';
         $cur_query = explode('&', $traf_line_fields[count($traf_line_fields)-3]);
         foreach ($cur_query as $query_item) {
@@ -127,7 +126,7 @@ while ($date>=$startdate) {
             $creatives_array[$cur_creo]=1;
         }
     }
-	
+
 	if (!$noprelanding) //count only if we have prelanders
 	{
 		//count lp ctrs
@@ -152,7 +151,7 @@ while ($date>=$startdate) {
 			}
 		}
 	}
-    
+
     //count leads
     $purchase_count=0;
     $hold_count=0;
@@ -189,7 +188,7 @@ while ($date>=$startdate) {
 			}
 		}
     }
-    
+
     //Add all data to main table
     $tableOutput.="<TR>";
     $tableOutput.="<TD scope='col'>".$date->format('d.m.y')."</TD>";
@@ -240,7 +239,6 @@ $tableOutput.="<TD scope='col'>".number_format($tapprove, 2, '.', '')."</TD>";
 $tableOutput.="</TR>";
 //Close the table tag
 $tableOutput.="</tbody></TABLE>";
-
 
 //Open the lpctr table tag
 $lpctrTableOutput="<TABLE class='table w-auto table-striped'>";
@@ -304,14 +302,14 @@ $creoTableOutput.="</tbody></TABLE>";
 <!doctype html>
 <html lang="ru">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta charset="utf-8" />
+    <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <title>Binomo Cloaker - Dashboard v1.0.0</title>
     <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/js/main.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
-	
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <!-- favicon
 		============================================ -->
     <link rel="shortcut icon" type="image/x-icon" href="img/favicon.png" />
@@ -340,35 +338,73 @@ $creoTableOutput.="</tbody></TABLE>";
     <div class="left-sidebar-pro">
         <nav id="sidebar" class="">
             <div class="sidebar-header">
-                <a href="/admin/index.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><img class="main-logo" src="img/logo/logo.png" alt="" /></a>
-                <strong><img src="img/favicon.png" alt="" style="width:50px"/></strong>
+                <a href="/admin/index.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>">
+                    <img class="main-logo" src="img/logo/logo.png" alt="" />
+                </a>
+                <strong>
+                    <img src="img/favicon.png" alt="" style="width:50px" />
+                </strong>
             </div>
-			<div class="nalika-profile">
-				<div class="profile-dtl">
-					<a href="https://t.me/yellow_web"><img src="img/notification/4.jpg" alt="" /></a>
-					<h2><a href="https://yellowweb.top/donate" target="_blank">Помощь автору проекта!</a></h2>
-				</div>
-			</div>
+            <div class="nalika-profile">
+                <div class="profile-dtl">
+                    <a href="https://t.me/yellow_web">
+                        <img src="img/notification/4.jpg" alt="" />
+                    </a>
+                    <h2>
+                        <a href="https://yellowweb.top/donate" target="_blank">Помощь автору проекта!</a>
+                    </h2>
+                </div>
+            </div>
             <div class="left-custom-menu-adp-wrap comment-scrollbar">
                 <nav class="sidebar-nav left-sidebar-menu-pro">
-                  <ul class="metismenu" id="menu1">
+                    <ul class="metismenu" id="menu1">
                         <li class="active">
-                            
-                            <a class="has-arrow" href="index.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>" aria-expanded="false"><i class="icon nalika-bar-chart icon-wrap"></i> <span class="mini-click-non">Traffic</span></a>
+
+                            <a class="has-arrow" href="index.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>" aria-expanded="false">
+                                <i class="icon nalika-bar-chart icon-wrap"></i>
+                                <span class="mini-click-non">Traffic</span>
+                            </a>
                             <ul class="submenu-angle" aria-expanded="false">
-                                <li><a title="Стата" href="statistics.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Statistics</span></a></li>
-                                <li><a title="Разрешённый" href="index.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Allowed</span></a></li>
-                                <li><a title="Лиды" href="index.php?filter=leads&password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Leads</span></a></li>
-                                <li><a title="Заблокированный" href="index.php?filter=blocked&password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Blocked</span></a></li>
-                                <li><a title="Почты" href="index.php?filter=emails&password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Emails</span></a></li>
-                                
-                                <li><a title="Peity Charts" href="#bottom"><span class="mini-sub-pro">Go to bottom</span></a></li>
+                                <li>
+                                    <a title="Стата" href="statistics.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>">
+                                        <span class="mini-sub-pro">Statistics</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a title="Разрешённый" href="index.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>">
+                                        <span class="mini-sub-pro">Allowed</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a title="Лиды" href="index.php?filter=leads&password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>">
+                                        <span class="mini-sub-pro">Leads</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a title="Заблокированный" href="index.php?filter=blocked&password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>">
+                                        <span class="mini-sub-pro">Blocked</span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a title="Почты" href="index.php?filter=emails&password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>">
+                                        <span class="mini-sub-pro">Emails</span>
+                                    </a>
+                                </li>
+
+                                <li>
+                                    <a title="Peity Charts" href="#bottom">
+                                        <span class="mini-sub-pro">Go to bottom</span>
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                         <li>
-                            <a href="settings.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>" aria-expanded="false"><i class="icon nalika-table icon-wrap"></i> <span class="mini-click-non">Settings</span></a>
+                            <a href="settings.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>" aria-expanded="false">
+                                <i class="icon nalika-table icon-wrap"></i>
+                                <span class="mini-click-non">Settings</span>
+                            </a>
                         </li>
-                  </ul>
+                    </ul>
                 </nav>
             </div>
         </nav>
@@ -379,7 +415,9 @@ $creoTableOutput.="</tbody></TABLE>";
             <div class="row">
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                     <div class="logo-pro">
-                        <a href="index.html"><img class="main-logo" src="img/logo/logo.png" alt="" /></a>
+                        <a href="index.html">
+                            <img class="main-logo" src="img/logo/logo.png" alt="" />
+                        </a>
                     </div>
                 </div>
             </div>
@@ -394,11 +432,11 @@ $creoTableOutput.="</tbody></TABLE>";
                                     <div class="col-lg-1 col-md-0 col-sm-1 col-xs-12">
                                         <div class="menu-switcher-pro">
                                             <button type="button" id="sidebarcollapse" class="btn bar-button-pro header-drl-controller-btn btn-info navbar-btn">
-													<i class="icon nalika-menu-task"></i>
-												</button>
+                                                <i class="icon nalika-menu-task"></i>
+                                            </button>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="col-lg-11 col-md-1 col-sm-12 col-xs-12">
                                         <div class="header-right-info">
                                             <ul class="nav navbar-nav mai-top-nav header-right-menu">
@@ -417,28 +455,29 @@ $creoTableOutput.="</tbody></TABLE>";
                                                             }
                                                             } else {
                                                             echo $formatteddate;
-                                                            } ?>
+                                                            } 
+                                                          ?>
                                                     </a>
                                                 </li>
                                             </ul>
                                         </div>
                                     </div>
-                                
+
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-                            
+
         </div>
-    
-    <a name="top"></a>
-    <?=$tableOutput ?>
-	<?=$lpctrTableOutput ?>
-	<?=$landcrTableOutput ?>
-	<?=$creoTableOutput ?>
-    <a name="bottom"></a>
+
+        <a name="top"></a>
+        <?=$tableOutput ?>
+	    <?=$lpctrTableOutput ?>
+	    <?=$landcrTableOutput ?>
+	    <?=$creoTableOutput ?>
+        <a name="bottom"></a>
     </div>
     <!-- jquery
 		============================================ -->
