@@ -147,7 +147,8 @@
                     "azure",
                     "digitalocean"
                 ],
-                "withoutreferer": false
+              "withoutreferer": false,
+              "vpntor": true
             }
         }
     },

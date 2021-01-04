@@ -11,7 +11,7 @@ include 'logging.php';
 include 'main.php';
 
 //передаём все параметры в кло
-$cloaker = new Cloaker($os_white,$country_white,$ip_black,$tokens_black,$ua_black,$isp_black,$block_without_referer);
+$cloaker = new Cloaker($os_white,$country_white,$ip_black,$tokens_black,$ua_black,$isp_black,$block_without_referer,$block_vpnandtor);
 
 //если включен full_cloak_on, то шлём всех на white page, полностью набрасываем плащ)
 if ($full_cloak_on) {

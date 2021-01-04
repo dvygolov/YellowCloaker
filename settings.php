@@ -63,6 +63,7 @@ $tokens_black = $conf['tds.filters.blocked.tokens'];
 $ua_black = $conf['tds.filters.blocked.useragents'];
 $isp_black = $conf['tds.filters.blocked.isps'];
 $block_without_referer = $conf['tds.filters.blocked.withoutreferer'];
+$block_vpnandtor = $conf['tds.filters.blocked.vpntor'];
 
 $back_button_action = $conf['scripts.back.action'];
 $replace_back_address = $conf['scripts.back.value'];

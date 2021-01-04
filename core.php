@@ -14,10 +14,11 @@ class Cloaker{
 	var $ua_black;
 	var $ip_black;
 	var $block_without_referer;
+    var $block_vpnandtor;
     var $isp_black;
     var $result;
 
-	public function __construct($os_white,$country_white,$ip_black,$tokens_black,$ua_black,$isp_black,$block_without_referer){
+	public function __construct($os_white,$country_white,$ip_black,$tokens_black,$ua_black,$isp_black,$block_without_referer,$block_vpnandtor){
 		$this->os_white = $os_white;
 		$this->country_white = $country_white;
 		$this->ip_black = $ip_black;
@@ -25,6 +26,7 @@ class Cloaker{
 		$this->ua_black = $ua_black;
 		$this->isp_black = $isp_black;
 		$this->block_without_referer = $block_without_referer;
+		$this->block_vpnandtor = $block_vpnandtor;
 		$this->detect();
 	}
 
@@ -47,15 +49,55 @@ class Cloaker{
 		$this->detect=$a;
 	}
 
+	private function blackbox($ip){
+        // Get file.
+        $url = 'https://blackbox.ipinfo.app/lookup/';
+        $res = file_get_contents($url . $ip);
+
+        // Check to make sure we have a valid response.
+        if(!is_string($res) || !strpos($http_response_header[0], "200")){
+            // We didn't get what we were looking for.
+            //http_response_code(503);
+            exit("We didn't get what we were looking for.");
+        }
+
+        // Is found to be proxy in result, return !
+        if($res !== null && $res === 'Y'){
+            return true;
+        }
+
+        // return result
+        return false;
+    }
+
 	public function check(){
 		$result=0;
-
-		$os_white_checker = in_array($this->detect['os'],$this->os_white);
-		$country_white_checker = in_array($this->detect['country'],$this->country_white);
+		
 		$current_ip=$this->detect['ip'];
-
 		$cidr = file(__DIR__."/bases/bots.txt", FILE_IGNORE_NEW_LINES);
 		$checked=IpUtils::checkIp($current_ip, $cidr);
+
+		if ($checked===true){
+            $result=1;
+			$this->result[]='ipbase';
+        }
+
+		if(!$checked && !empty($this->ip_black))
+		{
+            $ip_black_checker = in_array($current_ip, $this->ip_black);
+			if($ip_black_checker===true){
+				$result=1;
+				$this->result[]='ipblack';
+			}
+		}
+		
+		if ($this->block_vpnandtor){
+            if ($this->blackbox($current_ip)===true){
+				$result=1;
+				$this->result[]='vnp&tor';
+            }
+        }
+
 		if($this->ua_black!=[])
 		{
 			$ua=$this->detect['ua'];
@@ -67,20 +109,13 @@ class Cloaker{
 			}
 		}
 
-		if(!$checked && !empty($this->ip_black))
-		{
-            $ip_black_checker=  in_array($current_ip, $this->ip_black);
-			if($ip_black_checker===true){
-				$result=1;
-				$this->result[]='ip';
-			}
-		}
-
+		$os_white_checker = in_array($this->detect['os'],$this->os_white);
 		if(!empty($this->os_white) && $os_white_checker===false){
 			$result=1;
 			$this->result[]='os';
 		}
 
+		$country_white_checker = in_array($this->detect['country'],$this->country_white);
 		if($this->country_white!=[] &&
 			in_array('WW',$this->country_white)===false &&
 			$country_white_checker===false){
@@ -116,5 +151,6 @@ class Cloaker{
 
 		return $result;
 	}
+
 }
 ?>
