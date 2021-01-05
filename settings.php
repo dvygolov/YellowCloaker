@@ -58,7 +58,8 @@ $os_white = $conf['tds.filters.allowed.os'];
 $country_white = $conf['tds.filters.allowed.countries'];
 $url_should_contain =$conf->get('tds.filters.allowed.inurl',[]);
 
-$ip_black = $conf->get('tds.filters.blocked.ips',['0.0.0.1']);
+$ip_black_filename = $conf->get('tds.filters.blocked.ips.filename');
+$ip_black_cidr = $conf->get('tds.filters.blocked.ips.cidrformat');
 $tokens_black = $conf['tds.filters.blocked.tokens'];
 $ua_black = $conf['tds.filters.blocked.useragents'];
 $isp_black = $conf['tds.filters.blocked.isps'];

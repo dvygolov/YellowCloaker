@@ -126,9 +126,10 @@
                 ]
             },
             "blocked": {
-                "ips": [
-                    ""
-                ],
+                "ips": {
+                    "filename": "tmpbase.txt",
+                    "cidrformat": true
+                },
                 "tokens": [
                     "test"
                 ],
@@ -147,8 +148,8 @@
                     "azure",
                     "digitalocean"
                 ],
-              "withoutreferer": false,
-              "vpntor": true
+                "withoutreferer": false,
+                "vpntor": true
             }
         }
     },

@@ -12,16 +12,18 @@ class Cloaker{
 	var $country_white;
 	var $tokens_black;
 	var $ua_black;
-	var $ip_black;
+	var $ip_black_filename;
+	var $ip_black_cidr;
 	var $block_without_referer;
     var $block_vpnandtor;
     var $isp_black;
     var $result;
 
-	public function __construct($os_white,$country_white,$ip_black,$tokens_black,$ua_black,$isp_black,$block_without_referer,$block_vpnandtor){
+	public function __construct($os_white,$country_white,$ip_black_filename,$ip_black_cidr,$tokens_black,$ua_black,$isp_black,$block_without_referer,$block_vpnandtor){
 		$this->os_white = $os_white;
 		$this->country_white = $country_white;
-		$this->ip_black = $ip_black;
+		$this->ip_black_filename = $ip_black_filename;
+        $this->ip_black_cidr = $ip_black_cidr;
 		$this->tokens_black = $tokens_black;
 		$this->ua_black = $ua_black;
 		$this->isp_black = $isp_black;
@@ -66,7 +68,7 @@ class Cloaker{
 
 	public function check(){
 		$result=0;
-		
+
 		$current_ip=$this->detect['ip'];
 		$cidr = file(__DIR__."/bases/bots.txt", FILE_IGNORE_NEW_LINES);
 		$checked=IpUtils::checkIp($current_ip, $cidr);
@@ -76,15 +78,28 @@ class Cloaker{
 			$this->result[]='ipbase';
         }
 
-		if(!$checked && !empty($this->ip_black))
+		if(!$checked &&
+		   !empty($this->ip_black_filename) &&
+		   file_exists(__DIR__."/bases/".$this->ip_black_filename)===true)
 		{
-            $ip_black_checker = in_array($current_ip, $this->ip_black);
+			$ip_black_checker=false;
+			$custom_base_path=__DIR__."/bases/".$this->ip_black_filename;
+			if ($this->ip_black_cidr){
+                $cbf = file($custom_base_path, FILE_IGNORE_NEW_LINES);
+                $ip_black_checker=IpUtils::checkIp($current_ip, $cbf);
+            }
+			else{
+                if(strpos(file_get_contents($custom_base_path),$current_ip) !== false) {
+                    $ip_black_checker=true;
+                }
+            }
+
 			if($ip_black_checker===true){
 				$result=1;
 				$this->result[]='ipblack';
 			}
 		}
-		
+
 		if ($this->block_vpnandtor){
             if ($this->blackbox($current_ip)===true){
 				$result=1;
