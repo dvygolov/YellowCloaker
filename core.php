@@ -11,6 +11,7 @@ class Cloaker{
 	var $os_white;
 	var $country_white;
 	var $tokens_black;
+	var $url_should_contain;
 	var $ua_black;
 	var $ip_black_filename;
 	var $ip_black_cidr;
@@ -25,6 +26,7 @@ class Cloaker{
 		$this->ip_black_filename = $ip_black_filename;
         $this->ip_black_cidr = $ip_black_cidr;
 		$this->tokens_black = $tokens_black;
+		$this->url_should_contain= $url_should_contain;
 		$this->ua_black = $ua_black;
 		$this->isp_black = $isp_black;
 		$this->block_without_referer = $block_without_referer;
@@ -137,12 +139,22 @@ class Cloaker{
 			$this->result[]='referer';
 		}
 
-		if(!empty($this->tokens_black)){
-			foreach($_GET AS $token){
-				if(empty($token)){$token='Unknown';}
-				if (in_array($token, $this->tokens_black)) {
+		if($this->tokens_black!==[]){
+			foreach($this->tokens_black AS $token){
+				if (strpos($_SERVER['REQUEST_URI'],$token)!==false){
 					$result=1;
-					$this->result[]='token';
+					$this->result[]='token:'.$token;
+					break;
+				}
+			}
+		}
+
+		if($this->url_should_contain!==[]){
+			foreach($this->url_should_contain AS $should){
+				if (strpos($_SERVER['REQUEST_URI'],$should)===false){
+					$result=1;
+					$this->result[]='url:'.$should;
+					break;
 				}
 			}
 		}
