@@ -17,19 +17,12 @@ require '../core.php';
 include '../settings.php';
 
 //передаём все параметры в кло
-$cloacker = new Cloacker();
-$cloacker->os_white = $os_white; 
-$cloacker->country_white = $country_white;
-$cloacker->ip_black = $ip_black; 
-$cloacker->tokens_black = $tokens_black;
-$cloacker->ua_black = $ua_black;
-$cloacker->block_without_referer = $block_without_referer;
-$cloacker->isp_black = $isp_black;
+$cloaker = new Cloaker($os_white,$country_white,$ip_black_filename,$ip_black_cidr,$tokens_black,$url_should_contain,$ua_black,$isp_black,$block_without_referer,$block_vpnandtor);
 
 //Проверяем зашедшего пользователя
-$check_result = $cloacker->check();
+$check_result = $cloaker->check();
 
-if ($check_result == 0 || $disable_tds) //Обычный юзверь или отключена фильтрация
+if ($check_result == 0 || $tds_mode==='off') //Обычный юзверь или отключена фильтрация
 {
 	if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on')   
 		$url = "https://";   

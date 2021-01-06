@@ -50,16 +50,15 @@ $fb_thankyou_event = $conf['pixels.fb.conversion.event'];
 $fb_add_button_pixel= $conf['pixels.fb.conversion.fireonbutton'];
 $use_cloaked_pixel = $conf['pixels.fb.cloak'];
 
-$full_cloak_on = $conf['tds.fullcloak'];
-$disable_tds = $conf['tds.disable'];
+$tds_mode = $conf['tds.mode'];
 $save_user_flow = $conf['tds.saveuserflow'];
 
 $os_white = $conf['tds.filters.allowed.os'];
 $country_white = $conf['tds.filters.allowed.countries'];
-$url_should_contain =$conf->get('tds.filters.allowed.inurl',[]);
+$url_should_contain =$conf['tds.filters.allowed.inurl'];
 
-$ip_black_filename = $conf->get('tds.filters.blocked.ips.filename');
-$ip_black_cidr = $conf->get('tds.filters.blocked.ips.cidrformat');
+$ip_black_filename = $conf->get('tds.filters.blocked.ips.filename','');
+$ip_black_cidr = $conf->get('tds.filters.blocked.ips.cidrformat',false);
 $tokens_black = $conf['tds.filters.blocked.tokens'];
 $ua_black = $conf['tds.filters.blocked.useragents'];
 $isp_black = $conf['tds.filters.blocked.isps'];

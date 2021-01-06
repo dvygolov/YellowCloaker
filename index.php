@@ -11,10 +11,10 @@ include 'logging.php';
 include 'main.php';
 
 //передаём все параметры в кло
-$cloaker = new Cloaker($os_white,$country_white,$ip_black_filename,$ip_black_cidr,$tokens_black,$ua_black,$isp_black,$block_without_referer,$block_vpnandtor);
+$cloaker = new Cloaker($os_white,$country_white,$ip_black_filename,$ip_black_cidr,$tokens_black,$url_should_contain,$ua_black,$isp_black,$block_without_referer,$block_vpnandtor);
 
 //если включен full_cloak_on, то шлём всех на white page, полностью набрасываем плащ)
-if ($full_cloak_on) {
+if ($tds_mode=='full') {
     write_white_to_log($cloaker->detect, ['fullcloak'], 1);
     white(false);
     return;
@@ -32,8 +32,8 @@ else{
 		$cloaker->result=['OK'];
 	}
 
-	if ($check_result == 0 || $disable_tds) { //Обычный юзверь или отключена фильтрация
-		if ($disable_tds) $cloaker->result=['TDS_DISABLED'];
+	if ($check_result == 0 || $tds_mode==='off') { //Обычный юзверь или отключена фильтрация
+		if ($tds_mode==='off') $cloaker->result=['TDS_DISABLED'];
 		black($cloaker->detect, $cloaker->result, $check_result);
 		return;
 	} else { //Обнаружили бота или модера

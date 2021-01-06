@@ -18,12 +18,16 @@
             "use": false,
             "domains": [
                 {
-                    "name": "awlah.com",
-                    "action": "site:white3"
-                },
-                {
                     "name": "keto.awlah.com",
                     "action": "curl:https://ya.ru"
+                },
+                {
+                    "name": "lalala.xxx.com",
+                    "action": "site:white"
+                },
+                {
+                    "name": "lamama.xxx.com",
+                    "action": "site:white"
                 }
             ]
         },
@@ -45,8 +49,7 @@
         "prelanding": {
             "action": "folder",
             "folders": [
-                "p1",
-                "p2"
+                "lrpl"
             ],
             "redirect": {
                 "urls": [
@@ -60,9 +63,7 @@
             "action": "folder",
             "folder": {
                 "names": [
-                    "l1",
-                    "l2",
-                    "l3"
+                    "lrl"
                 ],
                 "conversions": {
                     "script": "order.php",
@@ -105,8 +106,7 @@
         }
     },
     "tds": {
-        "fullcloak": false,
-        "disable": false,
+        "mode": "on",
         "saveuserflow": false,
         "filters": {
             "allowed": {
@@ -122,16 +122,16 @@
                     "OS X"
                 ],
                 "inurl": [
-                    ""
+                    "test"
                 ]
             },
             "blocked": {
                 "ips": {
-                    "filename": "tmpbase.txt",
-                    "cidrformat": true
+                    "filename": "",
+                    "cidrformat": false
                 },
                 "tokens": [
-                    "test"
+                    ""
                 ],
                 "useragents": [
                     "facebook",
@@ -149,7 +149,7 @@
                     "digitalocean"
                 ],
                 "withoutreferer": false,
-                "vpntor": true
+                "vpntor": false
             }
         }
     },

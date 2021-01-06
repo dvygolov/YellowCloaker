@@ -11,7 +11,7 @@ include '../logging.php';
 include '../main.php';
 
 //передаём все параметры в кло
-$cloaker = new Cloaker($os_white,$country_white,$ip_black,$tokens_black,$ua_black,$isp_black,$block_without_referer);
+$cloaker = new Cloaker($os_white,$country_white,$ip_black_filename,$ip_black_cidr,$tokens_black,$url_should_contain,$ua_black,$isp_black,$block_without_referer,$block_vpnandtor);
 //Проверяем зашедшего пользователя
 $check_result = $cloaker->check();
 
@@ -23,7 +23,7 @@ if (!isset($cloaker->result)||
 //Добавляем, по какому из js-событий пользователь прошёл сюда
 array_push($cloaker->result,$_GET['reason']);
 
-if ($check_result === 0 || $disable_tds) { //Обычный юзверь или отключена фильтрация
+if ($check_result === 0 || $tds_mode==='off') { //Обычный юзверь или отключена фильтрация
     header("Access-Control-Expose-Headers: YWBRedirect", false, 200);
     header("YWBRedirect: false", true, 200);
     black($cloaker->detect, $cloaker->result, $check_result);
@@ -41,7 +41,7 @@ if ($check_result === 0 || $disable_tds) { //Обычный юзверь или 
             header("YWBLocation: ".$redirect_url, true, 200);
         }
     }
-} else if ($check_result===1 || $full_cloak_on) 
+} else if ($check_result===1 || $tds_mode==='full') 
 { 
 	//это бот, который прошёл javascript-проверку!
 	write_white_to_log($cloaker->detect, $cloaker->result, $check_result, '', '');

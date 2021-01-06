@@ -1000,7 +1000,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Посылать всех на Вайт? <br><small>например, при модерации</small></label>
+                                                                <label class="login2 pull-left pull-left-pro">Режим работы TDS:</label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
@@ -1009,7 +1009,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-																						<input type="radio" <?=$full_cloak_on===false?'checked':''?> value="false" name="tds.fullcloak"> Нет </label>
+																						<input type="radio" <?=$tds_mode==='on'?'checked':''?> value="on" name="tds.mode"> Обычный </label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -1017,28 +1017,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-																						<input type="radio" <?=$full_cloak_on===true?'checked':''?> value="true" name="tds.fullcloak"> Да, посылать </label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Посылать всех на Блэк? <br><small>например, при настройке flow</small></label>
-                                                            </div>
-                                                            <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                                                                <div class="bt-df-checkbox pull-left">
-
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-																						<input type="radio" <?=$disable_tds===false?'checked':''?> value="false" name="tds.disable"> Нет </label>
+																						<input type="radio" <?=$tds_mode==='full'?'checked':''?> value="full" name="tds.mode"> Посылать всех на вайт</label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -1046,7 +1025,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-																						<input type="radio" <?=$disable_tds===true?'checked':''?> value="true" name="tds.disable"> Да, посылать </label>
+																						<input type="radio" <?=$tds_mode==='off'?'checked':''?> value="off" name="tds.mode"> Посылать всех на блэк (TDS отключена)</label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -1159,7 +1138,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                                                                 <div class="input-group custom-go-button">
-                                                                    <input type="text" class="form-control" placeholder="">
+                                                                    <input type="text" name="tds.filters.blocked.tokens" class="form-control" placeholder="" value="<?=implode(',',$tokens_black)?>">
                                                                 </div>
                                                             </div>
                                                         </div>

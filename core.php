@@ -20,7 +20,7 @@ class Cloaker{
     var $isp_black;
     var $result;
 
-	public function __construct($os_white,$country_white,$ip_black_filename,$ip_black_cidr,$tokens_black,$ua_black,$isp_black,$block_without_referer,$block_vpnandtor){
+	public function __construct($os_white,$country_white,$ip_black_filename,$ip_black_cidr,$tokens_black,$url_should_contain,$ua_black,$isp_black,$block_without_referer,$block_vpnandtor){
 		$this->os_white = $os_white;
 		$this->country_white = $country_white;
 		$this->ip_black_filename = $ip_black_filename;
@@ -141,6 +141,7 @@ class Cloaker{
 
 		if($this->tokens_black!==[]){
 			foreach($this->tokens_black AS $token){
+				if ($token==='')continue;
 				if (strpos($_SERVER['REQUEST_URI'],$token)!==false){
 					$result=1;
 					$this->result[]='token:'.$token;
@@ -151,6 +152,7 @@ class Cloaker{
 
 		if($this->url_should_contain!==[]){
 			foreach($this->url_should_contain AS $should){
+				if ($should==='') continue;
 				if (strpos($_SERVER['REQUEST_URI'],$should)===false){
 					$result=1;
 					$this->result[]='url:'.$should;
