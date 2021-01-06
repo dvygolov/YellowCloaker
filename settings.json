@@ -149,7 +149,7 @@
                     "digitalocean"
                 ],
                 "withoutreferer": false,
-                "vpntor": false
+                "vpntor": true
             }
         }
     },
