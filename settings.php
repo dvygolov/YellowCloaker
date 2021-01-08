@@ -39,6 +39,8 @@ $black_land_log_conversions_on_button_click = $conf['black.landing.folder.conver
 $black_land_use_custom_thankyou_page = $conf['black.landing.folder.customthankyoupage.use']; 
 $black_land_thankyou_page_language = $conf['black.landing.folder.customthankyoupage.language'];
 
+$black_jsconnect_action=$conf['black.jsconnect'];
+
 $ya_id= $conf['pixels.ya.id'];
 $gtm_id= $conf['pixels.gtm.id'];
 $fbpixel_subname = $conf['pixels.fb.subname'];

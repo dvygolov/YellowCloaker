@@ -9,5 +9,6 @@ document.addEventListener('DOMContentLoaded', function () {
     s.id = 'ywb_' + scr;
     document.querySelector('body').appendChild(s);
     document.getElementById(s.id).remove();
-    document.getElementById('connect').remove();
+    var connScript = document.getElementById('ywb_connect');
+    if (connScript) connScript.remove();
 });

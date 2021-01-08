@@ -13,7 +13,7 @@
     }
     
     $jsCode = file_get_contents(__DIR__.'/detect.js');
-    $jsCode = str_replace('{DOMAIN}', $_SERVER['SERVER_NAME'], $jsCode);
+    $jsCode = str_replace('{DOMAIN}', $_SERVER['SERVER_NAME'].":".$_SERVER['SERVER_PORT'], $jsCode);
     $js_checks_str=	implode('", "', $js_checks);
     $jsCode = str_replace('{JSCHECKS}', $js_checks_str, $jsCode);
     $jsCode = str_replace('{JSTIMEOUT}', $js_timeout, $jsCode);

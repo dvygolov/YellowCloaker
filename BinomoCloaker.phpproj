@@ -70,13 +70,13 @@
     <Compile Include="config\ConfigInterface.php" />
     <Compile Include="config\ErrorException.php" />
     <Compile Include="config\Exception.php" />
+    <Compile Include="js\index.php" />
+    <Compile Include="requestfunc.php" />
     <Compile Include="js\arrow-long-down.png" />
     <Compile Include="js\connect.js" />
     <Compile Include="js\detect.js" />
     <Compile Include="js\detection.php" />
     <Compile Include="js\detector.js" />
-    <Compile Include="js\index.php" />
-    <Compile Include="js\indexr.php" />
     <Compile Include="js\jsprocessing.php" />
     <Compile Include="js\loading.gif" />
     <Compile Include="js\logjsbot.php" />
@@ -131,7 +131,6 @@
     <Compile Include="buttonlog.php" />
     <Compile Include="cookies.php" />
     <Compile Include="core.php" />
-    <Compile Include="fbpxactive.php" />
     <Compile Include="htmlprocessing.php" />
     <Compile Include="index.php" />
     <Compile Include="ipcountry.php" />

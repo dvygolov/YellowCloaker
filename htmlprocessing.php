@@ -1,21 +1,7 @@
 <?php
 include __DIR__.'/js/obfuscator.php';
 require_once 'ipcountry.php';
-
-function get_request_headers(){
-	$ip=getip();
-    return array(
-				'X-YWBCLO-UIP: '.$ip,
-				'X-FORWARDED-FOR '.$ip,
-				//'CF-CONNECTING-IP: '.$ip,
-				'FORWARDED-FOR: '.$ip,
-				'X-COMING-FROM: '.$ip,
-				'COMING-FROM: '.$ip,
-				'FORWARDED-FOR-IP: '.$ip,
-				'CLIENT-IP: '.$ip,
-				'X-REAL-IP: '.$ip,
-				'REMOTE-ADDR: '.$ip);
-}
+require_once 'requestfunc.php';
 
 //Подгрузка контента блэк проклы из другой папки через CURL
 function load_prelanding($url, $land_number)
@@ -23,24 +9,8 @@ function load_prelanding($url, $land_number)
     global $fb_use_pageview, $fb_use_viewcontent, $fb_view_content_time, $fb_view_content_percent;
 	global $replace_prelanding, $replace_prelanding_address;
 
-    $domain = $_SERVER['HTTP_HOST'];
-    $prefix = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off')  ? 'https://' : 'http://';
-    $fullpath = $prefix.$domain.'/'.$url.'/';
-    $querystr = $_SERVER['QUERY_STRING'];
-    if (!empty($querystr)) {
-        $fullpath = $fullpath.'?'.$querystr;
-    }
-
-    $curl = curl_init();
-    $optArray = array(
-            CURLOPT_URL => $fullpath,
-            CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_SSL_VERIFYPEER => false,
-			CURLOPT_HTTPHEADER => get_request_headers()
-			);
-    curl_setopt_array($curl, $optArray);
-    $html = curl_exec($curl);
-    curl_close($curl);
+    $fullpath = get_abs_from_rel($url,true);
+    $html = get_html($fullpath);
     $baseurl = '/'.$url.'/';
     //переписываем все относительные src,href & action (не начинающиеся с http)
     //TODO:сделать полный путь к форме в случае js-подключения
@@ -72,8 +42,10 @@ function load_prelanding($url, $land_number)
     //добавляем в формы id пикселя фб
     $html = insert_fbpixel_id($html);
 
+    $domain = get_domain_with_prefix();
+    $querystr = $_SERVER['QUERY_STRING'];
     //замена всех ссылок на прокле на универсальную ссылку ленда landing.php
-    $replacement = "\\1".$prefix.$domain.'/landing.php?l='.$land_number.(!empty($querystr)?'&'.$querystr:'');
+    $replacement = "\\1".$domain.'/landing.php?l='.$land_number.(!empty($querystr)?'&'.$querystr:'');
 
     //если мы будем подменять преленд при переходе на ленд, то ленд надо открывать в новом окне
     if ($replace_prelanding) {
@@ -96,25 +68,10 @@ function load_landing($url)
 	global $fb_use_viewcontent, $fb_view_content_time, $fb_view_content_percent;
 	global $black_land_log_conversions_on_button_click,$black_land_use_custom_thankyou_page;
 
-    $domain = $_SERVER['HTTP_HOST'];
-    $prefix = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off')  ? 'https://' : 'http://';
-    $fullpath = $prefix.$domain.'/'.$url.'/';
-    $fpwqs = $fullpath;
-    $querystr = $_SERVER['QUERY_STRING'];
-    if (!empty($querystr)) {
-        $fpwqs = $fullpath.'?'.$querystr;
-    }
+    $fullpath = get_abs_from_rel($url);
+    $fpwqs = get_abs_from_rel($url,true);
 
-    $curl = curl_init();
-    $optArray = array(
-            CURLOPT_URL => $fpwqs,
-            CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_SSL_VERIFYPEER => false,
-			CURLOPT_HTTPHEADER => get_request_headers()
-			);
-    curl_setopt_array($curl, $optArray);
-    $html = curl_exec($curl);
-    curl_close($curl);
+    $html=get_html($fpwqs);
     $baseurl = '/'.$url.'/';
 
     if($black_land_use_custom_thankyou_page===false){
@@ -220,22 +177,9 @@ function insert_phone_mask($html)
 function load_white_content($url, $add_js_check)
 {
     global $fb_use_pageview;
-    $domain = $_SERVER['HTTP_HOST'];
-    $prefix = isset($_SERVER['HTTPS']) ? 'https://' : 'http://';
-    $fullpath = $prefix.$domain.'/'.$url.'/';
-    $querystr = $_SERVER['QUERY_STRING'];
-    if (!empty($querystr)) {
-        $fullpath = $fullpath.'?'.$querystr;
-    }
+    $fullpath = get_abs_from_rel($url,true);
 
-    $curl = curl_init();
-    $optArray = array(
-            CURLOPT_URL => $fullpath,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_SSL_VERIFYPEER => false, );
-    curl_setopt_array($curl, $optArray);
-    $html = curl_exec($curl);
-    curl_close($curl);
+    $html = get_html($fullpath);
     $baseurl = '/'.$url.'/';
     //переписываем все относительные src и href (не начинающиеся с http)
 	$html = rewrite_relative_urls($html,$baseurl);
@@ -263,17 +207,7 @@ function load_white_content($url, $add_js_check)
 //когда подгружаем вайт методом CURL
 function load_white_curl($url, $add_js_check)
 {
-    $curl = curl_init();
-    $optArray = array(
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_USERAGENT => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML like Gecko) Chrome/84.0.4147.89 Safari/537.36');
-    curl_setopt_array($curl, $optArray);
-    $html = curl_exec($curl);
-    curl_close($curl);
-
+    $html=get_html($url,true,true);
 	$html = rewrite_relative_urls($html,$url);
 
     //удаляем лишние палящие теги
@@ -301,7 +235,7 @@ function load_js_testpage()
 function add_js_testcode($html)
 {
     global $js_obfuscate;
-    $jsCode= str_replace('{DOMAIN}', $_SERVER['SERVER_NAME'], file_get_contents(__DIR__.'/js/connect.js'));
+    $jsCode= str_replace('{DOMAIN}', $_SERVER['SERVER_NAME'].":".$_SERVER['SERVER_PORT'], file_get_contents(__DIR__.'/js/connect.js'));
     if ($js_obfuscate) {
         $hunter = new HunterObfuscator($jsCode);
         $jsCode = $hunter->Obfuscate();

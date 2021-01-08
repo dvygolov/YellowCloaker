@@ -1,5 +1,5 @@
 # Binomo Cloaker Yellow Web Edition
-English version of this help is down below 👇
+English version of this help is down below 👇 Warning: this help is outdated! Now all of the settings are made using the UI: */admin?password=12345*
 # Поддержка
 Если вы хотите, чтобы этот проект и дальше развивался, [**поддержите автора соткой-другой**!](https://capu.st/yellowweb)
 

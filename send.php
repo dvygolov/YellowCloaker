@@ -9,6 +9,7 @@ include 'settings.php';
 include 'logging.php';
 include 'cookies.php';
 include 'redirect.php';
+include 'requestfunc.php';
 
 $name = '';
 if (isset($_POST['name']))
@@ -38,10 +39,8 @@ if (!$is_duplicate){
     }
     //иначе составляем полный адрес до скрипта отправки ПП
     else{
-        $domain = $_SERVER['HTTP_HOST'];
-        $prefix = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off')  ? 'https://' : 'http://';
         $url= $_COOKIE['landing'].'/'.$black_land_conversion_script;
-        $fullpath = $prefix.$domain.'/'.$url;
+        $fullpath = get_abs_from_rel($url);
     }
     $curl = curl_init();
     curl_setopt_array($curl, array(

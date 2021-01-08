@@ -1,19 +1,19 @@
 <?php
-//›ÚÓÚ Ù‡ÈÎ ÌÂÓ·ıÓ‰ËÏÓ ÔÓ‰ÍÎ˛˜ËÚ¸ Í Î˛·ÓÏÛ ÍÓÌÒÚÛÍÚÓÛ, ËÒÔÓÎ¸ÁÛˇ
-//ÒÎÂ‰Û˛˘ËÈ ÍÓ‰: <script src="https://‚‡¯.‰ÓÏÂÌ/js"></script>
-//‚ ÒÎÛ˜‡Â ÔÓıÓÊ‰ÂÌËˇ ÔÓÎ¸ÁÓ‚‡ÚÂÎÂÏ ÔÓ‚ÂÍË, ·Û‰ÂÚ ÒÓ‚Â¯ÂÌ‡ ÔÓ‰ÏÂÌ‡
-//ÒÓ‰ÂÊËÏÓ„Ó ÒÚ‡ÌËˆ˚ ÍÓÌÒÚÛÍÚÓ‡ Ì‡ ‚‡¯ ·Î˝Í
-    include 'obfuscator.php';
-    include '../settings.php';
-    if ($use_js_checks) {
-        header('Content-Type: text/javascript');
-        $jsCode= str_replace('{DOMAIN}', $_SERVER['SERVER_NAME'], file_get_contents(__DIR__.'/connect.js'));
-        if ($js_obfuscate) {
-            $hunter = new HunterObfuscator($jsCode);
-            echo $hunter->Obfuscate();
-        } else {
-            echo $jsCode;
-        }
+//–≠—Ç–æ—Ç —Ñ–∞–π–ª –Ω–µ–æ–±—Ö–æ–¥–∏–º–æ –ø–æ–¥–∫–ª—é—á–∏—Ç—å –∫ –ª—é–±–æ–º—É –∫–æ–Ω—Å—Ç—Ä—É–∫—Ç–æ—Ä—É, –∏—Å–ø–æ–ª—å–∑—É—è
+//—Å–ª–µ–¥—É—é—â–∏–π –∫–æ–¥: <script src="https://–≤–∞—à.–¥–æ–º–µ–Ω/js/index.api.js"></script>
+//–≤ —Å–ª—É—á–∞–µ –ø—Ä–æ—Ö–æ–∂–¥–µ–Ω–∏—è –ø–æ–ª—å–∑–æ–≤–∞—Ç–µ–ª–µ–º –ø—Ä–æ–≤–µ—Ä–∫–∏, –±—É–¥–µ—Ç —Å–æ–≤–µ—Ä—à–µ–Ω–æ –¥–µ–π—Å—Ç–≤–∏–µ, –∫–æ—Ç–æ—Ä–æ–µ
+//–≤—ã —É–∫–∞–∑–∞–ª–∏ –¥–ª—è js-–ø–æ–¥–∫–ª—é—á–µ–Ω–∏—è: —Ä–µ–¥–∏—Ä–µ–∫—Ç, –ø–æ–¥–º–µ–Ω–∞ –∏–ª–∏ –ø–æ–∫–∞–∑ iframe
+include_once 'obfuscator.php';
+include_once '../settings.php';
+if ($use_js_checks) {
+    header('Content-Type: text/javascript');
+    $jsCode= str_replace('{DOMAIN}', $_SERVER['SERVER_NAME'].":".$_SERVER['SERVER_PORT'], file_get_contents(__DIR__.'/connect.js'));
+    if ($js_obfuscate) {
+        $hunter = new HunterObfuscator($jsCode);
+        echo $hunter->Obfuscate();
     } else {
-        include 'process.php';
+        echo $jsCode;
     }
+} else {
+    include 'process.php';
+}
