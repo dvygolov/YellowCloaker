@@ -6,7 +6,7 @@ error_reporting(E_ALL);
 //Конец включения отладочной информации
 include 'settings.php';
 include 'htmlprocessing.php';
-$filepath = __DIR__.'/thankyou/'.$thankyou_page_language.'.html';
+$filepath = __DIR__.'/thankyou/'.$black_land_thankyou_page_language.'.html';
 if (!file_exists($filepath))
 	$filepath = __DIR__.'/thankyou/EN.html';
 
@@ -29,6 +29,6 @@ $str_to_insert = '<input type="hidden" name="phone" value="'.$_COOKIE['phone'].'
 $html = insert_before_tag($html,$needle,$str_to_insert);
 $str_to_insert = '<input type="hidden" name="subid" value="'.$_COOKIE['subid'].'"/>';
 $html = insert_before_tag($html,$needle,$str_to_insert);
-$str_to_insert = '<input type="hidden" name="language" value="'.$thankyou_page_language.'"/>';
+$str_to_insert = '<input type="hidden" name="language" value="'.$black_land_thankyou_page_language.'"/>';
 $html = insert_before_tag($html,$needle,$str_to_insert);
 echo $html;

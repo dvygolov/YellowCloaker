@@ -5,11 +5,11 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 //Конец включения отладочной информации
 
-include 'settings.php';
-include 'logging.php';
-include 'cookies.php';
-include 'redirect.php';
-include 'requestfunc.php';
+include_once 'settings.php';
+include_once 'logging.php';
+include_once 'cookies.php';
+include_once 'redirect.php';
+include_once 'requestfunc.php';
 
 $name = '';
 if (isset($_POST['name']))
@@ -50,26 +50,33 @@ if (!$is_duplicate){
       CURLOPT_FOLLOWLOCATION => false,
       CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
       CURLOPT_CUSTOMREQUEST => "POST",
+      CURLOPT_SSL_VERIFYPEER => false,
       CURLOPT_POSTFIELDS => http_build_query($_POST),
-          CURLOPT_REFERER => $_SERVER['REQUEST_URI'],
+      CURLOPT_REFERER => $_SERVER['REQUEST_URI'],
       CURLOPT_HTTPHEADER => array(
         "Content-Type: application/x-www-form-urlencoded"
-      ),
+      )
     ));
 
     $content = curl_exec($curl);
     $info = curl_getinfo($curl);
+    $error= curl_error($curl);
     curl_close($curl);
 
     //в ответе должен быть редирект, если его нет - грузим обычную страницу Спасибо кло
     switch($info["http_code"]){
         case 302:
             write_leads_to_log($subid,$name,$phone,'');
-            redirect($info["redirect_url"]);
+            if ($black_land_use_custom_thankyou_page ){
+                redirect("thankyou.php?".http_build_query($_GET));
+            }
+            else{
+                redirect($info["redirect_url"]);
+            }
             break;
         case 200:
             write_leads_to_log($subid,$name,$phone,'');
-            if ($use_custom_thankyou_page){
+            if ($black_land_use_custom_thankyou_page ){
                 jsredirect("thankyou.php?".http_build_query($_GET));
             }
             else{
@@ -77,6 +84,7 @@ if (!$is_duplicate){
             }
             break;
         default:
+            var_dump($error);
             var_dump($info);
             exit();
             break;

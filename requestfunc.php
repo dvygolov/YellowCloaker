@@ -12,7 +12,8 @@ function get_domain_with_prefix(){
 function get_abs_from_rel($url,$add_query_string=false){
     $domain = $_SERVER['HTTP_HOST'];
     $prefix = get_prefix();
-    $fullpath= $prefix.$domain.'/'.$url.'/';
+    $fullpath= $prefix.$domain.'/'.$url;
+    if (substr($url, -4) !== '.php') $fullpath=$fullpath.'/';
     if ($add_query_string===true)
     {
         $querystr = $_SERVER['QUERY_STRING'];
