@@ -1,7 +1,8 @@
 <?php
-include 'htmlprocessing.php';
-include 'cookies.php';
-include 'redirect.php';
+include_once 'htmlprocessing.php';
+include_once 'cookies.php';
+include_once 'redirect.php';
+include_once 'fbpixel.php';
 
 //Включение отладочной информации
 ini_set('display_errors', '1');
@@ -90,15 +91,19 @@ function black($clkrdetect, $clkrresult, $check_result)
     global $black_preland_action,$black_preland_redirect_type, $black_preland_redirect_urls, $black_preland_folder_names;
 	global $black_land_action, $black_land_folder_names, $save_user_flow;
 	global $black_land_redirect_type,$black_land_redirect_urls;
+	global $fbpixel_subname;
 
     header('Access-Control-Allow-Credentials: true');
     if (isset($_SERVER['HTTP_REFERER'])) {
         $parsed_url=parse_url($_SERVER['HTTP_REFERER']);
         header('Access-Control-Allow-Origin: '.$parsed_url['scheme'].'://'.$parsed_url['host']);
     }
-
+	
+	$fbpx = getpixel();
+	if ($fbpx!==''){
+		ywbsetcookie($fbpixel_subname,$fbpx,'/');
+	}
 	$cursubid=set_subid();
-
     //устанавливаем fbclid в куки, если получали его из фб
 	if (isset($_GET['fbclid']) && $_GET['fbclid']!='')
 	{

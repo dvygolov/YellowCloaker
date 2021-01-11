@@ -116,7 +116,7 @@ while ($date>=$startdate) {
         foreach ($cur_query as $query_item) {
             if (substr($query_item, 0, strlen($creative_sub_name))===$creative_sub_name) {
                 $qsplit = explode('=', $query_item);
-                $cur_creo = $qsplit[1];
+                $cur_creo = urldecode($qsplit[1]);
                 break;
             }
         }

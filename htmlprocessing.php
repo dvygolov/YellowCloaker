@@ -2,6 +2,7 @@
 include __DIR__.'/js/obfuscator.php';
 require_once 'ipcountry.php';
 require_once 'requestfunc.php';
+require_once 'fbpixel.php';
 
 //Подгрузка контента блэк проклы из другой папки через CURL
 function load_prelanding($url, $land_number)
@@ -406,13 +407,6 @@ function insert_fb_pixel_viewcontent_percent_script($html, $percent, $page){
 
     $needle='</head>';
     return insert_before_tag($html, $needle, $px_code);
-}
-
-function getpixel(){
-	global $fbpixel_subname;
-    //если пиксель не лежит в querystring, то также ищем его в куки
-    $fb_pixel = isset($_GET[$fbpixel_subname])?$_GET[$fbpixel_subname]:(isset($_COOKIE[$fbpixel_subname])?$_COOKIE[$fbpixel_subname]:'');
-	return $fb_pixel;
 }
 
 //если задан ID Google Tag Manager, то вставляем его скрипт
