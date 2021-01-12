@@ -47,6 +47,13 @@ function get_html($url,$follow_location=false,$use_ua=false){
 			CURLOPT_SSL_VERIFYPEER => false,
 			CURLOPT_HTTPHEADER => get_request_headers()
 			);
+    //случай, когда у нас в форме ленда стоит в форме action=index.php, значит надо пробросить POST
+    if ($_SERVER['REQUEST_METHOD']==='POST'){
+        $optArray[CURLOPT_POST]=1;
+        $optArray[CURLOPT_POSTFIELDS]=$_POST;
+        $optArray[CURLOPT_FOLLOWLOCATION]=true ;
+    }
+
     if ($follow_location===true){
         $optArray[CURLOPT_FOLLOWLOCATION]=true ;
     }
