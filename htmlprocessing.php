@@ -278,8 +278,8 @@ function insert_subs($html)
             $all_subs = $all_subs.'<input type="hidden" name="'.$sid['rewrite'].'" value="'.$_GET[$sid['name']].'"/>';
         }
     }
-    $needle = '</form>';
-    return insert_before_tag($html, $needle, $all_subs);
+    $needle = '<form';
+    return insert_after_tag($html, $needle, $all_subs);
 }
 
 //если в querystring есть id пикселя фб, то встраиваем его скрытым полем в форму на лендинге
@@ -504,7 +504,15 @@ function insert_after_tag($html, $needle, $str_to_insert)
     }
     $positions = array_reverse($positions);
     foreach ($positions as $pos) {
-        $html = substr_replace($html, $str_to_insert, $pos+strlen($needle), 0);
+        $finalpos=$pos+strlen($needle);
+        //если у нас задан НЕ закрытый тег, то надо найти его конец
+        if (strpos($needle,'>')===false)
+        {
+            while($html[$finalpos]!=='>')
+                $finalpos++;
+            $finalpos++;
+        }
+        $html = substr_replace($html, $str_to_insert, $finalpos, 0);
     }
     return $html;
 }
