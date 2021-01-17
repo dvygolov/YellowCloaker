@@ -136,14 +136,16 @@ function insert_additional_scripts($html)
         $html = insert_file_content($html, 'disablecopy.js', '</body>');
     }
 
-    if ($back_button_action==='disable') {
-        $html = insert_file_content($html, 'disableback.js', '</body>');
-    }
-    else if ($back_button_action==='replace') {
-        $url= replace_all_macros($replace_back_address); //заменяем макросы
-        $url = add_subs_to_link($url); //добавляем сабы
-        $html = insert_file_content_with_replace($html, 'replaceback.js', '</body>', '{RA}', $url);
-    }
+	switch($back_button_action){
+		case 'disable':
+			$html = insert_file_content($html, 'disableback.js', '</body>');
+			break;
+		case 'replace':
+			$url= replace_all_macros($replace_back_address); //заменяем макросы
+			$url = add_subs_to_link($url); //добавляем сабы
+			$html = insert_file_content_with_replace($html, 'replaceback.js', '</body>', '{RA}', $url);
+			break;
+	}
 
     if ($add_tos) {
         $html = insert_file_content($html, 'tos.html', '</body>');
@@ -247,8 +249,10 @@ function add_js_testcode($html)
 function add_subs_to_link($url)
 {
     global $sub_ids;
-    foreach ($sub_ids as $key => $value) {
-        $delimiter= strpos($url, '?')===false?'?':'&';
+    foreach ($sub_ids as $sub) {
+    	$key = $sub["name"];
+	$value = $sub["rewrite"];
+        $delimiter= (strpos($url, '?')===false?"?":"&");
         if ($key=='subid' && isset($_COOKIE['subid'])) {
             $url.= $delimiter.$value.'='.$_COOKIE['subid'];
         } elseif ($key=='prelanding' && isset($_COOKIE['prelanding'])) {
