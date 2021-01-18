@@ -37,7 +37,7 @@ function load_prelanding($url, $land_number)
 	}
 
     $html = replace_tel_type($html);
-
+    $html = insert_phone_mask($html);
     //добавляем во все формы сабы
     $html = insert_subs($html);
     //добавляем в формы id пикселя фб
@@ -165,13 +165,10 @@ function insert_phone_mask($html)
 {
     global $black_land_use_phone_mask,$black_land_phone_mask;
 	if (!$black_land_use_phone_mask) return $html;
-    $html = insert_before_tag($html, '</head>', '<script src="scripts/inputmask.js"></script>');
-    $html = insert_before_tag($html, '</head>', '<script src="scripts/inputmaskbinding.js"></script>');
-    $html = preg_replace(
-        '/(<input[^>]*name="(phone|tel)"[^>]*)(>)/',
-        "\\1 data-inputmask=\"'mask': '".$black_land_phone_mask."'\">",
-        $html
-    );
+	$domain = get_domain_with_prefix();
+    $html = insert_before_tag($html, '</head>', "<script src='".$domain."/scripts/inputmask.js'></script>");
+    $bindingCode= str_replace('{MASK}',$black_land_phone_mask, file_get_contents(__DIR__.'/scripts/inputmaskbinding.js'));
+    $html = insert_before_tag($html, '</head>', "<script>".$bindingCode."</script>");
 
     return $html;
 }
