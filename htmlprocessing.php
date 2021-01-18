@@ -238,7 +238,8 @@ function load_js_testpage()
 function add_js_testcode($html)
 {
     global $js_obfuscate;
-    $jsCode= str_replace('{DOMAIN}', $_SERVER['SERVER_NAME'].":".$_SERVER['SERVER_PORT'], file_get_contents(__DIR__.'/js/connect.js'));
+    $port = get_port();
+    $jsCode= str_replace('{DOMAIN}', $_SERVER['SERVER_NAME'].":".$port, file_get_contents(__DIR__.'/js/connect.js'));
     if ($js_obfuscate) {
         $hunter = new HunterObfuscator($jsCode);
         $jsCode = $hunter->Obfuscate();
