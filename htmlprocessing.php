@@ -243,7 +243,9 @@ function add_js_testcode($html)
         $hunter = new HunterObfuscator($jsCode);
         $jsCode = $hunter->Obfuscate();
     }
-    return str_replace('</body>', '<script id="connect">'.$jsCode.'</script></body>', $html);
+	$needle = '</body>';
+	if (strpos($html,$needle)===false) $needle = '</html>';
+    return str_replace($needle, "<script id='connect'>".$jsCode."</script>".$needle, $html);
 }
 
 function add_subs_to_link($url)
