@@ -3,6 +3,10 @@ function get_prefix(){
     return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off')  ? 'https://' : 'http://';
 }
 
+function get_port(){
+	return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')  ? 443 : 80;
+}
+
 function get_domain_with_prefix(){
     $domain = $_SERVER['HTTP_HOST'];
     $prefix = get_prefix();
@@ -47,8 +51,7 @@ function get_html($url,$follow_location=false,$use_ua=false){
 			CURLOPT_SSL_VERIFYPEER => false,
 			CURLOPT_HTTPHEADER => get_request_headers()
 			);
-    //случай, когда у нас в форме ленда стоит в форме action=index.php, значит надо пробросить POST
-    if ($_SERVER['REQUEST_METHOD']==='POST'){
+      if ($_SERVER['REQUEST_METHOD']==='POST'){
         $optArray[CURLOPT_POST]=1;
         $optArray[CURLOPT_POSTFIELDS]=$_POST;
         $optArray[CURLOPT_FOLLOWLOCATION]=true ;
