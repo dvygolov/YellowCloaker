@@ -168,9 +168,9 @@
       "use": false,
       "mask": "+421 999 999 999"
     },
-    "comebacker": true,
-    "callbacker": true,
-    "addedtocart": true 
+    "comebacker": false,
+    "callbacker": false,
+    "addedtocart": false 
   },
   "subids": [
     {
