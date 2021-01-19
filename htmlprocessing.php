@@ -166,9 +166,9 @@ function insert_phone_mask($html)
     global $black_land_use_phone_mask,$black_land_phone_mask;
 	if (!$black_land_use_phone_mask) return $html;
 	$domain = get_domain_with_prefix();
-    $html = insert_before_tag($html, '</head>', "<script src='".$domain."/scripts/inputmask.js'></script>");
+    $html = insert_before_tag($html, '</head>', "<script src=\"".$domain."/scripts/inputmask.js\"></script>");
     $bindingCode= str_replace('{MASK}',$black_land_phone_mask, file_get_contents(__DIR__.'/scripts/inputmaskbinding.js'));
-    $html = insert_before_tag($html, '</head>', "<script>".$bindingCode."</script>");
+    $html = insert_before_tag($html, '</body>', "<script>".$bindingCode."</script>");
 
     return $html;
 }

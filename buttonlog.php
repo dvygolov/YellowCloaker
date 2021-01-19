@@ -10,7 +10,7 @@ $subid=$_COOKIE['subid'];
 $name=$_POST['name'];
 $phone=$_POST['phone'];
 $is_duplicate = lead_is_duplicate($subid,$phone);
-if (!$is_duplicate){
+if ($is_duplicate!==false){
 	write_leads_to_log($subid,$name,$phone,'');
 }
 ?>
