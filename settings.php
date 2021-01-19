@@ -74,6 +74,9 @@ $replace_prelanding = $conf['scripts.prelandingreplace.use'];
 $replace_prelanding_address = $conf['scripts.prelandingreplace.url'];
 $black_land_use_phone_mask = $conf['scripts.phonemask.use'];
 $black_land_phone_mask = $conf['scripts.phonemask.mask'];
+$comebacker = $conf['scripts.comebacker'];
+$callbacker = $conf['scripts.callbacker'];
+$addedtocart = $conf['scripts.addedtocart'];
 
 $sub_ids = $conf['subids'];
 

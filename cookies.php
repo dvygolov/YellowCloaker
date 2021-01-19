@@ -10,4 +10,8 @@ function set_subid(){
     ywbsetcookie('subid',$cursubid,'/');
     return $cursubid;
 }
+
+function get_cookie($name){
+    
+}
 ?>

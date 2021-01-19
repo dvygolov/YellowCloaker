@@ -1,4 +1,4 @@
-﻿@import url(http://fonts.googleapis.com/css?family=Lobster|PT+Sans:400,700,400italic,700italic&subset=latin,cyrillic);
+﻿@import url(https://fonts.googleapis.com/css?family=Lobster|PT+Sans:400,700,400italic,700italic&subset=latin,cyrillic);
 * {
     outline: none;
 }
@@ -128,7 +128,7 @@
 #callbacker-design .callbacker-design-img-circle {
     width: 50px;
     height: 50px;
-    background: #5aaade center center no-repeat url('../img/phone.png');
+    background: #5aaade center center no-repeat url('img/phone.png');
     position: absolute;
     top: 25px;
     left: 25px;
@@ -540,7 +540,7 @@
 }
 
 #callbacker .modal-callbacker-block .icon-close-callbacker {
-	background: url(../img/close.png) no-repeat 0 0;
+	background: url(img/close.png) no-repeat 0 0;
 	width: 30px;
 	height: 30px;
 	position: absolute;

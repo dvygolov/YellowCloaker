@@ -70,6 +70,7 @@
     <Compile Include="config\ConfigInterface.php" />
     <Compile Include="config\ErrorException.php" />
     <Compile Include="config\Exception.php" />
+    <Compile Include="fbpixel.php" />
     <Compile Include="js\index.php" />
     <Compile Include="requestfunc.php" />
     <Compile Include="js\arrow-long-down.png" />
@@ -165,6 +166,11 @@
     <Folder Include="js" />
     <Folder Include="Properties\" />
     <Folder Include="scripts" />
+    <Folder Include="scripts\addedtocart\" />
+    <Folder Include="scripts\callbacker\" />
+    <Folder Include="scripts\callbacker\img\" />
+    <Folder Include="scripts\comebacker\" />
+    <Folder Include="scripts\comebacker\img\" />
     <Folder Include="thankyou" />
     <Folder Include="tos\tos" />
     <Folder Include="tos" />
@@ -191,5 +197,23 @@
     <Content Include="admin\js\metisMenu\metisMenu-active.js" />
     <Content Include="admin\js\metisMenu\metisMenu.min.js" />
     <Content Include="admin\js\plugins.js" />
+    <Content Include="scripts\addedtocart\head.html" />
+    <Content Include="scripts\addedtocart\message.png" />
+    <Content Include="scripts\addedtocart\script.js" />
+    <Content Include="scripts\addedtocart\css.css" />
+    <Content Include="scripts\addedtocart\template.html" />
+    <Content Include="scripts\callbacker\css.css" />
+    <Content Include="scripts\callbacker\head.html" />
+    <Content Include="scripts\callbacker\img\close.png" />
+    <Content Include="scripts\callbacker\img\phone.png" />
+    <Content Include="scripts\callbacker\script.js" />
+    <Content Include="scripts\callbacker\template.html" />
+    <Content Include="scripts\comebacker\css.css" />
+    <Content Include="scripts\comebacker\head.html" />
+    <Content Include="scripts\comebacker\img\bgexit.png" />
+    <Content Include="scripts\comebacker\img\close.png" />
+    <Content Include="scripts\comebacker\img\product.png" />
+    <Content Include="scripts\comebacker\script.js" />
+    <Content Include="scripts\comebacker\template.html" />
   </ItemGroup>
 </Project>

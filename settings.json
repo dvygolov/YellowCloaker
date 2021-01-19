@@ -1,200 +1,203 @@
 {
-    "white": {
-        "action": "folder",
-        "folder": {
-            "name": "white"
-        },
-        "redirect": {
-            "url": "https://ya.ru",
-            "type": 303
-        },
-        "curl": {
-            "url": "https://yandex.ru"
-        },
-        "error": {
-            "code": 404
-        },
-        "domainfilter": {
-            "use": false,
-            "domains": [
-                {
-                    "name": "keto.awlah.com",
-                    "action": "curl:https://ya.ru"
-                },
-                {
-                    "name": "lalala.xxx.com",
-                    "action": "site:white"
-                },
-                {
-                    "name": "lamama.xxx.com",
-                    "action": "site:white"
-                }
-            ]
-        },
-        "jschecks": {
-            "enabled": false,
-            "events": [
-                "mousemove",
-                "keydown",
-                "scroll",
-                "wheel",
-                "devicemotion",
-                "deviceorientation"
-            ],
-            "timeout": 10000,
-            "obfuscate": true
-        }
+  "white": {
+    "action": "folder",
+    "folder": {
+      "name": "white"
     },
-    "black": {
-        "prelanding": {
-            "action": "folder",
-            "folders": [
-                "lrpl"
-            ],
-            "redirect": {
-                "urls": [
-                    "https://ya.ru",
-                    "https://google.com"
-                ],
-                "type": 302
-            }
-        },
-        "landing": {
-            "action": "folder",
-            "folder": {
-                "names": [
-                    "lrl"
-                ],
-                "conversions": {
-                    "script": "order.php",
-                    "logonbuttonclick": true
-                },
-                "customthankyoupage": {
-                    "use": false,
-                    "language": "EN"
-                }
-            },
-            "redirect": {
-                "urls": [
-                    "https://ya.ru",
-                    "https://google.com"
-                ],
-                "type": 307
-            }
-        },
-        "jsconnect": "iframe"
+    "redirect": {
+      "url": "https://ya.ru",
+      "type": 303
     },
-    "pixels": {
-        "ya": {
-            "id": ""
-        },
-        "gtm": {
-            "id": ""
-        },
-        "fb": {
-            "subname": "px",
-            "pageview": false,
-            "viewcontent": {
-                "use": false,
-                "time": 30,
-                "percent": 75
-            },
-            "conversion": {
-                "event": "Lead",
-                "fireonbutton": true
-            },
-            "cloak": false
-        }
+    "curl": {
+      "url": "https://yandex.ru"
     },
-    "tds": {
-        "mode": "on",
-        "saveuserflow": false,
-        "filters": {
-            "allowed": {
-                "countries": [
-                    "RU",
-                    "UA",
-                    "BY"
-                ],
-                "os": [
-                    "Android",
-                    "iOS",
-                    "Windows",
-                    "OS X"
-                ],
-                "inurl": [
-                    ""
-                ]
-            },
-            "blocked": {
-                "ips": {
-                    "filename": "",
-                    "cidrformat": false
-                },
-                "tokens": [
-                    ""
-                ],
-                "useragents": [
-                    "facebook",
-                    "Facebot",
-                    "curl",
-                    "gce-spider",
-                    "yandex.com/bots"
-                ],
-                "isps": [
-                    "facebook",
-                    "google",
-                    "yandex",
-                    "amazon",
-                    "azure",
-                    "digitalocean"
-                ],
-                "withoutreferer": false,
-                "vpntor": false
-            }
-        }
+    "error": {
+      "code": 404
     },
-    "scripts": {
-        "back": {
-            "action": "off",
-            "value": "https://ya.ru"
-        },
-        "disabletextcopy": true,
-        "prelandingreplace": {
-            "use": false,
-            "url": "https://ya.ru"
-        },
-        "phonemask": {
-            "use": false,
-            "mask": "+421 999 999 999"
-        }
-    },
-    "subids": [
+    "domainfilter": {
+      "use": false,
+      "domains": [
         {
-            "name": "subid",
-            "rewrite": "sub_id"
+          "name": "keto.awlah.com",
+          "action": "curl:https://ya.ru"
         },
         {
-            "name": "prelanding",
-            "rewrite": "utm_source"
+          "name": "lalala.xxx.com",
+          "action": "site:white"
         },
         {
-            "name": "cn",
-            "rewrite": "utm_campaign"
-        },
-        {
-            "name": "an",
-            "rewrite": "utm_content"
+          "name": "lamama.xxx.com",
+          "action": "site:white"
         }
-    ],
-    "statistics": {
-        "password": 12345,
-        "creativesubname": "an",
-        "postback": {
-            "lead": "Lead",
-            "purchase": "Purchase",
-            "reject": "Reject",
-            "trash": "Trash"
-        }
+      ]
+    },
+    "jschecks": {
+      "enabled": false,
+      "events": [
+        "mousemove",
+        "keydown",
+        "scroll",
+        "wheel",
+        "devicemotion",
+        "deviceorientation"
+      ],
+      "timeout": 10000,
+      "obfuscate": true
     }
+  },
+  "black": {
+    "prelanding": {
+      "action": "none",
+      "folders": [
+        "lrpl"
+      ],
+      "redirect": {
+        "urls": [
+          "https://ya.ru",
+          "https://google.com"
+        ],
+        "type": 302
+      }
+    },
+    "landing": {
+      "action": "folder",
+      "folder": {
+        "names": [
+          "lrl"
+        ],
+        "conversions": {
+          "script": "api.php",
+          "logonbuttonclick": false
+        },
+        "customthankyoupage": {
+          "use": false,
+          "language": "RU"
+        }
+      },
+      "redirect": {
+        "urls": [
+          "https://ya.ru",
+          "https://google.com"
+        ],
+        "type": 307
+      }
+    },
+    "jsconnect": "iframe"
+  },
+  "pixels": {
+    "ya": {
+      "id": ""
+    },
+    "gtm": {
+      "id": ""
+    },
+    "fb": {
+      "subname": "px",
+      "pageview": false,
+      "viewcontent": {
+        "use": false,
+        "time": 30,
+        "percent": 75
+      },
+      "conversion": {
+        "event": "Lead",
+        "fireonbutton": false
+      },
+      "cloak": false
+    }
+  },
+  "tds": {
+    "mode": "on",
+    "saveuserflow": false,
+    "filters": {
+      "allowed": {
+        "countries": [
+          "RU",
+          "UA",
+          "BY"
+        ],
+        "os": [
+          "Android",
+          "iOS",
+          "Windows",
+          "OS X"
+        ],
+        "inurl": [
+          ""
+        ]
+      },
+      "blocked": {
+        "ips": {
+          "filename": "",
+          "cidrformat": false
+        },
+        "tokens": [
+          ""
+        ],
+        "useragents": [
+          "facebook",
+          "Facebot",
+          "curl",
+          "gce-spider",
+          "yandex.com/bots"
+        ],
+        "isps": [
+          "facebook",
+          "google",
+          "yandex",
+          "amazon",
+          "azure",
+          "digitalocean"
+        ],
+        "withoutreferer": false,
+        "vpntor": false
+      }
+    }
+  },
+  "scripts": {
+    "back": {
+      "action": "off",
+      "value": "https://ya.ru"
+    },
+    "disabletextcopy": true,
+    "prelandingreplace": {
+      "use": false,
+      "url": "https://ya.ru"
+    },
+    "phonemask": {
+      "use": false,
+      "mask": "+421 999 999 999"
+    },
+    "comebacker": true,
+    "callbacker": true,
+    "addedtocart": true 
+  },
+  "subids": [
+    {
+      "name": "subid",
+      "rewrite": "sub_id"
+    },
+    {
+      "name": "prelanding",
+      "rewrite": "utm_source"
+    },
+    {
+      "name": "cn",
+      "rewrite": "utm_campaign"
+    },
+    {
+      "name": "an",
+      "rewrite": "utm_content"
+    }
+  ],
+  "statistics": {
+    "password": 12345,
+    "creativesubname": "an",
+    "postback": {
+      "lead": "Lead",
+      "purchase": "Purchase",
+      "reject": "Reject",
+      "trash": "Trash"
+    }
+  }
 }

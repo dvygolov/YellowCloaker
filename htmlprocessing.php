@@ -22,19 +22,22 @@ function load_prelanding($url, $land_number)
     $html = insert_gtm_script($html);
     //добавляем в страницу скрипт Yandex Metrika
     $html = insert_yandex_script($html);
-    //добавляем в страницу скрипт Facebook Pixel с событием PageView
-    if ($fb_use_pageview){
-        $html = insert_fb_pixel_script($html, 'PageView');
-    }
+	$fb_pixel = getpixel();
+    if (!empty($fb_pixel)){
+        //добавляем в страницу скрипт Facebook Pixel с событием PageView
+        if ($fb_use_pageview){
+            $html = insert_fb_pixel_script($html, 'PageView');
+        }
 
-	if ($fb_use_viewcontent){
-		if ($fb_view_content_time>0){
-	        $html = insert_fb_pixel_viewcontent_time_script($html, $fb_view_content_time, $url);
-		}
-		if ($fb_view_content_percent>0){
-	        $html = insert_fb_pixel_viewcontent_percent_script($html, $fb_view_content_percent, $url);
-		}
-	}
+        if ($fb_use_viewcontent){
+            if ($fb_view_content_time>0){
+                $html= insert_file_content_with_replace($html,'fbpxviewcontenttime.js','</head>',['{SECONDS}','{PAGE}'],[$fb_view_content_time,$url]);
+            }
+            if ($fb_view_content_percent>0){
+                $html= insert_file_content_with_replace($html,'fbpxviewcontentpercent.js','</head>',['{PERCENT}','{PAGE}'],[$fb_view_content_percent,$url]);
+            }
+        }
+    }
 
     $html = replace_tel_type($html);
     $html = insert_phone_mask($html);
@@ -89,28 +92,32 @@ function load_landing($url)
     $html = insert_gtm_script($html);
     //добавляем в страницу скрипт Yandex Metrika
     $html = insert_yandex_script($html);
-    //добавляем в страницу скрипт Facebook Pixel с событием PageView
-    if ($fb_use_pageview) {
-        $html = insert_fb_pixel_script($html, 'PageView');
+
+	$fb_pixel = getpixel();
+    if (!empty($fb_pixel)){
+        //добавляем в страницу скрипт Facebook Pixel с событием PageView
+        if ($fb_use_pageview) {
+            $html = insert_fb_pixel_script($html, 'PageView');
+        }
+        else if ($fb_add_button_pixel){
+            $html = insert_fb_pixel_script($html, '');
+        }
+
+        if ($fb_use_viewcontent){
+            if ($fb_view_content_time>0){
+                $html= insert_file_content_with_replace($html,'fbpxviewcontenttime.js','</head>',['{SECONDS}','{PAGE}'],[$fb_view_content_time,$url]);
+            }
+            if ($fb_view_content_percent>0){
+                $html= insert_file_content_with_replace($html,'fbpxviewcontentpercent.js','</head>',['{PERCENT}','{PAGE}'],[$fb_view_content_percent,$url]);
+            }
+        }
+
+        if ($fb_add_button_pixel){
+            $html= insert_file_content_with_replace($html,'fbpxbuttonconversion.js','</head>','{EVENT}',$fb_thankyou_event);
+        }
     }
-	else if ($fb_add_button_pixel){
-		$html = insert_fb_pixel_script($html, '');
-	}
-
-	if ($fb_use_viewcontent){
-		if ($fb_view_content_time>0){
-	        $html = insert_fb_pixel_viewcontent_time_script($html, $fb_view_content_time, $url);
-		}
-		if ($fb_view_content_percent>0){
-	        $html = insert_fb_pixel_viewcontent_percent_script($html, $fb_view_content_percent, $url);
-		}
-	}
-
-	if ($fb_add_button_pixel){
-		$html = insert_fb_pixel_button_conversion_script($html,$fb_thankyou_event);
-	}
 	if ($black_land_log_conversions_on_button_click){
-		$html = insert_log_conversions_on_buttonclick_script($html);
+        $html= insert_file_content($html,'btnclicklog.js','</head>');
 	}
 
     $html = insert_additional_scripts($html);
@@ -131,6 +138,7 @@ function load_landing($url)
 function insert_additional_scripts($html)
 {
     global $disable_text_copy, $back_button_action, $replace_back_button, $replace_back_address, $add_tos;
+    global $comebacker, $callbacker, $addedtocart;
 
     if ($disable_text_copy) {
         $html = insert_file_content($html, 'disablecopy.js', '</body>');
@@ -150,6 +158,21 @@ function insert_additional_scripts($html)
     if ($add_tos) {
         $html = insert_file_content($html, 'tos.html', '</body>');
     }
+
+    if ($callbacker){
+        $html = insert_file_content($html,'callbacker/head.html','</head>');
+        $html = insert_file_content($html,'callbacker/template.html','</body>');
+    }
+
+    if ($comebacker){
+        $html = insert_file_content($html,'comebacker/head.html','</head>');
+        $html = insert_file_content($html,'comebacker/template.html','</body>');
+    }
+
+    if ($addedtocart){
+        $html = insert_file_content($html,'addedtocart/head.html','</head>');
+        $html = insert_file_content($html,'addedtocart/template.html','</body>');
+    }
     return $html;
 }
 
@@ -167,9 +190,7 @@ function insert_phone_mask($html)
 	if (!$black_land_use_phone_mask) return $html;
 	$domain = get_domain_with_prefix();
     $html = insert_before_tag($html, '</head>', "<script src=\"".$domain."/scripts/inputmask.js\"></script>");
-    $bindingCode= str_replace('{MASK}',$black_land_phone_mask, file_get_contents(__DIR__.'/scripts/inputmaskbinding.js'));
-    $html = insert_before_tag($html, '</body>', "<script>".$bindingCode."</script>");
-
+    $html = insert_file_content_with_replace($html,'inputmaskbinding.js','</body>','{MASK}',$black_land_phone_mask);
     return $html;
 }
 
@@ -249,16 +270,13 @@ function add_js_testcode($html)
 function add_subs_to_link($url)
 {
     global $sub_ids;
+    $preset=['subid','prelanding','landing'];
     foreach ($sub_ids as $sub) {
     	$key = $sub["name"];
-	$value = $sub["rewrite"];
+        $value = $sub["rewrite"];
         $delimiter= (strpos($url, '?')===false?"?":"&");
-        if ($key=='subid' && isset($_COOKIE['subid'])) {
-            $url.= $delimiter.$value.'='.$_COOKIE['subid'];
-        } elseif ($key=='prelanding' && isset($_COOKIE['prelanding'])) {
-            $url.= $delimiter.$value.'='.$_COOKIE['prelanding'];
-        } elseif ($key=='landing' && isset($_COOKIE['landing'])) {
-            $url.= $delimiter.$value.'='.$_COOKIE['landing'];
+        if (in_array($key,$preset)&& isset($_COOKIE[$key])) {
+            $url.= $delimiter.$value.'='.$_COOKIE[$key];
         } elseif (!empty($_GET[$key])) {
             $url.= $delimiter.$value.'='.$_GET[$key];
         }
@@ -271,15 +289,15 @@ function insert_subs($html)
 {
     global $sub_ids;
     $all_subs = '';
-    foreach ($sub_ids as $sid) {
-        if ($sid['name']=='subid' && isset($_COOKIE['subid'])) {
-            $all_subs = $all_subs.'<input type="hidden" name="'.$sid['rewrite'].'" value="'.$_COOKIE['subid'].'"/>';
-        } elseif ($sid['name']=='prelanding' && isset($_COOKIE['prelanding'])) {
-            $all_subs = $all_subs.'<input type="hidden" name="'.$sid['rewrite'].'" value="'.$_COOKIE['prelanding'].'"/>';
-        } elseif ($sid['name']=='landing' && isset($_COOKIE['landing'])) {
-            $all_subs = $all_subs.'<input type="hidden" name="'.$sid['rewrite'].'" value="'.$_COOKIE['landing'].'"/>';
-        } elseif (!empty($_GET[$sid['name']])) {
-            $all_subs = $all_subs.'<input type="hidden" name="'.$sid['rewrite'].'" value="'.$_GET[$sid['name']].'"/>';
+    $preset=['subid','prelanding','landing'];
+    foreach ($sub_ids as $sub) {
+    	$key = $sub["name"];
+        $value = $sub["rewrite"];
+
+        if (in_array($key,$preset)&& isset($_COOKIE[$key])) {
+            $all_subs = $all_subs.'<input type="hidden" name="'.$value.'" value="'.$_COOKIE[$key].'"/>';
+        } elseif (!empty($_GET[$key])) {
+            $all_subs = $all_subs.'<input type="hidden" name="'.$value.'" value="'.$_GET[$key].'"/>';
         }
     }
     $needle = '<form';
@@ -335,105 +353,15 @@ function insert_fb_pixel_script($html, $event)
     return insert_before_tag($html, $needle, $px_code);
 }
 
-function insert_fb_pixel_button_conversion_script($html, $event){
-	$fb_pixel = getpixel();
-    if (empty($fb_pixel)) return $html;
-
-	$file_name=__DIR__.'/scripts/fbpxbuttonconversion.js';
-    if (!file_exists($file_name)) {
-        return $html;
-    }
-    $px_code = file_get_contents($file_name);
-    if (empty($px_code)) {
-        return $html;
-    }
-
-	$search='{EVENT}';
-	$px_code = str_replace($search, $event, $px_code);
-
-    $needle='</head>';
-    return insert_before_tag($html, $needle, $px_code);
-}
-
-function insert_log_conversions_on_buttonclick_script($html){
-	$file_name=__DIR__.'/scripts/btnclicklog.js';
-    if (!file_exists($file_name)) {
-        return $html;
-    }
-    $log_code = file_get_contents($file_name);
-    if (empty($log_code)) {
-        return $html;
-    }
-
-    $needle='</head>';
-    return insert_before_tag($html, $needle, $log_code);
-}
-
-function insert_fb_pixel_viewcontent_time_script($html, $seconds, $page){
-	$fb_pixel = getpixel();
-    if (empty($fb_pixel)) return $html;
-
-	$file_name=__DIR__.'/scripts/fbpxviewcontenttime.js';
-    if (!file_exists($file_name)) {
-        return $html;
-    }
-    $px_code = file_get_contents($file_name);
-    if (empty($px_code)) {
-        return $html;
-    }
-
-	$search='{SECONDS}';
-	$px_code = str_replace($search, $seconds, $px_code);
-	$search='{PAGE}';
-	$px_code = str_replace($search, $page, $px_code);
-
-    $needle='</head>';
-    return insert_before_tag($html, $needle, $px_code);
-}
-
-function insert_fb_pixel_viewcontent_percent_script($html, $percent, $page){
-	$fb_pixel = getpixel();
-    if (empty($fb_pixel)) return $html;
-
-	$file_name=__DIR__.'/scripts/fbpxviewcontentpercent.js';
-    if (!file_exists($file_name)) {
-        return $html;
-    }
-    $px_code = file_get_contents($file_name);
-    if (empty($px_code)) {
-        return $html;
-    }
-
-	$search='{PERCENT}';
-	$px_code = str_replace($search, $percent, $px_code);
-	$search='{PAGE}';
-	$px_code = str_replace($search, $page, $px_code);
-
-    $needle='</head>';
-    return insert_before_tag($html, $needle, $px_code);
-}
-
 //если задан ID Google Tag Manager, то вставляем его скрипт
 function insert_gtm_script($html)
 {
     global $gtm_id;
-    if ($gtm_id=='' || empty($gtm_id)) {
+    if ($gtm_id==='' || empty($gtm_id)) {
         return $html;
     }
 
-    $code_file_name=__DIR__.'/scripts/gtmcode.js';
-    if (!file_exists($code_file_name)) {
-        return $html;
-    }
-    $gtm_code = file_get_contents($code_file_name);
-    if (empty($gtm_code)) {
-        return $html;
-    }
-
-    $search = '{GTMID}';
-    $gtm_code = str_replace($search, $gtm_id, $gtm_code);
-    $needle='</head>';
-    return insert_before_tag($html, $needle, $gtm_code);
+    return insert_file_content_with_replace($html,'gtmlcode.js','</head>','{GTMID}',$gtm_id);
 }
 
 //если задан ID Yandex Metrika, то вставляем её скрипт
@@ -444,26 +372,14 @@ function insert_yandex_script($html)
         return $html;
     }
 
-    $code_file_name=__DIR__.'/scripts/yacode.js';
-    if (!file_exists($code_file_name)) {
-        return $html;
-    }
-    $ya_code = file_get_contents($code_file_name);
-    if (empty($ya_code)) {
-        return $html;
-    }
-
-    $search = '{YAID}';
-    $ya_code = str_replace($search, $ya_id, $ya_code);
-    $needle='</head>';
-    return insert_before_tag($html, $needle, $ya_code);
+    return insert_file_content_with_replace($html,'yacode.js','</head>','{YAID}',$ya_id);
 }
 
 //заменяем все макросы на реальные значения из куки
 function replace_all_macros($url)
 {
     global $fbpixel_subname;
-    $px=isset($_GET[$fbpixel_subname])?$_GET[$fbpixel_subname]:(isset($_COOKIE[$fbpixel_subname])?$_COOKIE[$fbpixel_subname]:'');
+    $px = getpixel();
     $landing = isset($_COOKIE['landing'])?$_COOKIE['landing']:'';
     $prelanding = isset($_COOKIE['prelanding'])?$_COOKIE['prelanding']:'';
     $subid = isset($_COOKIE['subid'])?$_COOKIE['subid']:'';
@@ -483,7 +399,16 @@ function insert_file_content_with_replace($html, $scriptname, $needle, $search, 
         return $html;
     }
     $script_code = file_get_contents($code_file_name);
-    $script_code = str_replace($search, $replacement, $script_code);
+    if (empty($script_code)) return $html;
+    //we have multiple replacements
+    if (is_array($search)&&is_array($replacement)&&count($search)===count($replacement)){
+        for ($i = 0; $i < count($search); $i++)
+        {
+            $script_code = str_replace($search[$i], $replacement[$i], $script_code);
+        }
+    }
+    else
+        $script_code = str_replace($search, $replacement, $script_code);
     return insert_before_tag($html, $needle, $script_code);
 }
 
@@ -495,6 +420,7 @@ function insert_file_content($html, $scriptname, $needle)
         return $html;
     }
     $script_code = file_get_contents($code_file_name);
+    if (empty($script_code)) return $html;
     return insert_before_tag($html, $needle, $script_code);
 }
 
