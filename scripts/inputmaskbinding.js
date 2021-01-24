@@ -1,3 +1,4 @@
+<script>
 function addinputmask(){
 	var tels=document.querySelectorAll('input[type="tel"]');
 	var im = new Inputmask({
@@ -11,3 +12,4 @@ function addinputmask(){
 	}
 }
 document.addEventListener('DOMContentLoaded', addinputmask, false);
+</script>
