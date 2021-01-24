@@ -69,13 +69,15 @@ function write_lpctr_to_log($subid,$preland){
 //И нам не нужно слать его в ПП и не нужно показывать пиксель ФБ!!
 function lead_is_duplicate($subid,$phone){
 	$file = __DIR__."/logs/".date("d.m.y").".leads.csv";
-	if(!file_exists($file)) return false;
+	if(!file_exists($file)){echo 'No Leads!'; return false;}
 	$leads = file_get_contents($file);
 	if($subid!=''){
 		$subexists = strpos($leads,$subid);
 		if ($subexists!==false) {
+			echo 'We have this sub!';
 			$phoneexists = strpos($leads,$phone);
 			if ($phoneexists!==false){
+				echo 'We have this phone!';
 				return true;
 			}
 			else{
@@ -88,7 +90,7 @@ function lead_is_duplicate($subid,$phone){
 	}
 	else {
 		//если куки c subid у нас почему-то нет, то проверяем по номеру телефона
-		return strpos($leads,$phone);
+		return strpos($leads,$phone)!==false;
 	}
 }
 
