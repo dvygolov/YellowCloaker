@@ -240,26 +240,28 @@ $tableOutput.="</TR>";
 //Close the table tag
 $tableOutput.="</tbody></TABLE>";
 
-//Open the lpctr table tag
-$lpctrTableOutput="<TABLE class='table w-auto table-striped'>";
-$lpctrTableOutput.="<thead class='thead-dark'>";
-$lpctrTableOutput.="<TR>";
-$lpctrTableOutput.="<TH scope='col'>Prelanding</TH>";
-$lpctrTableOutput.="<TH scope='col'>Traffic</TH>";
-$lpctrTableOutput.="<TH scope='col'>LP Clicks</TH>";
-$lpctrTableOutput.="<TH scope='col'>LP CTR</TH>";
-$lpctrTableOutput.="</TR></thead><tbody>";
-//Add all data to LP CTR Table
-foreach ($lpctr_array as $lp_name => $lp_count) {
-    $lpctrTableOutput.="<TR>";
-    $lpctrTableOutput.="<TD scope='col'>".$lp_name."</TD>";
-    $lpctrTableOutput.="<TD scope='col'>".$lpdest_array[$lp_name]."</TD>";
-    $lpctrTableOutput.="<TD scope='col'>".$lp_count."</TD>";
-    $cur_ctr = $lp_count*100/$lpdest_array[$lp_name];
-    $lpctrTableOutput.="<TD scope='col'>".number_format($cur_ctr, 2, '.', '')."%</TD>";
-    $lpctrTableOutput.="</TR>";
+if (!$noprelanding){
+	//Open the lpctr table tag
+	$lpctrTableOutput="<TABLE class='table w-auto table-striped'>";
+	$lpctrTableOutput.="<thead class='thead-dark'>";
+	$lpctrTableOutput.="<TR>";
+	$lpctrTableOutput.="<TH scope='col'>Prelanding</TH>";
+	$lpctrTableOutput.="<TH scope='col'>Traffic</TH>";
+	$lpctrTableOutput.="<TH scope='col'>LP Clicks</TH>";
+	$lpctrTableOutput.="<TH scope='col'>LP CTR</TH>";
+	$lpctrTableOutput.="</TR></thead><tbody>";
+	//Add all data to LP CTR Table
+	foreach ($lpctr_array as $lp_name => $lp_count) {
+		$lpctrTableOutput.="<TR>";
+		$lpctrTableOutput.="<TD scope='col'>".$lp_name."</TD>";
+		$lpctrTableOutput.="<TD scope='col'>".$lpdest_array[$lp_name]."</TD>";
+		$lpctrTableOutput.="<TD scope='col'>".$lp_count."</TD>";
+		$cur_ctr = $lp_count*100/$lpdest_array[$lp_name];
+		$lpctrTableOutput.="<TD scope='col'>".number_format($cur_ctr, 2, '.', '')."%</TD>";
+		$lpctrTableOutput.="</TR>";
+	}
+	$lpctrTableOutput.="</tbody></TABLE>";
 }
-$lpctrTableOutput.="</tbody></TABLE>";
 
 //Open the landcr table tag
 $landcrTableOutput="<TABLE class='table w-auto table-striped'>";
@@ -473,7 +475,7 @@ $creoTableOutput.="</tbody></TABLE>";
 
         <a name="top"></a>
         <?=$tableOutput ?>
-        <?=$lpctrTableOutput ?>
+        <?=($noprelanding?'':$lpctrTableOutput)?>
         <?=$landcrTableOutput ?>
         <?=$creoTableOutput ?>
         <a name="bottom"></a>
