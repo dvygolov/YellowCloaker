@@ -67,7 +67,7 @@ $total_cr_sales=array();
 $total_app_wo_trash=array();
 $total_app=array();
 
-$noprelanding= $black_preland_folder_names===[];
+$noprelanding= $black_preland_action==='none';
 
 $date = $enddate;
 while ($date>=$startdate) {
