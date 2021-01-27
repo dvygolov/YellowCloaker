@@ -72,6 +72,8 @@ $replace_back_address = $conf['scripts.back.value'];
 $disable_text_copy = $conf['scripts.disabletextcopy'];
 $replace_prelanding = $conf['scripts.prelandingreplace.use'];
 $replace_prelanding_address = $conf['scripts.prelandingreplace.url'];
+$replace_landing = $conf['scripts.landingreplace.use'];
+$replace_landing_address = $conf['scripts.landingreplace.url'];
 $black_land_use_phone_mask = $conf['scripts.phonemask.use'];
 $black_land_phone_mask = $conf['scripts.phonemask.mask'];
 $comebacker = $conf['scripts.comebacker'];
@@ -81,7 +83,7 @@ $addedtocart = $conf['scripts.addedtocart'];
 $sub_ids = $conf['subids'];
 
 $log_password = strval($conf['statistics.password']); 
-$creative_sub_name = $conf['statistics.creativesubname'];
+$stats_sub_names = $conf['statistics.subnames'];
 $lead_status_name = $conf['statistics.postback.lead'];
 $purchase_status_name = $conf['statistics.postback.purchase'];
 $reject_status_name = $conf['statistics.postback.reject'];

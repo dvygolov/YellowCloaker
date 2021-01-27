@@ -215,5 +215,6 @@
     <Content Include="scripts\comebacker\img\product.png" />
     <Content Include="scripts\comebacker\script.js" />
     <Content Include="scripts\comebacker\template.html" />
+    <Content Include="scripts\replacelanding.js" />
   </ItemGroup>
 </Project>

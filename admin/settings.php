@@ -1386,8 +1386,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-
-                                                <div id="b_10" style="display:<?=$replace_prelanding===true?'block':'none'?>;">
+                                                    <div id="b_10" style="display:<?=$replace_prelanding===true?'block':'none'?>;">
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -1401,6 +1400,51 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                         </div>
                                                     </div>
                                                 </div>
+
+
+                                                    <div class="form-group-inner">
+                                                        <div class="row">
+                                                            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                                                                <label class="login2 pull-left pull-left-pro">Открывать страницу Спасибо ленда в новом окне с подменой в старом окне ленда на URL указанный ниже?</label>
+                                                            </div>
+                                                            <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
+                                                                <div class="bt-df-checkbox pull-left">
+
+                                                                    <div class="row">
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                            <div class="i-checks pull-left">
+                                                                                <label>
+																						<input type="radio" <?=$replace_landing===false?'checked':''?> value="false" name="scripts.landingreplace.use" onclick="(document.getElementById('b_1010').style.display='none')"> Нет </label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                            <div class="i-checks pull-left">
+                                                                                <label>
+																						<input type="radio" <?=$replace_landing===true?'checked':''?> value="true" name="scripts.landingreplace.use" onclick="(document.getElementById('b_1010').style.display='block')"> Да, открывать  </label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div id="b_1010" style="display:<?=$replace_landing===true?'block':'none'?>;">
+                                                    <div class="form-group-inner">
+                                                        <div class="row">
+                                                            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+                                                                <label class="login2 pull-left pull-left-pro">URL который откроется в старом окне:</label>
+                                                            </div>
+                                                            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+                                                                <div class="input-group custom-go-button">
+                                                                    <input type="text" name="scripts.landingreplace.url" class="form-control" placeholder="http://ya.ru?pixel={px}&subid={subid}&prelanding={prelanding}" value="<?=$replace_landing_address?>">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
@@ -1587,7 +1631,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                         </div>
                                                     </div>
 
-                                                    <div class="form-group-inner">
+                                                    <!--<div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
                                                                 <label class="login2 pull-left pull-left-pro">Название метки в которой из источника трафика приходит название креатива</label>
@@ -1598,7 +1642,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    </div>
+                                                    </div>-->
                                                     <br>
                                                     <p>Здесь необходимо прописать статусы лидов, в том виде, как их вам отправляет в постбэке ПП:</p>
                                                     <div class="form-group-inner">

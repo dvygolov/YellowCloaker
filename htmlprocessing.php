@@ -71,6 +71,7 @@ function load_landing($url)
     global $fb_use_pageview,$fb_thankyou_event,$fb_add_button_pixel;
 	global $fb_use_viewcontent, $fb_view_content_time, $fb_view_content_percent;
 	global $black_land_log_conversions_on_button_click,$black_land_use_custom_thankyou_page;
+	global $replace_landing, $replace_landing_address;
 
     $fullpath = get_abs_from_rel($url);
     $fpwqs = get_abs_from_rel($url,true);
@@ -87,6 +88,13 @@ function load_landing($url)
 		//меняем обработчик формы, чтобы у вайта и блэка была одна thankyou page
 		$html = preg_replace('/\saction=[\'\"]([^\'\"]+)[\'\"]/', " action=\"../send.php?".http_build_query($_GET)."\"", $html);
 	}
+
+    //если мы будем подменять ленд при переходе на страницу Спасибо, то Спасибо надо открывать в новом окне
+    if ($replace_landing) {
+        $url = replace_all_macros($replace_landing_address); //заменяем макросы
+        $url = add_subs_to_link($url); //добавляем сабы
+        $html = insert_file_content_with_replace($html, 'replacelanding.js', '</body>', '{REDIRECT}', $url);
+    }
 
     //добавляем в страницу скрипт GTM
     $html = insert_gtm_script($html);

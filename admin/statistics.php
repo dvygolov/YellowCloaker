@@ -53,7 +53,11 @@ $lpctr_array = array();
 $lpdest_array=array();
 $landclicks_array=array();
 $landconv_array=array();
-$creatives_array=array();
+$subs_array=array();
+foreach ($stats_sub_names as $ssn)
+{
+    $subs_array[$ssn["value"]]=[]; 	
+}
 
 $total_clicks=0;
 $total_uniques=0;
@@ -111,19 +115,18 @@ while ($date>=$startdate) {
 			}
 		}
 
-        $cur_creo='Unknown';
+        //count all subs
         $cur_query = explode('&', $traf_line_fields[count($traf_line_fields)-3]);
         foreach ($cur_query as $query_item) {
-            if (substr($query_item, 0, strlen($creative_sub_name))===$creative_sub_name) {
-                $qsplit = explode('=', $query_item);
-                $cur_creo = urldecode($qsplit[1]);
-                break;
+            $qsplit = explode('=', $query_item);
+            if (array_key_exists($qsplit[0],$subs_array)){
+                $cur_sub = urldecode($qsplit[1]);
+                if (array_key_exists($cur_sub, $subs_array[$qsplit[0]])) {
+                    $subs_array[$qsplit[0]][$qsplit[1]]++;
+                } else {
+                    $subs_array[$qsplit[0]][$qsplit[1]]=1;
+                }
             }
-        }
-        if (array_key_exists($cur_creo, $creatives_array)) {
-            $creatives_array[$cur_creo]++;
-        } else {
-            $creatives_array[$cur_creo]=1;
         }
     }
 
@@ -228,13 +231,13 @@ $tableOutput.="<TD scope='col'>".$total_purchases."</TD>";
 $tableOutput.="<TD scope='col'>".$total_holds."</TD>";
 $tableOutput.="<TD scope='col'>".$total_rejects."</TD>";
 $tableOutput.="<TD scope='col'>".$total_trash."</TD>";
-$tcr_all=array_sum($total_cr_all)/count($total_cr_all);
+$tcr_all=$total_leads/$total_uniques*100;
 $tableOutput.="<TD scope='col'>".number_format($tcr_all, 2, '.', '')."</TD>";
-$tcr_sales=array_sum($total_cr_sales)/count($total_cr_sales);
+$tcr_sales=$total_purchases/$total_uniques*100;
 $tableOutput.="<TD scope='col'>".number_format($tcr_sales, 2, '.', '')."</TD>";
-$tapprove_wo_trash=array_sum($total_app_wo_trash)/count($total_app_wo_trash);
+$tapprove_wo_trash=$total_purchases*100/($total_leads-$total_trash);
 $tableOutput.="<TD scope='col'>".number_format($tapprove_wo_trash, 2, '.', '')."</TD>";
-$tapprove=array_sum($total_app)/count($total_app);
+$tapprove=$total_purchases*100/$total_leads;
 $tableOutput.="<TD scope='col'>".number_format($tapprove, 2, '.', '')."</TD>";
 $tableOutput.="</TR>";
 //Close the table tag
@@ -285,21 +288,26 @@ foreach ($landclicks_array as $land_name => $land_clicks) {
 }
 $landcrTableOutput.="</tbody></TABLE>";
 
-//Open the creatives table tag
-$creoTableOutput="<TABLE class='table w-auto table-striped'>";
-$creoTableOutput.="<thead class='thead-dark'>";
-$creoTableOutput.="<TR>";
-$creoTableOutput.="<TH scope='col'>Creative</TH>";
-$creoTableOutput.="<TH scope='col'>Clicks</TH>";
-$creoTableOutput.="</TR></thead><tbody>";
-//Add all data to creatives table
-foreach ($creatives_array as $creo_name => $creo_clicks) {
-    $creoTableOutput.="<TR>";
-    $creoTableOutput.="<TD scope='col'>".$creo_name."</TD>";
-    $creoTableOutput.="<TD scope='col'>".$creo_clicks."</TD>";
-    $creoTableOutput.="</TR>";
+$subs_tables=[];
+foreach ($subs_array as $sub_key=>$sub_value)
+{
+    //Open the creatives table tag
+    $subTableOutput="<TABLE class='table w-auto table-striped'>";
+    $subTableOutput.="<thead class='thead-dark'>";
+    $subTableOutput.="<TR>";
+    $subTableOutput.="<TH scope='col'>".$stats_sub_names[$sub_key]."</TH>";
+    $subTableOutput.="<TH scope='col'>Clicks</TH>";
+    $subTableOutput.="</TR></thead><tbody>";
+    //Add all data to creatives table
+    foreach ($creatives_array as $creo_name => $creo_clicks) {
+        $subTableOutput.="<TR>";
+        $subTableOutput.="<TD scope='col'>".$creo_name."</TD>";
+        $subTableOutput.="<TD scope='col'>".$creo_clicks."</TD>";
+        $subTableOutput.="</TR>";
+    }
+    $subTableOutput.="</tbody></TABLE>";
+    array_push($subs_tables,$subTableOutput);
 }
-$creoTableOutput.="</tbody></TABLE>";
 ?>
 <!doctype html>
 <html lang="ru">
@@ -477,7 +485,11 @@ $creoTableOutput.="</tbody></TABLE>";
         <?=$tableOutput ?>
         <?=($noprelanding?'':$lpctrTableOutput)?>
         <?=$landcrTableOutput ?>
-        <?=$creoTableOutput ?>
+        <?
+        foreach($subTableOutput in $sub_tables){
+            echo $subTableOutput;
+        }
+        ?>
         <a name="bottom"></a>
     </div>
     <script>
