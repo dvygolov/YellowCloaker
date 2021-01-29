@@ -47,7 +47,13 @@ function getcountry($ip){
 	return $record->country->isoCode;
 }
 
-// AlexSloth ISP
+function getcity($ip){
+	$reader = new Reader(__DIR__.'/bases/GeoLite2-City.mmdb');
+	if ($ip==='::1'||$ip==='127.0.0.1') $ip='31.177.76.70'; //for debugging
+    $record = $reader->city($ip);
+	return $record->city->name;
+}
+
 function getisp($ip){
 	$reader = new Reader(__DIR__.'/bases/GeoLite2-ASN.mmdb');
 	if ($ip==='::1'||$ip==='127.0.0.1') $ip='31.177.76.70'; //for debugging
