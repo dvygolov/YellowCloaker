@@ -715,7 +715,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                     <div id="pppage" class="form-group-inner" style="display:<?=$black_land_use_custom_thankyou_page===false?'block':'none'?>">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Добавить в обработчик кнопки на ленде подсчёт конверсий? </label>
+                                                                <label class="login2 pull-left pull-left-pro">Добавить в обработчик кнопки Заказать на ленде подсчёт конверсий кло? </label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
@@ -724,7 +724,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-																						<input type="radio" <?=$black_land_log_conversions_on_button_click===false?'checked':''?> value="false" name="black.landing.folder.conversions.logonbuttonclick"> Нет </label>
+																						<input type="radio" <?=$black_land_log_conversions_on_button_click===false?'checked':''?> value="false" name="black.landing.folder.conversions.logonbuttonclick"> Нет <small>(конверсия будет считаться на КАСТОМНОЙ стр.Спасибо)</small> </label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -741,7 +741,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                         </div>
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Откуда отстукивать конверсию? </label>
+                                                                <label class="login2 pull-left pull-left-pro">Откуда отстукивать в Facebook конверсию? </label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
@@ -750,7 +750,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-																						<input type="radio" <?=$fb_add_button_pixel===false?'checked':''?> value="false" name="pixels.fb.conversion.fireonbutton"> Со страницы спасибо </label>
+																						<input type="radio" <?=$fb_add_button_pixel===false?'checked':''?> value="false" name="pixels.fb.conversion.fireonbutton"> Со страницы спасибо <small>(если не используете кастомную Спасибо, впишите код пикселя!)</small></label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -992,7 +992,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Какое событие будем использовать для конверсии? <small>Например: Lead или Purchase</small></label>
+                                                                <label class="login2 pull-left pull-left-pro">Какое событие будем использовать для конверсии в Facebook? <small>Например: Lead или Purchase</small></label>
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                                 <div class="input-group custom-go-button">
@@ -1107,7 +1107,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
                                                                 <label class="login2 pull-left pull-left-pro">Список разрешённых ОС:</label>
                                                             </div>
-                                                            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+                                                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="input-group custom-go-button">
                                                                     <input type="text" name="tds.filters.allowed.os" class="form-control" placeholder="Android,iOS,Windows,OS X" value="<?=implode(',',$os_white)?>">
                                                                 </div>
@@ -1612,8 +1612,8 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                 </div>
                                                             </div>
                                                         <?php }?>
-                                                        <a id="add-sub-item" class="btn btn-sm btn-primary" href="javascript:;">Добавить</a>
                                                     </div>
+                                                    <a id="add-sub-item" class="btn btn-sm btn-primary" href="javascript:;">Добавить</a>
 
                                                     <br>
                                                     <hr>
@@ -1630,24 +1630,54 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-
-                                                    <!--<div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Название метки в которой из источника трафика приходит название креатива</label>
-                                                            </div>
-                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                                <div class="input-group custom-go-button">
-                                                                    <input type="text" name="statistics.creativesubname" class="form-control" placeholder="an" value="<?=$creative_sub_name?>">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>-->
-                                                    <br>
-                                                    <p>Здесь необходимо прописать статусы лидов, в том виде, как их вам отправляет в постбэке ПП:</p>
+                                                <br/>
                                                     <div class="form-group-inner">
                                                         <div class="row">
-                                                            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+                                                            <div class="col-lg-5 col-md-12 col-sm-12 col-xs-12">
+                                                <label class="login2 pull-left pull-left-pro">Настройка отображения таблиц по субметкам в стате:</label>
+                                                <br/>
+                                                <p>Слева название метки, которую кло возьмёт из адреса перехода.</p>
+                                                <p>Справа название НА АНГЛИЙСКОМ таблицы, в которой будут показаны все значения выбранной метки и их стата: клики, конверсии</p>
+                                                            </div>
+                                                        </div>
+
+                                                    <div id="stats_subs_container">
+                                                        <?php  for ($i=0;$i<count($stats_sub_names);$i++){?>
+                                                            <div class="form-group-inner">
+                                                                <div class="row">
+                                                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                                                                         <div class="input-group">
+                                                                            <input type="text" class="form-control" placeholder="camp" value="<?=$stats_sub_names[$i]["name"]?>" name="statistics.subnames[<?=$i?>][name]">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
+                                                                        <p>=></p>
+                                                                    </div>
+                                                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                                                                        <div class="input-group custom-go-button">
+                                                                            <input type="text" class="form-control" placeholder="Campaigns" value="<?=$stats_sub_names[$i]["value"]?>" name="statistics.subnames[<?=$i?>][value]">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
+                                                                        <a href="javascript:void(0)" class="remove-stats-sub-item btn btn-sm btn-primary">Удалить</a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        <?php }?>
+                                                    </div>
+                                                    <a id="add-stats-sub-item" class="btn btn-sm btn-primary" href="javascript:;">Добавить</a>
+                                                    </div>
+                                                    <br>
+                                                    <div class="form-group-inner">
+                                                        <div class="row">
+                                                            <div class="col-lg-5 col-md-12 col-sm-12 col-xs-12">
+                                                                <label class="login2 pull-left pull-left-pro">Здесь необходимо прописать статусы лидов, в том виде, как их вам отправляет в постбэке ПП:</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group-inner">
+                                                        <div class="row">
+                                                            <div class="col-lg-2 col-md-12 col-sm-12 col-xs-12">
                                                                 <label class="login2 pull-left pull-left-pro">Lead</label>
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
@@ -1660,7 +1690,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
 
                                                     <div class="form-group-inner">
                                                         <div class="row">
-                                                            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+                                                            <div class="col-lg-2 col-md-12 col-sm-12 col-xs-12">
                                                                 <label class="login2 pull-left pull-left-pro">Purchase</label>
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
@@ -1673,7 +1703,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
 
                                                     <div class="form-group-inner">
                                                         <div class="row">
-                                                            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+                                                            <div class="col-lg-2 col-md-12 col-sm-12 col-xs-12">
                                                                 <label class="login2 pull-left pull-left-pro">Reject</label>
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
@@ -1686,7 +1716,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
 
                                                     <div class="form-group-inner">
                                                         <div class="row">
-                                                            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+                                                            <div class="col-lg-2 col-md-12 col-sm-12 col-xs-12">
                                                                 <label class="login2 pull-left pull-left-pro">Trash</label>
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
@@ -1746,6 +1776,14 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
         mainContainerId: 'subs_container',
         cloneContainer: 'form-group-inner',
         removeButtonClass: 'remove-sub-item',
+        maxLimit: 10,
+        minLimit: 1,
+        removeConfirm: false
+    });
+    $('#add-stats-sub-item').cloneData({
+        mainContainerId: 'stats_subs_container',
+        cloneContainer: 'form-group-inner',
+        removeButtonClass: 'remove-stats-sub-item',
         maxLimit: 10,
         minLimit: 1,
         removeConfirm: false

@@ -56,7 +56,7 @@ $landconv_array=array();
 $subs_array=array();
 foreach ($stats_sub_names as $ssn)
 {
-    $subs_array[$ssn["value"]]=[]; 	
+    $subs_array[$ssn["name"]]=[]; 	
 }
 
 $total_clicks=0;
@@ -119,12 +119,13 @@ while ($date>=$startdate) {
         $cur_query = explode('&', $traf_line_fields[count($traf_line_fields)-3]);
         foreach ($cur_query as $query_item) {
             $qsplit = explode('=', $query_item);
-            if (array_key_exists($qsplit[0],$subs_array)){
-                $cur_sub = urldecode($qsplit[1]);
-                if (array_key_exists($cur_sub, $subs_array[$qsplit[0]])) {
-                    $subs_array[$qsplit[0]][$qsplit[1]]++;
+            $cur_sub_name=urldecode($qsplit[0]);
+            if (array_key_exists($cur_sub_name,$subs_array)){
+                $cur_sub_value = urldecode($qsplit[1]);
+                if (array_key_exists($cur_sub_value, $subs_array[$cur_sub_name])) {
+                    $subs_array[$cur_sub_name][$cur_sub_value]++;
                 } else {
-                    $subs_array[$qsplit[0]][$qsplit[1]]=1;
+                    $subs_array[$cur_sub_name][$cur_sub_value]=1;
                 }
             }
         }
@@ -289,20 +290,21 @@ foreach ($landclicks_array as $land_name => $land_clicks) {
 $landcrTableOutput.="</tbody></TABLE>";
 
 $subs_tables=[];
-foreach ($subs_array as $sub_key=>$sub_value)
+foreach ($subs_array as $sub_key=>$sub_values)
 {
+    if (count($sub_values)===0) continue;
     //Open the creatives table tag
     $subTableOutput="<TABLE class='table w-auto table-striped'>";
     $subTableOutput.="<thead class='thead-dark'>";
     $subTableOutput.="<TR>";
-    $subTableOutput.="<TH scope='col'>".$stats_sub_names[$sub_key]."</TH>";
+    $subTableOutput.="<TH scope='col'>".$sub_key."</TH>";
     $subTableOutput.="<TH scope='col'>Clicks</TH>";
     $subTableOutput.="</TR></thead><tbody>";
     //Add all data to creatives table
-    foreach ($creatives_array as $creo_name => $creo_clicks) {
+    foreach ($sub_values as $sub_value_name => $sub_value_clicks) {
         $subTableOutput.="<TR>";
-        $subTableOutput.="<TD scope='col'>".$creo_name."</TD>";
-        $subTableOutput.="<TD scope='col'>".$creo_clicks."</TD>";
+        $subTableOutput.="<TD scope='col'>".$sub_value_name."</TD>";
+        $subTableOutput.="<TD scope='col'>".$sub_value_clicks."</TD>";
         $subTableOutput.="</TR>";
     }
     $subTableOutput.="</tbody></TABLE>";
@@ -485,8 +487,8 @@ foreach ($subs_array as $sub_key=>$sub_value)
         <?=$tableOutput ?>
         <?=($noprelanding?'':$lpctrTableOutput)?>
         <?=$landcrTableOutput ?>
-        <?
-        foreach($subTableOutput in $sub_tables){
+        <?php 
+        foreach($subs_tables as $subTableOutput){
             echo $subTableOutput;
         }
         ?>

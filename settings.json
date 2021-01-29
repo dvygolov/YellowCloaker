@@ -147,7 +147,8 @@
                     "yandex",
                     "amazon",
                     "azure",
-                    "digitalocean"
+                    "digitalocean",
+                    "microsoft"
                 ],
                 "withoutreferer": false,
                 "vpntor": false
@@ -198,12 +199,12 @@
         "password": 12345,
         "subnames": [
             {
-                "name": "Creative",
-                "value": "an"
+                "name": "an",
+                "value": "Creative"
             },
             {
-                "name": "Adset",
-                "value": "adn"
+                "name": "adn",
+                "value": "Adset"
             }
         ],
         "postback": {
