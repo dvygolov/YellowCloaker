@@ -297,7 +297,8 @@ foreach ($subs_array as $sub_key=>$sub_values)
     $subTableOutput="<TABLE class='table w-auto table-striped'>";
     $subTableOutput.="<thead class='thead-dark'>";
     $subTableOutput.="<TR>";
-    $subTableOutput.="<TH scope='col'>".$sub_key."</TH>";
+    $sub_clmn_name=$stats_sub_names[array_search($sub_key,array_column($stats_sub_names,'name'))]['value'];
+    $subTableOutput.="<TH scope='col'>".$sub_clmn_name."</TH>";
     $subTableOutput.="<TH scope='col'>Clicks</TH>";
     $subTableOutput.="</TR></thead><tbody>";
     //Add all data to creatives table

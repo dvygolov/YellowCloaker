@@ -1625,7 +1625,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                                 <div class="input-group custom-go-button">
-                                                                    <input type="text" name="statistics.password" class="form-control" placeholder="12345" value="<?=$log_password?>">
+                                                                    <input type="password" name="statistics.password" class="form-control" placeholder="12345" value="<?=$log_password?>">
                                                                 </div>
                                                             </div>
                                                         </div>
