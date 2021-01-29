@@ -91,9 +91,9 @@ function load_landing($url)
 
     //если мы будем подменять ленд при переходе на страницу Спасибо, то Спасибо надо открывать в новом окне
     if ($replace_landing) {
-        $url = replace_all_macros($replace_landing_address); //заменяем макросы
-        $url = add_subs_to_link($url); //добавляем сабы
-        $html = insert_file_content_with_replace($html, 'replacelanding.js', '</body>', '{REDIRECT}', $url);
+        $replacelandurl = replace_all_macros($replace_landing_address); //заменяем макросы
+        $replacelandurl = add_subs_to_link($replacelandurl); //добавляем сабы
+        $html = insert_file_content_with_replace($html, 'replacelanding.js', '</body>', '{REDIRECT}', $replacelandurl);
     }
 
     //добавляем в страницу скрипт GTM
