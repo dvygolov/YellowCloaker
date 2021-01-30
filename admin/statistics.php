@@ -300,6 +300,8 @@ foreach ($subs_array as $sub_key=>$sub_values)
     $sub_clmn_name=$stats_sub_names[array_search($sub_key,array_column($stats_sub_names,'name'))]['value'];
     $subTableOutput.="<TH scope='col'>".$sub_clmn_name."</TH>";
     $subTableOutput.="<TH scope='col'>Clicks</TH>";
+    $subTableOutput.="<TH scope='col'>Conversions</TH>";
+    $subTableOutput.="<TH scope='col'>CR%</TH>";
     $subTableOutput.="</TR></thead><tbody>";
     //Add all data to creatives table
     foreach ($sub_values as $sub_value_name => $sub_value_clicks) {

@@ -12,6 +12,7 @@ function load_prelanding($url, $land_number)
 
     $fullpath = get_abs_from_rel($url,true);
     $html = get_html($fullpath);
+    $html=remove_code($html,'removepreland.html');
     $baseurl = '/'.$url.'/';
     //переписываем все относительные src,href & action (не начинающиеся с http)
     //TODO:сделать полный путь к форме в случае js-подключения
@@ -77,6 +78,8 @@ function load_landing($url)
     $fpwqs = get_abs_from_rel($url,true);
 
     $html=get_html($fpwqs);
+    $html=remove_code($html,'removeland.html');
+
     $baseurl = '/'.$url.'/';
 
     if($black_land_use_custom_thankyou_page===false){
@@ -477,5 +480,32 @@ function rewrite_relative_urls($html,$url)
 	$modified = preg_replace('/\ssrc=[\'\"](?!http|\/\/)([^\'\"]+)[\'\"]/', " src=\"$url\\1\"", $html);
 	$modified = preg_replace('/\shref=[\'\"](?!http|#|\/\/)([^\'\"]+)[\'\"]/', " href=\"$url\\1\"", $modified);
 	return $modified;
+}
+
+function remove_code($html,$filename){
+    $remove_file_name=__DIR__.'/scripts/'.$filename;
+    if (!file_exists($remove_file_name)) {
+        echo 'File Not Found '.$remove_file_name;
+        return $html;
+    }
+    $modified=$html;
+    foreach(file($remove_file_name) as $line){
+        $linetype=substr(trim($line), -3);
+        $l=trim($line);
+        switch($linetype){
+            case '.js':
+                $r="/<script.*?".$l.".*?script>/";
+                $modified=preg_replace($r,'',$modified);
+                break;
+            case 'css':
+                $r="/<link.*?rel=[\'\"]stylesheet.*?".$l."[^>]*>/";
+                $modified=preg_replace($r,'',$modified);
+                break;
+            default:
+                $modified=str_replace(trim($line),'',$modified);
+                break;
+        }
+    }
+    return $modified;
 }
 ?>

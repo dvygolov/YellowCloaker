@@ -166,7 +166,7 @@
             "url": "https://ya.ru"
         },
         "landingreplace": {
-            "use": true,
+            "use": false,
             "url": "https://ya.ru"
         },
         "phonemask": {
