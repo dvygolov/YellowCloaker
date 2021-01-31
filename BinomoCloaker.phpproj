@@ -33,6 +33,14 @@
     <Compile Include="404\mail.php" />
     <Compile Include="404\scripts.js" />
     <Compile Include="404\style.css" />
+    <Compile Include="abtests\Exceptions\RuntimeException.php" />
+    <Compile Include="abtests\Lever.php" />
+    <Compile Include="abtests\Machine.php" />
+    <Compile Include="abtests\Math\MersenneTwister.php" />
+    <Compile Include="abtests\Math\RandomNumberGeneratorInterface.php" />
+    <Compile Include="abtests\Strategies\EpsilonFirst.php" />
+    <Compile Include="abtests\Strategies\EpsilonGreedy.php" />
+    <Compile Include="abtests\StrategyInterface.php" />
     <Compile Include="admin\index.php" />
     <Compile Include="admin\statistics.php" />
     <Compile Include="admin\savesettings.php" />
@@ -148,6 +156,10 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="404" />
+    <Folder Include="abtests\" />
+    <Folder Include="abtests\Exceptions\" />
+    <Folder Include="abtests\Math\" />
+    <Folder Include="abtests\Strategies\" />
     <Folder Include="admin\" />
     <Folder Include="admin\css\" />
     <Folder Include="admin\css\metisMenu\" />
@@ -172,6 +184,8 @@
     <Folder Include="scripts\comebacker\" />
     <Folder Include="scripts\comebacker\img\" />
     <Folder Include="thankyou" />
+    <Folder Include="thankyou\upsell\carousel\" />
+    <Folder Include="thankyou\upsell\" />
     <Folder Include="tos\tos" />
     <Folder Include="tos" />
   </ItemGroup>
@@ -218,5 +232,10 @@
     <Content Include="scripts\removeland.html" />
     <Content Include="scripts\removepreland.html" />
     <Content Include="scripts\replacelanding.js" />
+    <Content Include="thankyou\upsell\carousel\script.js" />
+    <Content Include="thankyou\upsell\carousel\style.css" />
+    <Content Include="thankyou\upsell\upsell.css" />
+    <Content Include="thankyou\upsell\upsell.js" />
+    <Content Include="thankyou\upsell\upsell.template.html" />
   </ItemGroup>
 </Project>

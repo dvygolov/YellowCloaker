@@ -81,13 +81,9 @@ function load_landing($url)
     $html=remove_code($html,'removeland.html');
 
     $baseurl = '/'.$url.'/';
+    $html=insert_after_tag($html,"<head>","<base href='".$fullpath."'>");
 
-    if($black_land_use_custom_thankyou_page===false){
-		$html=insert_after_tag($html,"<head>","<base href='".$fullpath."'>");
-	}
-	else{
-		//переписываем все относительные src,href & action (не начинающиеся с http)
-		$html = rewrite_relative_urls($html,$baseurl);
+    if($black_land_use_custom_thankyou_page===true){
 		//меняем обработчик формы, чтобы у вайта и блэка была одна thankyou page
 		$html = preg_replace('/\saction=[\'\"]([^\'\"]+)[\'\"]/', " action=\"../send.php?".http_build_query($_GET)."\"", $html);
 	}

@@ -39,6 +39,12 @@ $black_land_log_conversions_on_button_click = $conf['black.landing.folder.conver
 $black_land_use_custom_thankyou_page = $conf['black.landing.folder.customthankyoupage.use']; 
 $black_land_thankyou_page_language = $conf['black.landing.folder.customthankyoupage.language'];
 
+$thankyou_upsell=$conf['black.landing.folder.customthankyoupage.upsell.use'];
+$thankyou_upsell_imgdir = $conf['black.landing.folder.customthankyoupage.upsell.imgdir'];
+$thankyou_upsell_header = $conf['black.landing.folder.customthankyoupage.upsell.header'];
+$thankyou_upsell_text = $conf['black.landing.folder.customthankyoupage.upsell.text'];
+$thankyou_upsell_url = $conf['black.landing.folder.customthankyoupage.upsell.url'];
+
 $black_jsconnect_action=$conf['black.jsconnect'];
 
 $ya_id= $conf['pixels.ya.id'];

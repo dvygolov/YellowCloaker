@@ -1,6 +1,6 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title > Děkujeme Vám </title>
+    <title>Спасибо за заказ!</title>
     
     <meta name="robots" content="none">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
@@ -435,10 +435,11 @@
         <p class="success-page__message_fail">
             <a class="success-page__message_fail__link" onclick="GoBackWithRefresh();return false;" > Если вы неправильно заполнили форму, вы можете вернуться назад и внести изменения. </a>
         </p>
+        {UPSELL}
         <h3 id="lowerH" class="success-page__text" >Пожалуйста, заполните вашу электронную почту, и мы сообщим вам, когда ваш заказ будет готов</h3>
             <form action="thankyou/mail.php" class="success-page__form" name="update_form" method="post">
                 <div class="success-page__form__container">
-                    <div><input name="email" placeholder="Электронная почта" class="success-page__form__input" _mstplaceholder="3272958" style="text-align: left;"></div>
+                    <div><input name="email" placeholder="Электронная почта" class="success-page__form__input" style="text-align: left;"></div>
 	                <button class="success-page__form__button" type="submit" >Отправить </button></div>
             </form>
     </div>

@@ -66,12 +66,19 @@
                     "lrl"
                 ],
                 "conversions": {
-                    "script": "api.php",
+                    "script": "order.php",
                     "logonbuttonclick": false
                 },
                 "customthankyoupage": {
-                    "use": false,
-                    "language": "RU"
+                    "use": true,
+                    "language": "RU",
+                    "upsell": {
+                        "use": true,
+                        "imgdir": "img",
+                        "header": "This is a header!",
+                        "text": "This is a text!",
+                        "url": "http://ya.ru"
+                    }
                 }
             },
             "redirect": {
@@ -160,7 +167,7 @@
             "action": "off",
             "value": "https://ya.ru"
         },
-        "disabletextcopy": true,
+        "disabletextcopy": false,
         "prelandingreplace": {
             "use": false,
             "url": "https://ya.ru"
