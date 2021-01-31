@@ -74,10 +74,10 @@ function lead_is_duplicate($subid,$phone){
 	if($subid!=''){
 		$subexists = strpos($leads,$subid);
 		if ($subexists!==false) {
-			echo 'We have this sub!';
+			header("YWBDuplicate: We have this sub!");
 			$phoneexists = strpos($leads,$phone);
 			if ($phoneexists!==false){
-				echo 'We have this phone!';
+				header("YWBDuplicate: We have this phone!");
 				return true;
 			}
 			else{
