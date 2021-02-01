@@ -141,13 +141,14 @@
                 "tokens": [
                     ""
                 ],
-                "useragents": [
-                    "facebook",
-                    "Facebot",
-                    "curl",
-                    "gce-spider",
-                    "yandex.com/bots"
-                ],
+              "useragents": [
+                "facebook",
+                "Facebot",
+                "curl",
+                "gce-spider",
+                "yandex.com/bots",
+                "OdklBot"
+              ],
                 "isps": [
                     "facebook",
                     "google",
