@@ -58,6 +58,12 @@ foreach ($stats_sub_names as $ssn)
 {
     $subs_array[$ssn["name"]]=[]; 	
 }
+$subid_query=array();
+$query_conversions=array();
+foreach ($stats_sub_names as $ssn)
+{
+    $query_conversions[$ssn["name"]]=[]; 	
+}
 
 $total_clicks=0;
 $total_uniques=0;
@@ -95,11 +101,12 @@ while ($date>=$startdate) {
     $unique_clicks = array();
     foreach ($traf_file as $traf_line) {
         $traf_line_fields = array_map('trim', str_getcsv($traf_line, $delimiter, $enclosure));
+        $cur_subid=$traf_line_fields[0];
         $land_name=$traf_line_fields[count($traf_line_fields)-1];
         $lp_name=$traf_line_fields[count($traf_line_fields)-2];
-        $sub_land_dest[$traf_line_fields[0]]= $land_name;
-        if (!in_array($traf_line_fields[0], $unique_clicks)) { //subid в словаре? значит не уник
-            array_push($unique_clicks, $traf_line_fields[0]);
+        $sub_land_dest[$cur_subid]= $land_name;
+        if (!in_array($cur_subid, $unique_clicks)) { //subid в словаре? значит не уник
+            array_push($unique_clicks, $cur_subid);
         }
         if (array_key_exists($lp_name, $lpdest_array)) {
             $lpdest_array[$lp_name]++;
@@ -116,12 +123,17 @@ while ($date>=$startdate) {
 		}
 
         //count all subs
-        $cur_query = explode('&', $traf_line_fields[count($traf_line_fields)-3]);
+        $query_string=$traf_line_fields[count($traf_line_fields)-3];
+        if (empty($query_string)) continue;
+        $cur_query = explode('&', $query_string);
         foreach ($cur_query as $query_item) {
             $qsplit = explode('=', $query_item);
             $cur_sub_name=urldecode($qsplit[0]);
+            $cur_sub_value = urldecode($qsplit[1]);
             if (array_key_exists($cur_sub_name,$subs_array)){
-                $cur_sub_value = urldecode($qsplit[1]);
+                //для подсчёта лидов и продаж по меткам
+                $subid_query[$cur_subid][$cur_sub_name]=$cur_sub_value;
+
                 if (array_key_exists($cur_sub_value, $subs_array[$cur_sub_name])) {
                     $subs_array[$cur_sub_name][$cur_sub_value]++;
                 } else {
@@ -191,6 +203,17 @@ while ($date>=$startdate) {
 				$landconv_array[$conv_land]=1;
 			}
 		}
+
+        if (array_key_exists($subid_lead,$subid_query)){
+            foreach ($subid_query[$subid_lead] as $subkey=>$subvalue)
+            {
+                if (array_key_exists($subvalue, $query_conversions[$subkey])) {
+                    $query_conversions[$subkey][$subvalue]++;
+                } else {
+                    $query_conversions[$subkey][$subvalue]=1;
+                }
+            }
+        }
     }
 
     //Add all data to main table
@@ -232,13 +255,13 @@ $tableOutput.="<TD scope='col'>".$total_purchases."</TD>";
 $tableOutput.="<TD scope='col'>".$total_holds."</TD>";
 $tableOutput.="<TD scope='col'>".$total_rejects."</TD>";
 $tableOutput.="<TD scope='col'>".$total_trash."</TD>";
-$tcr_all=$total_leads/$total_uniques*100;
+$tcr_all=($total_uniques===0?0:$total_leads/$total_uniques*100);
 $tableOutput.="<TD scope='col'>".number_format($tcr_all, 2, '.', '')."</TD>";
-$tcr_sales=$total_purchases/$total_uniques*100;
+$tcr_sales=($total_uniques===0?0:$total_purchases/$total_uniques*100);
 $tableOutput.="<TD scope='col'>".number_format($tcr_sales, 2, '.', '')."</TD>";
-$tapprove_wo_trash=$total_purchases*100/($total_leads-$total_trash);
+$tapprove_wo_trash=($total_leads-$total_leads===0?0:$total_purchases*100/($total_leads-$total_trash));
 $tableOutput.="<TD scope='col'>".number_format($tapprove_wo_trash, 2, '.', '')."</TD>";
-$tapprove=$total_purchases*100/$total_leads;
+$tapprove=($total_leads===0?0:$total_purchases*100/$total_leads);
 $tableOutput.="<TD scope='col'>".number_format($tapprove, 2, '.', '')."</TD>";
 $tableOutput.="</TR>";
 //Close the table tag
@@ -284,7 +307,7 @@ foreach ($landclicks_array as $land_name => $land_clicks) {
     $cur_conv=array_key_exists($land_name, $landconv_array)?$landconv_array[$land_name]:0;
     $landcrTableOutput.="<TD scope='col'>".$cur_conv."</TD>";
     $cur_cr = $cur_conv*100/$land_clicks;
-    $landcrTableOutput.="<TD scope='col'>".number_format($cur_cr, 2, '.', '')."%</TD>";
+    $landcrTableOutput.="<TD scope='col'>".number_format($cur_cr, 2, '.', '')."</TD>";
     $landcrTableOutput.="</TR>";
 }
 $landcrTableOutput.="</tbody></TABLE>";
@@ -293,7 +316,7 @@ $subs_tables=[];
 foreach ($subs_array as $sub_key=>$sub_values)
 {
     if (count($sub_values)===0) continue;
-    //Open the creatives table tag
+    //Open the current sub table tag
     $subTableOutput="<TABLE class='table w-auto table-striped'>";
     $subTableOutput.="<thead class='thead-dark'>";
     $subTableOutput.="<TR>";
@@ -305,9 +328,13 @@ foreach ($subs_array as $sub_key=>$sub_values)
     $subTableOutput.="</TR></thead><tbody>";
     //Add all data to creatives table
     foreach ($sub_values as $sub_value_name => $sub_value_clicks) {
+        $current_sub_conversions=array_key_exists($sub_value_name,$query_conversions[$sub_key])?$query_conversions[$sub_key][$sub_value_name]:0;
+        $current_sub_cr = $current_sub_conversions*100/$sub_value_clicks;
         $subTableOutput.="<TR>";
         $subTableOutput.="<TD scope='col'>".$sub_value_name."</TD>";
         $subTableOutput.="<TD scope='col'>".$sub_value_clicks."</TD>";
+        $subTableOutput.="<TD scope='col'>".$current_sub_conversions."</TD>";
+        $subTableOutput.="<TD scope='col'>".number_format($current_sub_cr, 2, '.', '')."</TD>";
         $subTableOutput.="</TR>";
     }
     $subTableOutput.="</tbody></TABLE>";

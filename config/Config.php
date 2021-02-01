@@ -180,7 +180,7 @@ class Config extends AbstractConfig
      *
      * @param  string $extension
      *
-     * @return Noodlehaus\Parser\ParserInterface
+     * @return \Noodlehaus\Parser\ParserInterface
      *
      * @throws UnsupportedFormatException If `$extension` is an unsupported file format
      */
@@ -201,7 +201,7 @@ class Config extends AbstractConfig
      *
      * @param  string $extension
      *
-     * @return Noodlehaus\Writer\WriterInterface
+     * @return \Noodlehaus\Writer\WriterInterface
      *
      * @throws UnsupportedFormatException If `$extension` is an unsupported file format
      */

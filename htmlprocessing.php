@@ -79,8 +79,6 @@ function load_landing($url)
 
     $html=get_html($fpwqs);
     $html=remove_code($html,'removeland.html');
-
-    $baseurl = '/'.$url.'/';
     $html=insert_after_tag($html,"<head>","<base href='".$fullpath."'>");
 
     if($black_land_use_custom_thankyou_page===true){
