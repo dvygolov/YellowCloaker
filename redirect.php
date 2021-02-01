@@ -4,7 +4,8 @@ function redirect($url,$redirect_type=302,$add_querystring=true){
     if ($add_querystring===true){
         $querystr = $_SERVER['QUERY_STRING'];
         if (!empty($querystr)) {
-            $url = $url.'?'.$querystr;
+            $delimiter= strpos($url,"?")!==false?"&":"?";
+            $url = $url.$delimiter.$querystr;
         }
     }
     if ($redirect_type===302) {
