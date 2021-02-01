@@ -23,6 +23,12 @@ else if (isset($_POST['firstname'])&&isset($_POST['lastname']))
 $phone = isset($_POST['phone'])?$_POST['phone']:$_POST['tel'];
 $subid = isset($_COOKIE['subid'])?$_COOKIE['subid']:'';
 
+//если юзверь каким-то чудом отправил пустые поля в форме
+if ($name===''||$phone===''){
+    redirect('thankyou.php?nopixel=1');
+    return;
+}
+
 $is_duplicate = lead_is_duplicate($subid,$phone);
 
 //устанавливаем пользователю в куки его имя и телефон, чтобы показать их на стр Спасибо
