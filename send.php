@@ -73,7 +73,7 @@ if (!$is_duplicate){
 }
 else
 {
-    redirect('thankyou.php');
+    redirect('thankyou.php?nopixel=1');
 }
 
 ?>

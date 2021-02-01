@@ -25,7 +25,11 @@ $html = file_get_contents($filepath);
 $html = insert_gtm_script($html);
 //добавляем в страницу скрипт Yandex Metrika
 $html = insert_yandex_script($html);
-$html = insert_fb_pixel_script($html,$fb_thankyou_event);
+//отстукиваем пиксель только если это не дубль, если дубль - то нам придёт nopixel=1
+if (empty($_GET['nopixel']))
+{
+    $html = insert_fb_pixel_script($html,$fb_thankyou_event);
+}
 
 $search='{NAME}';
 $html = str_replace($search,$_COOKIE['name'],$html);
