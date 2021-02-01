@@ -28,9 +28,9 @@ function get_abs_from_rel($url,$add_query_string=false){
     return $fullpath;
 }
 
-function get_request_headers(){
+function get_request_headers($ispost=false){
 	$ip=getip();
-    return array(
+    $headers=array(
 				'X-YWBCLO-UIP: '.$ip,
 				'X-FORWARDED-FOR '.$ip,
 				//'CF-CONNECTING-IP: '.$ip,
@@ -41,20 +41,25 @@ function get_request_headers(){
 				'CLIENT-IP: '.$ip,
 				'X-REAL-IP: '.$ip,
 				'REMOTE-ADDR: '.$ip);
+    if ($ispost)
+        array_push($headers,"Content-Type: application/x-www-form-urlencoded");
+    return $headers;
 }
 
 function get_html($url,$follow_location=false,$use_ua=false){
+    $ispost=($_SERVER['REQUEST_METHOD']==='POST');
+
     $curl = curl_init();
     $optArray = array(
             CURLOPT_URL => $url,
             CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_SSL_VERIFYPEER => false,
-			CURLOPT_HTTPHEADER => get_request_headers()
+			CURLOPT_HTTPHEADER => get_request_headers($ispost)
 			);
-      if ($_SERVER['REQUEST_METHOD']==='POST'){
+    if ($ispost){
         $optArray[CURLOPT_POST]=1;
         $optArray[CURLOPT_POSTFIELDS]=$_POST;
-        $optArray[CURLOPT_FOLLOWLOCATION]=true ;
+        $optArray[CURLOPT_FOLLOWLOCATION]=true;
     }
 
     if ($follow_location===true){
@@ -67,5 +72,27 @@ function get_html($url,$follow_location=false,$use_ua=false){
     $html = curl_exec($curl);
     curl_close($curl);
     return $html;
+}
+
+function post($url,$postfields){
+    $curl = curl_init();
+    curl_setopt_array($curl, array(
+      CURLOPT_URL => $url,
+      CURLOPT_RETURNTRANSFER => true,
+      CURLOPT_TIMEOUT => 0,
+      CURLOPT_FOLLOWLOCATION => false,
+      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+      CURLOPT_CUSTOMREQUEST => "POST",
+      CURLOPT_SSL_VERIFYPEER => false,
+      CURLOPT_POSTFIELDS => $postfields,
+      CURLOPT_REFERER => $_SERVER['REQUEST_URI'],
+      CURLOPT_HTTPHEADER => get_request_headers(true)    
+     ));
+
+    $content = curl_exec($curl);
+    $info = curl_getinfo($curl);
+    $error= curl_error($curl);
+    curl_close($curl);
+    return ["html"=>$content,"info"=>$info,"error"=>$error];
 }
 ?>

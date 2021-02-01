@@ -25,10 +25,9 @@ $subid = isset($_COOKIE['subid'])?$_COOKIE['subid']:'';
 
 $is_duplicate = lead_is_duplicate($subid,$phone);
 
-$cookietime=time()+60*60*24*5; //время, на которое ставятся куки, по умолчанию - 5 дней
 //устанавливаем пользователю в куки его имя и телефон, чтобы показать их на стр Спасибо
-ywbsetcookie('name',$name,$cookietime,'/');
-ywbsetcookie('phone',$phone,$cookietime,'/');
+ywbsetcookie('name',$name,'/');
+ywbsetcookie('phone',$phone,'/');
 
 //шлём в ПП только если это не дубль
 if (!$is_duplicate){
@@ -42,36 +41,18 @@ if (!$is_duplicate){
         $url= $_COOKIE['landing'].'/'.$black_land_conversion_script;
         $fullpath = get_abs_from_rel($url);
     }
-    $curl = curl_init();
-    curl_setopt_array($curl, array(
-      CURLOPT_URL => $fullpath,
-      CURLOPT_RETURNTRANSFER => true,
-      CURLOPT_TIMEOUT => 0,
-      CURLOPT_FOLLOWLOCATION => false,
-      CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-      CURLOPT_CUSTOMREQUEST => "POST",
-      CURLOPT_SSL_VERIFYPEER => false,
-      CURLOPT_POSTFIELDS => http_build_query($_POST),
-      CURLOPT_REFERER => $_SERVER['REQUEST_URI'],
-      CURLOPT_HTTPHEADER => array(
-        "Content-Type: application/x-www-form-urlencoded"
-      )
-    ));
 
-    $content = curl_exec($curl);
-    $info = curl_getinfo($curl);
-    $error= curl_error($curl);
-    curl_close($curl);
+    $res=post($fullpath,http_build_query($_POST));
 
     //в ответе должен быть редирект, если его нет - грузим обычную страницу Спасибо кло
-    switch($info["http_code"]){
+    switch($res["info"]["http_code"]){
         case 302:
             write_leads_to_log($subid,$name,$phone,'');
             if ($black_land_use_custom_thankyou_page ){
                 redirect("thankyou.php?".http_build_query($_GET));
             }
             else{
-                redirect($info["redirect_url"]);
+                redirect($res["info"]["redirect_url"]);
             }
             break;
         case 200:
@@ -80,12 +61,12 @@ if (!$is_duplicate){
                 jsredirect("thankyou.php?".http_build_query($_GET));
             }
             else{
-                echo $content;
+                echo $res["html"];
             }
             break;
         default:
-            var_dump($error);
-            var_dump($info);
+            var_dump($res["error"]);
+            var_dump($res["info"]);
             exit();
             break;
     }
