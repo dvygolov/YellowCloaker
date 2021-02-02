@@ -88,8 +88,8 @@ function email_exists_for_subid($subid){
     $leadsStore = new \SleekDB\Store("leads", $dataDir);
 	$lead=$leadsStore->findOneBy([["subid","=",$subid]]);
 	if ($lead===null) return false;
-	if ($lead["email"]===null) return false;
-	return true;
+    if (array_key_exists("email",$lead)) return true;
+	return false;
 }
 
 function add_email($subid,$email){
