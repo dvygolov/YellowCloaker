@@ -7,7 +7,7 @@ error_reporting(E_ALL);
 
 require '../core.php';
 include '../settings.php';
-include '../logging.php';
+include '../db.php';
 include '../main.php';
 
 //передаём все параметры в кло
@@ -62,7 +62,7 @@ if ($check_result === 0 || $tds_mode==='off') { //Обычный юзверь и
 } else if ($check_result===1 || $tds_mode==='full')
 {
 	//это бот, который прошёл javascript-проверку, ну или эта проверка выключена
-	write_white_to_log($cloaker->detect, $cloaker->result, $check_result, '', '');
+	add_white_click($cloaker->detect, $cloaker->result, $check_result, '', '');
     header("Access-Control-Expose-Headers: YWBAction", false, 200);
     header("YWBAction: none", true, 200);
     return http_response_code(200);

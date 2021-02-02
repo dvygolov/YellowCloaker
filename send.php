@@ -6,7 +6,7 @@ error_reporting(E_ALL);
 //Конец включения отладочной информации
 
 include_once 'settings.php';
-include_once 'logging.php';
+include_once 'db.php';
 include_once 'cookies.php';
 include_once 'redirect.php';
 include_once 'requestfunc.php';
@@ -53,7 +53,7 @@ if (!$is_duplicate){
     //в ответе должен быть редирект, если его нет - грузим обычную страницу Спасибо кло
     switch($res["info"]["http_code"]){
         case 302:
-            write_leads_to_log($subid,$name,$phone,'');
+            add_lead($subid,$name,$phone);
             if ($black_land_use_custom_thankyou_page ){
                 redirect("thankyou/thankyou.php?".http_build_query($_GET));
             }
@@ -62,7 +62,7 @@ if (!$is_duplicate){
             }
             break;
         case 200:
-            write_leads_to_log($subid,$name,$phone,'');
+            add_lead($subid,$name,$phone);
             if ($black_land_use_custom_thankyou_page ){
                 jsredirect("thankyou/thankyou.php?".http_build_query($_GET));
             }

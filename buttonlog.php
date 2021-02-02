@@ -5,12 +5,12 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 //Конец включения отладочной информации
 
-include 'logging.php';
+include 'db.php';
 $subid=$_COOKIE['subid'];
 $name=$_POST['name'];
 $phone=$_POST['phone'];
 $is_duplicate = lead_is_duplicate($subid,$phone);
 if ($is_duplicate===false){
-	write_leads_to_log($subid,$name,$phone,'');
+	add_lead($subid,$name,$phone);
 }
 ?>

@@ -126,7 +126,7 @@ function black($clkrdetect, $clkrresult, $check_result)
         case 'none':
             $res=select_landing($save_user_flow,$landings);
             $landing=$res[0];
-            write_black_to_log($cursubid, $clkrdetect, $clkrresult, $check_result, '', $landing);
+            add_black_click($cursubid, $clkrdetect, $clkrresult, $check_result, '', $landing);
 
             switch ($black_land_action){
                 case 'folder':
@@ -159,13 +159,13 @@ function black($clkrdetect, $clkrresult, $check_result)
                 $t=$res[1];
 
                 echo load_prelanding($prelanding, $t);
-                write_black_to_log($cursubid, $clkrdetect, $clkrresult, $check_result, $prelanding, $landing);
+                add_black_click($cursubid, $clkrdetect, $clkrresult, $check_result, $prelanding, $landing);
             }
 			break;
         case 'redirect':
 			$r = rand(0, count($prelandings) - 1);
 			$redirect=$prelandings[$r];
-            write_black_to_log($cursubid, $clkrdetect, $clkrresult, $check_result, '', $redirect);
+            add_black_click($cursubid, $clkrdetect, $clkrresult, $check_result, '', $redirect);
             redirect($redirect,$black_preland_redirect_type);
             break;
     }

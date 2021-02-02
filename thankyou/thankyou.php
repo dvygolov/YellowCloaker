@@ -6,7 +6,7 @@ error_reporting(E_ALL);
 //Конец включения отладочной информации
 include_once '../settings.php';
 include_once '../htmlprocessing.php';
-include_once '../logging.php';
+include_once '../db.php';
 
 function mb_basename($path) {
     if (preg_match('@^.*[\\\\/]([^\\\\/]+)$@s', $path, $matches)) {
@@ -24,7 +24,7 @@ if ($ispost){
     $subid = isset($_POST['subid'])?$_POST['subid']:'';
     $email = isset($_POST['email'])?$_POST['email']:'';
     $lang = isset($_POST['language'])?$_POST['language']:'';
-    write_mail_to_log($subid,$name,$phone,$email);
+    add_email($subid,$email);
 }
 
 $filepath = __DIR__.'/templates/'.$black_land_thankyou_page_language.'.html';

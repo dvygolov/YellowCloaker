@@ -91,6 +91,7 @@
     <Compile Include="db\Store.php" />
     <Compile Include="fbpixel.php" />
     <Compile Include="js\index.php" />
+    <Compile Include="db.php" />
     <Compile Include="requestfunc.php" />
     <Compile Include="js\arrow-long-down.png" />
     <Compile Include="js\connect.js" />
@@ -152,7 +153,6 @@
     <Compile Include="index.php" />
     <Compile Include="bases\ipcountry.php" />
     <Compile Include="landing.php" />
-    <Compile Include="logging.php" />
     <Compile Include="main.php" />
     <Compile Include="postback.php" />
     <Compile Include="README.md" />

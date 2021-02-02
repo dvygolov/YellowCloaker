@@ -343,3 +343,5 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+/logs/blackclicks
+/thankyou/upsell/img

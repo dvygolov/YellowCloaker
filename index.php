@@ -7,7 +7,7 @@ error_reporting(E_ALL);
 
 require 'core.php';
 include 'settings.php';
-include 'logging.php';
+include 'db.php';
 include 'main.php';
 
 //передаём все параметры в кло
@@ -15,7 +15,7 @@ $cloaker = new Cloaker($os_white,$country_white,$ip_black_filename,$ip_black_cid
 
 //если включен full_cloak_on, то шлём всех на white page, полностью набрасываем плащ)
 if ($tds_mode=='full') {
-    write_white_to_log($cloaker->detect, ['fullcloak'], 1);
+    add_white_click($cloaker->detect, ['fullcloak'], 1);
     white(false);
     return;
 }
@@ -37,7 +37,7 @@ else{
 		black($cloaker->detect, $cloaker->result, $check_result);
 		return;
 	} else { //Обнаружили бота или модера
-		write_white_to_log($cloaker->detect, $cloaker->result, $check_result);
+		add_white_click($cloaker->detect, $cloaker->result, $check_result);
 		white(false);
 		return;
 	}

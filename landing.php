@@ -1,7 +1,7 @@
 <?php
 include 'settings.php';
 include 'htmlprocessing.php';
-include 'logging.php';
+include 'db.php';
 include 'redirect.php';
 //Включение отладочной информации
 ini_set('display_errors','1');
@@ -13,7 +13,7 @@ error_reporting(E_ALL);
 
 $prelanding = isset($_COOKIE['prelanding'])?$_COOKIE['prelanding']:'';
 $subid = isset($_COOKIE['subid'])?$_COOKIE['subid']:'';
-write_lpctr_to_log($subid,$prelanding); //запись пробива проклы
+add_lpctr($subid,$prelanding); //запись пробива проклы
 
 $l=isset($_GET['l'])?$_GET['l']:-1;
 $landings=[];
