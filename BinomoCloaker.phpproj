@@ -78,6 +78,17 @@
     <Compile Include="config\ConfigInterface.php" />
     <Compile Include="config\ErrorException.php" />
     <Compile Include="config\Exception.php" />
+    <Compile Include="db\Cache.php" />
+    <Compile Include="db\Exceptions\IdNotAllowedException.php" />
+    <Compile Include="db\Exceptions\InvalidArgumentException.php" />
+    <Compile Include="db\Exceptions\InvalidConfigurationException.php" />
+    <Compile Include="db\Exceptions\InvalidPropertyAccessException.php" />
+    <Compile Include="db\Exceptions\IOException.php" />
+    <Compile Include="db\Exceptions\JsonException.php" />
+    <Compile Include="db\Query.php" />
+    <Compile Include="db\QueryBuilder.php" />
+    <Compile Include="db\SleekDB.php" />
+    <Compile Include="db\Store.php" />
     <Compile Include="fbpixel.php" />
     <Compile Include="js\index.php" />
     <Compile Include="requestfunc.php" />
@@ -109,14 +120,11 @@
     <Compile Include="scripts\replaceprelanding.js" />
     <Compile Include="scripts\tos.html" />
     <Compile Include="scripts\yacode.js" />
-    <Compile Include="thankyou\EN.html" />
-    <Compile Include="thankyou\mail.php" />
-    <Compile Include="thankyou\PT.html" />
-    <Compile Include="thankyou\RU.html" />
-    <Compile Include="thankyou\SI.html" />
-    <Compile Include="thankyou\SIemail.html" />
-    <Compile Include="thankyou\SK.html" />
-    <Compile Include="thankyou\SKemail.html" />
+    <Compile Include="thankyou\templates\EN.html" />
+    <Compile Include="thankyou\templates\PT.html" />
+    <Compile Include="thankyou\templates\RU.html" />
+    <Compile Include="thankyou\templates\SI.html" />
+    <Compile Include="thankyou\templates\SK.html" />
     <Compile Include="tos\tos\BA.html" />
     <Compile Include="tos\tos\BG.html" />
     <Compile Include="tos\tos\CZ.html" />
@@ -151,7 +159,7 @@
     <Compile Include="send.php" />
     <Compile Include="settings.json" />
     <Compile Include="settings.php" />
-    <Compile Include="thankyou.php" />
+    <Compile Include="thankyou\thankyou.php" />
     <Compile Include="worder.php" />
   </ItemGroup>
   <ItemGroup>
@@ -175,6 +183,8 @@
     <Folder Include="config\Parser" />
     <Folder Include="config\Writer" />
     <Folder Include="config" />
+    <Folder Include="db\" />
+    <Folder Include="db\Exceptions\" />
     <Folder Include="js" />
     <Folder Include="Properties\" />
     <Folder Include="scripts" />
@@ -184,6 +194,8 @@
     <Folder Include="scripts\comebacker\" />
     <Folder Include="scripts\comebacker\img\" />
     <Folder Include="thankyou" />
+    <Folder Include="thankyou\templates\" />
+    <Folder Include="thankyou\templates\email\" />
     <Folder Include="thankyou\upsell\carousel\" />
     <Folder Include="thankyou\upsell\" />
     <Folder Include="tos\tos" />
@@ -232,6 +244,13 @@
     <Content Include="scripts\removeland.html" />
     <Content Include="scripts\removepreland.html" />
     <Content Include="scripts\replacelanding.js" />
+    <Content Include="thankyou\templates\email\SKfill.html" />
+    <Content Include="thankyou\templates\email\SIfill.html" />
+    <Content Include="thankyou\templates\email\PTfill.html" />
+    <Content Include="thankyou\templates\email\ENfill.html" />
+    <Content Include="thankyou\templates\email\ENsave.html" />
+    <Content Include="thankyou\templates\email\RUfill.html" />
+    <Content Include="thankyou\templates\email\RUsave.html" />
     <Content Include="thankyou\upsell\carousel\script.js" />
     <Content Include="thankyou\upsell\carousel\style.css" />
     <Content Include="thankyou\upsell\upsell.css" />

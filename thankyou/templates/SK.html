@@ -1,13 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>BLAHOŽELÁME!</title>
-    <meta charset="utf-8">
+﻿<!DOCTYPE html>
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title > Děkujeme Vám </title>
+    
     <meta name="robots" content="none">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <script>
+    function GoBackWithRefresh(event) {
+    if (document.title == 'Creating order' && 'referrer' in document) {
+        window.location = document.referrer;
+        /* OR */
+        //location.replace(document.referrer);
+    } else {
+        window.history.back();
+    }
+	}
+    </script>
     <style type="text/css">
         html {
             font-family: sans-serif;
@@ -407,12 +417,28 @@
 <body>
 <div class="mod success-page">
     <div class="container">
-        <h2 class="success-page__title">Poďakovať. Váš e-mail sme uložili.</h2>
+        <h2 class="success-page__title" >Ďakujeme vám za vašu objednávku.</h2>
 
-        <p class="success-page__message_success">V čo najbližšej dobe sa s Vami spoja naši operátori, aby zákazku potvrdili.</p>
+        <p class="success-page__message_success" >Čoskoro vás budeme kontaktovať. Skontrolujte, či je telefón zapnutý.</p>
 
+        <h3 class="success-page__text" >Skontrolujte svoje údaje</h3>
+
+        <div class="list-info">
+            <ul class="list-info__list">
+                <li class="list-info__item">
+                    <span class="list-info__text" >Meno: </span><font>{NAME} </font></li>
+                <li class="list-info__item">
+                    <span class="list-info__text" >Telefónne číslo: </span><font>
+                    {PHONE}
+                </font></li>
+            </ul>
+        </div>
+
+        <p class="success-page__message_fail">
+            <a class="success-page__message_fail__link" onclick="GoBackWithRefresh();return false;" > Ak ste formulár vyplnili nesprávne, môžete sa vrátiť a vykonať zmeny. </a>
+        </p>
+        {UPSELL}
+        {EMAIL}
     </div>
 </div>
-
-</body>
-</html>
+</body></html>

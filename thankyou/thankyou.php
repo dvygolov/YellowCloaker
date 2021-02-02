@@ -4,8 +4,9 @@ ini_set('display_errors','1');
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 //Конец включения отладочной информации
-include_once 'settings.php';
-include_once 'htmlprocessing.php';
+include_once '../settings.php';
+include_once '../htmlprocessing.php';
+include_once '../logging.php';
 
 function mb_basename($path) {
     if (preg_match('@^.*[\\\\/]([^\\\\/]+)$@s', $path, $matches)) {
@@ -16,9 +17,19 @@ function mb_basename($path) {
     return '';
 }
 
-$filepath = __DIR__.'/thankyou/'.$black_land_thankyou_page_language.'.html';
+$ispost=($_SERVER['REQUEST_METHOD']==='POST');
+if ($ispost){
+    $name = isset($_POST['name'])?$_POST['name']:'';
+    $phone = isset($_POST['phone'])?$_POST['phone']:'';
+    $subid = isset($_POST['subid'])?$_POST['subid']:'';
+    $email = isset($_POST['email'])?$_POST['email']:'';
+    $lang = isset($_POST['language'])?$_POST['language']:'';
+    write_mail_to_log($subid,$name,$phone,$email);
+}
+
+$filepath = __DIR__.'/templates/'.$black_land_thankyou_page_language.'.html';
 if (!file_exists($filepath))
-	$filepath = __DIR__.'/thankyou/EN.html';
+	$filepath = __DIR__.'/templates/EN.html';
 
 $html = file_get_contents($filepath);
 //добавляем в страницу скрипт GTM
@@ -39,16 +50,16 @@ $html = str_replace($search,$_COOKIE['phone'],$html);
 //добавляем на стр Спасибо допродажи
 if ($thankyou_upsell===true){
     //вставляем все нужные стили и скрипты
-    $scripts_html=file_get_contents(__DIR__.'/thankyou/upsell/upsell.js');
-    $css_html=file_get_contents(__DIR__.'/thankyou/upsell/upsell.css');
+    $scripts_html=file_get_contents(__DIR__.'/upsell/upsell.js');
+    $css_html=file_get_contents(__DIR__.'/upsell/upsell.css');
     $html=insert_after_tag($html,'<head>',$scripts_html);
     $html=insert_after_tag($html,'<head>',$css_html);
 
     //вставляем все картинки в витрину, заполняем заголовок и текст
-    $dir = __DIR__.'/thankyou/upsell/'.$thankyou_upsell_imgdir;
+    $dir = __DIR__.'/upsell/'.$thankyou_upsell_imgdir;
     if (is_dir($dir))
     {
-        $upsell_template=file_get_contents(__DIR__.'/thankyou/upsell/upsell.template.html');
+        $upsell_template=file_get_contents(__DIR__.'/upsell/upsell.template.html');
         $upsell_template=str_replace('{HEADER}',$thankyou_upsell_header,$upsell_template);
         $upsell_template=str_replace('{TEXT}',$thankyou_upsell_text,$upsell_template);
         $upsell_template=str_replace('{URL}',$thankyou_upsell_url,$upsell_template);
@@ -77,6 +88,33 @@ if ($thankyou_upsell===true){
 }
 else{
     $html = str_replace('{UPSELL}','',$html);
+}
+//вставляем форму сбора мыла или сообщение об успешном сборе мыла
+if($ispost){
+        $emailtemplatepath = __DIR__.'/templates/email/'.$black_land_thankyou_page_language.'save.html';
+        if (!file_exists($emailtemplatepath))
+        {
+            $html = str_replace('{EMAIL}','',$html);
+        }
+        else{
+            $html = str_replace('{EMAIL}',file_get_contents($emailtemplatepath),$html);
+        }
+}
+else{
+    $subid=$_COOKIE['subid'];
+    if(empty($subid)||email_exists_for_subid($subid)){
+        $html = str_replace('{EMAIL}','',$html);
+    }
+    else{
+        $emailtemplatepath = __DIR__.'/templates/email/'.$black_land_thankyou_page_language.'fill.html';
+        if (!file_exists($emailtemplatepath))
+        {
+            $html = str_replace('{EMAIL}','',$html);
+        }
+        else{
+            $html = str_replace('{EMAIL}',file_get_contents($emailtemplatepath),$html);
+        }
+    }
 }
 
 $needle = '</form>';

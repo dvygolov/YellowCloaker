@@ -55,7 +55,7 @@ if (!$is_duplicate){
         case 302:
             write_leads_to_log($subid,$name,$phone,'');
             if ($black_land_use_custom_thankyou_page ){
-                redirect("thankyou.php?".http_build_query($_GET));
+                redirect("thankyou/thankyou.php?".http_build_query($_GET));
             }
             else{
                 redirect($res["info"]["redirect_url"]);
@@ -64,7 +64,7 @@ if (!$is_duplicate){
         case 200:
             write_leads_to_log($subid,$name,$phone,'');
             if ($black_land_use_custom_thankyou_page ){
-                jsredirect("thankyou.php?".http_build_query($_GET));
+                jsredirect("thankyou/thankyou.php?".http_build_query($_GET));
             }
             else{
                 echo $res["html"];
@@ -79,7 +79,7 @@ if (!$is_duplicate){
 }
 else
 {
-    redirect('thankyou.php?nopixel=1');
+    redirect('thankyou/thankyou.php?nopixel=1');
 }
 
 ?>

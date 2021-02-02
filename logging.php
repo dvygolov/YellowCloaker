@@ -20,16 +20,26 @@ function write_leads_to_log($subid,$name,$phone,$status) {
 		fflush($save_order);
 		fclose($save_order);
 	}
-	
+
 	$fbp=isset($_COOKIE['_fbp'])?$_COOKIE['_fbp']:'';
 	$fbclid=isset($_COOKIE['fbclid'])?$_COOKIE['fbclid']:(isset($_COOKIE['_fbc'])?$_COOKIE['_fbc']:'');
-	
+
 	if ($status=='') $status='Lead';
-	
+
 	$save_order = fopen($file, 'a+');
 	fwrite($save_order, "$subid, $name, $phone, $fbp, $fbclid, $status\n");
 	fflush($save_order);
 	fclose($save_order);
+}
+
+function email_exists_for_subid($subid){
+	$file = __DIR__."/logs/".date("d.m.y").".emails.csv";
+	$emails = file_get_contents($file);
+    $subexists = strpos($emails,$subid);
+	if ($subexists===false)
+		return false;
+	else
+		return true;
 }
 
 function write_mail_to_log($subid,$name,$phone,$email){
@@ -57,7 +67,7 @@ function write_lpctr_to_log($subid,$preland){
 		fflush($save_order);
 		fclose($save_order);
 	}
-	
+
 	$save_lp = fopen($file, 'a+');
 	fwrite($save_lp, "$subid, $preland\n");
 	fflush($save_lp);
@@ -65,7 +75,7 @@ function write_lpctr_to_log($subid,$preland){
 }
 
 //проверяем, есть ли в файле лидов subid текущего пользователя
-//если есть, и также есть такой же номер - значит ЭТО ДУБЛЬ! 
+//если есть, и также есть такой же номер - значит ЭТО ДУБЛЬ!
 //И нам не нужно слать его в ПП и не нужно показывать пиксель ФБ!!
 function lead_is_duplicate($subid,$phone){
 	$file = __DIR__."/logs/".date("d.m.y").".leads.csv";
@@ -101,7 +111,7 @@ function write_visitors_to_log($subid,$filename,$data,$reason,$check_result,$pre
 	$time = date('Y-m-d H:i:s');
 	$os = $data['os'];
 	$isp = str_replace(',',' ',$data['isp']);//заменяем все зпт на пробелы, чтобы в csv-файле это было одним полем
-	$user_agent = str_replace(',',' ',$data['ua']); 
+	$user_agent = str_replace(',',' ',$data['ua']);
 	$reason_str = isset($reason)? implode(";", $reason):'';
 
 	$qsarray=explode('&',$_SERVER['QUERY_STRING']);
@@ -112,7 +122,7 @@ function write_visitors_to_log($subid,$filename,$data,$reason,$check_result,$pre
 
 	//создаёт папку для логов, если её нет
 	if (!file_exists(__DIR__."/logs")) mkdir(__DIR__."/logs");
-	
+
 	$file = __DIR__."/logs/".$filename;
 	if(!file_exists($file)) //если новый день и файла лога ещё нет, то пишем туда заголовки столбцов
 	{
@@ -121,7 +131,7 @@ function write_visitors_to_log($subid,$filename,$data,$reason,$check_result,$pre
 		fflush($save_order);
 		fclose($save_order);
 	}
-	
+
 	$save_order = fopen($file, 'a+');
 	fwrite($save_order, $message);
 	fflush($save_order);
