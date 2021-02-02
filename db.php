@@ -11,7 +11,8 @@ function add_white_click($data,$reason,$check_result) {
 
 	$calledIp = $data['ip'];
 	$country = $data['country'];
-	$time = date('Y-m-d H:i:s');
+	$dt = new DateTime();
+	$time = $dt->getTimestamp();
 	$os = $data['os'];
 	$isp = str_replace(',',' ',$data['isp']);
 	$user_agent = str_replace(',',' ',$data['ua']);
@@ -38,7 +39,8 @@ function add_black_click($subid,$data,$reason,$check_result,$preland,$land) {
 
 	$calledIp = $data['ip'];
 	$country = $data['country'];
-	$time = date('Y-m-d H:i:s');
+	$dt = new DateTime();
+	$time = $dt->getTimestamp();
 	$os = $data['os'];
 	$isp = str_replace(',',' ',$data['isp']);
 	$user_agent = str_replace(',',' ',$data['ua']);
