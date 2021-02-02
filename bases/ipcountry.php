@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__.'/bases/geoip2.phar';
+require_once __DIR__.'/geoip2.phar';
 use GeoIp2\Database\Reader;
 
 function getip(){
@@ -41,21 +41,21 @@ function getip(){
 }
 
 function getcountry($ip){
-	$reader = new Reader(__DIR__.'/bases/GeoLite2-Country.mmdb');
+	$reader = new Reader(__DIR__.'/GeoLite2-Country.mmdb');
 	if ($ip==='::1'||$ip==='127.0.0.1') $ip='31.177.76.70'; //for debugging
     $record = $reader->country($ip);
 	return $record->country->isoCode;
 }
 
 function getcity($ip){
-	$reader = new Reader(__DIR__.'/bases/GeoLite2-City.mmdb');
+	$reader = new Reader(__DIR__.'/GeoLite2-City.mmdb');
 	if ($ip==='::1'||$ip==='127.0.0.1') $ip='31.177.76.70'; //for debugging
     $record = $reader->city($ip);
 	return $record->city->name;
 }
 
 function getisp($ip){
-	$reader = new Reader(__DIR__.'/bases/GeoLite2-ASN.mmdb');
+	$reader = new Reader(__DIR__.'/GeoLite2-ASN.mmdb');
 	if ($ip==='::1'||$ip==='127.0.0.1') $ip='31.177.76.70'; //for debugging
     $record = $reader->asn($ip);
 	return $record->autonomousSystemOrganization;

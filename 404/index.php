@@ -5,7 +5,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 //Конец включения отладочной информации
 
-include __DIR__.'/../ipcountry.php';
+include __DIR__.'/../bases/ipcountry.php';
 $ip = getip();
 $country = getcountry($ip);
 ?>

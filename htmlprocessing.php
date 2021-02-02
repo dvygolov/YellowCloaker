@@ -1,6 +1,6 @@
 <?php
 include __DIR__.'/js/obfuscator.php';
-require_once 'ipcountry.php';
+require_once 'bases/ipcountry.php';
 require_once 'requestfunc.php';
 require_once 'fbpixel.php';
 

@@ -4,7 +4,7 @@ require 'bases/browser/UserAgent.php';
 require 'bases/browser/Os.php';
 require 'bases/browser/OsDetector.php';
 require 'bases/iputils.php';
-require 'ipcountry.php';
+require 'bases/ipcountry.php';
 use Sinergi\BrowserDetector\Os;
 
 class Cloaker{

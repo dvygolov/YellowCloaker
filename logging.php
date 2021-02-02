@@ -34,6 +34,7 @@ function write_leads_to_log($subid,$name,$phone,$status) {
 
 function email_exists_for_subid($subid){
 	$file = __DIR__."/logs/".date("d.m.y").".emails.csv";
+	if(!file_exists($file)) return false;
 	$emails = file_get_contents($file);
     $subexists = strpos($emails,$subid);
 	if ($subexists===false)

@@ -1,4 +1,5 @@
 <?php
+include_once __DIR__.'/bases/ipcountry.php';
 function get_prefix(){
     return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off')  ? 'https://' : 'http://';
 }

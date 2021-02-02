@@ -150,7 +150,7 @@
     <Compile Include="core.php" />
     <Compile Include="htmlprocessing.php" />
     <Compile Include="index.php" />
-    <Compile Include="ipcountry.php" />
+    <Compile Include="bases\ipcountry.php" />
     <Compile Include="landing.php" />
     <Compile Include="logging.php" />
     <Compile Include="main.php" />

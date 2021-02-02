@@ -77,7 +77,7 @@ if ($thankyou_upsell===true){
         foreach ($images as $image)
         {
             $all_images_html.= str_replace('{URL}',$thankyou_upsell_url,
-                str_replace('{IMG}','thankyou/upsell/'.$thankyou_upsell_imgdir.'/'.mb_basename($image),$item_template));
+                str_replace('{IMG}','upsell/'.$thankyou_upsell_imgdir.'/'.mb_basename($image),$item_template));
         }
         $upsell_template = substr_replace($upsell_template,$all_images_html,$istartpos,$iendpos+$iendlen-$istartpos);
 
