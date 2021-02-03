@@ -1,39 +1,27 @@
 <?php
-require_once __DIR__."/db/SleekDB.php";
-require_once __DIR__."/db/Store.php";
-require_once __DIR__."/db/QueryBuilder.php";
-require_once __DIR__."/db/Query.php";
-require_once __DIR__."/db/Cache.php";
+require_once __DIR__."/../db/SleekDB.php";
+require_once __DIR__."/../db/Store.php";
+require_once __DIR__."/../db/QueryBuilder.php";
+require_once __DIR__."/../db/Query.php";
+require_once __DIR__."/../db/Cache.php";
 
-function add_white_click($data,$reason,$check_result) {
-    $dataDir = __DIR__ . "/logs";
+function get_white_clicks($startdate,$enddate) {
+    $dataDir = __DIR__ . "/../logs";
     $wclicksStore = new \SleekDB\Store("whiteclicks", $dataDir);
-
-	$calledIp = $data['ip'];
-	$country = $data['country'];
-	$dt = new DateTime();
-	$time = $dt->getTimestamp();
-	$os = $data['os'];
-	$isp = str_replace(',',' ',$data['isp']);
-	$user_agent = str_replace(',',' ',$data['ua']);
-
-	parse_str($_SERVER['QUERY_STRING'],$queryarr);
-
-	$click =[
-		"subid"=>"12342314",
-		"time"=>$time,
-		"ip"=>$calledIp,
-		"country"=>$country,
-		"os"=>$os,
-		"isp"=>$isp,
-		"ua"=>$user_agent,
-		"reason"=>$reason,
-		"subs"=>$queryarr
-    ];
-	$wclicksStore->insert($click);
+	$wcb=$wclicksStore->createQueryBuilder();
+	$wcb->where([["time",">=",$startdate],["time","<=",$enddate]])->orderBy(["time"=>"desc"]);
+	return $wcb->getQuery()->fetch();
 }
 
-function add_black_click($subid,$data,$check_result,$preland,$land) {
+function get_black_clicks($startdate,$enddate) {
+    $dataDir = __DIR__ . "/../logs";
+    $wclicksStore = new \SleekDB\Store("blackclicks", $dataDir);
+	$wcb=$wclicksStore->createQueryBuilder();
+	$wcb->where([["time",">=",$startdate],["time","<=",$enddate]])->orderBy(["time"=>"desc"]);
+	return $wcb->getQuery()->fetch();
+}
+
+function add_black_click($subid,$data,$reason,$check_result,$preland,$land) {
     $dataDir = __DIR__ . "/logs";
     $bclicksStore = new \SleekDB\Store("blackclicks", $dataDir);
 
@@ -57,6 +45,7 @@ function add_black_click($subid,$data,$check_result,$preland,$land) {
 		"os"=>$os,
 		"isp"=>$isp,
 		"ua"=>$user_agent,
+		"reason"=>$reason,
 		"subs"=>$queryarr,
 		"preland"=>$prelanding,
 		"land"=>$landing

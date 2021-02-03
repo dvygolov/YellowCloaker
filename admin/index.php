@@ -5,21 +5,16 @@ ini_set('display_errors', '1');
 ini_set('display_startup_errors', 1);
 //Конец включения отладочной информации
 include '../settings.php';
-
-//------------------------------------------------
-//Configuration
-//
-$delimiter = ","; //CSV delimiter character: , ; /t
-$enclosure = '"'; //CSV enclosure character: " '
-$ignorePreHeader = 0; //Number of characters to ignore before the table header. Windows UTF-8 BOM has 3 characters.
-
 if ($log_password!==''&&(empty($_GET['password'])||$_GET['password'] !== $log_password)) {
     echo 'No Password Given!';
     exit();
 }
+include 'db.php';
 
 $startdate=isset($_GET['startdate'])?DateTime::createFromFormat('d.m.y', $_GET['startdate']):new DateTime();
 $enddate=isset($_GET['enddate'])?DateTime::createFromFormat('d.m.y', $_GET['enddate']):new DateTime();
+$startdate->setTime(0,0,0);
+$enddate->setTime(23,59,59);
 
 $date_str='';
 if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
@@ -29,97 +24,64 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
 }
 
 $filter=isset($_GET['filter'])?$_GET['filter']:'';
-$fileName='';
 
-$date = $enddate;
-$tableOutput='';
+$dataDir = __DIR__ . "/../logs";
+switch ($filter) {
+    case '':
+        $header = ["Subid","IP","Country","ISP","Time","OS","UA","QueryString","Preland","Land"];
+        $store = new \SleekDB\Store("blackclicks", $dataDir);
+        $dataset=$store->findBy([["time",">=",$startdate->getTimestamp()],["time","<=",$enddate->getTimestamp()]]);
+        break;
+    case 'leads':
+        $header = ["Subid","Name","Phone","Email","Status","Fbp","Fbclid"];
+        $store = new \SleekDB\Store("blackclicks", $dataDir);
+        $leadsstore = new \SleekDB\Store("leads", $dataDir);
+        break;
+    case 'blocked':
+        $header = ["Subid","IP","Country","ISP","Time","Reason","OS","UA","QueryString","White"];
+        $store = new \SleekDB\Store("whiteclicks", $dataDir);
+        $dataset=$store->findBy([["time",">=",$startdate->getTimestamp()],["time","<=",$enddate->getTimestamp()]]);
+        break;
+}
 
-$logOriginalHeader = array();
-$headerSet=false;
-$countLines = 0;
-while ($date>=$startdate) {
-    $formatteddate = $date->format('d.m.y');
-    switch ($filter) {
+//Open the table tag
+$tableOutput="<TABLE class='table w-auto table-striped'>";
+//Print the table header
+$tableOutput.="<thead class='thead-dark'>";
+$tableOutput.="<TR>";
+$tableOutput.="<TH scope='col'>Row</TH>";
+foreach ($header as $field) {
+    $tableOutput.="<TH scope='col'>".$field."</TH>";
+} //Add the columns
+$tableOutput.="</TR></thead><tbody>";
+$countLines=0;
+foreach ($dataset as $line) {
+    $countLines++;
+    $tableOutput.="<TR><TD>".$countLines."</TD>";
+    $i=0;
+    switch($filter){
         case '':
-            $fileName = "../logs/".$formatteddate.".csv";
-            break;
-        case 'leads':
-            $fileName = "../logs/".$formatteddate.".leads.csv";
+            $tableOutput.="<TD><a name='".$line['subid']."'>".$line['subid']."</a></TD>";
+            $tableOutput.="<TD>".$line['ip']."</TD>";
+            $tableOutput.="<TD>".$line['country']."</TD>";
+            $tableOutput.="<TD>".$line['isp']."</TD>";
+            $tableOutput.="<TD>".date('Y-m-d H:i:s',$line['time'])."</TD>";
+            $tableOutput.="<TD>".$line['os']."</TD>";
+            $tableOutput.="<TD>".$line['ua']."</TD>";
+            $tableOutput.="<TD>".http_build_query($line['subs'])."</TD>";
+            $tableOutput.="<TD>".$line['preland']."</TD>";
+            $tableOutput.="<TD>".$line['land']."</TD></TR>";
             break;
         case 'blocked':
-            $fileName = "../logs/".$formatteddate.".blocked.csv";
             break;
-        case 'emails':
-            $fileName = "../logs/".$formatteddate.".emails.csv";
+        case 'leads':
+        $tableOutput.="<TD><a href='index.php?password=".$_GET['password'].($date_str!==''?$date_str:'')."#".$field."'>".$field."</a></TD>";
             break;
     }
-
-    //Variable initialization
-    $logLines = array();
-
-    if (file_exists($fileName)) { // File exists
-        if (!$headerSet){
-            $fileLines = file($fileName, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-            //Open the table tag
-            $tableOutput="<TABLE class='table w-auto table-striped'>";
-
-            //Print the table header
-            $tableOutput.="<thead class='thead-dark'>";
-            $tableOutput.="<TR>";
-            $tableOutput.="<TH scope='col'>Row</TH>";
-            //Extract the existing header from the file
-            $lineHeader = array_shift($fileLines);
-            $logOriginalHeader = array_map('trim', str_getcsv(substr($lineHeader, $ignorePreHeader), $delimiter, $enclosure));
-
-            foreach ($logOriginalHeader as $field) {
-                $tableOutput.="<TH scope='col'>".$field."</TH>";
-            } //Add the columns
-            $tableOutput.="</TR></thead><tbody>";
-            $headerSet=true;
-        }
-
-        // Reads lines of file to array
-        $fileLines = file($fileName, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-
-        //Not Empty file
-        if ($fileLines !== array()) {
-
-            //Process the file only if the system could find a valid header
-            if (count($logOriginalHeader) > 0) {
-
-                //Get each line of the array and print the table files
-                array_shift($fileLines);
-                $fileLines = array_reverse($fileLines);
-                foreach ($fileLines as $line) {
-                    if (trim($line) !== '') { //Remove blank lines
-                        $countLines++;
-                        $arrayFields = array_map('trim', str_getcsv($line, $delimiter, $enclosure)); //Convert line to array
-                        $tableOutput.="<TR><TD>".$countLines."</TD>";
-                        $i=0;
-                        foreach ($arrayFields as $field) {
-                            $i++;
-                            if ($i==1 && $filter=='leads') {
-                                $tableOutput.="<TD><a href='index.php?password=".$_GET['password'].($date_str!==''?$date_str:'')."#".$field."'>".$field."</a></TD>";
-                                continue;
-                            }
-                            if ($i==1 && $filter=='') {
-                                $tableOutput.="<TD><a name='".$field."'>".$field."</a></TD>";
-                                continue;
-                            }
-                            $tableOutput.="<TD>".$field."</TD>"; //Add the columns
-                        }
-                        $tableOutput.="</TR>";
-                    }
-                }
-            }
-        }
-    }
-    $date->sub(new DateInterval('P1D'));
+    $tableOutput.="</TR>";
 }
-//Close the table tag
-if (isset($tableOutput)) {
-    $tableOutput.="</tbody></TABLE>";
-}
+
+$tableOutput.="</tbody></TABLE>";
 ?>
 <!doctype html>
 <html lang="en">
@@ -209,13 +171,7 @@ if (isset($tableOutput)) {
                                     </a>
                                 </li>
                                 <li>
-                                    <a title="Почты" href="index.php?filter=emails&password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>">
-                                        <span class="mini-sub-pro">Emails</span>
-                                    </a>
-                                </li>
-
-                                <li>
-                                    <a title="Peity Charts" href="#bottom">
+                                    <a title="Bottom button" href="#bottom">
                                         <span class="mini-sub-pro">Go to bottom</span>
                                     </a>
                                 </li>
@@ -274,10 +230,11 @@ if (isset($tableOutput)) {
                                                             if ($calendsd===$calended) {
                                                             echo $calendsd;
                                                             } else {
-                                                            echo "{$calendsd} - {$calended}";
+                                                                echo "{$calendsd} - {$calended}";
                                                             }
                                                             } else {
-                                                            echo $formatteddate;
+                                                                echo $startdate->format('d.m.y');
+
                                                             } ?>
                                                     </a>
                                                 </li>

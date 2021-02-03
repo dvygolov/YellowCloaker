@@ -11,14 +11,13 @@ if ($log_password!==''&&(empty($_GET['password'])||$_GET['password'] !== $log_pa
     echo 'No Password Given!';
     exit();
 }
-include 'db.php';
 
 //------------------------------------------------
 //Configuration
 //
 $startdate=isset($_GET['startdate'])?DateTime::createFromFormat('d.m.y', $_GET['startdate']):new DateTime();
 $enddate=isset($_GET['enddate'])?DateTime::createFromFormat('d.m.y', $_GET['enddate']):new DateTime();
-$noprelanding= $black_preland_action==='none';
+
 $date_str='';
 if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
     $startstr = $_GET['startdate'];
@@ -26,7 +25,14 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
     $date_str="&startdate={$startstr}&enddate={$endstr}";
 }
 
+$delimiter = ","; //CSV delimiter character: , ; /t
+$enclosure = '"'; //CSV enclosure character: " '
+//------------------------------------------------
+
+//Open the table tag
 $tableOutput="<TABLE class='table w-auto table-striped'>";
+
+//Print the table header
 $tableOutput.="<thead class='thead-dark'>";
 $tableOutput.="<TR>";
 $tableOutput.="<TH scope='col'>Date</TH>";
@@ -43,8 +49,172 @@ $tableOutput.="<TH scope='col'>App% (w/o trash)</TH>";
 $tableOutput.="<TH scope='col'>App% (total)</TH>";
 $tableOutput.="</TR></thead><tbody>";
 
+$lpctr_array = array();
+$lpdest_array=array();
+$landclicks_array=array();
+$landconv_array=array();
+$subs_array=array();
+foreach ($stats_sub_names as $ssn)
+{
+    $subs_array[$ssn["name"]]=[]; 	
+}
+$subid_query=array();
+$query_conversions=array();
+foreach ($stats_sub_names as $ssn)
+{
+    $query_conversions[$ssn["name"]]=[]; 	
+}
 
+$total_clicks=0;
+$total_uniques=0;
+$total_leads=0;
+$total_holds=0;
+$total_purchases=0;
+$total_rejects=0;
+$total_trash=0;
+$total_cr_all=array();
+$total_cr_sales=array();
+$total_app_wo_trash=array();
+$total_app=array();
 
+$noprelanding= $black_preland_action==='none';
+
+$date = $enddate;
+while ($date>=$startdate) {
+    $formatteddate = $date->format('d.m.y');
+    $traf_fn="../logs/".$formatteddate.'.csv';
+    $ctr_fn="../logs/".$formatteddate.'.lpctr.csv';
+    $leads_fn="../logs/".$formatteddate.'.leads.csv';
+
+    // Reads lines of all files to array
+    $traf_file = file_exists($traf_fn)?file($traf_fn, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES):array();
+    array_shift($traf_file);
+    $ctr_file = file_exists($ctr_fn)?file($ctr_fn, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES):array();
+    array_shift($ctr_file);
+    $leads_file = file_exists($leads_fn)?file($leads_fn, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES):array();
+    array_shift($leads_file);
+    $leads_count = ($leads_file===array())?0:count($leads_file);
+    $total_leads+=$leads_count;
+
+    //count unique clicks
+    $sub_land_dest = array();
+    $unique_clicks = array();
+    foreach ($traf_file as $traf_line) {
+        $traf_line_fields = array_map('trim', str_getcsv($traf_line, $delimiter, $enclosure));
+        $cur_subid=$traf_line_fields[0];
+        $land_name=$traf_line_fields[count($traf_line_fields)-1];
+        $lp_name=$traf_line_fields[count($traf_line_fields)-2];
+        $sub_land_dest[$cur_subid]= $land_name;
+        if (!in_array($cur_subid, $unique_clicks)) { //subid в словаре? значит не уник
+            array_push($unique_clicks, $cur_subid);
+        }
+        if (array_key_exists($lp_name, $lpdest_array)) {
+            $lpdest_array[$lp_name]++;
+        } else {
+            $lpdest_array[$lp_name]=1;
+        }
+		//if we don't have prelandings then we should count offer clicks here
+		if ($noprelanding){
+			if (array_key_exists($land_name, $landclicks_array)) {
+				$landclicks_array[$land_name]++;
+			} else {
+				$landclicks_array[$land_name]=1;
+			}
+		}
+
+        //count all subs
+        $query_string=$traf_line_fields[count($traf_line_fields)-3];
+        if (empty($query_string)) continue;
+        $cur_query = explode('&', $query_string);
+        foreach ($cur_query as $query_item) {
+            $qsplit = explode('=', $query_item);
+            $cur_sub_name=urldecode($qsplit[0]);
+            $cur_sub_value = urldecode($qsplit[1]);
+            if (array_key_exists($cur_sub_name,$subs_array)){
+                //для подсчёта лидов и продаж по меткам
+                $subid_query[$cur_subid][$cur_sub_name]=$cur_sub_value;
+
+                if (array_key_exists($cur_sub_value, $subs_array[$cur_sub_name])) {
+                    $subs_array[$cur_sub_name][$cur_sub_value]++;
+                } else {
+                    $subs_array[$cur_sub_name][$cur_sub_value]=1;
+                }
+            }
+        }
+    }
+
+	if (!$noprelanding) //count only if we have prelanders
+	{
+		//count lp ctrs
+		foreach ($ctr_file as $ctr_line) {
+			$ctr_line_fields = array_map('trim', str_getcsv($ctr_line, $delimiter, $enclosure));
+			$lp_name=$ctr_line_fields[count($ctr_line_fields)-1];
+			if ($lp_name=='') {
+				continue;
+			}
+			if (array_key_exists($lp_name, $lpctr_array)) {
+				$lpctr_array[$lp_name]++;
+			} else {
+				$lpctr_array[$lp_name]=1;
+			}
+			//count landing clicks
+			$subid_lp = $ctr_line_fields[0];
+			$dest_land = $sub_land_dest[$subid_lp];
+			if (array_key_exists($dest_land, $landclicks_array)) {
+				$landclicks_array[$dest_land]++;
+			} else {
+				$landclicks_array[$dest_land]=1;
+			}
+		}
+	}
+
+    //count leads
+    $purchase_count=0;
+    $hold_count=0;
+    $reject_count=0;
+    $trash_count=0;
+    foreach ($leads_file as $lead_line) {
+        $lead_line_fields = array_map('trim', str_getcsv($lead_line, $delimiter, $enclosure));
+        $lead_status = $lead_line_fields[count($lead_line_fields)-1];
+        switch ($lead_status) {
+            case 'Lead':
+                $total_holds++;
+                $hold_count++;
+                break;
+            case 'Purchase':
+                $total_purchases++;
+                $purchase_count++;
+                break;
+            case 'Reject':
+                $total_rejects++;
+                $reject_count++;
+                break;
+            case 'Trash':
+                $total_trash++;
+                $trash_count++;
+                break;
+        }
+        $subid_lead = $lead_line_fields[0];
+		if (array_key_exists($subid_lead, $sub_land_dest)){
+			$conv_land= $sub_land_dest[$subid_lead];
+			if (array_key_exists($conv_land, $landconv_array)) {
+				$landconv_array[$conv_land]++;
+			} else {
+				$landconv_array[$conv_land]=1;
+			}
+		}
+
+        if (array_key_exists($subid_lead,$subid_query)){
+            foreach ($subid_query[$subid_lead] as $subkey=>$subvalue)
+            {
+                if (array_key_exists($subvalue, $query_conversions[$subkey])) {
+                    $query_conversions[$subkey][$subvalue]++;
+                } else {
+                    $query_conversions[$subkey][$subvalue]=1;
+                }
+            }
+        }
+    }
 
     //Add all data to main table
     $tableOutput.="<TR>";
@@ -320,13 +490,13 @@ foreach ($subs_array as $sub_key=>$sub_values)
                                                             $calendsd=isset($_GET['startdate'])?$_GET['startdate']:'';
                                                             $calended=isset($_GET['enddate'])?$_GET['enddate']:'';
                                                             if ($calendsd!==''&&$calended!=='') {
-                                                            if ($calendsd===$calended) {
-                                                            echo $calendsd;
+                                                                if ($calendsd===$calended) {
+                                                                    echo $calendsd;
+                                                                } else {
+                                                                    echo "{$calendsd} - {$calended}";
+                                                                }
                                                             } else {
-                                                            echo "{$calendsd} - {$calended}";
-                                                            }
-                                                            } else {
-                                                            echo $formatteddate;
+                                                                echo $formatteddate;
                                                             } ?>
                                                     </a>
                                                 </li>
