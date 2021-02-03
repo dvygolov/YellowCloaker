@@ -9,5 +9,5 @@ require '../core.php';
 include '../db.php';
 
 $cloaker = new Cloaker($os_white,$country_white,$ip_black_filename,$ip_black_cidr,$tokens_black,$url_should_contain,$ua_black,$isp_black,$block_without_referer,$block_vpnandtor);
-add_white_click($cloaker->detect, ['js_tests'], 1, '', '');
+add_white_click($cloaker->detect, ['js_tests']);
 ?>

@@ -86,7 +86,7 @@ function white($use_js_checks)
     return;
 }
 
-function black($clkrdetect, $clkrresult, $check_result)
+function black($clkrdetect, $clkrresult)
 {
     global $black_preland_action,$black_preland_redirect_type, $black_preland_redirect_urls, $black_preland_folder_names;
 	global $black_land_action, $black_land_folder_names, $save_user_flow;
@@ -126,7 +126,7 @@ function black($clkrdetect, $clkrresult, $check_result)
         case 'none':
             $res=select_landing($save_user_flow,$landings);
             $landing=$res[0];
-            add_black_click($cursubid, $clkrdetect, $clkrresult, $check_result, '', $landing);
+            add_black_click($cursubid, $clkrdetect, $clkrresult,'', $landing);
 
             switch ($black_land_action){
                 case 'folder':
@@ -159,13 +159,13 @@ function black($clkrdetect, $clkrresult, $check_result)
                 $t=$res[1];
 
                 echo load_prelanding($prelanding, $t);
-                add_black_click($cursubid, $clkrdetect, $clkrresult, $check_result, $prelanding, $landing);
+                add_black_click($cursubid, $clkrdetect, $clkrresult, $prelanding, $landing);
             }
 			break;
         case 'redirect':
 			$r = rand(0, count($prelandings) - 1);
 			$redirect=$prelandings[$r];
-            add_black_click($cursubid, $clkrdetect, $clkrresult, $check_result, '', $redirect);
+            add_black_click($cursubid, $clkrdetect, $clkrresult, '', $redirect);
             redirect($redirect,$black_preland_redirect_type);
             break;
     }

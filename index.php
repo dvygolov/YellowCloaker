@@ -15,7 +15,7 @@ $cloaker = new Cloaker($os_white,$country_white,$ip_black_filename,$ip_black_cid
 
 //если включен full_cloak_on, то шлём всех на white page, полностью набрасываем плащ)
 if ($tds_mode=='full') {
-    add_white_click($cloaker->detect, ['fullcloak'], 1);
+    add_white_click($cloaker->detect, ['fullcloak']);
     white(false);
     return;
 }
@@ -34,10 +34,10 @@ else{
 
 	if ($check_result == 0 || $tds_mode==='off') { //Обычный юзверь или отключена фильтрация
 		if ($tds_mode==='off') $cloaker->result=['TDS_DISABLED'];
-		black($cloaker->detect, $cloaker->result, $check_result);
+		black($cloaker->detect, $cloaker->result);
 		return;
 	} else { //Обнаружили бота или модера
-		add_white_click($cloaker->detect, $cloaker->result, $check_result);
+		add_white_click($cloaker->detect, $cloaker->result);
 		white(false);
 		return;
 	}
