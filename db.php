@@ -5,7 +5,7 @@ require_once __DIR__."/db/QueryBuilder.php";
 require_once __DIR__."/db/Query.php";
 require_once __DIR__."/db/Cache.php";
 
-function add_white_click($data,$reason,$check_result) {
+function add_white_click($data,$reason) {
     $dataDir = __DIR__ . "/logs";
     $wclicksStore = new \SleekDB\Store("whiteclicks", $dataDir);
 
@@ -33,7 +33,7 @@ function add_white_click($data,$reason,$check_result) {
 	$wclicksStore->insert($click);
 }
 
-function add_black_click($subid,$data,$check_result,$preland,$land) {
+function add_black_click($subid,$data,$preland,$land) {
     $dataDir = __DIR__ . "/logs";
     $bclicksStore = new \SleekDB\Store("blackclicks", $dataDir);
 
@@ -73,8 +73,12 @@ function add_lead($subid,$name,$phone,$status='Lead') {
 
 	if ($status=='') $status='Lead';
 
+	$dt = new DateTime();
+	$time = $dt->getTimestamp();
+
 	$lead=[
 		"subid"=>$subid,
+		"time"=>$time,
 		"name"=>$name,
 		"phone"=>$phone,
 		"status"=>$status,

@@ -29,18 +29,15 @@ $dataDir = __DIR__ . "/../logs";
 switch ($filter) {
     case '':
         $header = ["Subid","IP","Country","ISP","Time","OS","UA","QueryString","Preland","Land"];
-        $store = new \SleekDB\Store("blackclicks", $dataDir);
-        $dataset=$store->findBy([["time",">=",$startdate->getTimestamp()],["time","<=",$enddate->getTimestamp()]]);
+        $dataset=get_black_clicks($startdate->getTimestamp(),$enddate->getTimestamp());
         break;
     case 'leads':
-        $header = ["Subid","Name","Phone","Email","Status","Fbp","Fbclid"];
-        $store = new \SleekDB\Store("blackclicks", $dataDir);
-        $leadsstore = new \SleekDB\Store("leads", $dataDir);
+        $header = ["Subid","Time","Name","Phone","Email","Status","Fbp","Fbclid"];
+        $dataset=get_leads($startdate->getTimestamp(),$enddate->getTimestamp());
         break;
     case 'blocked':
         $header = ["Subid","IP","Country","ISP","Time","Reason","OS","UA","QueryString","White"];
-        $store = new \SleekDB\Store("whiteclicks", $dataDir);
-        $dataset=$store->findBy([["time",">=",$startdate->getTimestamp()],["time","<=",$enddate->getTimestamp()]]);
+        $dataset=get_white_clicks($startdate->getTimestamp(),$enddate->getTimestamp());
         break;
 }
 
@@ -73,9 +70,25 @@ foreach ($dataset as $line) {
             $tableOutput.="<TD>".$line['land']."</TD></TR>";
             break;
         case 'blocked':
+            $tableOutput.="<TD>".$line['subid']."</TD>";
+            $tableOutput.="<TD>".$line['ip']."</TD>";
+            $tableOutput.="<TD>".$line['country']."</TD>";
+            $tableOutput.="<TD>".$line['isp']."</TD>";
+            $tableOutput.="<TD>".date('Y-m-d H:i:s',$line['time'])."</TD>";
+            $tableOutput.="<TD>".implode(',',$line['reason'])."</TD>";
+            $tableOutput.="<TD>".$line['os']."</TD>";
+            $tableOutput.="<TD>".$line['ua']."</TD>";
+            $tableOutput.="<TD>".http_build_query($line['subs'])."</TD>";
             break;
         case 'leads':
-        $tableOutput.="<TD><a href='index.php?password=".$_GET['password'].($date_str!==''?$date_str:'')."#".$field."'>".$field."</a></TD>";
+            $tableOutput.="<TD><a href='index.php?password=".$_GET['password'].($date_str!==''?$date_str:'')."#".$line['subid']."'>".$line['subid']."</a></TD>";
+            $tableOutput.="<TD>".date('Y-m-d H:i:s',$line['time'])."</TD>";
+            $tableOutput.="<TD>".$line['name']."</TD>";
+            $tableOutput.="<TD>".$line['phone']."</TD>";
+            $tableOutput.="<TD>".$line['email']."</TD>";
+            $tableOutput.="<TD>".$line['status']."</TD>";
+            $tableOutput.="<TD>".$line['fbp']."</TD>";
+            $tableOutput.="<TD>".$line['fbclid']."</TD>";
             break;
     }
     $tableOutput.="</TR>";
