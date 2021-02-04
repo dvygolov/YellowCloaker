@@ -132,6 +132,7 @@ function load_landing($url)
     //добавляем в формы id пикселя фб
     $html = insert_fbpixel_id($html);
 
+    $html = fix_anchors($html);
     //заменяем поле с телефоном на более удобный тип - tel
     $html = replace_tel_type($html);
     $html = insert_phone_mask($html);
@@ -186,6 +187,11 @@ function replace_tel_type($html)
 {
     $html = preg_replace('/(<input[^>]*name="(phone|tel)"[^>]*type=")(text)("[^>]*>)/', "\\1tel\\4", $html);
     $html = preg_replace('/(<input[^>]*type=")(text)("[^>]*name="(phone|tel)"[^>]*>)/', "\\1tel\\3", $html);
+    return $html;
+}
+
+function fix_anchors($html){
+    $html = preg_replace('/(<a[^>]+href=")(#[^"]*)/', "\\1../\\2", $html);
     return $html;
 }
 
