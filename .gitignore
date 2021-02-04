@@ -347,3 +347,5 @@ healthchecksdb
 /thankyou/upsell/img
 /logs/leads
 /logs/whiteclicks
+/logs/lpctr
+/selection.txt

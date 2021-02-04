@@ -109,7 +109,11 @@ function add_email($subid,$email){
 function add_lpctr($subid,$preland){
     $dataDir = __DIR__ . "/logs";
     $lpctrStore = new \SleekDB\Store("lpctr", $dataDir);
+	$dt = new DateTime();
+	$time = $dt->getTimestamp();
+
 	$lpctr = [
+		"time"=>$time,
 		"subid"=>$subid,
 		"preland"=>$preland
     ];

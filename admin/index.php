@@ -85,7 +85,7 @@ foreach ($dataset as $line) {
             $tableOutput.="<TD>".date('Y-m-d H:i:s',$line['time'])."</TD>";
             $tableOutput.="<TD>".$line['name']."</TD>";
             $tableOutput.="<TD>".$line['phone']."</TD>";
-            $tableOutput.="<TD>".$line['email']."</TD>";
+            $tableOutput.="<TD>".(empty($line['email'])?'no':$line['email'])."</TD>";
             $tableOutput.="<TD>".$line['status']."</TD>";
             $tableOutput.="<TD>".$line['fbp']."</TD>";
             $tableOutput.="<TD>".$line['fbclid']."</TD>";

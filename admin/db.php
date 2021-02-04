@@ -22,4 +22,10 @@ function get_leads($startdate,$enddate){
     $leadsStore = new \SleekDB\Store("leads", $dataDir);
 	return $leadsStore->findBy([["time",">=",$startdate],["time","<=",$enddate]],["time"=>"desc"]);
 }
+
+function get_lpctr($startdate,$enddate){
+    $dataDir = __DIR__ . "/../logs";
+    $lpctrStore = new \SleekDB\Store("lpctr", $dataDir);
+	return $lpctrStore->findBy([["time",">=",$startdate],["time","<=",$enddate]],["time"=>"desc"]);
+}
 ?>

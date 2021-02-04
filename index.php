@@ -28,13 +28,9 @@ if ($use_js_checks===true) {
 else{
 	//Проверяем зашедшего пользователя
 	$check_result = $cloaker->check();
-	if (!isset($cloaker->result)||count($cloaker->result)==0) {
-		$cloaker->result=['OK'];
-	}
 
 	if ($check_result == 0 || $tds_mode==='off') { //Обычный юзверь или отключена фильтрация
-		if ($tds_mode==='off') $cloaker->result=['TDS_DISABLED'];
-		black($cloaker->detect, $cloaker->result);
+		black($cloaker->detect);
 		return;
 	} else { //Обнаружили бота или модера
 		add_white_click($cloaker->detect, $cloaker->result);

@@ -15,11 +15,6 @@ $cloaker = new Cloaker($os_white,$country_white,$ip_black_filename,$ip_black_cid
 //Проверяем зашедшего пользователя
 $check_result = $cloaker->check();
 
-if (!isset($cloaker->result)||
-     count($cloaker->result)==0) {
-    $cloaker->result=['OK'];
-}
-
 //Добавляем, по какому из js-событий пользователь прошёл сюда
 array_push($cloaker->result,$_GET['reason']);
 
@@ -42,7 +37,7 @@ if ($check_result === 0 || $tds_mode==='off') { //Обычный юзверь и
     else{ //если в настройках JS-подключения у нас подмена или iframe
         header("Access-Control-Expose-Headers: YWBAction", false, 200);
         header("YWBAction: ".$black_jsconnect_action, true, 200);
-        black($cloaker->detect, $cloaker->result);
+        black($cloaker->detect);
 
         if (!headers_sent()) {
             //если в настройках кло для блэка стоит редирект, то для js xhr запроса надо его модифицировать

@@ -44,7 +44,6 @@
     <Compile Include="admin\db.php" />
     <Compile Include="admin\index.php" />
     <Compile Include="admin\statistics.php" />
-    <Compile Include="admin\oldstatistics.php" />
     <Compile Include="admin\savesettings.php" />
     <Compile Include="admin\settings.php" />
     <Compile Include="bases\browser\AcceptLanguage.php" />

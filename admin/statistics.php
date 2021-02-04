@@ -18,7 +18,7 @@ include 'db.php';
 //
 $startdate=isset($_GET['startdate'])?DateTime::createFromFormat('d.m.y', $_GET['startdate']):new DateTime();
 $enddate=isset($_GET['enddate'])?DateTime::createFromFormat('d.m.y', $_GET['enddate']):new DateTime();
-$noprelanding= $black_preland_action==='none';
+
 $date_str='';
 if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
     $startstr = $_GET['startdate'];
@@ -26,7 +26,10 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
     $date_str="&startdate={$startstr}&enddate={$endstr}";
 }
 
+//Open the table tag
 $tableOutput="<TABLE class='table w-auto table-striped'>";
+
+//Print the table header
 $tableOutput.="<thead class='thead-dark'>";
 $tableOutput.="<TR>";
 $tableOutput.="<TH scope='col'>Date</TH>";
@@ -43,13 +46,167 @@ $tableOutput.="<TH scope='col'>App% (w/o trash)</TH>";
 $tableOutput.="<TH scope='col'>App% (total)</TH>";
 $tableOutput.="</TR></thead><tbody>";
 
+$lpctr_array = array();
+$lpdest_array=array();
+$landclicks_array=array();
+$landconv_array=array();
+$subs_array=array();
+foreach ($stats_sub_names as $ssn)
+{
+    $subs_array[$ssn["name"]]=[]; 	
+}
+$subid_query=array();
+$query_conversions=array();
+foreach ($stats_sub_names as $ssn)
+{
+    $query_conversions[$ssn["name"]]=[]; 	
+}
 
+$total_clicks=0;
+$total_uniques=0;
+$total_leads=0;
+$total_holds=0;
+$total_purchases=0;
+$total_rejects=0;
+$total_trash=0;
+$total_cr_all=array();
+$total_cr_sales=array();
+$total_app_wo_trash=array();
+$total_app=array();
 
+$noprelanding= $black_preland_action==='none';
+
+$date = $enddate;
+while ($date>=$startdate) {
+
+    $ts=$date->getTimestamp();
+    $curstart=date_create("@$ts");
+    $curstart->setTime(0,0,0);
+    $curend=date_create("@$ts");
+    $curend->setTime(23,59,59);
+    $formatteddate = $date->format('d.m.y');
+    $day_traf=get_black_clicks($curstart->getTimestamp(),$curend->getTimestamp());
+    $day_ctr=get_lpctr($curstart->getTimestamp(),$curend->getTimestamp());
+    $day_leads=get_leads($curstart->getTimestamp(),$curend->getTimestamp());
+
+    $leads_count = ($day_leads===array())?0:count($day_leads);
+    $total_leads+=$leads_count;
+
+    //count unique clicks
+    $sub_land_dest = array();
+    $unique_clicks = array();
+    foreach ($day_traf as $titem) {
+        $cur_subid=$titem['subid'];
+        $land_name=$titem['land'];
+        $lp_name=$titem['preland'];
+        $sub_land_dest[$cur_subid]= $land_name;
+        if (!in_array($cur_subid, $unique_clicks)) { //subid в словаре? значит не уник
+            array_push($unique_clicks, $cur_subid);
+        }
+        if (array_key_exists($lp_name, $lpdest_array)) {
+            $lpdest_array[$lp_name]++;
+        } else {
+            $lpdest_array[$lp_name]=1;
+        }
+		//if we don't have prelandings then we should count offer clicks here
+		if ($noprelanding){
+			if (array_key_exists($land_name, $landclicks_array)) {
+				$landclicks_array[$land_name]++;
+			} else {
+				$landclicks_array[$land_name]=1;
+			}
+		}
+
+        //count all subs
+        $qs=$titem['subs'];
+        if (empty($qs)) continue;
+        foreach ($qs as $qkey=>$qvalue) {
+            if (array_key_exists($qkey,$subs_array)){
+                //для подсчёта лидов и продаж по меткам
+                $subid_query[$cur_subid][$qkey]=$qvalue;
+
+                if (array_key_exists($qvalue, $subs_array[$qkey])) {
+                    $subs_array[$qkey][$qvalue]++;
+                } else {
+                    $subs_array[$qkey][$qvalue]=1;
+                }
+            }
+        }
+    }
+
+	if (!$noprelanding) //count only if we have prelanders
+	{
+		//count lp ctrs
+		foreach ($day_ctr as $ctritem) {
+			$lp_name=$ctritem['preland'];
+			if ($lp_name=='') continue; 
+			if (array_key_exists($lp_name, $lpctr_array)) {
+				$lpctr_array[$lp_name]++;
+			} else {
+				$lpctr_array[$lp_name]=1;
+			}
+			//count landing clicks
+			$subid_lp = $ctritem['subid'];
+			$dest_land = $sub_land_dest[$subid_lp];
+			if (array_key_exists($dest_land, $landclicks_array)) {
+				$landclicks_array[$dest_land]++;
+			} else {
+				$landclicks_array[$dest_land]=1;
+			}
+		}
+	}
+
+    //count leads
+    $purchase_count=0;
+    $hold_count=0;
+    $reject_count=0;
+    $trash_count=0;
+    foreach ($day_leads as $leaditem) {
+        $lead_status = $leaditem['status'];
+        switch ($lead_status) {
+            case 'Lead':
+                $total_holds++;
+                $hold_count++;
+                break;
+            case 'Purchase':
+                $total_purchases++;
+                $purchase_count++;
+                break;
+            case 'Reject':
+                $total_rejects++;
+                $reject_count++;
+                break;
+            case 'Trash':
+                $total_trash++;
+                $trash_count++;
+                break;
+        }
+        $subid_lead = $leaditem['subid'];
+		if (array_key_exists($subid_lead, $sub_land_dest)){
+			$conv_land= $sub_land_dest[$subid_lead];
+			if (array_key_exists($conv_land, $landconv_array)) {
+				$landconv_array[$conv_land]++;
+			} else {
+				$landconv_array[$conv_land]=1;
+			}
+		}
+
+        if (array_key_exists($subid_lead,$subid_query)){
+            foreach ($subid_query[$subid_lead] as $subkey=>$subvalue)
+            {
+                if (array_key_exists($subvalue, $query_conversions[$subkey])) {
+                    $query_conversions[$subkey][$subvalue]++;
+                } else {
+                    $query_conversions[$subkey][$subvalue]=1;
+                }
+            }
+        }
+    }
 
     //Add all data to main table
     $tableOutput.="<TR>";
     $tableOutput.="<TD scope='col'>".$date->format('d.m.y')."</TD>";
-    $clicks = count($traf_file)==0?0:count($traf_file);
+    $clicks = count($day_traf)==0?0:count($day_traf);
     $total_clicks+=$clicks;
     $tableOutput.="<TD scope='col'>".$clicks."</TD>";
     $unique_clicks_count = count($unique_clicks);
@@ -320,13 +477,13 @@ foreach ($subs_array as $sub_key=>$sub_values)
                                                             $calendsd=isset($_GET['startdate'])?$_GET['startdate']:'';
                                                             $calended=isset($_GET['enddate'])?$_GET['enddate']:'';
                                                             if ($calendsd!==''&&$calended!=='') {
-                                                            if ($calendsd===$calended) {
-                                                            echo $calendsd;
+                                                                if ($calendsd===$calended) {
+                                                                    echo $calendsd;
+                                                                } else {
+                                                                    echo "{$calendsd} - {$calended}";
+                                                                }
                                                             } else {
-                                                            echo "{$calendsd} - {$calended}";
-                                                            }
-                                                            } else {
-                                                            echo $formatteddate;
+                                                                echo $formatteddate;
                                                             } ?>
                                                     </a>
                                                 </li>
