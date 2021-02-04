@@ -73,7 +73,7 @@
                     "use": true,
                     "language": "RU",
                     "upsell": {
-                        "use": true,
+                        "use": false,
                         "imgdir": "img",
                         "header": "This is a header!",
                         "text": "This is a text!",
@@ -100,9 +100,9 @@
         },
         "fb": {
             "subname": "px",
-            "pageview": false,
+            "pageview": true,
             "viewcontent": {
-                "use": false,
+                "use": true,
                 "time": 30,
                 "percent": 75
             },
@@ -141,14 +141,14 @@
                 "tokens": [
                     ""
                 ],
-              "useragents": [
-                "facebook",
-                "Facebot",
-                "curl",
-                "gce-spider",
-                "yandex.com/bots",
-                "OdklBot"
-              ],
+                "useragents": [
+                    "facebook",
+                    "Facebot",
+                    "curl",
+                    "gce-spider",
+                    "yandex.com/bots",
+                    "OdklBot"
+                ],
                 "isps": [
                     "facebook",
                     "google",
@@ -178,8 +178,8 @@
             "url": "https://ya.ru"
         },
         "phonemask": {
-            "use": false,
-            "mask": "+421 999 999 999"
+            "use": true,
+            "mask": "+7(\\\\999)999-99-99"
         },
         "comebacker": false,
         "callbacker": false,
@@ -188,31 +188,35 @@
     "subids": [
         {
             "name": "subid",
-            "rewrite": "sub_id"
+            "rewrite": "sub1"
         },
         {
-            "name": "prelanding",
-            "rewrite": "utm_source"
+            "name": "adn",
+            "rewrite": "sub2"
         },
         {
-            "name": "cn",
-            "rewrite": "utm_campaign"
+            "name": "ad",
+            "rewrite": "sub3"
         },
         {
-            "name": "an",
-            "rewrite": "utm_content"
+            "name": "pl",
+            "rewrite": "sub4"
         }
     ],
     "statistics": {
         "password": 12345,
         "subnames": [
             {
-                "name": "px",
-                "value": "Pixel"
-            },
-            {
                 "name": "adn",
                 "value": "Adset"
+            },
+            {
+                "name": "ad",
+                "value": "Creative"
+            },
+            {
+                "name": "pl",
+                "value": "Placement"
             }
         ],
         "postback": {
