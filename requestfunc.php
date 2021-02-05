@@ -43,7 +43,7 @@ function get_request_headers($ispost=false){
 				'X-REAL-IP: '.$ip,
 				'REMOTE-ADDR: '.$ip);
     if ($ispost)
-        array_push($headers,"Content-Type: application/x-www-form-urlencoded");
+        $headers[]="Content-Type: application/x-www-form-urlencoded";
     return $headers;
 }
 

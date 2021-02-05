@@ -18,7 +18,7 @@ class Cloaker{
 	var $block_without_referer;
     var $block_vpnandtor;
     var $isp_black;
-    var $result;
+    var $result=[];
 
 	public function __construct($os_white,$country_white,$ip_black_filename,$ip_black_cidr,$tokens_black,$url_should_contain,$ua_black,$isp_black,$block_without_referer,$block_vpnandtor){
 		$this->os_white = $os_white;

@@ -101,7 +101,7 @@ while ($date>=$startdate) {
         $lp_name=$titem['preland'];
         $sub_land_dest[$cur_subid]= $land_name;
         if (!in_array($cur_subid, $unique_clicks)) { //subid в словаре? значит не уник
-            array_push($unique_clicks, $cur_subid);
+            $unique_clicks[]= $cur_subid;
         }
         if (array_key_exists($lp_name, $lpdest_array)) {
             $lpdest_array[$lp_name]++;
@@ -218,16 +218,16 @@ while ($date>=$startdate) {
     $tableOutput.="<TD scope='col'>".$reject_count."</TD>";
     $tableOutput.="<TD scope='col'>".$trash_count."</TD>";
     $cr_all = $unique_clicks_count==0?0:$leads_count/$unique_clicks_count*100;
-    array_push($total_cr_all, $cr_all);
+    $total_cr_all[]= $cr_all;
     $tableOutput.="<TD scope='col'>".number_format($cr_all, 2, '.', '')."</TD>";
     $cr_sales = $unique_clicks_count==0?0:$purchase_count/$unique_clicks_count*100;
-    array_push($total_cr_sales, $cr_sales);
+    $total_cr_sales[]= $cr_sales;
     $tableOutput.="<TD scope='col'>".number_format($cr_sales, 2, '.', '')."</TD>";
     $approve_wo_trash = ($leads_count-$trash_count==0)?0:$purchase_count*100/($leads_count-$trash_count);
-    array_push($total_app_wo_trash, $approve_wo_trash);
+    $total_app_wo_trash[]= $approve_wo_trash;
     $tableOutput.="<TD scope='col'>".number_format($approve_wo_trash, 2, '.', '')."</TD>";
     $approve = $leads_count==0?0:$purchase_count*100/$leads_count;
-    array_push($total_app, $approve);
+    $total_app[]= $approve;
     $tableOutput.="<TD scope='col'>".number_format($approve, 2, '.', '')."</TD>";
     $tableOutput.="</TR>";
     $date->sub(new DateInterval('P1D'));
@@ -325,7 +325,7 @@ foreach ($subs_array as $sub_key=>$sub_values)
         $subTableOutput.="</TR>";
     }
     $subTableOutput.="</tbody></TABLE>";
-    array_push($subs_tables,$subTableOutput);
+    $subs_tables[]=$subTableOutput;
 }
 ?>
 <!doctype html>
