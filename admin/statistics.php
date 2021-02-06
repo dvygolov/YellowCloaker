@@ -415,13 +415,7 @@ foreach ($subs_array as $sub_key=>$sub_values)
                                     </a>
                                 </li>
                                 <li>
-                                    <a title="Почты" href="index.php?filter=emails&password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>">
-                                        <span class="mini-sub-pro">Emails</span>
-                                    </a>
-                                </li>
-
-                                <li>
-                                    <a title="Peity Charts" href="#bottom">
+                                    <a title="Bottom" href="#bottom">
                                         <span class="mini-sub-pro">Go to bottom</span>
                                     </a>
                                 </li>
