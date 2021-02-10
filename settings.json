@@ -131,6 +131,10 @@
                 ],
                 "inurl": [
                     ""
+                ],
+                "languages": [
+                    "ru",
+                    "en"
                 ]
             },
             "blocked": {
@@ -158,7 +162,12 @@
                     "digitalocean",
                     "microsoft"
                 ],
-                "withoutreferer": false,
+                "referer": {
+                    "empty": false,
+                    "stopwords": [
+                        ""
+                    ]
+                },
                 "vpntor": false
             }
         }

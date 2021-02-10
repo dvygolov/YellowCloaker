@@ -3,26 +3,33 @@ require 'bases/browser/DetectorInterface.php';
 require 'bases/browser/UserAgent.php';
 require 'bases/browser/Os.php';
 require 'bases/browser/OsDetector.php';
+require 'bases/browser/AcceptLanguage.php';
+require 'bases/browser/Language.php';
+require 'bases/browser/LanguageDetector.php';
 require 'bases/iputils.php';
 require 'bases/ipcountry.php';
 use Sinergi\BrowserDetector\Os;
+use Sinergi\BrowserDetector\Language;
 
 class Cloaker{
 	var $os_white;
 	var $country_white;
+	var $lang_white;
 	var $tokens_black;
 	var $url_should_contain;
 	var $ua_black;
 	var $ip_black_filename;
 	var $ip_black_cidr;
 	var $block_without_referer;
+	var $referer_stopwords;
     var $block_vpnandtor;
     var $isp_black;
     var $result=[];
 
-	public function __construct($os_white,$country_white,$ip_black_filename,$ip_black_cidr,$tokens_black,$url_should_contain,$ua_black,$isp_black,$block_without_referer,$block_vpnandtor){
+	public function __construct($os_white,$country_white,$lang_white,$ip_black_filename,$ip_black_cidr,$tokens_black,$url_should_contain,$ua_black,$isp_black,$block_without_referer,$referer_stopwords,$block_vpnandtor){
 		$this->os_white = $os_white;
 		$this->country_white = $country_white;
+		$this->lang_white=$lang_white;
 		$this->ip_black_filename = $ip_black_filename;
         $this->ip_black_cidr = $ip_black_cidr;
 		$this->tokens_black = $tokens_black;
@@ -30,6 +37,7 @@ class Cloaker{
 		$this->ua_black = $ua_black;
 		$this->isp_black = $isp_black;
 		$this->block_without_referer = $block_without_referer;
+		$this->referer_stopwords = $referer_stopwords;
 		$this->block_vpnandtor = $block_vpnandtor;
 		$this->detect();
 	}
@@ -37,13 +45,16 @@ class Cloaker{
 	public function detect(){
 		$a['os']='Unknown';
 		$a['country']='Unknown';
+		$a['language']='Unknown';
 		if(isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])){
-			$a['referer']=1;
+			$a['referer']=$_SERVER['HTTP_REFERER'];
 		}
 		else{
-			$a['referer']=0;
+			$a['referer']='';
 		}
 
+		$lang=new Language();
+		$a['lang']=$lang->getLanguage();
 		$os = new Os();
 	    $a['os']=$os->getName();
 		$a['ip'] = getip();
@@ -134,9 +145,28 @@ class Cloaker{
 			$this->result[]='country';
 		}
 
-		if($this->block_without_referer===true && (int)$this->detect['referer']==0){
+		$lang_white_checker = in_array($this->detect['lang'],$this->lang_white);
+		if($this->lang_white!=[] &&
+			in_array('any',$this->lang_white)===false &&
+			$lang_white_checker===false){
+			$result=1;
+			$this->result[]='language';
+		}
+
+		if($this->block_without_referer===true && (int)$this->detect['referer']===''){
 			$result=1;
 			$this->result[]='referer';
+		}
+
+		if($this->referer_stopwords!==[] &&$this->detect['referer']!==''){
+			foreach($this->referer_stopwords AS $stop){
+				if ($stop==='')continue;
+				if (strpos($this->detect['referer'],$stop)!==false){
+					$result=1;
+					$this->result[]='refstop:'.$stop;
+					break;
+				}
+			}
 		}
 
 		if($this->tokens_black!==[]){

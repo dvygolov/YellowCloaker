@@ -1198,6 +1198,19 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
 
                                                     <div class="form-group-inner">
                                                         <div class="row">
+                                                            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+                                                                <label class="login2 pull-left pull-left-pro">Список разрешённых языков: <small>(any или пустое значение для всех языков)</small></label>
+                                                            </div>
+                                                            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+                                                                <div class="input-group custom-go-button">
+                                                                    <input type="text" name="tds.filters.allowed.languages" class="form-control" placeholder="en,ru,de" value="<?=implode(',',$lang_white)?>">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group-inner">
+                                                        <div class="row">
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                                                                 <label class="login2 pull-left pull-left-pro">Имя файла дополнительной базы с запрещёнными IP-адресами <small>файл должен лежать в папке bases</small></label>
                                                             </div>
@@ -1299,7 +1312,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-																						<input type="radio" <?=$block_without_referer===false?'checked':''?> value="false" name="tds.filters.blocked.withoutreferer"> Нет </label>
+																						<input type="radio" <?=$block_without_referer===false?'checked':''?> value="false" name="tds.filters.blocked.referer.empty"> Нет </label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -1307,10 +1320,23 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-																						<input type="radio" <?=$block_without_referer===true?'checked':''?> value="true" name="tds.filters.blocked.withoutreferer"> Да </label>
+																						<input type="radio" <?=$block_without_referer===true?'checked':''?> value="true" name="tds.filters.blocked.referer.empty"> Да </label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group-inner">
+                                                        <div class="row">
+                                                            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+                                                                <label class="login2 pull-left pull-left-pro">Слова через запятую, при наличии которых в реферере, юзер будет отправлен на whitepage</label>
+                                                            </div>
+                                                            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+                                                                <div class="input-group custom-go-button">
+                                                                    <input type="text" name="tds.filters.blocked.referer.stopwords" class="form-control" placeholder="adheart" value="<?=implode(',',$referer_stopwords)?>">
                                                                 </div>
                                                             </div>
                                                         </div>

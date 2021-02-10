@@ -64,13 +64,15 @@ $save_user_flow = $conf['tds.saveuserflow'];
 $os_white = $conf['tds.filters.allowed.os'];
 $country_white = $conf['tds.filters.allowed.countries'];
 $url_should_contain =$conf['tds.filters.allowed.inurl'];
+$lang_white = $conf['tds.filters.allowed.languages'];
 
 $ip_black_filename = $conf->get('tds.filters.blocked.ips.filename','');
 $ip_black_cidr = $conf->get('tds.filters.blocked.ips.cidrformat',false);
 $tokens_black = $conf['tds.filters.blocked.tokens'];
 $ua_black = $conf['tds.filters.blocked.useragents'];
 $isp_black = $conf['tds.filters.blocked.isps'];
-$block_without_referer = $conf['tds.filters.blocked.withoutreferer'];
+$block_without_referer = $conf['tds.filters.blocked.referer.empty'];
+$referer_stopwords = $conf['tds.filters.blocked.referer.stopwords'];
 $block_vpnandtor = $conf['tds.filters.blocked.vpntor'];
 
 $back_button_action = $conf['scripts.back.action'];
