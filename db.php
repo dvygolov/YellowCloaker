@@ -44,8 +44,8 @@ function add_black_click($subid,$data,$preland,$land) {
 	$os = $data['os'];
 	$isp = str_replace(',',' ',$data['isp']);
 	$user_agent = str_replace(',',' ',$data['ua']);
-	$prelanding=isset($_COOKIE['prelanding'])?$_COOKIE['prelanding']:'unknown';
-	$landing=isset($_COOKIE['landing'])?$_COOKIE['landing']:'unknown';
+	$prelanding=empty($preland)?'unknown':$preland;
+	$landing=empty($land)?'unknown':$land;
 
 	parse_str($_SERVER['QUERY_STRING'],$queryarr);
 
