@@ -372,7 +372,7 @@ function insert_gtm_script($html)
         return $html;
     }
 
-    return insert_file_content_with_replace($html,'gtmlcode.js','</head>','{GTMID}',$gtm_id);
+    return insert_file_content_with_replace($html,'gtmcode.js','</head>','{GTMID}',$gtm_id);
 }
 
 //если задан ID Yandex Metrika, то вставляем её скрипт
