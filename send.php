@@ -29,11 +29,12 @@ if ($name===''||$phone===''){
     return;
 }
 
-$is_duplicate = lead_is_duplicate($subid,$phone);
-
+$is_duplicate=has_conversion_cookie($name,$phone);
 //устанавливаем пользователю в куки его имя и телефон, чтобы показать их на стр Спасибо
+//также ставим куки даты конверсии
 ywbsetcookie('name',$name,'/');
 ywbsetcookie('phone',$phone,'/');
+ywbsetcookie('ctime',$ts,'/');
 
 //шлём в ПП только если это не дубль
 if (!$is_duplicate){

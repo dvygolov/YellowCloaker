@@ -7,9 +7,12 @@ use SleekDB\Exceptions\InvalidPropertyAccessException;
 use SleekDB\Exceptions\IOException;
 use Exception;
 use Throwable;
+use SleekDB\Traits\IoHelperTrait;
 
 class Query
 {
+
+  use IoHelperTrait;
 
   protected $storePath;
 
@@ -28,6 +31,9 @@ class Query
   const DELETE_RETURN_COUNT = 1;
 
   protected $primaryKey;
+
+  protected $retrieveOneDocument;
+  protected $reduceResultAndJoinPossible;
 
   /**
    * Query constructor.
@@ -68,21 +74,8 @@ class Query
    */
   public function fetch(): array
   {
-    $this->updateCacheTokenArray(['oneDocument' => false]);
-
-    $results = $this->getCacheContent();
-
-    if($results !== null) {
-      return $results;
-    }
-
-    $results = $this->findStoreDocuments();
-
-    $this->joinData($results);
-
-    $this->setCacheContent($results);
-
-    return $results;
+    $this->setRetrieveOneDocument(false);
+    return $this->getResults();
   }
 
   /**
@@ -107,18 +100,27 @@ class Query
    */
   public function first(): array
   {
-    $this->updateCacheTokenArray(['oneDocument' => true]);
+    $this->setRetrieveOneDocument(true);
+    return $this->getResults();
+  }
 
+  /**
+   * @return array
+   * @throws IOException
+   * @throws InvalidArgumentException
+   * @throws InvalidPropertyAccessException
+   */
+  private function getResults(): array
+  {
     $results = $this->getCacheContent();
     if($results !== null) {
       return $results;
     }
 
-    $results = $this->findStoreDocuments(true);
+    $this->setReduceResultAndJoinPossible(true);
+    $results = $this->findStoreDocuments();
 
-    $this->joinData($results);
-
-    if (count($results) > 0) {
+    if ($this->retrieveOneDocument === true && count($results) > 0) {
       list($item) = $results;
       $results = $item;
     }
@@ -131,37 +133,79 @@ class Query
   /**
    * Update one or multiple documents, based on current query
    * @param array $updatable
-   * @return bool
+   * @param bool $returnUpdatedDocuments
+   * @return array|bool
    * @throws InvalidArgumentException
    * @throws IOException
    * @throws InvalidPropertyAccessException
    */
-  public function update(array $updatable): bool
+  public function update(array $updatable, bool $returnUpdatedDocuments = false)
   {
+    $this->setRetrieveOneDocument(false);
+    $this->setReduceResultAndJoinPossible(false);
     $results = $this->findStoreDocuments();
+
+    $primaryKey = $this->primaryKey;
+
     // If no documents found return false.
     if (empty($results)) {
       return false;
     }
-
-    $primaryKey = $this->primaryKey;
-
     foreach ($results as $data) {
-      foreach ($updatable as $key => $value) {
-        // Do not update the primary key reserved index of a store.
-        if ($key !== $primaryKey) {
-          $data[$key] = $value;
-        }
-      }
-      $storePath = $this->_getStoreDataPath() . $data[$primaryKey] . '.json';
-      if (file_exists($storePath)) {
-        // Wait until it's unlocked, then update data.
-        $this->_checkWrite($storePath);
-        file_put_contents($storePath, json_encode($data), LOCK_EX);
+      $filePath = $this->_getStoreDataPath() . $data[$primaryKey] . '.json';
+      if(!file_exists($filePath)){
+        return false;
       }
     }
+
+    $updateNestedValue = static function (array $keysArray, $oldData, $newValue, int $originalKeySize) use (&$updateNestedValue){
+      if(empty($keysArray)){
+        return $newValue;
+      }
+      $currentKey = $keysArray[0];
+      $result[$currentKey] = $oldData;
+      if(!is_array($oldData) || !array_key_exists($currentKey, $oldData)){
+        $result[$currentKey] = $updateNestedValue(array_slice($keysArray, 1), $oldData, $newValue, $originalKeySize);
+        if(count($keysArray) !== $originalKeySize){
+          return $result;
+        }
+      }
+      foreach ($oldData as $key => $item){
+        if($key !== $currentKey){
+          $result[$key] = $oldData[$key];
+        } else {
+          $result[$currentKey] = $updateNestedValue(array_slice($keysArray, 1), $oldData[$currentKey], $newValue, $originalKeySize);
+        }
+      }
+      return $result;
+    };
+
+    foreach ($results as $key => $data){
+      $filePath = $this->_getStoreDataPath() . $data[$primaryKey] . '.json';
+      foreach ($updatable as $value) {
+        // Do not update the primary key reserved index of a store.
+        if ($key !== $primaryKey) {
+          $fieldNameArray = explode(".", $key);
+          if(count($fieldNameArray) > 1){
+            if(array_key_exists($fieldNameArray[0], $data)){
+              $oldData = $data[$fieldNameArray[0]];
+              $fieldNameArraySliced = array_slice($fieldNameArray, 1);
+              $value = $updateNestedValue($fieldNameArraySliced, $oldData, $value, count($fieldNameArraySliced));
+            } else {
+              $oldData = $data;
+              $value = $updateNestedValue($fieldNameArray, $oldData, $value, count($fieldNameArray));
+              $data = $value;
+              continue;
+            }
+          }
+          $data[$fieldNameArray[0]] = $value;
+        }
+      }
+      self::writeContentToFile($filePath, json_encode($data));
+      $results[$key] = $data;
+    }
     $this->cache->deleteAllWithNoLifetime();
-    return true;
+    return ($returnUpdatedDocuments === true) ? $results : true;
   }
 
   /**
@@ -174,8 +218,9 @@ class Query
    */
   public function delete(int $returnOption = self::DELETE_RETURN_BOOL)
   {
+    $this->setRetrieveOneDocument(false);
+    $this->setReduceResultAndJoinPossible(false);
     $results = $this->findStoreDocuments();
-    $returnValue = null;
 
     $primaryKey = $this->primaryKey;
 
@@ -190,25 +235,24 @@ class Query
         $returnValue = $results;
         break;
       default:
-        throw new InvalidArgumentException("return option \"$returnOption\" is not supported");
+        throw new InvalidArgumentException("Return option \"$returnOption\" is not supported");
     }
 
-    if (!empty($results)) {
-      foreach ($results as $key => $data) {
-        $filePath = $this->_getStoreDataPath() . $data[$primaryKey] . '.json';
-        if (file_exists($filePath) && false === @unlink($filePath)) {
-          throw new IOException(
-            'Unable to delete document! 
+    if (empty($results)) {
+      return $returnValue;
+    }
+
+    foreach ($results as $key => $data) {
+      $filePath = $this->_getStoreDataPath() . $data[$primaryKey] . '.json';
+      if(false === self::deleteFile($filePath)){
+        throw new IOException(
+          'Unable to delete document! 
             Already deleted documents: '.$key.'. 
             Location: "' . $filePath .'"'
-          );
-        }
+        );
       }
     }
-
-
-    $this->cache->deleteAllWithNoLifetime();
-
+    $this->getCache()->deleteAllWithNoLifetime();
     return $returnValue;
   }
 
@@ -236,15 +280,10 @@ class Query
     $regenerateCache = $this->getQueryBuilderProperty("regenerateCache");
 
     if($useCache === true){
-      $cache = $this->getCache();
-
-
       if($regenerateCache === true) {
-        $cache->delete();
+        $this->getCache()->delete();
       }
-
-      $cacheResults = $cache->get();
-
+      $cacheResults = $this->getCache()->get();
       if(is_array($cacheResults)) {
         return $cacheResults;
       }
@@ -262,8 +301,7 @@ class Query
   {
     $useCache = $this->getQueryBuilderProperty("useCache");
     if($useCache === true){
-      $cache = $this->getCache();
-      $cache->set($results);
+      $this->getCache()->set($results);
     }
   }
 
@@ -292,12 +330,31 @@ class Query
           throw new InvalidArgumentException("Invalid join query.");
         }
 
-        // TODO discuss if that is a good idea -> would be inconsistent
-        //  if(count($joinResult) === 1) $joinResult = $joinResult[0];
-
         // Add child documents with the current document.
         $results[$key][$dataPropertyName] = $joinResult;
       }
+    }
+  }
+
+  /**
+   * @param $value
+   * @return int
+   * @throws InvalidArgumentException
+   */
+  private static function convertValueToTimeStamp($value): int
+  {
+    $value = (is_string($value)) ? trim($value) : $value;
+    try{
+      return (new \DateTime($value))->getTimestamp();
+    } catch (Exception $exception){
+      $value = (!is_object($value) && !is_array($value))
+        ? $value
+        : gettype($value);
+      throw new InvalidArgumentException(
+        "DateTime object given as value to check against. "
+        . "Could not convert value of field stored in the database into DateTime. "
+        . "Value of field: $value"
+      );
     }
   }
 
@@ -310,7 +367,21 @@ class Query
    */
   private function verifyWhereConditions(string $condition, $fieldValue, $value): bool
   {
-    switch (strtolower(trim($condition))){
+
+    if($value instanceof \DateTime){
+      // compare timestamps
+
+      // null, false or an empty string will convert to current date and time.
+      // That is not what we want.
+      if(empty($fieldValue)){
+        return false;
+      }
+      $value = $value->getTimestamp();
+      $fieldValue = self::convertValueToTimeStamp($fieldValue);
+    }
+
+    $condition = strtolower(trim($condition));
+    switch ($condition){
       case "=":
         return ($fieldValue === $value);
       case "!=":
@@ -323,7 +394,12 @@ class Query
         return ($fieldValue < $value);
       case "<=":
         return ($fieldValue <= $value);
+      case "not like":
       case "like":
+
+        if(!is_string($value)){
+          throw new InvalidArgumentException("When using \"LIKE\" or \"NOT LIKE\" the value has to be a string.");
+        }
 
         // escape characters that are part of regular expression syntax
         // https://www.php.net/manual/en/function.preg-quote.php
@@ -331,34 +407,86 @@ class Query
         // so we will not escape them: [ ^ ] -
         $charactersToEscape = [".", "\\", "+", "*", "?", "$", "(", ")", "{", "}", "=", "!", "<", ">", "|", ":",  "#"];
         foreach ($charactersToEscape as $characterToEscape){
-          $value = str_replace($characterToEscape, "\\".$characterToEscape, $value); // zero or more characters
+          $value = str_replace($characterToEscape, "\\".$characterToEscape, $value);
         }
-
 
         $value = str_replace(array('%', '_'), array('.*', '.{1}'), $value); // (zero or more characters) and (single character)
         $pattern = "/^" . $value . "$/i";
-        return (preg_match($pattern, $fieldValue) === 1);
+        $result = (preg_match($pattern, $fieldValue) === 1);
+        return ($condition === "not like") ? !$result : $result;
 
+      case "not in":
+      case "in":
+        if(!is_array($value)){
+          $value = (!is_object($value) && !is_array($value) && !is_null($value)) ? $value : gettype($value);
+          throw new InvalidArgumentException("When using \"in\" and \"not in\" you have to check against an array. Got: $value");
+        }
+        if(!empty($value)){
+          (list($firstElement) = $value);
+          if($firstElement instanceof \DateTime){
+            // if the user wants to use DateTime, every element of the array has to be an DateTime object.
+
+            // compare timestamps
+
+            // null, false or an empty string will convert to current date and time.
+            // That is not what we want.
+            if(empty($fieldValue)){
+              return false;
+            }
+
+            foreach ($value as $key => $item){
+              if(!($item instanceof \DateTime)){
+                throw new InvalidArgumentException("If one DateTime object is given in an \"IN\" or \"NOT IN\" comparison, every element has to be a DateTime object!");
+              }
+              $value[$key] = $item->getTimestamp();
+            }
+
+            $fieldValue = self::convertValueToTimeStamp($fieldValue);
+          }
+        }
+        $result = in_array($fieldValue, $value, true);
+        return ($condition === "not in") ? !$result : $result;
+      case "not between":
+      case "between":
+
+        if(!is_array($value) || ($valueLength = count($value)) !== 2){
+          $value = (!is_object($value) && !is_array($value) && !is_null($value)) ? $value : gettype($value);
+          if(isset($valueLength)){
+            $value .= " | Length: $valueLength";
+          }
+          throw new InvalidArgumentException("When using \"between\" you have to check against an array with a length of 2. Got: $value");
+        }
+
+        list($startValue, $endValue) = $value;
+
+        $result = (
+          $this->verifyWhereConditions(">=", $fieldValue, $startValue)
+          && $this->verifyWhereConditions("<=", $fieldValue, $endValue)
+        );
+
+        return ($condition === "not between") ? !$result : $result;
       default:
-        throw new InvalidArgumentException("Condition \"$condition\" is not allowed");
+        throw new InvalidArgumentException("Condition \"$condition\" is not allowed.");
     }
   }
 
   /**
-   * @param bool $getOneDocument
    * @return array
    * @throws InvalidArgumentException
    * @throws InvalidPropertyAccessException
    * @throws IOException
    */
-  private function findStoreDocuments(bool $getOneDocument = false): array
+  private function findStoreDocuments(): array
   {
+    $getOneDocument = $this->retrieveOneDocument;
     $found = [];
     // Start collecting and filtering data.
     $storeDataPath = $this->_getStoreDataPath();
-    $this->_checkRead($storeDataPath);
+    self::_checkRead($storeDataPath);
 
-    $primaryKey = $this->primaryKey;
+    $conditions = $this->getQueryBuilderProperty("conditions");
+    $distinctFields = $this->getQueryBuilderProperty("distinctFields");
+    $reduceResultAndJoinPossible = $this->reduceResultAndJoinPossible;
 
     if ($handle = opendir($storeDataPath)) {
 
@@ -370,17 +498,13 @@ class Query
 
         $documentPath = $storeDataPath . $entry;
 
-        $this->_checkRead($documentPath);
-
-        $data = "";
-        $fp = fopen($documentPath, 'rb');
-        if(flock($fp, LOCK_SH)){
-          $data = @json_decode(@stream_get_contents($fp), true); // get document by path
+        try{
+          $data = self::getFileContent($documentPath);
+        } catch (Exception $exception){
+          continue;
         }
-        flock($fp, LOCK_UN);
-        fclose($fp);
-
-        if (empty($data)) {
+        $data = @json_decode($data, true);
+        if (!is_array($data)) {
           continue;
         }
 
@@ -388,88 +512,16 @@ class Query
 
         // Append only passed data from this store.
 
-        // Where conditions
-        $conditions = $this->getQueryBuilderProperty("conditions");
+        // Process conditions
         if(!empty($conditions)) {
           // Iterate each conditions.
-          foreach ($conditions as $condition) {
-            // Check for valid data from data source.
-            try {
-              $fieldValue = $this->getNestedProperty($condition['fieldName'], $data);
-            } catch (Exception $e) {
-              $storePassed = false;
-              break;
-            }
-            $storePassed = $this->verifyWhereConditions($condition['condition'], $fieldValue, $condition['value']);
-            if ($storePassed === false) {
-              break;
-            }
-          }
+          $storePassed = $this->handleConditions($conditions, $data);
         }
 
-        // where [] or ([] and [] and []) or ([] and [] and [])
-        // two dimensional array. first dimension is "or" between each condition, second is "and".
-        $orConditions = $this->getQueryBuilderProperty("orConditions");
-        if ($storePassed === false && !empty($orConditions)) {
-          // Check if one condition will allow this document.
-          foreach ($orConditions as $conditionsWithAndBetween) { // () or ()
-            // Check if a all conditions will allow this document.
-            foreach ($conditionsWithAndBetween as $condition){ // () and ()
-              try {
-                $fieldValue = $this->getNestedProperty($condition['fieldName'], $data);
-              } catch (Exception $e) {
-                $storePassed = false;
-                break;
-              }
-              $storePassed = $this->verifyWhereConditions($condition['condition'], $fieldValue, $condition['value']);
-              if ($storePassed === true) {
-                continue;
-              }
-              break; // one where was false
-            }
-
-            // one condition block was true, that means that we dont have to look into the other conditions
-            if($storePassed === true) {
-              break;
-            }
-          }
-        }
-
-        // IN clause.
-        $in = $this->getQueryBuilderProperty("in");
-        if ($storePassed === true && !empty($in)) {
-          foreach ($in as $inClause) {
-            try {
-              $fieldValue = $this->getNestedProperty($inClause['fieldName'], $data);
-            } catch (Exception $e) {
-              $storePassed = false;
-              break;
-            }
-            if (!in_array($fieldValue, $inClause['value'])) {
-              $storePassed = false;
-              break;
-            }
-          }
-        }
-
-        // notIn clause.
-        $notIn = $this->getQueryBuilderProperty("notIn");
-        if ($storePassed === true && !empty($notIn)) {
-          foreach ($notIn as $notInClause) {
-            try {
-              $fieldValue = $this->getNestedProperty($notInClause['fieldName'], $data);
-            } catch (Exception $e) {
-              break;
-            }
-            if (in_array($fieldValue, $notInClause['value'])) {
-              $storePassed = false;
-              break;
-            }
-          }
-        }
+        // TODO remove nested where with version 3.0
+        $storePassed = $this->handleNestedWhere($data, $storePassed);
 
         // Distinct data check.
-        $distinctFields = $this->getQueryBuilderProperty("distinctFields");
         if ($storePassed === true && count($distinctFields) > 0) {
           foreach ($found as $result) {
             foreach ($distinctFields as $field) {
@@ -501,83 +553,578 @@ class Query
     }
 
     // apply additional changes to result like sort and limit
+
     if (count($found) > 0) {
-
-      // Check do we need to sort the data.
-      $orderBy = $this->getQueryBuilderProperty("orderBy");
-      if (!empty($orderBy)) {
-        // Start sorting on all data.
-        $order = $orderBy['order'];
-        $field = $orderBy['field'];
-        $dryData = [];
-        // Get value of the target field.
-        foreach ($found as $value) {
-          $dryData[] = $this->getNestedProperty($field, $value);
-        }
-        // Decide the order direction.
-        if (strtolower($order) === 'asc') {
-          asort($dryData);
-        }
-        else if (strtolower($order) === 'desc') {
-          arsort($dryData);
-        }
-        // Re arrange the array.
-        $finalArray = [];
-        foreach ($dryData as $key => $value) {
-          $finalArray[] = $found[$key];
-        }
-        $found = $finalArray;
-      }
-
       // If there was text search then we would also sort the result by search ranking.
       $searchKeyword = $this->getQueryBuilderProperty("searchKeyword");
       if (!empty($searchKeyword)) {
         $found = $this->performSearch($found);
       }
+    }
+
+    if($reduceResultAndJoinPossible === true){
+      $this->joinData($found);
+    }
+
+    if(count($found) > 0){
+      // sort the data.
+      $this->sort($found);
 
       // Skip data
       $skip = $this->getQueryBuilderProperty("skip");
       if (!empty($skip) && $skip > 0) {
         $found = array_slice($found, $skip);
       }
+    }
 
+    if(count($found) > 0) {
       // Limit data.
       $limit = $this->getQueryBuilderProperty("limit");
       if (!empty($limit) && $limit > 0) {
         $found = array_slice($found, 0, $limit);
       }
+    }
 
-      // select specific fields
-      $fieldsToSelect = $this->getQueryBuilderProperty("fieldsToSelect");
-      if (!empty($fieldsToSelect) && count($fieldsToSelect) > 0 && count($found) > 0) {
-        foreach ($found as $key => $item) {
-          $newItem = [];
-          $newItem[$primaryKey] = $item[$primaryKey];
-          foreach ($fieldsToSelect as $fieldToSelect) {
-            if (array_key_exists($fieldToSelect, $item)) {
-              $newItem[$fieldToSelect] = $item[$fieldToSelect];
-            }
-          }
-          $found[$key] = $newItem;
-        }
-      }
+    if($reduceResultAndJoinPossible === true && count($found) > 0){
+      $groupBy = $this->getQueryBuilderProperty("groupBy");
+      if (!empty($groupBy)) {
+        $found = $this->handleGroupBy($found);
+      } else{
+        // select specific fields
+        $this->selectFields($found);
 
-      // exclude specific fields
-      $fieldsToExclude = $this->getQueryBuilderProperty("fieldsToExclude");
-      if (!empty($fieldsToExclude) && count($fieldsToExclude) > 0 && count($found) > 0) {
-        foreach ($found as $key => $item) {
-          foreach ($fieldsToExclude as $fieldToExclude) {
-            if (array_key_exists($fieldToExclude, $item)) {
-              unset($item[$fieldToExclude]);
-            }
-          }
-          $found[$key] = $item;
-        }
-        return $found;
+        // exclude specific fields
+        $this->excludeFields($found);
       }
     }
 
     return $found;
+  }
+
+  /**
+   * @param array $element condition or operation
+   * @param array $data
+   * @return bool
+   * @throws InvalidArgumentException
+   */
+  private function handleConditions(array $element, array &$data): bool
+  {
+    if(empty($element)){
+      throw new InvalidArgumentException("Malformed where statement! Where statements can not contain empty arrays.");
+    }
+    if(array_keys($element) !== range(0, (count($element) - 1))){
+      throw new InvalidArgumentException("Malformed where statement! Associative arrays are not allowed.");
+    }
+    // element is a where condition
+    if(is_string($element[0]) && is_string($element[1])){
+      if(count($element) !== 3){
+        throw new InvalidArgumentException("Where conditions have to be [fieldName, condition, value]");
+      }
+
+      $fieldValue = $this->getNestedProperty($element[0], $data);
+
+      return $this->verifyWhereConditions($element[1], $fieldValue, $element[2]);
+    }
+
+    // element is an array "brackets"
+
+    // prepare results array - example: [true, "and", false]
+    $results = [];
+    foreach ($element as $value){
+      if(is_array($value)){
+        $results[] = $this->handleConditions($value, $data);
+      } else if (is_string($value)){
+        $results[] = $value;
+      } else {
+        $value = (!is_object($value) && !is_array($value) && !is_null($value)) ? $value : gettype($value);
+        throw new InvalidArgumentException("Invalid nested where statement element! Expected condition or operation, got: \"$value\"");
+      }
+    }
+
+    // first result as default value
+    $returnValue = array_shift($results);
+
+    if(is_bool($returnValue) === false){
+      throw new InvalidArgumentException("Malformed where statement! First part of the statement have to be a condition.");
+    }
+
+    // used to prioritize the "and" operation.
+    $orResults = [];
+
+    // use results array to get the return value of the conditions within the bracket
+    while(!empty($results) || !empty($orResults)){
+
+      if(empty($results)) {
+        if($returnValue === true){
+          // we need to check anymore, because the result of true || false is true
+          break;
+        }
+        // $orResults is not empty.
+        $nextResult = array_shift($orResults);
+        $returnValue = $returnValue || $nextResult;
+        continue;
+      }
+
+      $operationOrNextResult = array_shift($results);
+
+      if(is_string($operationOrNextResult)){
+        $operation = $operationOrNextResult;
+
+        if(empty($results)){
+          throw new InvalidArgumentException("Malformed where statement! Last part of a condition can not be a operation.");
+        }
+        $nextResult = array_shift($results);
+
+        if(!is_bool($nextResult)){
+          throw new InvalidArgumentException("Malformed where statement! Two operations in a row are not allowed.");
+        }
+      } else if(is_bool($operationOrNextResult)){
+        $operation = "AND";
+        $nextResult = $operationOrNextResult;
+      } else {
+        throw new InvalidArgumentException("Malformed where statement! A where statement have to contain just operations and conditions.");
+      }
+
+      if(!in_array(strtolower($operation), ["and", "or"])){
+        $operation = (!is_object($operation) && !is_array($operation) && !is_null($operation)) ? $operation : gettype($operation);
+        throw new InvalidArgumentException("Expected 'and' or 'or' operator got \"$operation\"");
+      }
+
+      // prepare $orResults execute after all "and" are done.
+      if(strtolower($operation) === "or"){
+        $orResults[] = $returnValue;
+        $returnValue = $nextResult;
+        continue;
+      }
+
+      $returnValue = $returnValue && $nextResult;
+
+    }
+
+    return $returnValue;
+  }
+
+  /**
+   * @param $data
+   * @return array
+   * @throws InvalidPropertyAccessException
+   * @throws InvalidArgumentException
+   */
+  private function handleGroupBy(array $data): array
+  {
+    $groupBy = $this->getQueryBuilderProperty("groupBy");
+    if(!(count($groupBy) > 0)){
+      return $data;
+    }
+    $groupByFields = $groupBy["groupByFields"];
+    $countKeyName = $groupBy["countKeyName"];
+    $select = $this->getQueryBuilderProperty("fieldsToSelect");
+    $having = $this->getQueryBuilderProperty("having");
+    $allowEmpty = $groupBy["allowEmpty"];
+
+    $pattern = (!empty($select))? $select : $groupByFields;
+
+    if(!empty($countKeyName) && empty($select)){
+      $pattern[] = $countKeyName;
+    }
+
+    // remove duplicates
+    $patternWithOutDuplicates = [];
+    foreach ($pattern as $key => $item){
+      if(!array_key_exists($key, $patternWithOutDuplicates) || !in_array($item, $patternWithOutDuplicates, true)){
+        $patternWithOutDuplicates[$key] = $item;
+      }
+    }
+    $pattern = $patternWithOutDuplicates;
+    unset($patternWithOutDuplicates);
+
+    // validate pattern
+    foreach ($pattern as $key => $value){
+      if(!is_string($key) && !is_string($value)){
+        throw new InvalidArgumentException("You need to format the select correctly when using Group By.");
+      }
+      if(!is_string($value)) {
+        if (!is_array($value) || empty($value)) {
+          throw new InvalidArgumentException("You need to format the select correctly when using Group By.");
+        }
+
+        list($function) = array_keys($value);
+        $field = $value[$function];
+        if(!is_string($function) || !in_array(strtolower($function), ["sum", "min", "max", "avg"])){
+          throw new InvalidArgumentException("The given function \"$function\" is not supported in Group By.");
+        }
+        if(!is_string($field)){
+          throw new InvalidArgumentException("You need to format the select correctly when using Group By.");
+        }
+
+      } else if($value !== $countKeyName && !in_array($value, $groupByFields, true)) {
+        throw new InvalidArgumentException("You can not select a field that is not grouped by.");
+      }
+    }
+
+    $groupedResult = [];
+    foreach ($data as $document){
+      $values = [];
+      $isEmptyAndEmptyNotAllowed = false;
+      foreach ($groupByFields as $groupByField){
+        $value = $this->getNestedProperty($groupByField, $document);
+        if($allowEmpty === false && is_null($value)){
+          $isEmptyAndEmptyNotAllowed = true;
+          break;
+        }
+        $values[$groupByField] = $value;
+      }
+      if($isEmptyAndEmptyNotAllowed === true){
+        continue;
+      }
+      $valueHash = md5(json_encode($values));
+
+      // new entry
+      if(!array_key_exists($valueHash, $groupedResult)){
+        $resultDocument = [];
+        foreach ($pattern as $key => $patternValue){
+          $resultFieldName = (is_string($key)) ? $key : $patternValue;
+
+          if($resultFieldName === $countKeyName){
+            $resultDocument[$resultFieldName] = 1;
+            continue;
+          }
+
+          if(!is_string($patternValue)){
+            list($function) = array_keys($patternValue);
+            $fieldNameToHandle = $patternValue[$function];
+            $currentFieldValue = $this->getNestedProperty($fieldNameToHandle, $document);
+            if(!is_numeric($currentFieldValue)){
+              $resultDocument[$resultFieldName] = [$function => [null]];
+            } else {
+              $resultDocument[$resultFieldName] = [$function => [$currentFieldValue]];
+            }
+            continue;
+          }
+          $resultDocument[$resultFieldName] = $this->getNestedProperty($patternValue, $document);
+        }
+        $groupedResult[$valueHash] = $resultDocument;
+        continue;
+      }
+
+      // entry exists
+      $currentResult = $groupedResult[$valueHash];
+      foreach ($pattern as $key => $patternValue){
+        $resultFieldName = (is_string($key)) ? $key : $patternValue;
+
+        if($resultFieldName === $countKeyName){
+          $currentResult[$resultFieldName] += 1;
+          continue;
+        }
+
+        if(!is_string($patternValue)){
+          list($function) = array_keys($patternValue);
+          $fieldNameToHandle = $patternValue[$function];
+          $currentFieldValue = $this->getNestedProperty($fieldNameToHandle, $document);
+          $currentFieldValue = is_numeric($currentFieldValue) ? $currentFieldValue : null;
+          $currentResult[$resultFieldName][$function][] = $currentFieldValue;
+        }
+      }
+      $groupedResult[$valueHash] = $currentResult;
+    }
+
+    // reduce and format result
+    $resultArray = [];
+    foreach ($groupedResult as $result){
+      foreach ($pattern as $key => $patternValue){
+        $resultFieldName = (is_string($key)) ? $key : $patternValue;
+        if(is_array($patternValue)){
+          list($function) = array_keys($patternValue);
+          $resultValue = $result[$resultFieldName][$function];
+          switch (strtolower($function)){
+            case "sum":
+              $currentResult = 0;
+              $allEntriesNull = true;
+              foreach ($resultValue as $currentValue){
+                if(!is_null($currentValue)){
+                  $currentResult += $currentValue;
+                  $allEntriesNull = false;
+                }
+              }
+              if($allEntriesNull === true){
+                $currentResult = null;
+              }
+              break;
+            case "min":
+              $currentResult = PHP_INT_MAX;
+              if(empty($resultValue)){
+                $currentResult = null;
+                break;
+              }
+              $allEntriesNull = true;
+              foreach ($resultValue as $currentValue){
+                if(!is_null($currentValue)){
+                  if($currentValue < $currentResult){
+                    $currentResult = $currentValue;
+                  }
+                  $allEntriesNull = false;
+                }
+              }
+              if($allEntriesNull === true){
+                $currentResult = null;
+              }
+              break;
+            case "max":
+              $currentResult = PHP_INT_MIN;
+              if(empty($resultValue)){
+                $currentResult = null;
+                break;
+              }
+              $allEntriesNull = true;
+              foreach ($resultValue as $currentValue){
+                if(!is_null($currentValue)){
+                  if($currentValue > $currentResult){
+                    $currentResult = $currentValue;
+                    $allEntriesNull = false;
+                  }
+                }
+              }
+              if($allEntriesNull === true){
+                $currentResult = null;
+              }
+              break;
+            case "avg":
+              if(empty($resultValue)){
+                $currentResult = null;
+                break;
+              }
+              $currentResult = 0;
+              $resultValueAmount = $resultValue;
+              $allEntriesNull = true;
+              foreach ($resultValue as $currentValue){
+                if(!is_null($currentValue)){
+                  $currentResult += $currentValue;
+                  $allEntriesNull = false;
+                }
+              }
+              if($allEntriesNull === true){
+                $currentResult = null;
+              } else {
+                $currentResult /= $resultValueAmount;
+              }
+              break;
+            default:
+              throw new InvalidArgumentException("The given function \"$function\" is not supported in Group By.");
+          }
+          $result[$resultFieldName] = $currentResult;
+        }
+      }
+      if(empty($having) || true === $this->handleConditions($having, $result)){
+        $resultArray[] = $result;
+      }
+    }
+
+    return $resultArray;
+  }
+
+  /**
+   * @param array $element
+   * @param array $data
+   * @return bool
+   * @throws InvalidArgumentException
+   * @deprecated since version 2.3. use _handleWhere instead
+   */
+  private function _nestedWhereHelper(array $element, array &$data): bool
+  {
+    // TODO remove nested where with v3.0
+    // element is a where condition
+    if(array_keys($element) === range(0, (count($element) - 1)) && is_string($element[0])){
+      if(count($element) !== 3){
+        throw new InvalidArgumentException("Where conditions have to be [fieldName, condition, value]");
+      }
+
+      $fieldValue = $this->getNestedProperty($element[0], $data);
+
+      return $this->verifyWhereConditions($element[1], $fieldValue, $element[2]);
+    }
+
+    // element is an array "brackets"
+
+    // prepare results array - example: [true, "and", false]
+    $results = [];
+    foreach ($element as $value){
+      if(is_array($value)){
+        $results[] = $this->_nestedWhereHelper($value, $data);
+      } else if (is_string($value)){
+        $results[] = $value;
+      } else {
+        $value = (!is_object($value) && !is_array($value)) ? $value : gettype($value);
+        throw new InvalidArgumentException("Invalid nested where statement element! Expected condition or operation, got: \"$value\"");
+      }
+    }
+
+    if(count($results) < 3){
+      throw new InvalidArgumentException("Malformed nested where statement! A condition consists of at least 3 elements.");
+    }
+
+    // first result as default value
+    $returnValue = array_shift($results);
+
+    // use results array to get the return value of the conditions within the bracket
+    while(!empty($results)){
+      $operation = array_shift($results);
+      $nextResult = array_shift($results);
+
+      if(((count($results) % 2) !== 0)){
+        throw new InvalidArgumentException("Malformed nested where statement!");
+      }
+
+      if(!is_string($operation) || !in_array(strtolower($operation), ["and", "or"])){
+        $operation = (!is_object($operation) && !is_array($operation)) ? $operation : gettype($operation);
+        throw new InvalidArgumentException("Expected 'and' or 'or' operator got \"$operation\"");
+      }
+
+      if(strtolower($operation) === "and"){
+        $returnValue = $returnValue && $nextResult;
+      } else {
+        $returnValue = $returnValue || $nextResult;
+      }
+    }
+
+    return $returnValue;
+  }
+
+  /**
+   * @param array $data
+   * @param bool $storePassed
+   * @return bool
+   * @throws InvalidArgumentException
+   * @throws InvalidPropertyAccessException
+   * @deprecated since version 2.3, use handleConditions instead.
+   */
+  private function handleNestedWhere(array $data, bool $storePassed): bool
+  {
+    // TODO remove nested where with v3.0
+    $nestedWhere = $this->getQueryBuilderProperty("nestedWhere");
+
+    if(empty($nestedWhere)){
+      return $storePassed;
+    }
+
+    // the outermost operation specify how the given conditions are connected with other conditions,
+    // like the ones that are specified using the where, orWhere, in or notIn methods
+    $outerMostOperation = (array_keys($nestedWhere))[0];
+    $nestedConditions = $nestedWhere[$outerMostOperation];
+
+    // specifying outermost is optional and defaults to "and"
+    $outerMostOperation = (is_string($outerMostOperation)) ? strtolower($outerMostOperation) : "and";
+
+    // if the document already passed the store with another condition, we dont need to check it.
+    if($outerMostOperation === "or" && $storePassed === true){
+      return true;
+    }
+
+    return $this->_nestedWhereHelper($nestedConditions, $data);
+  }
+
+  /**
+   * @param array $found
+   * @throws InvalidPropertyAccessException
+   */
+  private function excludeFields(array &$found){
+    $fieldsToExclude = $this->getQueryBuilderProperty("fieldsToExclude");
+    if (!empty($fieldsToExclude) && count($fieldsToExclude) > 0) {
+      foreach ($found as $key => $item) {
+        foreach ($fieldsToExclude as $fieldToExclude) {
+          if (array_key_exists($fieldToExclude, $item)) {
+            unset($item[$fieldToExclude]);
+          }
+          $temp = null;
+          $fieldNameArray = explode('.', $fieldToExclude);
+          $fieldNameArrayCount = count($fieldNameArray);
+          foreach ($fieldNameArray as $index => $i) {
+            if(($fieldNameArrayCount - 1) === $index){
+              unset($temp[$i], $temp);
+            } else {
+              $temp = &$item[$i];
+            }
+          }
+        }
+        $found[$key] = $item;
+      }
+    }
+  }
+
+  /**
+   * @param array $found
+   * @throws InvalidPropertyAccessException
+   * @throws InvalidArgumentException
+   */
+  private function selectFields(array &$found){
+
+    $primaryKey = $this->primaryKey;
+
+    $fieldsToSelect = $this->getQueryBuilderProperty("fieldsToSelect");
+    if (!empty($fieldsToSelect) && count($fieldsToSelect) > 0) {
+      foreach ($found as $key => $document) {
+        $newItem = [];
+        $newItem[$primaryKey] = $document[$primaryKey];
+        foreach ($fieldsToSelect as $alternativeFieldName => $fieldToSelect) {
+          $fieldName = (!is_int($alternativeFieldName))? $alternativeFieldName : $fieldToSelect;
+          if(!is_string($fieldToSelect) && !is_int($fieldToSelect)){
+            $errorMsg = "If select is used an array containing strings with fieldNames has to be given";
+            throw new InvalidArgumentException($errorMsg);
+          }
+          $fieldValue = $this->getNestedProperty($fieldToSelect, $document);
+
+          $temp = [];
+          $fieldNameArray = explode('.', $fieldName);
+          $fieldNameArrayReverse = array_reverse($fieldNameArray);
+          foreach ($fieldNameArrayReverse as $index => $i) {
+            if($index === 0){
+              $temp = array($i => $fieldValue);
+            } else {
+              $temp = array($i => $temp);
+            }
+          }
+          $newItem[$fieldNameArray[0]] = $temp[$fieldNameArray[0]];
+        }
+        $found[$key] = $newItem;
+      }
+    }
+  }
+
+  /**
+   * @param array $found
+   * @throws InvalidArgumentException
+   * @throws InvalidPropertyAccessException
+   */
+  private function sort(array &$found){
+    $orderBy = $this->getQueryBuilderProperty("orderBy");
+    if (!empty($orderBy)) {
+
+      $resultSortArray = [];
+
+      foreach ($orderBy as $orderByClause){
+        // Start sorting on all data.
+        $order = $orderByClause['order'];
+        $fieldName = $orderByClause['fieldName'];
+
+        $arrayColumn = [];
+        // Get value of the target field.
+        foreach ($found as $value) {
+          $arrayColumn[] = $this->getNestedProperty($fieldName, $value);
+        }
+
+        $resultSortArray[] = $arrayColumn;
+
+        // Decide the order direction.
+        // order will be asc or desc (check is done in QueryBuilder class)
+        $resultSortArray[] = ($order === 'asc') ? SORT_ASC : SORT_DESC;
+
+      }
+
+      if(!empty($resultSortArray)){
+        $resultSortArray[] = &$found;
+        array_multisort(...$resultSortArray);
+      }
+      unset($resultSortArray);
+    }
   }
 
   /**
@@ -589,24 +1136,19 @@ class Query
    */
   private function getNestedProperty(string $fieldName, array $data)
   {
-
     $fieldName = trim($fieldName);
     if (empty($fieldName)) {
       throw new InvalidArgumentException('fieldName is not allowed to be empty');
     }
-
     // Dive deep step by step.
     foreach (explode('.', $fieldName) as $i) {
-
       // If the field does not exists we return null;
       if (!isset($data[$i])) {
         return null;
       }
-
       // The index is valid, collect the data.
       $data = $data[$i];
     }
-
     return $data;
   }
 
@@ -618,6 +1160,9 @@ class Query
    */
   private function performSearch(array $data = []): array
   {
+
+    // TODO apply custom key -> search rank, so the user can use that in order by!
+
     $searchKeyword = $this->getQueryBuilderProperty("searchKeyword");
     if (empty($data)) {
       return $data;
@@ -662,34 +1207,6 @@ class Query
       $nodes[] = $data[$key];
     }
     return $nodes;
-  }
-
-  /**
-   * @param string $path
-   * @throws IOException
-   */
-  private function _checkWrite(string $path)
-  {
-    // Check if PHP has write permission
-    if (!is_writable($path)) {
-      throw new IOException(
-        "Document or directory is not writable at \"$path\". Please change permission."
-      );
-    }
-  }
-
-  /**
-   * @param string $path
-   * @throws IOException
-   */
-  private function _checkRead(string $path)
-  {
-    // Check if PHP has read permission
-    if (!is_readable($path)) {
-      throw new IOException(
-        "Document or directory is not readable at \"$path\". Please change permission."
-      );
-    }
   }
 
   /**
@@ -738,14 +1255,23 @@ class Query
     if(empty($tokenUpdate)) {
       return;
     }
-
     $cacheTokenArray = $this->_getCacheTokenArray();
-
     foreach ($tokenUpdate as $key => $value){
       $cacheTokenArray[$key] = $value;
     }
-
     $this->cacheTokenArray = $cacheTokenArray;
+  }
+
+  /**
+   * @param bool $oneDocument
+   */
+  private function setRetrieveOneDocument(bool $oneDocument){
+    $this->retrieveOneDocument = $oneDocument;
+    $this->updateCacheTokenArray(['oneDocument' => $oneDocument]);
+  }
+
+  private function setReduceResultAndJoinPossible(bool $reduceResultAndJoinPossible){
+    $this->reduceResultAndJoinPossible = $reduceResultAndJoinPossible;
   }
 
 }

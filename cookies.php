@@ -11,7 +11,25 @@ function set_subid(){
     return $cursubid;
 }
 
-function get_cookie($name){
-    
+//проверяем, если у пользователя установлена куки, что он уже конвертился, а также имя и телефон, то сверяем время
+//если прошло менее суток, то хуй ему, а не лид, обнуляем время
+function has_conversion_cookie($name,$phone){
+	$date = new DateTime();
+	$ts = $date->getTimestamp();
+	$is_duplicate=false;
+	if (!empty($_COOKIE['ctime'])&&!empty($_COOKIE['name'])&&!empty($_COOKIE['phone'])){
+		$cname = $_COOKIE['name'];
+		$cphone = $_COOKIE['phone'];
+		$ctime = $_COOKIE['ctime'];
+		if ($cname===$name&&$cphone===$phone){
+			$hourdiff = round((strtotime($ts) - strtotime($ctime))/3600, 1);
+			if ($hourdiff<24)
+			{
+				$is_duplicate=true;
+				ywbsetcookie('ctime',$ts,'/');
+			}
+		}
+	}
+	return $is_duplicate;
 }
 ?>

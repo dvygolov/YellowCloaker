@@ -16,18 +16,18 @@ class QueryBuilder
    */
   protected $cache;
 
+  protected $conditions = [];
 
-  protected $in = [];
   protected $skip = 0;
-  protected $notIn = [];
   protected $limit = 0;
   protected $orderBy = [];
-  protected $conditions = [];
-  protected $orConditions = []; // two dimensional array. first dimension is "or" between each condition, second is "and".
+  protected $nestedWhere = []; // TODO remove with version 3.0
   protected $searchKeyword = "";
 
   protected $fieldsToSelect = [];
   protected $fieldsToExclude = [];
+  protected $groupBy = [];
+  protected $having = [];
 
   protected $listOfJoins = [];
   protected $distinctFields = [];
@@ -35,6 +35,7 @@ class QueryBuilder
   protected $useCache;
   protected $regenerateCache = false;
   protected $cacheLifetime;
+
 
   // will also not be used for cache token
   protected $propertiesNotUsedInConditionsArray = [
@@ -68,15 +69,12 @@ class QueryBuilder
    */
   public function select(array $fieldNames): QueryBuilder
   {
-    $errorMsg = "If select is used an array containing strings with fieldNames has to be given";
-    foreach ($fieldNames as $fieldName) {
-      if (empty($fieldName)) {
-        continue;
+    foreach ($fieldNames as $key => $fieldName) {
+      if(is_string($key)){
+        $this->fieldsToSelect[$key] = $fieldName;
+      } else {
+        $this->fieldsToSelect[] = $fieldName;
       }
-      if (!is_string($fieldName)) {
-        throw new InvalidArgumentException($errorMsg);
-      }
-      $this->fieldsToSelect[] = $fieldName;
     }
     return $this;
   }
@@ -103,37 +101,6 @@ class QueryBuilder
   }
 
   /**
-   * Validates condition and returns a correctly formatted associative array
-   * @param $condition
-   * @return array
-   * @throws InvalidArgumentException
-   */
-  private function validateCondition($condition): array
-  {
-    if(!array_key_exists(0, $condition) || !array_key_exists(1, $condition)
-      || !array_key_exists(2, $condition) || count($condition) !== 3){
-      throw new InvalidArgumentException("Invalid condition structure.");
-    }
-
-    $fieldName = $condition[0];
-    $whereCondition = trim($condition[1]);
-    $value = $condition[2];
-
-    if (!is_string($fieldName) || $fieldName === "") {
-      throw new InvalidArgumentException("fieldName has to be a string and can not be empty");
-    }
-    if (!is_string($whereCondition) || $whereCondition === "") {
-      throw new InvalidArgumentException("condition has to be a string and can not be empty");
-    }
-
-    return [
-      "fieldName" => $fieldName,
-      "condition" => $whereCondition,
-      "value" => $value
-    ];
-  }
-
-  /**
    * Add conditions to filter data.
    * @param array $conditions
    * @return QueryBuilder
@@ -145,22 +112,7 @@ class QueryBuilder
       throw new InvalidArgumentException("You need to specify a where clause");
     }
 
-    $justOneCondition = false; // the user provided one where condition
-
-    foreach ($conditions as $condition) {
-
-      if (!is_array($condition)) {
-        // the user provided just one where clause
-        $condition = $conditions;
-        $justOneCondition = true;
-      }
-
-      $this->conditions[] = $this->validateCondition($condition);
-
-      if($justOneCondition === true) {
-        break;
-      }
-    }
+    $this->conditions[] = $conditions;
 
     return $this;
   }
@@ -171,16 +123,16 @@ class QueryBuilder
    * @param array $values
    * @return QueryBuilder
    * @throws InvalidArgumentException
+   * @deprecated since version 2.4, use where and orWhere instead.
    */
   public function in(string $fieldName, array $values = []): QueryBuilder
   {
     if (empty($fieldName)) {
       throw new InvalidArgumentException('Field name for in clause can not be empty.');
     }
-    $this->in[] = [
-      'fieldName' => $fieldName,
-      'value'     => $values
-    ];
+
+    // Add to conditions with "AND" operation
+    $this->conditions[] = [$fieldName, "in", $values];
     return $this;
   }
 
@@ -190,16 +142,16 @@ class QueryBuilder
    * @param array $values
    * @return QueryBuilder
    * @throws InvalidArgumentException
+   * @deprecated since version 2.4, use where and orWhere instead.
    */
   public function notIn(string $fieldName, array $values = []): QueryBuilder
   {
     if (empty($fieldName)) {
       throw new InvalidArgumentException('Field name for notIn clause can not be empty.');
     }
-    $this->notIn[] = [
-      'fieldName' => $fieldName,
-      'value'     => $values
-    ];
+
+    // Add to conditions with "AND" operation
+    $this->conditions[] = [$fieldName, "not in", $values];
     return $this;
   }
 
@@ -216,28 +168,39 @@ class QueryBuilder
       throw new InvalidArgumentException("You need to specify a where clause");
     }
 
-    $orConditionsWithAnd = [];
+    $this->conditions[] = "or";
+    $this->conditions[] = $conditions;
 
-    $justOneCondition = false; // the user provided one where condition
+    return $this;
+  }
 
-    foreach ($conditions as $condition) {
-
-      // the user provided just one where clause
-      if (!is_array($condition)) {
-        $condition = $conditions;
-        $justOneCondition = true;
-      }
-
-      $orConditionsWithAnd[] = $this->validateCondition($condition);
-
-      if($justOneCondition === true) {
-        break;
-      }
+  /**
+   * Add a where statement that is nested. ( $x or ($y and $z) )
+   * @param array $conditions
+   * @return QueryBuilder
+   * @throws InvalidArgumentException
+   * @deprecated since version 2.3, use where or orWhere instead.
+   */
+  public function nestedWhere(array $conditions): QueryBuilder
+  {
+    if(empty($conditions)){
+      throw new InvalidArgumentException("You need to specify nested where clauses");
     }
 
-    if(!empty($orConditionsWithAnd)){
-      $this->orConditions[] = $orConditionsWithAnd;
+    if(count($conditions) > 1){
+      throw new InvalidArgumentException("You are not allowed to specify multiple elements at the first depth!");
     }
+
+    $outerMostOperation = (array_keys($conditions))[0];
+    $outerMostOperation = (is_string($outerMostOperation)) ? strtolower($outerMostOperation) : $outerMostOperation;
+
+    $allowedOuterMostOperations = [0, "and", "or"];
+
+    if(!in_array($outerMostOperation, $allowedOuterMostOperations, true)){
+      throw new InvalidArgumentException("Outer most operation has to one of the following: ( 0 / and / or ) ");
+    }
+
+    $this->nestedWhere = $conditions;
 
     return $this;
   }
@@ -284,9 +247,6 @@ class QueryBuilder
    */
   public function orderBy( array $criteria): QueryBuilder
   {
-    // Validate order.
-    $order = "";
-    $fieldName = "";
     foreach ($criteria as $fieldName => $order){
 
       if(!is_string($order)) {
@@ -299,18 +259,16 @@ class QueryBuilder
         throw new InvalidArgumentException("Field name has to be a string");
       }
 
-      // TODO allow multiple order criteria
-      break;
+      if (!in_array($order, ['asc', 'desc'])) {
+        throw new InvalidArgumentException('Please use "asc" or "desc" only.');
+      }
+
+      $this->orderBy[] = [
+        'fieldName' => $fieldName,
+        'order' => $order
+      ];
     }
 
-    if (!in_array($order, ['asc', 'desc'])) {
-      throw new InvalidArgumentException('Please use "asc" or "desc" only.');
-    }
-
-    $this->orderBy = [
-      'field' => $fieldName,
-      'order' => $order
-    ];
     return $this;
   }
 
@@ -336,18 +294,16 @@ class QueryBuilder
   }
 
   /**
-   * @param callable $joinFunction
+   * @param \Closure $joinFunction
    * @param string $dataPropertyName
    * @return QueryBuilder
    */
-  public function join(callable $joinFunction, string $dataPropertyName): QueryBuilder
+  public function join(\Closure $joinFunction, string $dataPropertyName): QueryBuilder
   {
-    if (is_callable($joinFunction)) {
-      $this->listOfJoins[] = [
-        'dataPropertyName' => $dataPropertyName,
-        'joinFunction' => $joinFunction
-      ];
-    }
+    $this->listOfJoins[] = [
+      'dataPropertyName' => $dataPropertyName,
+      'joinFunction' => $joinFunction
+    ];
     return $this;
   }
 
@@ -463,5 +419,36 @@ class QueryBuilder
 
   public function _getStore(): Store{
       return $this->store;
+  }
+
+  /**
+   * @param array $groupByFields
+   * @param string|null $countKeyName
+   * @param bool $allowEmpty
+   * @return QueryBuilder
+   */
+  public function groupBy(array $groupByFields, string $countKeyName = null, bool $allowEmpty = false): QueryBuilder
+  {
+    $this->groupBy = [
+      "groupByFields" => $groupByFields,
+      "countKeyName" => $countKeyName,
+      "allowEmpty" => $allowEmpty
+    ];
+    return $this;
+  }
+
+  /**
+   * Filter result data of groupBy
+   * @param array $criteria
+   * @return QueryBuilder
+   * @throws InvalidArgumentException
+   */
+  public function having(array $criteria): QueryBuilder
+  {
+    if (empty($criteria)) {
+      throw new InvalidArgumentException("You need to specify a having clause");
+    }
+    $this->having = $criteria;
+    return $this;
   }
 }
