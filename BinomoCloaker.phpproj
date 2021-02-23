@@ -80,6 +80,13 @@
     <Compile Include="config\ErrorException.php" />
     <Compile Include="config\Exception.php" />
     <Compile Include="db\Cache.php" />
+    <Compile Include="db\Classes\CacheHandler.php" />
+    <Compile Include="db\Classes\ConditionsHandler.php" />
+    <Compile Include="db\Classes\DocumentFinder.php" />
+    <Compile Include="db\Classes\DocumentReducer.php" />
+    <Compile Include="db\Classes\DocumentUpdater.php" />
+    <Compile Include="db\Classes\IoHelper.php" />
+    <Compile Include="db\Classes\NestedHelper.php" />
     <Compile Include="db\Exceptions\IdNotAllowedException.php" />
     <Compile Include="db\Exceptions\InvalidArgumentException.php" />
     <Compile Include="db\Exceptions\InvalidConfigurationException.php" />
@@ -185,6 +192,7 @@
     <Folder Include="config\Writer" />
     <Folder Include="config" />
     <Folder Include="db\" />
+    <Folder Include="db\Classes\" />
     <Folder Include="db\Exceptions\" />
     <Folder Include="js" />
     <Folder Include="Properties\" />
