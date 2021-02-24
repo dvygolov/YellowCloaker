@@ -103,7 +103,7 @@ $tableOutput.="</tbody></TABLE>";
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <title>Binomo Cloaker - Dashboard v1.0.0</title>
-    <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
 
     <meta name="description" content="" />

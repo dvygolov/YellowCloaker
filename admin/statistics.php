@@ -184,20 +184,26 @@ while ($date>=$startdate) {
         $subid_lead = $leaditem['subid'];
 		if (array_key_exists($subid_lead, $sub_land_dest)){
 			$conv_land= $sub_land_dest[$subid_lead];
-			if (array_key_exists($conv_land, $landconv_array)) {
-				$landconv_array[$conv_land]++;
+			if (!array_key_exists($conv_land, $landconv_array)) {
+				$landconv_array[$conv_land]=[];
+            }
+			if (array_key_exists($lead_status, $landconv_array[$conv_land])) {
+				$landconv_array[$conv_land][$lead_status]++;
 			} else {
-				$landconv_array[$conv_land]=1;
+				$landconv_array[$conv_land][$lead_status]=1;
 			}
 		}
 
         if (array_key_exists($subid_lead,$subid_query)){
             foreach ($subid_query[$subid_lead] as $subkey=>$subvalue)
             {
-                if (array_key_exists($subvalue, $query_conversions[$subkey])) {
-                    $query_conversions[$subkey][$subvalue]++;
+                if (!array_key_exists($subvalue, $query_conversions[$subkey])) {
+                    $query_conversions[$subkey][$subvalue]=[];
+                }
+                if (array_key_exists($lead_status,$query_conversions[$subkey][$subvalue])){
+                    $query_conversions[$subkey][$subvalue][$lead_status]++;
                 } else {
-                    $query_conversions[$subkey][$subvalue]=1;
+                    $query_conversions[$subkey][$subvalue][$lead_status]=1;
                 }
             }
         }
@@ -284,16 +290,30 @@ $landcrTableOutput.="<TR>";
 $landcrTableOutput.="<TH scope='col'>Landing</TH>";
 $landcrTableOutput.="<TH scope='col'>Clicks</TH>";
 $landcrTableOutput.="<TH scope='col'>Conversions</TH>";
+$landcrTableOutput.="<TH scope='col'>Hold</TH>";
+$landcrTableOutput.="<TH scope='col'>Purchase</TH>";
+$landcrTableOutput.="<TH scope='col'>Reject</TH>";
+$landcrTableOutput.="<TH scope='col'>Trash</TH>";
 $landcrTableOutput.="<TH scope='col'>CR%</TH>";
 $landcrTableOutput.="</TR></thead><tbody>";
 //Add all data to landcr table
 foreach ($landclicks_array as $land_name => $land_clicks) {
+    $cur_land_arr=array_key_exists($land_name, $landconv_array)?$landconv_array[$land_name]:[];
+    $land_conv=array_sum($cur_land_arr);
+    $land_lead = array_key_exists('Lead',$cur_land_arr)?$cur_land_arr['Lead']:0;
+    $land_purchase = array_key_exists('Purchase',$cur_land_arr)?$cur_land_arr['Purchase']:0;
+    $land_reject = array_key_exists('Reject',$cur_land_arr)?$cur_land_arr['Reject']:0;
+    $land_trash = array_key_exists('Trash',$cur_land_arr)?$cur_land_arr['Trash']:0;
+    $cur_cr = $land_conv*100/$land_clicks;
+
     $landcrTableOutput.="<TR>";
     $landcrTableOutput.="<TD scope='col'>".$land_name."</TD>";
     $landcrTableOutput.="<TD scope='col'>".$land_clicks."</TD>";
-    $cur_conv=array_key_exists($land_name, $landconv_array)?$landconv_array[$land_name]:0;
-    $landcrTableOutput.="<TD scope='col'>".$cur_conv."</TD>";
-    $cur_cr = $cur_conv*100/$land_clicks;
+    $landcrTableOutput.="<TD scope='col'>".$land_conv."</TD>";
+    $landcrTableOutput.="<TD scope='col'>".$land_lead."</TD>";
+    $landcrTableOutput.="<TD scope='col'>".$land_purchase."</TD>";
+    $landcrTableOutput.="<TD scope='col'>".$land_reject."</TD>";
+    $landcrTableOutput.="<TD scope='col'>".$land_trash."</TD>";
     $landcrTableOutput.="<TD scope='col'>".number_format($cur_cr, 2, '.', '')."</TD>";
     $landcrTableOutput.="</TR>";
 }
@@ -311,17 +331,31 @@ foreach ($subs_array as $sub_key=>$sub_values)
     $subTableOutput.="<TH scope='col'>".$sub_clmn_name."</TH>";
     $subTableOutput.="<TH scope='col'>Clicks</TH>";
     $subTableOutput.="<TH scope='col'>Conversions</TH>";
+    $subTableOutput.="<TH scope='col'>Hold</TH>";
+    $subTableOutput.="<TH scope='col'>Purchase</TH>";
+    $subTableOutput.="<TH scope='col'>Reject</TH>";
+    $subTableOutput.="<TH scope='col'>Trash</TH>";
     $subTableOutput.="<TH scope='col'>CR%</TH>";
     $subTableOutput.="</TR></thead><tbody>";
     //Add all data to creatives table
     foreach ($sub_values as $sub_value_name => $sub_value_clicks) {
-        $current_sub_conversions=array_key_exists($sub_value_name,$query_conversions[$sub_key])?$query_conversions[$sub_key][$sub_value_name]:0;
-        $current_sub_cr = $current_sub_conversions*100/$sub_value_clicks;
+        $sub_conversions_arr=array_key_exists($sub_value_name,$query_conversions[$sub_key])?$query_conversions[$sub_key][$sub_value_name]:[];
+        $sub_conversions_cnt= array_sum($sub_conversions_arr);
+        $sub_cr = $sub_conversions_cnt*100/$sub_value_clicks;
+        $sub_lead = array_key_exists('Lead',$sub_conversions_arr)?$sub_conversions_arr['Lead']:0;
+        $sub_purchase = array_key_exists('Purchase',$sub_conversions_arr)?$sub_conversions_arr['Purchase']:0;
+        $sub_reject = array_key_exists('Reject',$sub_conversions_arr)?$sub_conversions_arr['Reject']:0;
+        $sub_trash = array_key_exists('Trash',$sub_conversions_arr)?$sub_conversions_arr['Trash']:0;
+
         $subTableOutput.="<TR>";
         $subTableOutput.="<TD scope='col'>".$sub_value_name."</TD>";
         $subTableOutput.="<TD scope='col'>".$sub_value_clicks."</TD>";
-        $subTableOutput.="<TD scope='col'>".$current_sub_conversions."</TD>";
-        $subTableOutput.="<TD scope='col'>".number_format($current_sub_cr, 2, '.', '')."</TD>";
+        $subTableOutput.="<TD scope='col'>".$sub_conversions_cnt."</TD>";
+        $subTableOutput.="<TD scope='col'>".$sub_lead."</TD>";
+        $subTableOutput.="<TD scope='col'>".$sub_purchase."</TD>";
+        $subTableOutput.="<TD scope='col'>".$sub_reject."</TD>";
+        $subTableOutput.="<TD scope='col'>".$sub_trash."</TD>";
+        $subTableOutput.="<TD scope='col'>".number_format($sub_cr, 2, '.', '')."</TD>";
         $subTableOutput.="</TR>";
     }
     $subTableOutput.="</tbody></TABLE>";
@@ -334,7 +368,7 @@ foreach ($subs_array as $sub_key=>$sub_values)
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
     <title>Binomo Cloaker - Dashboard v1.0.0</title>
-    <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/js/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
 
     <meta name="description" content="" />
