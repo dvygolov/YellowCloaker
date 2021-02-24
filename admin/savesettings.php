@@ -24,18 +24,16 @@ $conf = new Config('../settings.json');
 foreach($_POST as $key=>$value){
     $confkey=str_replace('_','.',$key);
     if (is_string($value)&&is_array($conf[$confkey])){
-        $value=explode(',',$value);
+        if ($value===''){
+            $value=[];
+        }
+        else{
+            $value=explode(',',$value);
+        }
         $conf[$confkey]=$value;
     }
     else if ($value==='false'|| $value==='true'){
         $value=filter_var($value,FILTER_VALIDATE_BOOLEAN);
-        $conf[$confkey]=$value;
-    }
-    else if ($value===''&&$conf[$confkey]===[]){
-        $value=[];
-        $conf[$confkey]=$value;
-    }
-    else if (is_array($value)){
         $conf[$confkey]=$value;
     }
     else{

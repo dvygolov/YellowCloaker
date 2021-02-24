@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <ProjectTypeGuids>{A0786B88-2ADB-4C21-ABE8-AA2D79766269}</ProjectTypeGuids>
     <Runtime>PHP</Runtime>
-    <RuntimeVersion>7.2</RuntimeVersion>
+    <RuntimeVersion>7.4</RuntimeVersion>
     <SaveServerSettingsInUserFile>false</SaveServerSettingsInUserFile>
     <EnvName>IISExpress</EnvName>
     <PHPDevHostName>localhost</PHPDevHostName>
@@ -97,7 +97,8 @@
     <Compile Include="db\QueryBuilder.php" />
     <Compile Include="db\SleekDB.php" />
     <Compile Include="db\Store.php" />
-    <Compile Include="fbpixel.php" />
+    <Compile Include="pixels.php" />
+    <Compile Include="htmlinject.php" />
     <Compile Include="js\index.php" />
     <Compile Include="db.php" />
     <Compile Include="requestfunc.php" />
@@ -168,6 +169,7 @@
     <Compile Include="settings.json" />
     <Compile Include="settings.php" />
     <Compile Include="thankyou\thankyou.php" />
+    <Compile Include="url.php" />
     <Compile Include="worder.php" />
   </ItemGroup>
   <ItemGroup>

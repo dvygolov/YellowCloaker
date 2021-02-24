@@ -47,9 +47,9 @@
     },
     "black": {
         "prelanding": {
-            "action": "none",
+            "action": "folder",
             "folders": [
-                "lrpl"
+                "lrlpl"
             ],
             "redirect": {
                 "urls": [
@@ -129,22 +129,15 @@
                     "Windows",
                     "OS X"
                 ],
-                "inurl": [
-                    ""
-                ],
-                "languages": [
-                    "ru",
-                    "en"
-                ]
+                "inurl": [],
+                "languages": []
             },
             "blocked": {
                 "ips": {
                     "filename": "",
                     "cidrformat": false
                 },
-                "tokens": [
-                    ""
-                ],
+                "tokens": [],
                 "useragents": [
                     "facebook",
                     "Facebot",
@@ -164,9 +157,7 @@
                 ],
                 "referer": {
                     "empty": false,
-                    "stopwords": [
-                        ""
-                    ]
+                    "stopwords": []
                 },
                 "vpntor": false
             }

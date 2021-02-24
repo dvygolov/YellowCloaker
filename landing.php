@@ -1,8 +1,9 @@
 <?php
-include 'settings.php';
-include 'htmlprocessing.php';
-include 'db.php';
-include 'redirect.php';
+require_once 'settings.php';
+require_once 'htmlprocessing.php';
+require_once 'db.php';
+require_once 'redirect.php';
+
 //Включение отладочной информации
 ini_set('display_errors','1');
 ini_set('display_startup_errors', 1);

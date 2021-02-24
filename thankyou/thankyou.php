@@ -4,9 +4,10 @@ ini_set('display_errors','1');
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 //Конец включения отладочной информации
-include_once '../settings.php';
-include_once '../htmlprocessing.php';
-include_once '../db.php';
+require_once '../settings.php';
+require_once '../pixels.php';
+require_once '../htmlinject.php';
+require_once '../db.php';
 
 function mb_basename($path) {
     if (preg_match('@^.*[\\\\/]([^\\\\/]+)$@s', $path, $matches)) {
@@ -39,7 +40,7 @@ $html = insert_yandex_script($html);
 //отстукиваем пиксель только если это не дубль, если дубль - то нам придёт nopixel=1
 if (empty($_GET['nopixel']))
 {
-    $html = insert_fb_pixel_script($html,$fb_thankyou_event);
+    $html = insert_fbpixel_script($html,$fb_thankyou_event);
 }
 
 $search='{NAME}';

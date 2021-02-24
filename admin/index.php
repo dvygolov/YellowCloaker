@@ -4,12 +4,12 @@ error_reporting(E_ALL);
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', 1);
 //Конец включения отладочной информации
-include '../settings.php';
+require_once '../settings.php';
 if ($log_password!==''&&(empty($_GET['password'])||$_GET['password'] !== $log_password)) {
     echo 'No Password Given!';
     exit();
 }
-include 'db.php';
+require_once 'db.php';
 
 $startdate=isset($_GET['startdate'])?DateTime::createFromFormat('d.m.y', $_GET['startdate']):new DateTime();
 $enddate=isset($_GET['enddate'])?DateTime::createFromFormat('d.m.y', $_GET['enddate']):new DateTime();
@@ -269,13 +269,19 @@ $tableOutput.="</tbody></TABLE>";
 			element: document.getElementById('litepicker'),
 			format: 'DD.MM.YY',
 			autoApply:false,
+            lang:"ru-RU",
+            buttonText: {"apply":"Выбрать","cancel":"Отмена"},
 			singleMode:false,
-			onSelect: function(date1, date2) {
-				var searchParams = new URLSearchParams(window.location.search);
-				searchParams.set('startdate', moment(date1).format('DD.MM.YY'));
-				searchParams.set('enddate', moment(date2).format('DD.MM.YY'));
-				window.location.search = searchParams.toString();
-			}
+            setup: (p) => {
+                p.on('button:apply', (date1, date2) => {
+                    var searchParams = new URLSearchParams(window.location.search);
+                    var d1 = moment(date1.dateInstance).format('DD.MM.YY');
+                    var d2 = moment(date2.dateInstance).format('DD.MM.YY');
+                    searchParams.set('startdate',d1);
+                    searchParams.set('enddate', d2);
+                    window.location.search = searchParams.toString();
+                });
+            }
 		});
         </script>
 

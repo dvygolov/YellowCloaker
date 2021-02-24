@@ -4,7 +4,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', 1);
 //Конец включения отладочной информации
-include '../settings.php';
+require_once '../settings.php';
 
 if ($log_password!==''&&(empty($_GET['password'])||$_GET['password'] !== $log_password)) {
     echo 'No Password Given!';
@@ -28,7 +28,6 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <title>Binomo Cloaker - Dashboard v1.0.0</title>
-    <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/js/main.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
 
     <meta name="description" content="">

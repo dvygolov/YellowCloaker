@@ -5,8 +5,8 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 //Конец включения отладочной информации
 
-include_once 'settings.php';
-include_once 'db.php';
+require_once 'settings.php';
+require_once 'db.php';
 
 $subid= isset($_GET['subid'])?$_GET['subid']:(isset($_POST['subid'])?$_POST['subid']:'');
 $status= isset($_GET['status'])?$_GET['status']:(isset($_POST['status'])?$_POST['status']:'');

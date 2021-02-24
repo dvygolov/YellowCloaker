@@ -5,11 +5,11 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 //Конец включения отладочной информации
 
-include_once 'settings.php';
-include_once 'db.php';
-include_once 'cookies.php';
-include_once 'redirect.php';
-include_once 'requestfunc.php';
+require_once 'settings.php';
+require_once 'db.php';
+require_once 'cookies.php';
+require_once 'redirect.php';
+require_once 'requestfunc.php';
 
 $name = '';
 if (isset($_POST['name']))

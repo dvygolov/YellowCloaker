@@ -1,8 +1,8 @@
 <?php
-include_once 'htmlprocessing.php';
-include_once 'cookies.php';
-include_once 'redirect.php';
-include_once 'fbpixel.php';
+require_once 'htmlprocessing.php';
+require_once 'cookies.php';
+require_once 'redirect.php';
+require_once 'pixels.php';
 
 //Включение отладочной информации
 ini_set('display_errors', '1');
@@ -99,7 +99,7 @@ function black($clkrdetect)
         header('Access-Control-Allow-Origin: '.$parsed_url['scheme'].'://'.$parsed_url['host']);
     }
 	
-	$fbpx = getpixel();
+	$fbpx = get_fbpixel();
 	if ($fbpx!==''){
 		ywbsetcookie($fbpixel_subname,$fbpx,'/');
 	}

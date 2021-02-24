@@ -146,7 +146,7 @@ class Cloaker{
 		}
 
 		$lang_white_checker = in_array($this->detect['lang'],$this->lang_white);
-		if($this->lang_white!=[] &&
+		if($this->lang_white!==[] &&
 			in_array('any',$this->lang_white)===false &&
 			$lang_white_checker===false){
 			$result=1;

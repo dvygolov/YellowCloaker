@@ -1,7 +1,7 @@
 <?php
-    include_once 'obfuscator.php';
-    include_once '../settings.php';
-	include_once '../requestfunc.php';
+    require_once 'obfuscator.php';
+    require_once '../settings.php';
+	require_once '../requestfunc.php';
     header('Content-Type: text/javascript');
 	$port = get_port();
 	$jsCode= str_replace('{DOMAIN}', $_SERVER['SERVER_NAME'].":".$port, file_get_contents(__DIR__.'/process.js'));

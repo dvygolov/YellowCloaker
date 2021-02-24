@@ -3,9 +3,9 @@
 //следующий код: <script src="https://ваш.домен/js/index.php"></script>
 //в случае прохождения пользователем проверки, будет совершено действие, которое
 //вы указали для js-подключения: редирект, подмена или показ iframe
-include_once 'obfuscator.php';
-include_once '../settings.php';
-include_once '../requestfunc.php';
+require_once 'obfuscator.php';
+require_once '../settings.php';
+require_once '../requestfunc.php';
 if ($use_js_checks) {
     header('Content-Type: text/javascript');
 	$port = get_port();

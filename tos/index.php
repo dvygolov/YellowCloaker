@@ -1,5 +1,5 @@
 <?php
-include __DIR__.'/../ipcountry.php';
+require_once __DIR__.'/../ipcountry.php';
 $ip = getip();
 $cc = getcountry($ip);
 $filepath="tos/".$cc.".html";
