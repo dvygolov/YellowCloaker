@@ -20,8 +20,18 @@ else if (isset($_POST['first_name'])&&isset($_POST['last_name']))
     $name = $_POST['first_name'].' '.$_POST['last_name'];
 else if (isset($_POST['firstname'])&&isset($_POST['lastname']))
     $name = $_POST['firstname'].' '.$_POST['lastname'];
-$phone = isset($_POST['phone'])?$_POST['phone']:$_POST['tel'];
-$subid = isset($_COOKIE['subid'])?$_COOKIE['subid']:'';
+
+$phone='';
+if (isset($_POST['phone']))
+    $phone=$_POST['phone'];
+else if (isset($_POST['tel']))
+    $phone=$_POST['tel'];
+
+$subid = '';
+if (isset($_COOKIE['subid']))
+    $subid=$_COOKIE['subid'];
+else if (isset($_POST['subid']))
+    $subid=$_POST['subid'];
 
 //если юзверь каким-то чудом отправил пустые поля в форме
 if ($name===''||$phone===''){

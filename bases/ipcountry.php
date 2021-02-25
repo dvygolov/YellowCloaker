@@ -47,11 +47,14 @@ function getcountry($ip){
 	return $record->country->isoCode;
 }
 
-function getcity($ip){
+function getcity($ip,$locale){
 	$reader = new Reader(__DIR__.'/GeoLite2-City.mmdb');
 	if ($ip==='::1'||$ip==='127.0.0.1') $ip='31.177.76.70'; //for debugging
     $record = $reader->city($ip);
-	return $record->city->name;
+	if (array_key_exists($locale,$record->city->names))
+        return $record->city->names[$locale];
+	else
+		return $record->city->name;
 }
 
 function getisp($ip){

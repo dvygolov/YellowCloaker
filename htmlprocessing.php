@@ -42,6 +42,7 @@ function load_prelanding($url, $land_number)
         }
     }
 
+    $html = replace_city_macros($html);
     $html = replace_tel_type($html);
     $html = insert_phone_mask($html);
     //добавляем во все формы сабы
@@ -135,6 +136,7 @@ function load_landing($url)
     $html = insert_fbpixel_id($html);
 
     $html = fix_anchors($html);
+    $html = replace_city_macros($html);
     //заменяем поле с телефоном на более удобный тип - tel
     $html = replace_tel_type($html);
     $html = insert_phone_mask($html);
@@ -189,6 +191,12 @@ function replace_tel_type($html)
 {
     $html = preg_replace('/(<input[^>]*name="(phone|tel)"[^>]*type=")(text)("[^>]*>)/', "\\1tel\\4", $html);
     $html = preg_replace('/(<input[^>]*type=")(text)("[^>]*name="(phone|tel)"[^>]*>)/', "\\1tel\\3", $html);
+    return $html;
+}
+
+function replace_city_macros($html){
+    $ip = getip();
+    $html=preg_replace_callback('/\{CITY,([^\}]+)\}/',function ($m) use($ip){return getcity($ip,$m[1]);},$html);
     return $html;
 }
 
