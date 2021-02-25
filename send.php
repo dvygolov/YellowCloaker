@@ -39,6 +39,9 @@ if ($name===''||$phone===''){
     return;
 }
 
+$date = new DateTime();
+$ts = $date->getTimestamp();
+
 $is_duplicate=has_conversion_cookie($name,$phone);
 //устанавливаем пользователю в куки его имя и телефон, чтобы показать их на стр Спасибо
 //также ставим куки даты конверсии
