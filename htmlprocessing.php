@@ -14,6 +14,7 @@ function load_prelanding($url, $land_number)
 
     $fullpath = get_abs_from_rel($url,true);
     $html = get_html($fullpath);
+    $html=remove_scrapbook($html);
     $html=remove_from_html($html,'removepreland.html');
     $baseurl = '/'.$url.'/';
     //переписываем все относительные src,href & action (не начинающиеся с http)
@@ -81,12 +82,13 @@ function load_landing($url)
     $fpwqs = get_abs_from_rel($url,true);
 
     $html=get_html($fpwqs);
+    $html=remove_scrapbook($html);
     $html=remove_from_html($html,'removeland.html');
     $html=insert_after_tag($html,"<head>","<base href='".$fullpath."'>");
 
     if($black_land_use_custom_thankyou_page===true){
 		//меняем обработчик формы, чтобы у вайта и блэка была одна thankyou page
-		$html = preg_replace('/\saction=[\'\"]([^\'\"]+)[\'\"]/', " action=\"../send.php?".http_build_query($_GET)."\"", $html);
+		$html = preg_replace('/\saction=[\'\"]([^\'\"]*)[\'\"]/', " action=\"../send.php?".http_build_query($_GET)."\"", $html);
 	}
 
     //если мы будем подменять ленд при переходе на страницу Спасибо, то Спасибо надо открывать в новом окне
@@ -239,6 +241,7 @@ function load_white_content($url, $add_js_check)
 
     //добавляем в <head> пару доп. метатегов
     $html= str_replace('<head>', '<head><meta name="referrer" content="no-referrer"><meta name="robots" content="noindex, nofollow">', $html);
+    $html= remove_scrapbook($html);
 
     if ($add_js_check) {
         $html = add_js_testcode($html);
@@ -315,6 +318,12 @@ function rewrite_relative_urls($html,$url)
 	$modified = preg_replace('/\shref=[\'\"](?!http|#|\/\/)([^\'\"]+)[\'\"]/', " href=\"$url\\1\"", $modified);
 	$modified = preg_replace('/background-image:\s*url\((?!http|#|\/\/)([^\)]+)\)/', "background-image: url($url\\1)", $modified);
 	return $modified;
+}
+
+function remove_scrapbook($html){
+	$modified = preg_replace('/data\-scrapbook\-source=[\'\"][^\'\"]+[\'\"]/', '', $html);
+	$modified = preg_replace('/data\-scrapbook\-create=[\'\"][^\'\"]+[\'\"]/', '', $modified);
+    return $modified;
 }
 
 function remove_from_html($html,$filename){
