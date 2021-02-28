@@ -15,8 +15,6 @@ function white($use_js_checks)
     global $white_action,$white_folder_name,$white_redirect_url,$white_redirect_type;
 	global $white_curl_url,$white_error_code,$white_use_domain_specific,$white_domain_specific;
 
-
-	set_subid();
     $action = $white_action;
     $folder_name= $white_folder_name;
     $redirect_url= $white_redirect_url;

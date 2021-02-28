@@ -33,6 +33,8 @@
     <Compile Include="404\mail.php" />
     <Compile Include="404\scripts.js" />
     <Compile Include="404\style.css" />
+    <Compile Include="abtests\Calculator\SplitTestAnalyzer.php" />
+    <Compile Include="abtests\Calculator\Variation.php" />
     <Compile Include="abtests\Exceptions\RuntimeException.php" />
     <Compile Include="abtests\Lever.php" />
     <Compile Include="abtests\Machine.php" />
@@ -175,6 +177,7 @@
   <ItemGroup>
     <Folder Include="404" />
     <Folder Include="abtests\" />
+    <Folder Include="abtests\Calculator\" />
     <Folder Include="abtests\Exceptions\" />
     <Folder Include="abtests\Math\" />
     <Folder Include="abtests\Strategies\" />

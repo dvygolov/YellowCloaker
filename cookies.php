@@ -5,9 +5,11 @@ function ywbsetcookie($name,$value,$path){
 }
 
 function set_subid(){
+	session_start();
     //устанавливаем пользователю в куки уникальный subid, либо берём его из куки, если он уже есть
     $cursubid=isset($_COOKIE['subid'])?$_COOKIE['subid']:uniqid();
     ywbsetcookie('subid',$cursubid,'/');
+	$_SESSION['subid']=$cursubid;
     return $cursubid;
 }
 

@@ -12,6 +12,11 @@ if ($log_password!==''&&(empty($_GET['password'])||$_GET['password'] !== $log_pa
     exit();
 }
 require_once 'db.php';
+require_once '../abtests/Calculator/SplitTestAnalyzer.php';
+require_once '../abtests/Calculator/Variation.php';
+use BenTools\SplitTestAnalyzer\SplitTestAnalyzer;
+use BenTools\SplitTestAnalyzer\Variation;
+
 
 //------------------------------------------------
 //Configuration
@@ -53,13 +58,13 @@ $landconv_array=array();
 $subs_array=array();
 foreach ($stats_sub_names as $ssn)
 {
-    $subs_array[$ssn["name"]]=[]; 	
+    $subs_array[$ssn["name"]]=[];
 }
 $subid_query=array();
 $query_conversions=array();
 foreach ($stats_sub_names as $ssn)
 {
-    $query_conversions[$ssn["name"]]=[]; 	
+    $query_conversions[$ssn["name"]]=[];
 }
 
 $total_clicks=0;
@@ -139,7 +144,7 @@ while ($date>=$startdate) {
 		//count lp ctrs
 		foreach ($day_ctr as $ctritem) {
 			$lp_name=$ctritem['preland'];
-			if ($lp_name=='') continue; 
+			if ($lp_name=='') continue;
 			if (array_key_exists($lp_name, $lpctr_array)) {
 				$lpctr_array[$lp_name]++;
 			} else {
@@ -261,6 +266,18 @@ $tableOutput.="</TR>";
 $tableOutput.="</tbody></TABLE>";
 
 if (!$noprelanding){
+    $preland_splittest=(count($lpctr_array)>1);
+    $preland_split_probability=[];
+    if ($preland_splittest){
+        $variations = [];
+
+        foreach ($lpctr_array as $lp_name => $lp_count) {
+            $variations[]= new Variation($lp_name,$lpdest_array[$lp_name], $lp_count);
+        }
+        $predictor = SplitTestAnalyzer::create()->withVariations(...$variations);
+        $preland_split_probability=$predictor->getResult();
+    }
+
 	//Open the lpctr table tag
 	$lpctrTableOutput="<TABLE class='table w-auto table-striped'>";
 	$lpctrTableOutput.="<thead class='thead-dark'>";
@@ -269,6 +286,8 @@ if (!$noprelanding){
 	$lpctrTableOutput.="<TH scope='col'>Traffic</TH>";
 	$lpctrTableOutput.="<TH scope='col'>LP Clicks</TH>";
 	$lpctrTableOutput.="<TH scope='col'>LP CTR</TH>";
+    if ($preland_splittest)
+        $lpctrTableOutput.="<TH scope='col'>Is Best%</TH>";
 	$lpctrTableOutput.="</TR></thead><tbody>";
 	//Add all data to LP CTR Table
 	foreach ($lpctr_array as $lp_name => $lp_count) {
@@ -278,9 +297,26 @@ if (!$noprelanding){
 		$lpctrTableOutput.="<TD scope='col'>".$lp_count."</TD>";
 		$cur_ctr = $lp_count*100/$lpdest_array[$lp_name];
 		$lpctrTableOutput.="<TD scope='col'>".number_format($cur_ctr, 2, '.', '')."%</TD>";
+        if ($preland_splittest)
+            $lpctrTableOutput.="<TD scope='col'>".$preland_split_probability[$lp_name]."</TD>";
 		$lpctrTableOutput.="</TR>";
 	}
 	$lpctrTableOutput.="</tbody></TABLE>";
+}
+
+
+$land_splittest=(count($landclicks_array)>1);
+$land_split_probability=[];
+if ($land_splittest){
+    $variations = [];
+
+    foreach ($landclicks_array as $land_name => $land_clicks) {
+        $cur_land_arr=array_key_exists($land_name, $landconv_array)?$landconv_array[$land_name]:[];
+        $land_conv=array_sum($cur_land_arr);
+        $variations[]= new Variation($land_name, $land_clicks, $land_conv);
+    }
+    $predictor = SplitTestAnalyzer::create()->withVariations(...$variations);
+    $land_split_probability=$predictor->getResult();
 }
 
 //Open the landcr table tag
@@ -295,6 +331,8 @@ $landcrTableOutput.="<TH scope='col'>Purchase</TH>";
 $landcrTableOutput.="<TH scope='col'>Reject</TH>";
 $landcrTableOutput.="<TH scope='col'>Trash</TH>";
 $landcrTableOutput.="<TH scope='col'>CR%</TH>";
+if ($land_splittest)
+    $landcrTableOutput.="<TH scope='col'>Is Best%</TH>";
 $landcrTableOutput.="</TR></thead><tbody>";
 //Add all data to landcr table
 foreach ($landclicks_array as $land_name => $land_clicks) {
@@ -315,6 +353,8 @@ foreach ($landclicks_array as $land_name => $land_clicks) {
     $landcrTableOutput.="<TD scope='col'>".$land_reject."</TD>";
     $landcrTableOutput.="<TD scope='col'>".$land_trash."</TD>";
     $landcrTableOutput.="<TD scope='col'>".number_format($cur_cr, 2, '.', '')."</TD>";
+    if ($land_splittest)
+        $landcrTableOutput.="<TD scope='col'>".$land_split_probability[$land_name]."</TD>";
     $landcrTableOutput.="</TR>";
 }
 $landcrTableOutput.="</tbody></TABLE>";

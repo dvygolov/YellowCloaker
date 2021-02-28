@@ -27,11 +27,14 @@ if (isset($_POST['phone']))
 else if (isset($_POST['tel']))
     $phone=$_POST['tel'];
 
+session_start();
 $subid = '';
 if (isset($_COOKIE['subid']))
     $subid=$_COOKIE['subid'];
 else if (isset($_POST['subid']))
     $subid=$_POST['subid'];
+else if (isset($_SESSION['subid']))
+    $subid=$_SESSION['subid'];
 
 //если юзверь каким-то чудом отправил пустые поля в форме
 if ($name===''||$phone===''){
@@ -60,6 +63,14 @@ if (!$is_duplicate){
     else{
         $url= $_COOKIE['landing'].'/'.$black_land_conversion_script;
         $fullpath = get_abs_from_rel($url);
+    }
+
+    //на всякий случай, перед отправкой чекаем, установлен ли subid
+    $sub_rewrites=array_column($sub_ids,'rewrite','name');
+    if (array_key_exists('subid',$sub_rewrites)){
+        if (!isset($_POST[$sub_rewrites['subid']])||
+            $_POST[$sub_rewrites['subid']]!==$subid)
+            $_POST[$sub_rewrites['subid']]=$subid;
     }
 
     $res=post($fullpath,http_build_query($_POST));

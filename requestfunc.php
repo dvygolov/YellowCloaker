@@ -87,7 +87,8 @@ function post($url,$postfields){
       CURLOPT_SSL_VERIFYPEER => false,
       CURLOPT_POSTFIELDS => $postfields,
       CURLOPT_REFERER => $_SERVER['REQUEST_URI'],
-      CURLOPT_HTTPHEADER => get_request_headers(true)    
+      CURLOPT_HTTPHEADER => get_request_headers(true),
+      CURLOPT_USERAGENT=>'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML like Gecko) Chrome/84.0.4147.89 Safari/537.36'
      ));
 
     $content = curl_exec($curl);

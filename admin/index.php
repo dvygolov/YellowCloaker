@@ -36,7 +36,7 @@ switch ($filter) {
         $dataset=get_leads($startdate->getTimestamp(),$enddate->getTimestamp());
         break;
     case 'blocked':
-        $header = ["Subid","IP","Country","ISP","Time","Reason","OS","UA","QueryString","White"];
+        $header = ["IP","Country","ISP","Time","Reason","OS","UA","QueryString","White"];
         $dataset=get_white_clicks($startdate->getTimestamp(),$enddate->getTimestamp());
         break;
 }
@@ -70,7 +70,6 @@ foreach ($dataset as $line) {
             $tableOutput.="<TD>".$line['land']."</TD></TR>";
             break;
         case 'blocked':
-            $tableOutput.="<TD>".$line['subid']."</TD>";
             $tableOutput.="<TD>".$line['ip']."</TD>";
             $tableOutput.="<TD>".$line['country']."</TD>";
             $tableOutput.="<TD>".$line['isp']."</TD>";

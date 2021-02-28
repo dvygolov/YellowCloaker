@@ -23,7 +23,6 @@ function add_white_click($data,$reason) {
 	parse_str($_SERVER['QUERY_STRING'],$queryarr);
 
 	$click =[
-		"subid"=>"12342314",
 		"time"=>$time,
 		"ip"=>$calledIp,
 		"country"=>$country,
