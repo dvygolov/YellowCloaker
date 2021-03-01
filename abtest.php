@@ -34,12 +34,22 @@ function select_item($items,$save_user_flow=false,$itemtype='landing',$isfolder=
     return array($item,$t);
 }
 
-function select_item_by_index($items,$index){
+function select_item_by_index($items,$index,$isfolder=true){
+    $item='';
     if ($index<count($items) && $index>=0)
-        return $items[$index];
+        $item= $items[$index];
     else{
         $r = rand(0, count($items) - 1);
-        return $items[$r];
+        $items= $items[$r];
     }
+    //если у нас локальная прокла или ленд, то чекаем, есть ли папка под текущее ГЕО
+    //если есть, то берём её
+    if ($isfolder)
+    {
+        $country=getcountry();
+        if (is_dir($item.$country))
+            $item.=$country;
+    }
+    return $item;
 }
 ?>

@@ -22,11 +22,11 @@ $l=isset($_GET['l'])?$_GET['l']:-1;
 
 switch ($black_land_action){
     case 'folder':
-        $landing=select_item_by_index($black_land_folder_names,$l);
+        $landing=select_item_by_index($black_land_folder_names,$l,$true);
         echo load_landing($landing);
         break;
     case 'redirect':
-        $fullpath=select_item_by_index($black_land_redirect_urls,$l);
+        $fullpath=select_item_by_index($black_land_redirect_urls,$l,$false);
         $querystr = $_SERVER['QUERY_STRING'];
         if (!empty($querystr)) {
             $fullpath = $fullpath.'?'.$querystr;
