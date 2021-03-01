@@ -40,7 +40,9 @@ function getip(){
 	return $ipfound;
 }
 
-function getcountry($ip){
+function getcountry($ip=null){
+	if (is_null($ip))
+		$ip=getip();
 	$reader = new Reader(__DIR__.'/GeoLite2-Country.mmdb');
 	if ($ip==='::1'||$ip==='127.0.0.1') $ip='31.177.76.70'; //for debugging
     $record = $reader->country($ip);

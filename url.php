@@ -1,14 +1,15 @@
 <?php
 require_once 'settings.php';
+require_once 'cookies.php';
 
 //заменяем все макросы на реальные значения из куки
 function replace_all_macros($url)
 {
     global $fbpixel_subname;
     $px = get_fbpixel();
-    $landing = isset($_COOKIE['landing'])?$_COOKIE['landing']:'';
-    $prelanding = isset($_COOKIE['prelanding'])?$_COOKIE['prelanding']:'';
-    $subid = isset($_COOKIE['subid'])?$_COOKIE['subid']:'';
+    $landing = get_cookie('landing');
+    $prelanding = get_cookie('prelanding');
+    $subid = get_subid();
 
     $tmp_url = str_replace('{px}', $px, $url);
     $tmp_url = str_replace('{landing}', $landing, $tmp_url);

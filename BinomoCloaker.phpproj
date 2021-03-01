@@ -33,6 +33,7 @@
     <Compile Include="404\mail.php" />
     <Compile Include="404\scripts.js" />
     <Compile Include="404\style.css" />
+    <Compile Include="abtest.php" />
     <Compile Include="abtests\Calculator\SplitTestAnalyzer.php" />
     <Compile Include="abtests\Calculator\Variation.php" />
     <Compile Include="abtests\Exceptions\RuntimeException.php" />

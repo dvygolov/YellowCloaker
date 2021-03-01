@@ -3,6 +3,7 @@ require_once 'htmlprocessing.php';
 require_once 'cookies.php';
 require_once 'redirect.php';
 require_once 'pixels.php';
+require_once 'abtest.php';
 
 //Включение отладочной информации
 ini_set('display_errors', '1');
@@ -109,20 +110,28 @@ function black($clkrdetect)
 	}
 
 	$prelandings=[];
+    $isfolderpreland=false;
 	if ($black_preland_action=='redirect')
 		$prelandings=$black_preland_redirect_urls;
 	else if ($black_preland_action=='folder')
+    {
 		$prelandings = $black_preland_folder_names;
+        $isfolderpreland=true;
+    }
 
 	$landings=[];
+    $isfolerland=false;
 	if ($black_land_action=='redirect')
 		$landings = $black_land_redirect_urls;
 	else if ($black_land_action=='folder')
+    {
 		$landings = $black_land_folder_names;
+        $isfolerland=true;
+    }
 	
     switch ($black_preland_action) {
         case 'none':
-            $res=select_landing($save_user_flow,$landings);
+            $res=select_landing($save_user_flow,$landings,$isfolerland);
             $landing=$res[0];
             add_black_click($cursubid, $clkrdetect, '', $landing);
 
@@ -134,35 +143,22 @@ function black($clkrdetect)
                     redirect($landing,$black_land_redirect_type);
                     break;
             }
-
             break;
         case 'folder':
 			//если мы используем локальные проклы
-            if ($prelandings != []) {
-                $prelanding='';
-                if ($save_user_flow && isset($_COOKIE['prelanding'])) {
-                    $prelanding = $_COOKIE['prelanding'];
-					if (array_search($prelanding,$prelandings)===false)
-						$prelanding='';
-                }
-				if ($prelanding==='') {
-                    //A-B тестирование прокладок
-                    $r = rand(0, count($prelandings) - 1);
-                    $prelanding = $prelandings[$r];
-					ywbsetcookie('prelanding',$prelanding,'/');
-                }
+            if (empty($prelandings)) break;
+            $prelanding='';
+            $res=select_prelanding($save_user_flow,$prelandings,$isfolderpreland);
+            $prelanding = $res[0];
+            $res=select_landing($save_user_flow,$landings,$isfolerland);
+            $landing=$res[0];
+            $t=$res[1];
 
-                $res=select_landing($save_user_flow,$landings);
-                $landing=$res[0];
-                $t=$res[1];
-
-                echo load_prelanding($prelanding, $t);
-                add_black_click($cursubid, $clkrdetect, $prelanding, $landing);
-            }
+            echo load_prelanding($prelanding, $t);
+            add_black_click($cursubid, $clkrdetect, $prelanding, $landing);
 			break;
         case 'redirect':
-			$r = rand(0, count($prelandings) - 1);
-			$redirect=$prelandings[$r];
+            $redirect=select_prelanding($save_user_flow,$prelandings,$isfolderpreland);
             add_black_click($cursubid, $clkrdetect, '', $redirect);
             redirect($redirect,$black_preland_redirect_type);
             break;
@@ -170,20 +166,4 @@ function black($clkrdetect)
     return;
 }
 
-function select_landing($save_user_flow,$landings){
-    $landing='';
-    if ($save_user_flow && isset($_COOKIE['landing'])) {
-        $landing = $_COOKIE['landing'];
-        $t=array_search($landing, $landings);
-        if ($t===false)
-            $landing='';
-    }
-    if ($landing===''){
-        //A-B тестирование лендингов
-        $t = rand(0, count($landings) - 1);
-        $landing = $landings[$t];
-        ywbsetcookie('landing',$landing,'/');
-    }
-    return array($landing,$t);
-}
 ?>

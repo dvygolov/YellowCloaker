@@ -6,7 +6,8 @@ error_reporting(E_ALL);
 //Конец включения отладочной информации
 
 require_once 'db.php';
-$subid=$_COOKIE['subid'];
+require_once 'cookies.php';
+$subid=get_subid();
 $name=$_POST['name'];
 $phone=$_POST['phone'];
 $is_duplicate = lead_is_duplicate($subid,$phone);

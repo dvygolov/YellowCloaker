@@ -5,6 +5,7 @@ require_once __DIR__."/db/Store.php";
 require_once __DIR__."/db/QueryBuilder.php";
 require_once __DIR__."/db/Query.php";
 require_once __DIR__."/db/Cache.php";
+require_once __DIR__."/cookies.php";
 
 use SleekDB\Store;
 
@@ -70,8 +71,9 @@ function add_lead($subid,$name,$phone,$status='Lead') {
     $dataDir = __DIR__ . "/logs";
     $leadsStore = new Store("leads", $dataDir);
 
-	$fbp=isset($_COOKIE['_fbp'])?$_COOKIE['_fbp']:'';
-	$fbclid=isset($_COOKIE['fbclid'])?$_COOKIE['fbclid']:(isset($_COOKIE['_fbc'])?$_COOKIE['_fbc']:'');
+	$fbp=get_cookie('_fbp');
+	$fbclid=get_cookie('fbclid');
+	if ($fbclid==='') $fbclid=get_cookie('_fbc');
 
 	if ($status=='') $status='Lead';
 

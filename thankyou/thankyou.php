@@ -8,6 +8,7 @@ require_once '../settings.php';
 require_once '../pixels.php';
 require_once '../htmlinject.php';
 require_once '../db.php';
+require_once '../cookies.php';
 
 function mb_basename($path) {
     if (preg_match('@^.*[\\\\/]([^\\\\/]+)$@s', $path, $matches)) {
@@ -44,9 +45,9 @@ if (empty($_GET['nopixel']))
 }
 
 $search='{NAME}';
-$html = str_replace($search,$_COOKIE['name'],$html);
+$html = str_replace($search,get_cookie('name'),$html);
 $search='{PHONE}';
-$html = str_replace($search,$_COOKIE['phone'],$html);
+$html = str_replace($search,get_cookie('phone'),$html);
 
 //добавляем на стр Спасибо допродажи
 if ($thankyou_upsell===true){
@@ -102,7 +103,7 @@ if($ispost){
         }
 }
 else{
-    $subid=$_COOKIE['subid'];
+    $subid=get_subid();
     if(empty($subid)||email_exists_for_subid($subid)){
         $html = str_replace('{EMAIL}','',$html);
     }
@@ -119,11 +120,11 @@ else{
 }
 
 $needle = '</form>';
-$str_to_insert = '<input type="hidden" name="name" value="'.$_COOKIE['name'].'"/>';
+$str_to_insert = '<input type="hidden" name="name" value="'.get_cookie('name').'"/>';
 $html = insert_before_tag($html,$needle,$str_to_insert);
-$str_to_insert = '<input type="hidden" name="phone" value="'.$_COOKIE['phone'].'"/>';
+$str_to_insert = '<input type="hidden" name="phone" value="'.get_cookie('phone').'"/>';
 $html = insert_before_tag($html,$needle,$str_to_insert);
-$str_to_insert = '<input type="hidden" name="subid" value="'.$_COOKIE['subid'].'"/>';
+$str_to_insert = '<input type="hidden" name="subid" value="'.get_subid().'"/>';
 $html = insert_before_tag($html,$needle,$str_to_insert);
 $str_to_insert = '<input type="hidden" name="language" value="'.$black_land_thankyou_page_language.'"/>';
 $html = insert_before_tag($html,$needle,$str_to_insert);

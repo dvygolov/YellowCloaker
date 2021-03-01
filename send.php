@@ -27,14 +27,9 @@ if (isset($_POST['phone']))
 else if (isset($_POST['tel']))
     $phone=$_POST['tel'];
 
-session_start();
-$subid = '';
-if (isset($_COOKIE['subid']))
-    $subid=$_COOKIE['subid'];
-else if (isset($_POST['subid']))
+$subid = get_subid();
+if ($subid==='' && isset($_POST['subid']))
     $subid=$_POST['subid'];
-else if (isset($_SESSION['subid']))
-    $subid=$_SESSION['subid'];
 
 //если юзверь каким-то чудом отправил пустые поля в форме
 if ($name===''||$phone===''){
@@ -61,7 +56,7 @@ if (!$is_duplicate){
     }
     //иначе составляем полный адрес до скрипта отправки ПП
     else{
-        $url= $_COOKIE['landing'].'/'.$black_land_conversion_script;
+        $url= get_cookie('landing').'/'.$black_land_conversion_script;
         $fullpath = get_abs_from_rel($url);
     }
 
