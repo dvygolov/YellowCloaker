@@ -194,13 +194,7 @@ You can disable the ability to select text on your prelandings and landings, dis
 `https://your.domain/logs?password=yourpassword`
 где *yourpassword* это значение переменной **$log_password** из файла *settings.php*.
 # JS-интеграция кло с конструкторами
-## Способ №1
-В случае подключения этим способом, после проверки пользователя будет совершён редирект на блэк
-`<script src = 'https://your.domain/js/indexr.php'></script>`
-
-## Способ №2
-В случае подключения этим способом, после проверки пользователя будет совершена полная подмена страницы на блэк. НЕ ИСПОЛЬЗУЙТЕ этот способ, если у вас ленд БЕЗ проклы.
-`<script src = 'https://your.domain/js'></script>`
+`<script src = 'https://your.domain/js/index.php'></script>`
 # Контакты
 По всем вопросам пишите Issues на GitHub либо в паблик http://vk.com/yellowweb
 
