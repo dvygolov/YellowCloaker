@@ -5,18 +5,18 @@ function ywbsetcookie($name,$value,$path){
 }
 
 function get_cookie($name){
-	session_start();
+	if (session_status()!==PHP_SESSION_ACTIVE) session_start();
     return (isset($_COOKIE[$name])?$_COOKIE[$name]:(isset($_SESSION[$name])?$_SESSION[$name]:''));
 }
 
 function get_subid(){
-	session_start();
+	if (session_status()!==PHP_SESSION_ACTIVE) session_start();
     $subid=get_cookie('subid');
 	return $subid;
 }
 
 function set_subid(){
-	session_start();
+	if (session_status()!==PHP_SESSION_ACTIVE) session_start();
     //устанавливаем пользователю в куки уникальный subid, либо берём его из куки, если он уже есть
     $cursubid=isset($_COOKIE['subid'])?$_COOKIE['subid']:uniqid();
     ywbsetcookie('subid',$cursubid,'/');
