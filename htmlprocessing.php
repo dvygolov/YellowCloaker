@@ -12,16 +12,14 @@ function load_prelanding($url, $land_number)
     global $fb_use_pageview, $fb_use_viewcontent, $fb_view_content_time, $fb_view_content_percent;
 	global $replace_prelanding, $replace_prelanding_address;
 
-    $fullpath = get_abs_from_rel($url,true);
-    $html = get_html($fullpath);
+    $fullpath = get_abs_from_rel($url);
+    $fpwqs = get_abs_from_rel($url,true);
+
+    $html=get_html($fpwqs);
     $html=remove_scrapbook($html);
     $html=remove_from_html($html,'removepreland.html');
-    $baseurl = '/'.$url.'/';
-    //переписываем все относительные src,href & action (не начинающиеся с http)
-    //TODO:сделать полный путь к форме в случае js-подключения
-	$html = rewrite_relative_urls($html,$baseurl);
-    $html = preg_replace('/\saction=[\'\"](?!http|\/\/)([^\'\"]+)[\'\"]/', " action=\"$baseurl\\1\"", $html);
 
+    $html=insert_after_tag($html,"<head","<base href='".$fullpath."'>");
     //добавляем в страницу скрипт GTM
     $html = insert_gtm_script($html);
     //добавляем в страницу скрипт Yandex Metrika
@@ -84,7 +82,7 @@ function load_landing($url)
     $html=get_html($fpwqs);
     $html=remove_scrapbook($html);
     $html=remove_from_html($html,'removeland.html');
-    $html=insert_after_tag($html,"<head>","<base href='".$fullpath."'>");
+    $html=insert_after_tag($html,"<head","<base href='".$fullpath."'>");
 
     if($black_land_use_custom_thankyou_page===true){
 		//меняем обработчик формы, чтобы у вайта и блэка была одна thankyou page

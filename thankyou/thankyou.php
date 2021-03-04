@@ -54,8 +54,8 @@ if ($thankyou_upsell===true){
     //вставляем все нужные стили и скрипты
     $scripts_html=file_get_contents(__DIR__.'/upsell/upsell.js');
     $css_html=file_get_contents(__DIR__.'/upsell/upsell.css');
-    $html=insert_after_tag($html,'<head>',$scripts_html);
-    $html=insert_after_tag($html,'<head>',$css_html);
+    $html=insert_after_tag($html,'<head',$scripts_html);
+    $html=insert_after_tag($html,'<head',$css_html);
 
     //вставляем все картинки в витрину, заполняем заголовок и текст
     $dir = __DIR__.'/upsell/'.$thankyou_upsell_imgdir;

@@ -5,6 +5,9 @@ function get_prefix(){
 }
 
 function get_port(){
+    $curport = $_SERVER['SERVER_PORT'];
+    if (isset($curport)&&$curport!=='80'&&$curport!=='443')
+        return $curport;
 	return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')  ? 443 : 80;
 }
 
