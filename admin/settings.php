@@ -151,149 +151,9 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                     <div class="row">
                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                             <div class="all-form-element-inner">
-
-                                                    <hr>
-                                                    <h4>#1 Настройка Javascript-проверок</h4>
-
-                                                    <div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Использовать JS проверку? </label>
-                                                            </div>
-                                                            <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                                                                <div class="bt-df-checkbox pull-left">
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-																						<input type="radio" <?=$use_js_checks===false?'checked="checked"':''?> value="false" name="white.jschecks.enabled" onclick="(document.getElementById('jscheckssettings').style.display = 'none')"> Нет, не использовать </label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-																						<input type="radio" value="true" <?=$use_js_checks===true?'checked="checked"':''?> name="white.jschecks.enabled" onclick="(document.getElementById('jscheckssettings').style.display = 'block')">  Использовать </label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                <div id="jscheckssettings" style="display:<?=$use_js_checks===true?'block':'none'?>;">
-                                                    <div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Что проверять? </label>
-                                                            </div>
-                                                            <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                                                                <div class="bt-df-checkbox pull-left">
-
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-																						<input type="checkbox" name="white.jschecks.events[]" value="mousemove" <?=in_array('mousemove',$js_checks)?'checked':''?>> Движения мыши </label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-																						<input type="checkbox" name="white.jschecks.events[]" value="keydown" <?=in_array('keydown',$js_checks)?'checked':''?>> Нажатия клавиш </label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-																						<input type="checkbox" name="white.jschecks.events[]" value="scroll" <?=in_array('scroll',$js_checks)?'checked':''?>> Скроллинг </label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-																						<input type="checkbox" name="white.jschecks.events[]" value="wheel" <?=in_array('wheel',$js_checks)?'checked':''?>> Колесо мыши </label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-																						<input type="checkbox" name="white.jschecks.events[]" value="devicemotion" <?=in_array('devicemotion',$js_checks)?'checked':''?>> Датчик движения (только для Android)</label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-																						<input type="checkbox" name="white.jschecks.events[]" value="deviceorientation" <?=in_array('deviceorientation',$js_checks)?'checked':''?>> Датчик ориентации в пространстве (только для Android)</label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Маскировать код JS-проверки? </label>
-                                                            </div>
-                                                            <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                                                                <div class="bt-df-checkbox pull-left">
-
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-																						<input type="radio" value="true" <?=$js_obfuscate===true?'checked="checked"':''?> name="white.jschecks.obfuscate">  Маскировать </label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-																						<input type="radio" value="false" <?=$js_obfuscate===false?'checked="checked"':''?> name="white.jschecks.obfuscate"> Нет, не маскировать </label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Время теста в миллисекундах: </label>
-                                                            </div>
-                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                                <div class="input-group custom-go-button">
-                                                                    <input type="text" class="form-control" placeholder="10000" name="white.jschecks.timeout" value="<?=$js_timeout?>">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <p>Если проверка по JS включена, то пользователь всегда попадает вначале на вайт, и только если проверки пройдены, тогда ему показывается блэк.
-                                                </div>
-                                            </div>
-                                                    <br>
-                                                    <hr>
-                                                    <h4>#2 Настройка вайта</h4>
-                                                    <div class="form-group-inner">
+                                                <hr>
+                                                <h4>#1 Настройка вайта</h4>
+                                                <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                                                                 <label class="login2 pull-left pull-left-pro">Выберите метод: </label>
@@ -441,7 +301,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                     </div>
                                                 </div>
 
-                                                    <div class="form-group-inner">
+                                                <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                                                                 <label class="login2 pull-left pull-left-pro">Показывать индивидуальный вайт под каждый домен? </label>
@@ -501,9 +361,144 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                     <a id="add-domain-item" class="btn btn-sm btn-primary" href="javascript:;">Добавить</a>
                                                 </div>
 
+                                                <div class="form-group-inner">
+                                                    <div class="row">
+                                                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                                                            <label class="login2 pull-left pull-left-pro">Использовать JS проверку? </label>
+                                                        </div>
+                                                        <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
+                                                            <div class="bt-df-checkbox pull-left">
+                                                                <div class="row">
+                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                        <div class="i-checks pull-left">
+                                                                            <label>
+                                                                                    <input type="radio" <?=$use_js_checks===false?'checked="checked"':''?> value="false" name="white.jschecks.enabled" onclick="(document.getElementById('jscheckssettings').style.display = 'none')"> Нет, не использовать </label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                        <div class="i-checks pull-left">
+                                                                            <label>
+                                                                                    <input type="radio" value="true" <?=$use_js_checks===true?'checked="checked"':''?> name="white.jschecks.enabled" onclick="(document.getElementById('jscheckssettings').style.display = 'block')">  Использовать </label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div id="jscheckssettings" style="display:<?=$use_js_checks===true?'block':'none'?>;">
+                                                    <div class="form-group-inner">
+                                                        <div class="row">
+                                                            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                                                                <label class="login2 pull-left pull-left-pro">Что проверять? </label>
+                                                            </div>
+                                                            <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
+                                                                <div class="bt-df-checkbox pull-left">
+
+                                                                    <div class="row">
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                            <div class="i-checks pull-left">
+                                                                                <label>
+																						<input type="checkbox" name="white.jschecks.events[]" value="mousemove" <?=in_array('mousemove',$js_checks)?'checked':''?>> Движения мыши </label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                            <div class="i-checks pull-left">
+                                                                                <label>
+																						<input type="checkbox" name="white.jschecks.events[]" value="keydown" <?=in_array('keydown',$js_checks)?'checked':''?>> Нажатия клавиш </label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                            <div class="i-checks pull-left">
+                                                                                <label>
+																						<input type="checkbox" name="white.jschecks.events[]" value="scroll" <?=in_array('scroll',$js_checks)?'checked':''?>> Скроллинг </label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                            <div class="i-checks pull-left">
+                                                                                <label>
+																						<input type="checkbox" name="white.jschecks.events[]" value="wheel" <?=in_array('wheel',$js_checks)?'checked':''?>> Колесо мыши </label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                            <div class="i-checks pull-left">
+                                                                                <label>
+																						<input type="checkbox" name="white.jschecks.events[]" value="devicemotion" <?=in_array('devicemotion',$js_checks)?'checked':''?>> Датчик движения (только для Android)</label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                            <div class="i-checks pull-left">
+                                                                                <label>
+																						<input type="checkbox" name="white.jschecks.events[]" value="deviceorientation" <?=in_array('deviceorientation',$js_checks)?'checked':''?>> Датчик ориентации в пространстве (только для Android)</label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="form-group-inner">
+                                                        <div class="row">
+                                                            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                                                                <label class="login2 pull-left pull-left-pro">Маскировать код JS-проверки? </label>
+                                                            </div>
+                                                            <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
+                                                                <div class="bt-df-checkbox pull-left">
+
+                                                                    <div class="row">
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                            <div class="i-checks pull-left">
+                                                                                <label>
+																						<input type="radio" value="true" <?=$js_obfuscate===true?'checked="checked"':''?> name="white.jschecks.obfuscate">  Маскировать </label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                            <div class="i-checks pull-left">
+                                                                                <label>
+																						<input type="radio" value="false" <?=$js_obfuscate===false?'checked="checked"':''?> name="white.jschecks.obfuscate"> Нет, не маскировать </label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="form-group-inner">
+                                                        <div class="row">
+                                                            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+                                                                <label class="login2 pull-left pull-left-pro">Время теста в миллисекундах: </label>
+                                                            </div>
+                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                                                <div class="input-group custom-go-button">
+                                                                    <input type="text" class="form-control" placeholder="10000" name="white.jschecks.timeout" value="<?=$js_timeout?>">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <p>Если проверка по JS включена, то пользователь всегда попадает вначале на вайт, и только если проверки пройдены, тогда ему показывается блэк.
+                                                </div>
+                                                </div>
                                                 <br>
                                                 <hr>
-                                                <h4>#3 Настройка блэка</h4>
+                                                <h4>#2 Настройка блэка</h4>
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
@@ -864,7 +859,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                 </div>
                                                     <br>
                                                     <hr>
-                                                    <h4>#4 Настройка метрик и пикселей</h4>
+                                                    <h4>#3 Настройка метрик и пикселей</h4>
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -1031,7 +1026,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
 
                                                     <br>
                                                     <hr>
-                                                    <h4>#5 Настройка TDS</h4>
+                                                    <h4>#4 Настройка TDS</h4>
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
@@ -1100,7 +1095,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
 
                                                     <br>
                                                     <hr>
-                                                    <h4>#6 Настройка фильтров</h4>
+                                                    <h4>#5 Настройка фильтров</h4>
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -1303,7 +1298,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                     </div>
                                                     <br>
                                                     <hr>
-                                                    <h4>#7 Настройка дополнительных скриптов</h4>
+                                                    <h4>#6 Настройка дополнительных скриптов</h4>
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
@@ -1599,7 +1594,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                     </div>
                                                     <br>
                                                     <hr>
-                                                    <h4>#8 Настройка суб-меток</h4>
+                                                    <h4>#7 Настройка суб-меток</h4>
                                                     <p>Кло берёт из адресной строки те субметки, что слева и:<br>
                                                        1. Если у вас локальный ленд, то кло записывает значения меток в каждую форму на ленде в поля с именами, которые справа<br>
                                                        2. Если у вас ленд в ПП, то кло дописывает значения меток к ссылке ПП с именами, которые справа<br>
@@ -1642,7 +1637,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
 
                                                     <br>
                                                     <hr>
-                                                    <h4>#9 Настройка статистики и постбэка</h4>
+                                                    <h4>#8 Настройка статистики и постбэка</h4>
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
