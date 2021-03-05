@@ -473,7 +473,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                 <div id="b_6" style="display:<?=$white_use_domain_specific===true?'block':'none'?>;">
                                                     <div id="white_domainspecific">
                                                     <?php for($j=0;$j<count($white_domain_specific);$j++){ ?>
-                                                    <div class="form-group-inner">
+                                                    <div class="form-group-inner white">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                                                                 <label class="login2 pull-left pull-left-pro">Домен => Метод:Направление</label>
@@ -501,106 +501,38 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                     <a id="add-domain-item" class="btn btn-sm btn-primary" href="javascript:;">Добавить</a>
                                                 </div>
 
-                                                    <br>
-                                                    <hr>
-                                                    <h4>#3 Настройка блэка</h4>
-                                                    <div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Выберите метод загрузки прокладок: </label>
-                                                            </div>
-                                                            <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                                                                <div class="bt-df-checkbox pull-left">
+                                                <br>
+                                                <hr>
+                                                <h4>#3 Настройка блэка</h4>
+                                                <div class="form-group-inner">
+                                                    <div class="row">
+                                                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                                                            <label class="login2 pull-left pull-left-pro">Выберите метод загрузки прокладок: </label>
+                                                        </div>
+                                                        <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
+                                                            <div class="bt-df-checkbox pull-left">
 
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-																						<input type="radio" <?=$black_preland_action==='none'?'checked':''?> value="none" name="black.prelanding.action" onclick="(document.getElementById('b_7').style.display='none'); (document.getElementById('b_8').style.display='none')"> Не использовать прелендинг </label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-																						<input type="radio" <?=$black_preland_action==='folder'?'checked':''?> value="folder" name="black.prelanding.action" onclick="(document.getElementById('b_7').style.display='none'); (document.getElementById('b_8').style.display='block')"> Локальный прелендинг из папки </label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-																						<input type="radio" <?=$black_preland_action==='redirect'?'checked':''?> value="redirect" name="black.prelanding.action" onclick="(document.getElementById('b_7').style.display='block'); (document.getElementById('b_8').style.display='none')"> Редирект </label>
-                                                                            </div>
+                                                                <div class="row">
+                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                        <div class="i-checks pull-left">
+                                                                            <label>
+                                                                                    <input type="radio" <?=$black_preland_action==='none'?'checked':''?> value="none" name="black.prelanding.action" onclick="(document.getElementById('b_7').style.display='none'); (document.getElementById('b_8').style.display='none')"> Не использовать прелендинг </label>
                                                                         </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                <div id="b_7" style="display:<?=$black_preland_action==='redirect'?'block':'none'?>;">
-                                                    <div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Адреса для редиректа: <small>(Можно НЕСКОЛЬКО через запятую)</small> </label>
-                                                            </div>
-                                                            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
-                                                                <div class="input-group custom-go-button">
-                                                                    <input type="text" class="form-control" placeholder="https://ya.ru,https://google.com" name="black.prelanding.redirect.urls" value="<?=implode(',',$black_preland_redirect_urls)?>">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Выберите код редиректа: </label>
-                                                            </div>
-                                                            <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                                                                <div class="bt-df-checkbox pull-left">
-
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-																						<input type="radio" <?=$black_preland_redirect_type===301?'checked':''?> value="301" name="black.prelanding.redirect.type"> 301 </label>
-                                                                            </div>
+                                                                <div class="row">
+                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                        <div class="i-checks pull-left">
+                                                                            <label>
+                                                                                    <input type="radio" <?=$black_preland_action==='folder'?'checked':''?> value="folder" name="black.prelanding.action" onclick="(document.getElementById('b_7').style.display='none'); (document.getElementById('b_8').style.display='block')"> Локальный прелендинг из папки </label>
                                                                         </div>
                                                                     </div>
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-																						<input type="radio" <?=$black_preland_redirect_type===302?'checked':''?> value="302" name="black.prelanding.redirect.type"> 302 </label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-																						<input type="radio" <?=$black_preland_redirect_type===303?'checked':''?> value="303" name="black.prelanding.redirect.type">  303 </label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-																						<input type="radio" <?=$black_preland_redirect_type===307?'checked':''?> value="307" name="black.prelanding.redirect.type">  307 </label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
+
 
                                                 <div id="b_8" style="display:<?=$black_preland_action==='folder'?'block':'none'?>;">
                                                     <div class="form-group-inner">
@@ -1684,7 +1616,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                     </p>
                                                     <div id="subs_container">
                                                         <?php  for ($i=0;$i<count($sub_ids);$i++){?>
-                                                            <div class="form-group-inner">
+                                                            <div class="form-group-inner subs">
                                                                 <div class="row">
                                                                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                                                                          <div class="input-group">
@@ -1736,7 +1668,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
 
                                                     <div id="stats_subs_container">
                                                         <?php  for ($i=0;$i<count($stats_sub_names);$i++){?>
-                                                            <div class="form-group-inner">
+                                                            <div class="form-group-inner stats_subs">
                                                                 <div class="row">
                                                                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                                                                          <div class="input-group">
@@ -1858,7 +1790,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
     <script>
     $('#add-domain-item').cloneData({
         mainContainerId: 'white_domainspecific',
-        cloneContainer: 'form-group-inner',
+        cloneContainer: 'white',
         removeButtonClass: 'remove-domain-item',
         maxLimit: 5,
         minLimit: 1,
@@ -1867,15 +1799,16 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
 
     $('#add-sub-item').cloneData({
         mainContainerId: 'subs_container',
-        cloneContainer: 'form-group-inner',
+        cloneContainer: 'subs',
         removeButtonClass: 'remove-sub-item',
         maxLimit: 10,
         minLimit: 1,
         removeConfirm: false
     });
+
     $('#add-stats-sub-item').cloneData({
         mainContainerId: 'stats_subs_container',
-        cloneContainer: 'form-group-inner',
+        cloneContainer: 'stats_subs',
         removeButtonClass: 'remove-stats-sub-item',
         maxLimit: 10,
         minLimit: 1,

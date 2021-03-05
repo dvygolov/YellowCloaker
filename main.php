@@ -87,7 +87,7 @@ function white($use_js_checks)
 
 function black($clkrdetect)
 {
-    global $black_preland_action,$black_preland_redirect_type, $black_preland_redirect_urls, $black_preland_folder_names;
+    global $black_preland_action,$black_preland_folder_names;
 	global $black_land_action, $black_land_folder_names, $save_user_flow;
 	global $black_land_redirect_type,$black_land_redirect_urls;
 	global $fbpixel_subname;
@@ -109,15 +109,6 @@ function black($clkrdetect)
 		ywbsetcookie('fbclid',$_GET['fbclid'],'/');
 	}
 
-	$prelandings=[];
-    $isfolderpreland=false;
-	if ($black_preland_action=='redirect')
-		$prelandings=$black_preland_redirect_urls;
-	else if ($black_preland_action=='folder')
-    {
-		$prelandings = $black_preland_folder_names;
-        $isfolderpreland=true;
-    }
 
 	$landings=[];
     $isfolerland=false;
@@ -144,11 +135,11 @@ function black($clkrdetect)
                     break;
             }
             break;
-        case 'folder':
-			//если мы используем локальные проклы
+        case 'folder': //если мы используем локальные проклы
+            $prelandings=$black_preland_folder_names;
             if (empty($prelandings)) break;
             $prelanding='';
-            $res=select_prelanding($save_user_flow,$prelandings,$isfolderpreland);
+            $res=select_prelanding($save_user_flow,$prelandings);
             $prelanding = $res[0];
             $res=select_landing($save_user_flow,$landings,$isfolerland);
             $landing=$res[0];
@@ -157,11 +148,6 @@ function black($clkrdetect)
             echo load_prelanding($prelanding, $t);
             add_black_click($cursubid, $clkrdetect, $prelanding, $landing);
 			break;
-        case 'redirect':
-            $redirect=select_prelanding($save_user_flow,$prelandings,$isfolderpreland);
-            add_black_click($cursubid, $clkrdetect, '', $redirect);
-            redirect($redirect,$black_preland_redirect_type);
-            break;
     }
     return;
 }

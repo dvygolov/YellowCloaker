@@ -5,8 +5,8 @@ function select_landing($save_user_flow,$landings,$isfolder=false){
     return select_item($landings,$save_user_flow,'landing',$isfolder);
 }
 
-function select_prelanding($save_user_flow,$prelandings,$isfolder=false){
-    return select_item($prelandings,$save_user_flow,'prelanding',$isfolder);
+function select_prelanding($save_user_flow,$prelandings){
+    return select_item($prelandings,$save_user_flow,'prelanding',true);
 }
 
 function select_item($items,$save_user_flow=false,$itemtype='landing',$isfolder=true){

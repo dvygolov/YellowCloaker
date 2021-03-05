@@ -26,8 +26,6 @@ $js_timeout =$conf['white.jschecks.timeout'];
 $js_obfuscate = $conf['white.jschecks.obfuscate'];
 
 $black_preland_action = $conf['black.prelanding.action'];
-$black_preland_redirect_urls = $conf['black.prelanding.redirect.urls']; 
-$black_preland_redirect_type = $conf['black.prelanding.redirect.type']; 
 $black_preland_folder_names = $conf['black.prelanding.folders']; 
 
 $black_land_action = $conf['black.landing.action'];
