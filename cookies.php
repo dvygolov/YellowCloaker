@@ -6,17 +6,13 @@ function ywbsetcookie($name,$value,$path){
 
 function get_cookie($name){
 	if (session_status()!==PHP_SESSION_ACTIVE) {
-		ini_set("session.cookie_secure", 1);
-		session_start();
+		session_start(['read_and_close'=>true]);
     }
-    return (isset($_COOKIE[$name])?$_COOKIE[$name]:(isset($_SESSION[$name])?$_SESSION[$name]:''));
+    $c=(isset($_COOKIE[$name])?$_COOKIE[$name]:(isset($_SESSION[$name])?$_SESSION[$name]:''));
+	return $c;
 }
 
 function get_subid(){
-	if (session_status()!==PHP_SESSION_ACTIVE) {
-		ini_set("session.cookie_secure", 1);
-		session_start();
-    }
     $subid=get_cookie('subid');
 	return $subid;
 }
@@ -30,6 +26,7 @@ function set_subid(){
     $cursubid=isset($_COOKIE['subid'])?$_COOKIE['subid']:uniqid();
     ywbsetcookie('subid',$cursubid,'/');
 	$_SESSION['subid']=$cursubid;
+	session_write_close();
     return $cursubid;
 }
 
