@@ -150,7 +150,8 @@ class Cloaker{
 			in_array('any',$this->lang_white)===false &&
 			$lang_white_checker===false){
 			$result=1;
-			$this->result[]='language';
+			$buf=strtoupper($this->detect['lang']);
+			$this->result[]='language:'.$buf;
 		}
 
 		if($this->block_without_referer===true && (int)$this->detect['referer']===''){
