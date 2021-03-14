@@ -363,7 +363,11 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Использовать JS проверку? </label>
+                                                            <label class="login2 pull-left pull-left-pro">Использовать JS проверку? 
+                                                                <small>
+                                                    Если проверка по JS включена, то пользователь всегда попадает вначале на вайт, и только если проверки пройдены, тогда ему показывается блэк.
+                                                                </small> 
+                                                            </label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                             <div class="bt-df-checkbox pull-left">
@@ -389,6 +393,18 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                 </div>
 
                                                 <div id="jscheckssettings" style="display:<?=$use_js_checks===true?'block':'none'?>;">
+                                                    <div class="form-group-inner">
+                                                        <div class="row">
+                                                            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+                                                                <label class="login2 pull-left pull-left-pro">Время теста в миллисекундах: </label>
+                                                            </div>
+                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                                                <div class="input-group custom-go-button">
+                                                                    <input type="text" class="form-control" placeholder="10000" name="white.jschecks.timeout" value="<?=$js_timeout?>">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
@@ -425,14 +441,6 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-																						<input type="checkbox" name="white.jschecks.events[]" value="wheel" <?=in_array('wheel',$js_checks)?'checked':''?>> Колесо мыши </label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
 																						<input type="checkbox" name="white.jschecks.events[]" value="devicemotion" <?=in_array('devicemotion',$js_checks)?'checked':''?>> Датчик движения (только для Android)</label>
                                                                             </div>
                                                                         </div>
@@ -446,11 +454,51 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                         </div>
                                                                     </div>
 
+                                                                    <div class="row">
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                            <div class="i-checks pull-left">
+                                                                                <label>
+																						<input type="checkbox" name="white.jschecks.events[]" value="audiocontext" <?=in_array('audiocontext',$js_checks)?'checked':''?>> Наличие аудиодвижка в браузере</label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    <div class="row">
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                            <div class="i-checks pull-left">
+                                                                                <label>
+																						<input id="tzcheck" type="checkbox" name="white.jschecks.events[]" value="timezone" <?=in_array('timezone',$js_checks)?'checked':''?> onchange="(document.getElementById('jscheckstz').style.display = this.checked?'block':'none')"> Часовой пояс </label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
+                                                    </div>
 
-                                                        <div class="form-group-inner">
+                                                    <div id="jscheckstz" class="form-group-inner" style="display:<?=in_array('timezone',$js_checks)?'block':'none'?>;">
+                                                        <div class="row">
+                                                            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+                                                                <label class="login2 pull-left pull-left-pro">Минимально допустимый часовой пояс</label>
+                                                            </div>
+                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                                                <div class="input-group custom-go-button">
+                                                                    <input type="text" class="form-control" placeholder="-3" name="white.jschecks.tzstart" value="<?=$js_tzstart?>">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row">
+                                                            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+                                                                <label class="login2 pull-left pull-left-pro">Максимально допустимый часовой пояс</label>
+                                                            </div>
+                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                                                <div class="input-group custom-go-button">
+                                                                    <input type="text" class="form-control" placeholder="3" name="white.jschecks.tzend" value="<?=$js_tzend?>">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                                                                 <label class="login2 pull-left pull-left-pro">Маскировать код JS-проверки? </label>
@@ -480,20 +528,6 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                         </div>
                                                     </div>
 
-                                                    <div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Время теста в миллисекундах: </label>
-                                                            </div>
-                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                                <div class="input-group custom-go-button">
-                                                                    <input type="text" class="form-control" placeholder="10000" name="white.jschecks.timeout" value="<?=$js_timeout?>">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <p>Если проверка по JS включена, то пользователь всегда попадает вначале на вайт, и только если проверки пройдены, тогда ему показывается блэк.
-                                                </div>
                                                 </div>
                                                 <br>
                                                 <hr>
@@ -1649,6 +1683,18 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    <div class="form-group-inner">
+                                                        <div class="row">
+                                                            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+                                                                <label class="login2 pull-left pull-left-pro">Часовой пояс для отображения статы</label>
+                                                            </div>
+                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                                                <div class="input-group custom-go-button">
+                                                                    <?=select_timezone('statistics.timezone',$stats_timezone) ?>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 <br/>
                                                     <div class="form-group-inner">
                                                         <div class="row">
@@ -1826,5 +1872,22 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
 		============================================ -->
     <script src="js/main.js"></script>
 </body>
+
+<?php
+function select_timezone($selectname,$selected = '') {
+    $zones = timezone_identifiers_list();
+    $select= "<select name='".$selectname."' class='form-control'>";
+    foreach($zones as $zone)
+    {
+        $tz=new DateTimeZone($zone);
+        $offset=$tz->getOffset(new DateTime)/3600;
+        $select .='<option value="'.$zone.'"';
+        $select .= ($zone == $selected ? ' selected' : '');
+        $select .= '>'.$zone.' '.$offset.'</option>';
+    }  
+    $select.='</select>';
+    return $select;
+}
+?>
 
 </html>

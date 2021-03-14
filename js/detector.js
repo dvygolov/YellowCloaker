@@ -10,6 +10,8 @@ function BotDetector(args) {
     self.timeout = args.timeout || 1000;
     self.callback = args.callback || null;
     self.notified = false;
+    self.tzStart = args.tzStart || 0;
+    self.tzEnd = args.tzEnd || 0;
 
     self.maxDeviceEventsCount = 10;
     self.motionCount = 0;
@@ -27,24 +29,54 @@ function BotDetector(args) {
         KEYDOWN: 'keydown',
         MOUSE: 'mousemove',
         TOUCHSTART: 'touchstart',
-        WHEEL: 'wheel',
         SCROLL: 'scroll',
         DEVICEMOTION: 'devicemotion',
         DEVICEORIENTATION: 'deviceorientation',
+        TIMEZONE: 'timezone',
+        AUDIOCONTEXT: 'audiocontext'
     };
 
     var selectedTests = args.tests || [];
+    log('Listening for:' + selectedTests.join());
+
+    if (selectedTests.includes(Tests.TIMEZONE)) {
+        log('Min allowed tz: ' + self.tzStart);
+        log('Max allowed tz: ' + self.tzEnd);
+        var curZone = -(new Date().getTimezoneOffset() / 60);
+        log('Current tz: ' + curZone);
+        if (curZone < self.tzStart || curZone > self.tzEnd) {
+            self.reason = 'timezone:' + curZone;
+            self.isBot = true;
+            self.callback(self);
+            return;
+        }
+    }
+
+    if (selectedTests.includes(Tests.AUDIOCONTEXT)) {
+        try {
+            window.AudioContext = window.AudioContext || window.webkitAudioContext;
+            context = new AudioContext();
+        }
+        catch (e) {
+            self.reason = 'audiocontext';
+            self.isBot = true;
+            self.callback(self);
+            return;
+        }
+    }
+
     selectedTests.forEach(st => {
-        log('<div>Listening for:' + st + '</div>');
         switch (st) {
+            case Tests.TIMEZONE:
+            case Tests.AUDIOCONTEXT:
+                break;
             case Tests.MOUSE:
             case Tests.KEYDOWN:
-            case Tests.WHEEL:
             case Tests.SCROLL:
             case Tests.TOUCHSTART:
                 self.tests[st] = function () {
-                    var e = function () {
-                        log('<div>' + st + '</div>');
+                    var e = function (evt) {
+                        log(st + evt.target);
                         self.tests[st] = true;
                         self.update();
                     };
@@ -56,11 +88,7 @@ function BotDetector(args) {
             case Tests.DEVICEORIENTATION:
                 self.tests[st] = function () {
                     var e = function (et) {
-                        log('<br/>');
-                        log('<div>' + st + '</div>');
-                        log('<div>Alpha:' + et.alpha + '</div>');
-                        log('<div>Beta:' + et.beta + '</div>');
-                        log('<div>Gamma:' + et.gamma + '</div>');
+                        log(st+': Alpha:' + et.alpha+' Beta:' + et.beta+' Gamma:' + et.gamma);
                         self.orientationCount++;
                         if (self.orientation !== null) {
                             if (Math.abs(et.alpha - self.orientation.alpha) > self.orientdelta ||
@@ -89,11 +117,7 @@ function BotDetector(args) {
             case Tests.DEVICEMOTION:
                 self.tests[st] = function () {
                     var e = function (et) {
-                        log('<br/>');
-                        log('<div>' + st + '</div>');
-                        log('<div>X:' + et.acceleration.x + '</div>');
-                        log('<div>Y:' + et.acceleration.y + '</div>');
-                        log('<div>Z:' + et.acceleration.z + '</div>');
+                        log(st+': X:' + et.acceleration.x+' Y:' + et.acceleration.y+' Z:' + et.acceleration.z);
                         self.motionCount++;
                         if (self.acceleration !== null) {
                             if (Math.abs(et.acceleration.x - self.acceleration.x) > self.acceldelta ||
@@ -116,29 +140,25 @@ function BotDetector(args) {
                     if (window.DeviceMotionEvent)
                         window.addEventListener(st, e);
                     else
-                        console.log("No Motion Detected!");
+                        log("No Motion Detected!");
                 };
                 break;
         }
     });
-
 }
 
 
 BotDetector.prototype.update = function () {
     var self = this;
     var count = 0;
-    var tests = 0;
 	self.reason='';
     for (var t in self.tests) {
         if (self.tests.hasOwnProperty(t) && self.tests[t] === true) {
 			self.reason+=t+';';
             count++;
         }
-        tests++;
     }
     self.isBot = count == 0;
-    self.allMatched = count == tests;
     if (self.notified === false) {
         self.callback(self);
         self.notified = true;
@@ -147,6 +167,8 @@ BotDetector.prototype.update = function () {
 
 BotDetector.prototype.monitor = function () {
     var self = this;
+    if (self.isBot) //если по таймзоне или аудиодвижку не прошли то гг
+        return;
     for (var i in self.tests) {
         if (self.tests.hasOwnProperty(i)) {
             self.tests[i].call();

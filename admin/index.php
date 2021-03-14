@@ -11,8 +11,13 @@ if ($log_password!==''&&(empty($_GET['password'])||$_GET['password'] !== $log_pa
 }
 require_once 'db.php';
 
-$startdate=isset($_GET['startdate'])?DateTime::createFromFormat('d.m.y', $_GET['startdate']):new DateTime();
-$enddate=isset($_GET['enddate'])?DateTime::createFromFormat('d.m.y', $_GET['enddate']):new DateTime();
+date_default_timezone_set($stats_timezone);
+$startdate=isset($_GET['startdate'])?
+    DateTime::createFromFormat('d.m.y', $_GET['startdate'],new DateTimeZone($stats_timezone)):
+    new DateTime(null,new DateTimeZone($stats_timezone));
+$enddate=isset($_GET['enddate'])?
+    DateTime::createFromFormat('d.m.y', $_GET['enddate'],new DateTimeZone($stats_timezone)):
+    new DateTime(null,new DateTimeZone($stats_timezone));
 $startdate->setTime(0,0,0);
 $enddate->setTime(23,59,59);
 
