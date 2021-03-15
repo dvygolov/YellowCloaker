@@ -41,7 +41,7 @@ switch ($filter) {
         $dataset=get_leads($startdate->getTimestamp(),$enddate->getTimestamp());
         break;
     case 'blocked':
-        $header = ["IP","Country","ISP","Time","Reason","OS","UA","QueryString","White"];
+        $header = ["IP","Country","ISP","Time","Reason","OS","UA","QueryString"];
         $dataset=get_white_clicks($startdate->getTimestamp(),$enddate->getTimestamp());
         break;
 }
