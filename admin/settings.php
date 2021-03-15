@@ -79,7 +79,6 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                 <li><a title="Лиды" href="index.php?filter=leads&password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Leads</span></a></li>
                                 <li><a title="Заблокированный" href="index.php?filter=blocked&password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>"><span class="mini-sub-pro">Blocked</span></a></li>
 
-                                <li><a title="Peity Charts" href="#bottom"><span class="mini-sub-pro">Go to bottom</span></a></li>
                             </ul>
                         </li>
                         <li>
@@ -1817,7 +1816,6 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
         </div>
     </form>
 
-    <a name="bottom"></a>
     </div>
     <!-- jquery
 		============================================ -->
