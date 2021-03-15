@@ -147,7 +147,6 @@ function BotDetector(args) {
     });
 }
 
-
 BotDetector.prototype.update = function () {
     var self = this;
     var count = 0;

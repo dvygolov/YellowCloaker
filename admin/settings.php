@@ -203,7 +203,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                                 <div class="input-group custom-go-button">
-                                                                    <input type="text" class="form-control" placeholder="white" name="white.folder.name" value="<?=$white_folder_name?>">
+                                                                    <input type="text" class="form-control" placeholder="white" name="white.folder.names" value="<?=implode(',',$white_folder_names)?>">
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -217,7 +217,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                                                                 <div class="input-group custom-go-button">
-                                                                    <input type="text" class="form-control" placeholder="https://ya.ru" name="white.redirect.url" value="<?=$white_redirect_url?>">
+                                                                    <input type="text" class="form-control" placeholder="https://ya.ru" name="white.redirect.urls" value="<?=implode(',',$white_redirect_urls)?>">
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -277,7 +277,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                                                                 <div class="input-group custom-go-button">
-                                                                    <input type="text" class="form-control" placeholder="https://ya.ru" name="white.curl.url" value="<?=$white_curl_url?>">
+                                                                    <input type="text" class="form-control" placeholder="https://ya.ru" name="white.curl.urls" value="<?=implode(',',$white_curl_urls)?>">
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -292,7 +292,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                                 <div class="input-group custom-go-button">
-                                                                    <input type="text" class="form-control" placeholder="404" name="white.error.code" value="<?=$white_error_code?>">
+                                                                    <input type="text" class="form-control" placeholder="404" name="white.error.codes" value="<?=implode(',',$white_error_codes)?>">
                                                                 </div>
                                                             </div>
                                                         </div>

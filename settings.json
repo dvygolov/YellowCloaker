@@ -1,26 +1,27 @@
 {
     "white": {
-        "action": "folder",
+        "action": "redirect",
         "folder": {
-            "name": "white"
+            "names": [
+                "white"
+            ]
         },
         "redirect": {
-            "url": "https://ya.ru",
-            "type": 303
+            "type": 303,
+            "urls": [
+                "https://ya.ru",
+                "https://google.com"
+            ]
         },
         "curl": {
-            "url": "https://yandex.ru"
+            "urls": []
         },
         "error": {
-            "code": 404
+            "codes": []
         },
         "domainfilter": {
             "use": false,
             "domains": [
-                {
-                    "name": "keto.awlah.com",
-                    "action": "curl:https://ya.ru"
-                },
                 {
                     "name": "lalala.xxx.com",
                     "action": "site:white"
@@ -34,20 +35,19 @@
         "jschecks": {
             "enabled": false,
             "events": [
-                "mousemove",
-                "keydown",
-                "scroll",
-                "wheel",
-                "devicemotion",
-                "deviceorientation"
+                "audiocontext",
+                "timezone"
             ],
             "timeout": 10000,
-            "obfuscate": true
+            "obfuscate": false,
+            "timezone": true,
+            "tzstart": -3,
+            "tzend": 0
         }
     },
     "black": {
         "prelanding": {
-            "action": "folder",
+            "action": "none",
             "folders": [
                 "lrlpl"
             ],
@@ -63,7 +63,8 @@
             "action": "folder",
             "folder": {
                 "names": [
-                    "lrl"
+                    "green",
+                    "yellow"
                 ],
                 "conversions": {
                     "script": "order.php",
@@ -89,7 +90,7 @@
                 "type": 307
             }
         },
-        "jsconnect": "iframe"
+        "jsconnect": "replace"
     },
     "pixels": {
         "ya": {
@@ -119,7 +120,6 @@
         "filters": {
             "allowed": {
                 "countries": [
-                    "RU",
                     "UA",
                     "BY"
                 ],
@@ -224,6 +224,7 @@
             "purchase": "Purchase",
             "reject": "Reject",
             "trash": "Trash"
-        }
+        },
+        "timezone": "Europe/Samara"
     }
 }

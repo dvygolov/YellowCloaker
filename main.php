@@ -13,14 +13,15 @@ error_reporting(E_ALL);
 
 function white($use_js_checks)
 {
-    global $white_action,$white_folder_name,$white_redirect_url,$white_redirect_type;
-	global $white_curl_url,$white_error_code,$white_use_domain_specific,$white_domain_specific;
+    global $white_action,$white_folder_names,$white_redirect_urls,$white_redirect_type;
+	global $white_curl_urls,$white_error_codes,$white_use_domain_specific,$white_domain_specific;
+    global $save_user_flow;
 
     $action = $white_action;
-    $folder_name= $white_folder_name;
-    $redirect_url= $white_redirect_url;
-    $curl_url= $white_curl_url;
-    $error_code= $white_error_code;
+    $folder_names= $white_folder_names;
+    $redirect_urls= $white_redirect_urls;
+    $curl_urls= $white_curl_urls;
+    $error_codes= $white_error_codes;
 
     if ($white_use_domain_specific) { //если у нас под каждый домен свой вайт
         $curdomain = $_SERVER['SERVER_NAME'];
@@ -30,16 +31,16 @@ function white($use_js_checks)
                 $action = $wtd_arr[0];
                 switch ($action) {
                     case 'error':
-                        $error_code= intval($wtd_arr[1]);
+                        $error_codes= [intval($wtd_arr[1])];
                         break;
                     case 'folder':
-                        $folder_name = $wtd_arr[1];
+                        $folder_names = [$wtd_arr[1]];
                         break;
                     case 'curl':
-                        $curl_url = $wtd_arr[1];
+                        $curl_urls = [$wtd_arr[1]];
                         break;
                     case 'redirect':
-                        $redirect_url = $wtd_arr[1];
+                        $redirect_urls = [$wtd_arr[1]];
                         break;
                 }
                 break;
@@ -56,28 +57,34 @@ function white($use_js_checks)
                 echo load_js_testpage();
                 break;
             case 'folder':
-                echo load_white_content($folder_name, $use_js_checks);
+                $curfolder= select_item($folder_names,$save_user_flow,'white',true);
+                echo load_white_content($curfolder[0], $use_js_checks);
                 break;
             case 'curl':
-                echo load_white_curl($curl_url, $use_js_checks);
+                $cururl=select_item($curl_urls,$save_user_flow,'white',false);
+                echo load_white_curl($cururl[0], $use_js_checks);
                 break;
         }
     } else {
         switch ($action) {
             case 'error':
-                http_response_code($error_code);
+                $curcode= select_item($error_codes,$save_user_flow,'white',true);
+                http_response_code($curcode[0]);
                 break;
             case 'folder':
-                echo load_white_content($folder_name, false);
+                $curfolder= select_item($folder_names,$save_user_flow,'white',true);
+                echo load_white_content($curfolder[0], false);
                 break;
             case 'curl':
-                echo load_white_curl($curl_url,false);
+                $cururl=select_item($curl_urls,$save_user_flow,'white',false);
+                echo load_white_curl($cururl[0], false);
                 break;
             case 'redirect':
+                $cururl=select_item($redirect_urls,$save_user_flow,'white',false);
                 if ($white_redirect_type===302) {
-                    redirect($redirect_url);
+                    redirect($cururl[0]);
                 } else {
-                    redirect($redirect_url, $white_redirect_type);
+                    redirect($cururl[0], $white_redirect_type);
                 }
                 break;
         }

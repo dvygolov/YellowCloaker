@@ -12,14 +12,15 @@ require_once 'config/Exception/FileNotFoundException.php';
 
 $conf = Config::load(__DIR__.'/settings.json');
 
-$white_action = $conf['white.action']; 
-$white_folder_name = $conf['white.folder.name']; 
-$white_redirect_url = $conf['white.redirect.url'];
-$white_redirect_type = $conf['white.redirect.type']; 
-$white_curl_url = $conf['white.curl.url'];
-$white_error_code = $conf['white.error.code'];
-$white_use_domain_specific=$conf['white.domainfilter.use'];
+$white_action = $conf->get('white.action','folder'); 
+$white_folder_names = $conf->get('white.folder.names',['white']); 
+$white_redirect_urls = $conf->get('white.redirect.urls',[]);
+$white_redirect_type = $conf->get('white.redirect.type',302); 
+$white_curl_urls = $conf->get('white.curl.urls',[]);
+$white_error_codes = $conf->get('white.error.codes',[404]);
+$white_use_domain_specific=$conf->get('white.domainfilter.use',false);
 $white_domain_specific= $conf['white.domainfilter.domains'];
+
 $use_js_checks = $conf['white.jschecks.enabled'];
 $js_checks = $conf['white.jschecks.events'];
 $js_timeout =$conf['white.jschecks.timeout']; 

@@ -258,14 +258,12 @@ $tableOutput.="</tbody></TABLE>";
                                             </ul>
                                         </div>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
 
         <script>
