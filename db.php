@@ -80,6 +80,10 @@ function add_lead($subid,$name,$phone,$status='Lead') {
 	$dt = new DateTime();
 	$time = $dt->getTimestamp();
 
+	$land = get_cookie('landing');
+	$preland = get_cookie('prelanding');
+	if (empty($preland)) $preland='unknown';
+
 	$lead=[
 		"subid"=>$subid,
 		"time"=>$time,
@@ -88,6 +92,8 @@ function add_lead($subid,$name,$phone,$status='Lead') {
 		"status"=>$status,
 		"fbp"=>$fbp,
 		"fbclid"=>$fbclid,
+		"preland"=>$preland,
+		"land" => $land
     ];
 	$leadsStore->insert($lead);
 }

@@ -37,7 +37,7 @@ switch ($filter) {
         $dataset=get_black_clicks($startdate->getTimestamp(),$enddate->getTimestamp());
         break;
     case 'leads':
-        $header = ["Subid","Time","Name","Phone","Email","Status","Fbp","Fbclid"];
+        $header = ["Subid","Time","Name","Phone","Email","Status","Preland","Land","Fbp","Fbclid"];
         $dataset=get_leads($startdate->getTimestamp(),$enddate->getTimestamp());
         break;
     case 'blocked':
@@ -72,7 +72,7 @@ foreach ($dataset as $line) {
             $tableOutput.="<TD>".$line['ua']."</TD>";
             $tableOutput.="<TD>".http_build_query($line['subs'])."</TD>";
             $tableOutput.="<TD>".$line['preland']."</TD>";
-            $tableOutput.="<TD>".$line['land']."</TD></TR>";
+            $tableOutput.="<TD>".$line['land']."</TD>";
             break;
         case 'blocked':
             $tableOutput.="<TD>".$line['ip']."</TD>";
@@ -91,6 +91,8 @@ foreach ($dataset as $line) {
             $tableOutput.="<TD>".$line['phone']."</TD>";
             $tableOutput.="<TD>".(empty($line['email'])?'no':$line['email'])."</TD>";
             $tableOutput.="<TD>".$line['status']."</TD>";
+            $tableOutput.="<TD>".$line['preland']."</TD>";
+            $tableOutput.="<TD>".$line['land']."</TD>";
             $tableOutput.="<TD>".$line['fbp']."</TD>";
             $tableOutput.="<TD>".$line['fbclid']."</TD>";
             break;
