@@ -37,6 +37,7 @@ function getip(){
 	
 	if (!isset($ipfound))
 		$ipfound='Unknown';
+	if ($ipfound==='::1'||$ipfound==='127.0.0.1') $ipfound='31.177.76.70'; //for debugging
 	return $ipfound;
 }
 

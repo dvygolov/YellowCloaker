@@ -2,10 +2,20 @@ function log(text) {
     console.log(text);
 }
 
+function arrayRemove(arr, item) {
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i] === item) {
+            arr.splice(i, 1);
+            i--;
+        }
+    }
+    return arr;
+}
+
 function BotDetector(args) {
     var self = this;
     self.isBot = false;
-	self.reason = '';
+    self.reason = '';
     self.tests = {};
     self.timeout = args.timeout || 1000;
     self.callback = args.callback || null;
@@ -50,12 +60,15 @@ function BotDetector(args) {
             self.callback(self);
             return;
         }
+        selectedTests=arrayRemove(selectedTests, Tests.TIMEZONE);
     }
 
     if (selectedTests.includes(Tests.AUDIOCONTEXT)) {
         try {
             window.AudioContext = window.AudioContext || window.webkitAudioContext;
             context = new AudioContext();
+            log('Audio engine found!');
+            selectedTests = arrayRemove(selectedTests, Tests.AUDIOCONTEXT);
         }
         catch (e) {
             self.reason = 'audiocontext';
@@ -65,11 +78,14 @@ function BotDetector(args) {
         }
     }
 
+    if (selectedTests.length == 0) //if previous two tests passed and there are no others
+    {
+        log('No interactive tests, all ok, exiting...');
+        self.callback(self);
+    }
+
     selectedTests.forEach(st => {
         switch (st) {
-            case Tests.TIMEZONE:
-            case Tests.AUDIOCONTEXT:
-                break;
             case Tests.MOUSE:
             case Tests.KEYDOWN:
             case Tests.SCROLL:
@@ -88,7 +104,7 @@ function BotDetector(args) {
             case Tests.DEVICEORIENTATION:
                 self.tests[st] = function () {
                     var e = function (et) {
-                        log(st+': Alpha:' + et.alpha+' Beta:' + et.beta+' Gamma:' + et.gamma);
+                        log(st + ': Alpha:' + et.alpha + ' Beta:' + et.beta + ' Gamma:' + et.gamma);
                         self.orientationCount++;
                         if (self.orientation !== null) {
                             if (Math.abs(et.alpha - self.orientation.alpha) > self.orientdelta ||
@@ -117,7 +133,7 @@ function BotDetector(args) {
             case Tests.DEVICEMOTION:
                 self.tests[st] = function () {
                     var e = function (et) {
-                        log(st+': X:' + et.acceleration.x+' Y:' + et.acceleration.y+' Z:' + et.acceleration.z);
+                        log(st + ': X:' + et.acceleration.x + ' Y:' + et.acceleration.y + ' Z:' + et.acceleration.z);
                         self.motionCount++;
                         if (self.acceleration !== null) {
                             if (Math.abs(et.acceleration.x - self.acceleration.x) > self.acceldelta ||
@@ -134,7 +150,7 @@ function BotDetector(args) {
                             self.tests[st] = true;
                             self.update();
                         }
-                        if (self.motionCount >= self.maxDeviceEventsCount*2)
+                        if (self.motionCount >= self.maxDeviceEventsCount * 2)
                             window.removeEventListener(st, e);
                     };
                     if (window.DeviceMotionEvent)
@@ -150,13 +166,15 @@ function BotDetector(args) {
 BotDetector.prototype.update = function () {
     var self = this;
     var count = 0;
-	self.reason='';
+    var passReason = '';
     for (var t in self.tests) {
         if (self.tests.hasOwnProperty(t) && self.tests[t] === true) {
-			self.reason+=t+';';
+            passReason += t + ';';
             count++;
         }
     }
+    if (passReason != '')
+        self.reason = passReason;
     self.isBot = count == 0;
     if (self.notified === false) {
         self.callback(self);
@@ -166,7 +184,7 @@ BotDetector.prototype.update = function () {
 
 BotDetector.prototype.monitor = function () {
     var self = this;
-    if (self.isBot) //если по таймзоне или аудиодвижку не прошли то гг
+    if (self.isBot)
         return;
     for (var i in self.tests) {
         if (self.tests.hasOwnProperty(i)) {
@@ -174,6 +192,8 @@ BotDetector.prototype.monitor = function () {
         }
     }
     setTimeout(function () {
-        self.update(true);
+        log('Tests timeout!');
+        self.reason = 'timeout';
+        self.update();
     }, self.timeout);
 };

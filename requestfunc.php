@@ -74,6 +74,8 @@ function get_html($url,$follow_location=false,$use_ua=false){
     }
     curl_setopt_array($curl, $optArray);
     $html = curl_exec($curl);
+    $info = curl_getinfo($curl);
+    $error= curl_error($curl);
     curl_close($curl);
     return $html;
 }
