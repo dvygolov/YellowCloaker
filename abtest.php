@@ -15,7 +15,7 @@ function select_item($items,$save_user_flow=false,$itemtype='landing',$isfolder=
         $item = $_COOKIE[$itemtype];
         $t=array_search($item, $items);
         if ($t===false) $item='';
-        if ($isfolder && !is_dir($item)) $item='';
+        if ($isfolder && !is_dir(__DIR__.'/'.$item)) $item='';
     }
     if ($item===''){
         //A-B тестирование
@@ -27,7 +27,7 @@ function select_item($items,$save_user_flow=false,$itemtype='landing',$isfolder=
     if ($isfolder)
     {
         $country=getcountry();
-        if (is_dir($item.$country))
+        if (is_dir(__DIR__.'/'.$item.$country))
             $item.=$country;
     }
     ywbsetcookie($itemtype,$item,'/');
@@ -47,7 +47,7 @@ function select_item_by_index($items,$index,$isfolder=true){
     if ($isfolder)
     {
         $country=getcountry();
-        if (is_dir($item.$country))
+        if (is_dir(__DIR__.'/'.$item.$country))
             $item.=$country;
     }
     return $item;
