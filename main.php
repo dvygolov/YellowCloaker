@@ -118,18 +118,18 @@ function black($clkrdetect)
 
 
 	$landings=[];
-    $isfolerland=false;
+    $isfolderland=false;
 	if ($black_land_action=='redirect')
 		$landings = $black_land_redirect_urls;
 	else if ($black_land_action=='folder')
     {
 		$landings = $black_land_folder_names;
-        $isfolerland=true;
+        $isfolderland=true;
     }
 	
     switch ($black_preland_action) {
         case 'none':
-            $res=select_landing($save_user_flow,$landings,$isfolerland);
+            $res=select_landing($save_user_flow,$landings,$isfolderland);
             $landing=$res[0];
             add_black_click($cursubid, $clkrdetect, '', $landing);
 
@@ -148,7 +148,7 @@ function black($clkrdetect)
             $prelanding='';
             $res=select_prelanding($save_user_flow,$prelandings);
             $prelanding = $res[0];
-            $res=select_landing($save_user_flow,$landings,$isfolerland);
+            $res=select_landing($save_user_flow,$landings,$isfolderland);
             $landing=$res[0];
             $t=$res[1];
 

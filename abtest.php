@@ -21,16 +21,16 @@ function select_item($items,$save_user_flow=false,$itemtype='landing',$isfolder=
         //A-B тестирование
         $t = rand(0, count($items) - 1);
         $item = $items[$t];
-        //если у нас локальная прокла или ленд, то чекаем, есть ли папка под текущее ГЕО
-        //если есть, то берём её
-        if ($isfolder)
-        {
-            $country=getcountry();
-            if (is_dir($item.$country))
-                $item.=$country;
-        }
-        ywbsetcookie($itemtype,$item,'/');
     }
+    //если у нас локальная прокла или ленд, то чекаем, есть ли папка под текущее ГЕО
+    //если есть, то берём её
+    if ($isfolder)
+    {
+        $country=getcountry();
+        if (is_dir($item.$country))
+            $item.=$country;
+    }
+    ywbsetcookie($itemtype,$item,'/');
     return array($item,$t);
 }
 
