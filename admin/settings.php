@@ -543,7 +543,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                         <div class="i-checks pull-left">
                                                                             <label>
-                                                                                    <input type="radio" <?=$black_preland_action==='none'?'checked':''?> value="none" name="black.prelanding.action" onclick="(document.getElementById('b_7').style.display='none'); (document.getElementById('b_8').style.display='none')"> Не использовать прелендинг </label>
+                                                                                    <input type="radio" <?=$black_preland_action==='none'?'checked':''?> value="none" name="black.prelanding.action" onclick="(document.getElementById('b_8').style.display='none')"> Не использовать прелендинг </label>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -551,7 +551,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                         <div class="i-checks pull-left">
                                                                             <label>
-                                                                                    <input type="radio" <?=$black_preland_action==='folder'?'checked':''?> value="folder" name="black.prelanding.action" onclick="(document.getElementById('b_7').style.display='none'); (document.getElementById('b_8').style.display='block')"> Локальный прелендинг из папки </label>
+                                                                                    <input type="radio" <?=$black_preland_action==='folder'?'checked':''?> value="folder" name="black.prelanding.action" onclick="(document.getElementById('b_8').style.display='block')"> Локальный прелендинг из папки </label>
                                                                         </div>
                                                                     </div>
                                                                 </div>
