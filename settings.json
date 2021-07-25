@@ -1,6 +1,6 @@
 {
     "white": {
-        "action": "redirect",
+        "action": "curl",
         "folder": {
             "names": [
                 "white"
@@ -14,7 +14,9 @@
             ]
         },
         "curl": {
-            "urls": []
+            "urls": [
+                "https://www.9111.ru/"
+            ]
         },
         "error": {
             "codes": []
@@ -33,16 +35,16 @@
             ]
         },
         "jschecks": {
-            "enabled": false,
+            "enabled": true,
             "events": [
                 "audiocontext",
                 "timezone"
             ],
             "timeout": 10000,
-            "obfuscate": false,
+            "obfuscate": true,
             "timezone": true,
             "tzstart": -3,
-            "tzend": 0
+            "tzend": 3
         }
     },
     "black": {
@@ -60,7 +62,7 @@
             }
         },
         "landing": {
-            "action": "folder",
+            "action": "redirect",
             "folder": {
                 "names": [
                     "green",
@@ -84,13 +86,12 @@
             },
             "redirect": {
                 "urls": [
-                    "https://ya.ru",
-                    "https://google.com"
+                    "https://microsoft.com"
                 ],
                 "type": 307
             }
         },
-        "jsconnect": "replace"
+        "jsconnect": "redirect"
     },
     "pixels": {
         "ya": {
@@ -121,7 +122,8 @@
             "allowed": {
                 "countries": [
                     "UA",
-                    "BY"
+                    "BY",
+                    "RU"
                 ],
                 "os": [
                     "Android",
@@ -225,6 +227,6 @@
             "reject": "Reject",
             "trash": "Trash"
         },
-        "timezone": "Europe/Samara"
+        "timezone": "Europe/Moscow"
     }
 }

@@ -162,7 +162,7 @@ class Cloaker{
 		if($this->referer_stopwords!==[] &&$this->detect['referer']!==''){
 			foreach($this->referer_stopwords AS $stop){
 				if ($stop==='')continue;
-				if (strpos($this->detect['referer'],$stop)!==false){
+				if (stripos($this->detect['referer'],$stop)!==false){
 					$result=1;
 					$this->result[]='refstop:'.$stop;
 					break;
