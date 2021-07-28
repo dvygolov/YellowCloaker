@@ -154,7 +154,7 @@ class Cloaker{
 			$this->result[]='language:'.$buf;
 		}
 
-		if($this->block_without_referer===true && (int)$this->detect['referer']===''){
+		if($this->block_without_referer===true &&$this->detect['referer']===''){
 			$result=1;
 			$this->result[]='referer';
 		}
