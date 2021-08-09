@@ -32,20 +32,21 @@ function set_subid(){
 
 //проверяем, если у пользователя установлена куки, что он уже конвертился, а также имя и телефон, то сверяем время
 //если прошло менее суток, то хуй ему, а не лид, обнуляем время
-function has_conversion_cookie($name,$phone){
+function has_conversion_cookies($name,$phone){
 	$date = new DateTime();
 	$ts = $date->getTimestamp();
 	$is_duplicate=false;
-	if (!empty($_COOKIE['ctime'])&&!empty($_COOKIE['name'])&&!empty($_COOKIE['phone'])){
-		$cname = $_COOKIE['name'];
-		$cphone = $_COOKIE['phone'];
-		$ctime = $_COOKIE['ctime'];
+	$cname = isset($_COOKIE['name'])?$_COOKIE['name']:'';
+	$cphone = isset($_COOKIE['phone'])?$_COOKIE['phone']:'';
+	$ctime = isset($_COOKIE['ctime'])?$_COOKIE['ctime']:'';
+	
+	if (!empty($ctime)&&!empty($name)&&!empty($phone)){
 		if ($cname===$name&&$cphone===$phone){
-			$hourdiff = round((strtotime($ts) - strtotime($ctime))/3600, 1);
-			if ($hourdiff<24)
+			$secondsDiff = $ts - $ctime;
+			if ($secondsDiff<24*60*60)
 			{
 				$is_duplicate=true;
-				ywbsetcookie('ctime',$ts,'/');
+				set_cookie('ctime',$ts);
 			}
 		}
 	}
