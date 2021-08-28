@@ -191,9 +191,10 @@ BotDetector.prototype.monitor = function () {
             self.tests[i].call();
         }
     }
-    setTimeout(function () {
-        log('Tests timeout!');
-        self.reason = 'timeout';
-        self.update();
-    }, self.timeout);
+    if (Object.keys(self.tests).length > 0)
+        setTimeout(function () {
+            log('Tests timeout!');
+            self.reason = 'timeout';
+            self.update();
+        }, self.timeout);
 };

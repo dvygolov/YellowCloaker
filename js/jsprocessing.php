@@ -24,7 +24,15 @@ if (isset($_SERVER['HTTP_REFERER'])) {
 }
 header('Access-Control-Allow-Credentials: true');
 
-if ($check_result === 0 || $tds_mode==='off') { //Обычный юзверь или отключена фильтрация
+if ($check_result===1 || $tds_mode==='full')
+{
+	//это бот, который прошёл javascript-проверку, ну или эта проверка выключена
+	add_white_click($cloaker->detect, $cloaker->result);
+    header("Access-Control-Expose-Headers: YWBAction", false, 200);
+    header("YWBAction: none", true, 200);
+    return http_response_code(200);
+}
+else if ($check_result === 0 || $tds_mode==='off') { //Обычный юзверь или отключена фильтрация
 
     if ($black_jsconnect_action==='redirect'){ //если в настройках JS-подключения у нас редирект
         $url=get_domain_with_prefix();
@@ -59,11 +67,4 @@ if ($check_result === 0 || $tds_mode==='off') { //Обычный юзверь и
             return http_response_code(200);
         }
     }
-} else if ($check_result===1 || $tds_mode==='full')
-{
-	//это бот, который прошёл javascript-проверку, ну или эта проверка выключена
-	add_white_click($cloaker->detect, $cloaker->result);
-    header("Access-Control-Expose-Headers: YWBAction", false, 200);
-    header("YWBAction: none", true, 200);
-    return http_response_code(200);
 }
