@@ -1,4 +1,5 @@
 <?php
+
 namespace SleekDB;
 
 require_once __DIR__.'/Classes/CacheHandler.php';

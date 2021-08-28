@@ -35,12 +35,16 @@ class DocumentUpdater
    */
   public function updateResults(array $results, array $updatable, bool $returnUpdatedDocuments)
   {
+    if(count($results) === 0) {
+      return false;
+    }
+
     $primaryKey = $this->primaryKey;
     $dataPath = $this->getDataPath();
     // check if all documents exist beforehand
     foreach ($results as $key => $data) {
       $primaryKeyValue = IoHelper::secureStringForFileAccess($data[$primaryKey]);
-      $data[$primaryKey] = $primaryKeyValue;
+      $data[$primaryKey] = (int) $primaryKeyValue;
       $results[$key] = $data;
 
       $filePath = $dataPath . $primaryKeyValue . '.json';

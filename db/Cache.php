@@ -73,23 +73,8 @@ class Cache
    */
   public function getToken(): string
   {
-
     $tokenArray = $this->getTokenArray();
-
-    // hash the join sub-queries instead of the function reference to generate the cache token
-    if(array_key_exists("listOfJoins", $tokenArray)){
-      $listOfJoins = $tokenArray["listOfJoins"];
-      foreach ($listOfJoins as $key => $join){
-        if(array_key_exists("joinFunction", $join)){
-          $joinFunction = $join["joinFunction"];
-          $joinFunctionString = self::getClosureAsString($joinFunction);
-          if($joinFunctionString === false){
-            continue;
-          }
-          $tokenArray["listOfJoins"][$key] = $joinFunctionString;
-        }
-      }
-    }
+    $tokenArray = self::convertClosuresToString($tokenArray);
 
     return md5(json_encode($tokenArray));
   }
@@ -143,6 +128,8 @@ class Cache
     $token = $this->getToken();
 
     $cacheFile = null;
+
+    IoHelper::checkRead($cachePath);
 
     $cacheFiles = glob($cachePath.$token."*.json");
 
@@ -220,6 +207,28 @@ class Cache
   }
 
   /**
+   * Convert one or multiple closures to string. If array provided, recursively.
+   * @param mixed $data
+   * @return mixed
+   */
+  private static function convertClosuresToString($data){
+    if(!is_array($data)){
+      if($data instanceof \Closure){
+        return self::getClosureAsString($data);
+      }
+      return $data;
+    }
+    foreach ($data as $key => $token){
+      if(is_array($token)){
+        $data[$key] = self::convertClosuresToString($token);
+      } else if($token instanceof \Closure){
+        $data[$key] = self::getClosureAsString($token);
+      }
+    }
+    return $data;
+  }
+
+  /**
    * Retrieve a string representation of a closure that can be used to differentiate between closures
    * when generating the cache token string.
    * @param Closure $closure
@@ -236,6 +245,9 @@ class Cache
     $startLine = $reflectionFunction->getStartLine(); // start line of function
     $endLine = $reflectionFunction->getEndLine(); // end line of function
     $lineSeparator = PHP_EOL; // line separator "\n"
+
+    $staticVariables = $reflectionFunction->getStaticVariables();
+    $staticVariables = var_export($staticVariables, true);
 
     if($filePath === false || $startLine === false || $endLine === false){
       return false;
@@ -269,7 +281,9 @@ class Cache
     }
 
     // return the part of the file containing the function as a string.
-    return implode("", array_slice($fileContentArray, $startLine, $startEndDifference + 1));
+    $functionString = implode("", array_slice($fileContentArray, $startLine, $startEndDifference + 1));
+    $functionString .= "|staticScopeVariables:".$staticVariables;
+    return $functionString;
   }
 
   /**

@@ -116,6 +116,10 @@ class IoHelper {
    * @throws IOException
    */
   public static function createFolder(string $folderPath){
+    // We don't need to create a folder if it already exists.
+    if(file_exists($folderPath) === true){
+      return;
+    }
     self::checkWrite($folderPath);
     // Check if the data_directory exists or create one.
     if (!file_exists($folderPath) && !mkdir($folderPath, 0777, true) && !is_dir($folderPath)) {
@@ -229,5 +233,18 @@ class IoHelper {
     if(!empty($directory) && substr($directory, -1) !== "/") {
       $directory .= "/";
     }
+  }
+
+  /**
+   * Returns the amount of files in folder.
+   * @param string $folder
+   * @return int
+   * @throws IOException
+   */
+  public static function countFolderContent(string $folder): int
+  {
+    self::checkRead($folder);
+    $fi = new \FilesystemIterator($folder, \FilesystemIterator::SKIP_DOTS);
+    return iterator_count($fi);
   }
 }
