@@ -75,7 +75,7 @@ if (!$is_duplicate){
         case 302:
             add_lead($subid,$name,$phone);
             if ($black_land_use_custom_thankyou_page ){
-                redirect("thankyou/thankyou.php?".http_build_query($_GET));
+                redirect("thankyou/thankyou.php?".http_build_query($_GET),302,false);
             }
             else{
                 redirect($res["info"]["redirect_url"]);

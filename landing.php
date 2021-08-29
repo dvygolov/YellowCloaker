@@ -33,7 +33,7 @@ switch ($black_land_action){
         }
         $fullpath = replace_all_macros($fullpath);
         $fullpath = add_subs_to_link($fullpath);
-        redirect($fullpath);
+        redirect($fullpath,$black_land_redirect_type,false);
         break;
 }
 ?>

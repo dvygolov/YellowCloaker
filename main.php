@@ -81,11 +81,7 @@ function white($use_js_checks)
                 break;
             case 'redirect':
                 $cururl=select_item($redirect_urls,$save_user_flow,'white',false);
-                if ($white_redirect_type===302) {
-                    redirect($cururl[0]);
-                } else {
-                    redirect($cururl[0], $white_redirect_type);
-                }
+                redirect($cururl[0], $white_redirect_type,false);
                 break;
         }
     }
@@ -138,7 +134,7 @@ function black($clkrdetect)
                     echo load_landing($landing);
                     break;
                 case 'redirect':
-                    redirect($landing,$black_land_redirect_type);
+                    redirect($landing,$black_land_redirect_type,true);
                     break;
             }
             break;
