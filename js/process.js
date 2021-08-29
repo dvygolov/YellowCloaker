@@ -3,14 +3,18 @@
     var xhr = new XMLHttpRequest();
     xhr.withCredentials = true;
 
-    var url = 'https://' + domain + '/js/jsprocessing.php?reason={REASON}';
-    url += "&uri=" + escape(window.location.href);
+    var delimiter = '?';
+    var reason = '{REASON}';
+    var url = 'https://' + domain + '/js/jsprocessing.php';
+    if (reason != '') { url += delimiter + reason; delimiter = '&' };
+    url += delimiter + "uri=" + escape(window.location.href);
+    delimiter = '&';
     var referrer = escape(document.referrer);
     if (referrer !== '') {
-        url += "&referrer=" + referrer;
+        url += delimiter+"referrer=" + referrer;
     }
     if (window.location.search !== '') {
-        url += "&" + window.location.search.substring(1);
+        url += delimiter + window.location.search.substring(1);
     }
 
     xhr.open("GET", url, true);

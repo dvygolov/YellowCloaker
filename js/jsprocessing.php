@@ -16,7 +16,8 @@ $cloaker = new Cloaker($os_white,$country_white,$lang_white,$ip_black_filename,$
 $check_result = $cloaker->check();
 
 //Добавляем, по какому из js-событий пользователь прошёл сюда
-$cloaker->result[]=$_GET['reason'];
+if (isset($_GET['reason']))
+    $cloaker->result[]=$_GET['reason'];
 
 if (isset($_SERVER['HTTP_REFERER'])) {
 	$parsed_url=parse_url($_SERVER['HTTP_REFERER']);
