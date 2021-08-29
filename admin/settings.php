@@ -856,7 +856,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Действие при подключении кло через Javascript (для конструкторов) <small>Если в качестве блэка выбран редирект, то и с конструктора ВСЕГДА будет редирект. Если же блэк локальный, то возможны: редирект, подмена, iframe</small> </label>
+                                                            <label class="login2 pull-left pull-left-pro">Действие при подключении кло через Javascript (для конструкторов) <small>Если в качестве блэка выбран редирект, то и с конструктора ВСЕГДА будет редирект. Если же блэк локальный, то возможны только: подмена, iframe</small> </label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                             <div class="bt-df-checkbox pull-left">
