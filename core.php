@@ -49,6 +49,10 @@ class Cloaker{
 		if(isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])){
 			$a['referer']=$_SERVER['HTTP_REFERER'];
 		}
+		else if (isset($_COOKIE['referer']) && !empty($_COOKIE['referer']))
+        {
+			$a['referer']=$_COOKIE['referer'];
+        }
 		else{
 			$a['referer']='';
 		}

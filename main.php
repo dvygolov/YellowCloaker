@@ -23,6 +23,13 @@ function white($use_js_checks)
     $curl_urls= $white_curl_urls;
     $error_codes= $white_error_codes;
 
+    //грязный хак для прокидывания реферера через куки
+    if ($use_js_checks && 
+		isset($_SERVER['HTTP_REFERER']) && 
+        !empty($_SERVER['HTTP_REFERER'])){
+        ywbsetcookie("referer",$_SERVER['HTTP_REFERER']);
+    }
+
     if ($white_use_domain_specific) { //если у нас под каждый домен свой вайт
         $curdomain = $_SERVER['SERVER_NAME'];
         foreach ($white_domain_specific as $wds) {
