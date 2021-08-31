@@ -1030,7 +1030,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Клоачить ли пиксель? <small>по методу <a href="https://tgraph.me/Kloachim-FB-Pixel-bez-iframe-02-15">из вот этой статьи</a></small></label>
+                                                                <label class="login2 pull-left pull-left-pro">Клоачить ли пиксель? <small>по методу <a href="https://telegra.ph/Kloachim-FB-Pixel-bez-iframe-02-15">из вот этой статьи</a></small></label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
