@@ -4,6 +4,9 @@ error_reporting(E_ALL);
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', 1);
 //Конец включения отладочной информации
+if (version_compare(phpversion(), '7.0.0', '<')) {
+    die("PHP version should be 7 or higher! Change your PHP version and return.");
+}
 require_once '../settings.php';
 if ($log_password!==''&&(empty($_GET['password'])||$_GET['password'] !== $log_password)) {
     echo 'No Password Given!';
