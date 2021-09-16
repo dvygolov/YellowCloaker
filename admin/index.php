@@ -155,11 +155,7 @@ $tableOutput.="</tbody></TABLE>";
                     <a href="https://t.me/yellow_web">
                         <img src="img/notification/4.jpg" alt="" />
                     </a>
-                    <h2>
-                        <a href="https://yellowweb.top/donate" target="_blank">
-                           Помощь автору! 
-                        </a>
-                    </h2>
+                    <?php include "version.php" ?>
                 </div>
             </div>
             <div class="left-custom-menu-adp-wrap comment-scrollbar">
