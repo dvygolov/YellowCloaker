@@ -2,6 +2,7 @@
 require_once 'settings.php';
 require_once 'htmlprocessing.php';
 require_once 'db.php';
+require_once 'url.php';
 require_once 'redirect.php';
 require_once 'abtest.php';
 require_once 'cookies.php';
@@ -26,11 +27,8 @@ switch ($black_land_action){
         echo load_landing($landing);
         break;
     case 'redirect':
-        $fullpath=select_item_by_index($black_land_redirect_urls,$l,false);
-        $querystr = $_SERVER['QUERY_STRING'];
-        if (!empty($querystr)) {
-            $fullpath = $fullpath.'?'.$querystr;
-        }
+        $fullpath = select_item_by_index($black_land_redirect_urls,$l,false);
+        $fullpath = add_querystring($fullpath);
         $fullpath = replace_all_macros($fullpath);
         $fullpath = add_subs_to_link($fullpath);
         redirect($fullpath,$black_land_redirect_type,false);

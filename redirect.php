@@ -1,12 +1,9 @@
 <?php
+require_once 'url.php';
 
 function redirect($url,$redirect_type=302,$add_querystring=true){
     if ($add_querystring===true){
-        $querystr = $_SERVER['QUERY_STRING'];
-        if (!empty($querystr)) {
-            $delimiter= strpos($url,"?")!==false?"&":"?";
-            $url = $url.$delimiter.$querystr;
-        }
+        $url=add_querystring($url);
     }
     if ($redirect_type===302) {
         header('Location: '.$url);

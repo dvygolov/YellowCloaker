@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__.'/bases/ipcountry.php';
+require_once __DIR__.'/url.php';
 function get_prefix(){
     return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off')  ? 'https://' : 'http://';
 }
@@ -24,10 +25,7 @@ function get_abs_from_rel($url,$add_query_string=false){
     if (substr($url, -4) !== '.php') $fullpath=$fullpath.'/';
     if ($add_query_string===true)
     {
-        $querystr = $_SERVER['QUERY_STRING'];
-        if (!empty($querystr)) {
-            $fullpath = $fullpath.'?'.$querystr;
-        }
+        $fullpath=add_querystring($fullpath);
     }
     return $fullpath;
 }

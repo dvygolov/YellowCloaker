@@ -18,6 +18,16 @@ function replace_all_macros($url)
     return $tmp_url;
 }
 
+function add_querystring($url)
+{
+    $delimiter= (strpos($url, '?')===false?"?":"&");
+    $querystr = $_SERVER['QUERY_STRING'];
+    if (!empty($querystr)) {
+        $url = $url.$delimiter.$querystr;
+    }
+    return $url;
+}
+
 function add_subs_to_link($url)
 {
     global $sub_ids;
