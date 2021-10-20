@@ -12,10 +12,10 @@ require_once 'config/Exception/FileNotFoundException.php';
 
 $conf = Config::load(__DIR__.'/settings.json');
 
-$white_action = $conf->get('white.action','folder'); 
-$white_folder_names = $conf->get('white.folder.names',['white']); 
+$white_action = $conf->get('white.action','folder');
+$white_folder_names = $conf->get('white.folder.names',['white']);
 $white_redirect_urls = $conf->get('white.redirect.urls',[]);
-$white_redirect_type = $conf->get('white.redirect.type',302); 
+$white_redirect_type = $conf->get('white.redirect.type',302);
 $white_curl_urls = $conf->get('white.curl.urls',[]);
 $white_error_codes = $conf->get('white.error.codes',[404]);
 $white_use_domain_specific=$conf->get('white.domainfilter.use',false);
@@ -23,21 +23,22 @@ $white_domain_specific= $conf['white.domainfilter.domains'];
 
 $use_js_checks = $conf['white.jschecks.enabled'];
 $js_checks = $conf['white.jschecks.events'];
-$js_timeout =$conf['white.jschecks.timeout']; 
+$js_timeout =$conf['white.jschecks.timeout'];
 $js_obfuscate = $conf['white.jschecks.obfuscate'];
 $js_tzstart = $conf['white.jschecks.tzstart'];
 $js_tzend = $conf['white.jschecks.tzend'];
 
 $black_preland_action = $conf['black.prelanding.action'];
-$black_preland_folder_names = $conf['black.prelanding.folders']; 
+$black_preland_folder_names = $conf['black.prelanding.folders'];
 
 $black_land_action = $conf['black.landing.action'];
 $black_land_folder_names = $conf['black.landing.folder.names'];
 $black_land_redirect_urls = $conf['black.landing.redirect.urls'];
-$black_land_redirect_type = $conf['black.landing.redirect.type']; 
-$black_land_conversion_script = $conf['black.landing.folder.conversions.script']; 
-$black_land_log_conversions_on_button_click = $conf['black.landing.folder.conversions.logonbuttonclick']; 
-$black_land_use_custom_thankyou_page = $conf['black.landing.folder.customthankyoupage.use']; 
+$black_land_redirect_type = $conf['black.landing.redirect.type'];
+$black_land_conversion_script = $conf['black.landing.folder.conversions.script'];
+$black_land_log_conversions_on_button_click = $conf['black.landing.folder.conversions.logonbuttonclick'];
+$black_land_use_custom_thankyou_page = $conf['black.landing.folder.customthankyoupage.use'];
+if ($black_land_use_custom_thankyou_page) $black_land_log_conversions_on_button_click=false;
 $black_land_thankyou_page_language = $conf['black.landing.folder.customthankyoupage.language'];
 
 $thankyou_upsell=$conf['black.landing.folder.customthankyoupage.upsell.use'];
@@ -91,7 +92,7 @@ $addedtocart = $conf['scripts.addedtocart'];
 
 $sub_ids = $conf['subids'];
 
-$log_password = strval($conf['statistics.password']); 
+$log_password = strval($conf['statistics.password']);
 $stats_timezone = $conf->get('statistics.timezone','Europe/Moscow');
 $stats_sub_names = $conf['statistics.subnames'];
 $lead_status_name = $conf['statistics.postback.lead'];
