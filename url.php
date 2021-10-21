@@ -1,6 +1,6 @@
 <?php
-require_once 'settings.php';
-require_once 'cookies.php';
+require_once __DIR__.'/settings.php';
+require_once __DIR__.'/cookies.php';
 
 //заменяем все макросы на реальные значения из куки
 function replace_all_macros($url)

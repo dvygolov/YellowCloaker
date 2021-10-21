@@ -495,7 +495,7 @@ foreach ($subs_array as $sub_key=>$sub_values)
                             </ul>
                         </li>
                         <li>
-                            <a href="settings.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>" aria-expanded="false">
+                            <a href="editsettings.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>" aria-expanded="false">
                                 <i class="icon nalika-table icon-wrap"></i>
                                 <span class="mini-click-non">Settings</span>
                             </a>

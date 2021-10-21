@@ -15,7 +15,6 @@ require_once '../config/Exception/ParseException.php';
 require_once '../config/Exception/FileNotFoundException.php';
 require_once '../redirect.php';
 
-require('../settings.php');
 if ($log_password!==''&&(empty($_GET['password'])||$_GET['password'] !== $log_password)) {
     echo 'No Password For Settings Save!';
     exit();
@@ -42,6 +41,5 @@ foreach($_POST as $key=>$value){
 
 }
 $conf->toFile('../settings.json',new Json());
-require('../settings.php');
-redirect('settings.php?password='.$log_password,302,false);
+redirect('editsettings.php?password='.$log_password,302,false);
 ?>
