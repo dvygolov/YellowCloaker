@@ -304,13 +304,17 @@ function insert_subs_into_forms($html)
         $value = $sub["rewrite"];
 
         if (in_array($key,$preset)&& isset($_COOKIE[$key])) {
+            $html = preg_replace('/(<input[^>]*name="'.$value.'"[^>]*>)/', "", $html);
             $all_subs = $all_subs.'<input type="hidden" name="'.$value.'" value="'.$_COOKIE[$key].'"/>';
         } elseif (!empty($_GET[$key])) {
+            $html = preg_replace('/(<input[^>]*name="'.$value.'"[^>]*>)/', "", $html);
             $all_subs = $all_subs.'<input type="hidden" name="'.$value.'" value="'.$_GET[$key].'"/>';
         }
     }
-    $needle = '<form';
-    return insert_after_tag($html, $needle, $all_subs);
+    if (!empty($all_subs)) {
+        $needle = '<form';
+        return insert_after_tag($html, $needle, $all_subs);
+    }
 }
 
 //переписываем все относительные src и href (не начинающиеся с http или с //)
