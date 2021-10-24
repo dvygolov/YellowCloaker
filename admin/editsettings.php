@@ -82,7 +82,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                             </ul>
                         </li>
                         <li>
-                            <a href="settings.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>" aria-expanded="false"><i class="icon nalika-table icon-wrap"></i> <span class="mini-click-non">Settings</span></a>
+                            <a href="editsettings.php?password=<?=$_GET['password']?><?=$date_str!==''?$date_str:''?>" aria-expanded="false"><i class="icon nalika-table icon-wrap"></i> <span class="mini-click-non">Settings</span></a>
                         </li>
                   </ul>
                 </nav>
