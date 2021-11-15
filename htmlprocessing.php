@@ -5,6 +5,7 @@ require_once 'requestfunc.php';
 require_once 'pixels.php';
 require_once 'htmlinject.php';
 require_once 'url.php';
+require_once 'cookies.php';
 
 //Подгрузка контента блэк проклы из другой папки через CURL
 function load_prelanding($url, $land_number)
@@ -303,9 +304,9 @@ function insert_subs_into_forms($html)
     	$key = $sub["name"];
         $value = $sub["rewrite"];
 
-        if (in_array($key,$preset)&& isset($_COOKIE[$key])) {
+        if (in_array($key,$preset)&& !empty(get_cookie($key))) {
             $html = preg_replace('/(<input[^>]*name="'.$value.'"[^>]*>)/', "", $html);
-            $all_subs = $all_subs.'<input type="hidden" name="'.$value.'" value="'.$_COOKIE[$key].'"/>';
+            $all_subs = $all_subs.'<input type="hidden" name="'.$value.'" value="'.get_cookie($key).'"/>';
         } elseif (!empty($_GET[$key])) {
             $html = preg_replace('/(<input[^>]*name="'.$value.'"[^>]*>)/', "", $html);
             $all_subs = $all_subs.'<input type="hidden" name="'.$value.'" value="'.$_GET[$key].'"/>';
@@ -315,6 +316,7 @@ function insert_subs_into_forms($html)
         $needle = '<form';
         return insert_after_tag($html, $needle, $all_subs);
     }
+    return $html;
 }
 
 //переписываем все относительные src и href (не начинающиеся с http или с //)
