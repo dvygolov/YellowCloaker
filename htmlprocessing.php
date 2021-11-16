@@ -43,7 +43,7 @@ function load_prelanding($url, $land_number)
     }
 
     $html = replace_city_macros($html);
-    $html = replace_tel_type($html);
+    $html = fix_phone_and_name($html);
     $html = insert_phone_mask($html);
     //добавляем во все формы сабы
     $html = insert_subs_into_forms($html);
@@ -143,7 +143,7 @@ function load_landing($url)
     $html = fix_anchors($html);
     $html = replace_city_macros($html);
     //заменяем поле с телефоном на более удобный тип - tel
-    $html = replace_tel_type($html);
+    $html = fix_phone_and_name($html);
     $html = insert_phone_mask($html);
 
     return $html;
@@ -192,10 +192,35 @@ function insert_additional_scripts($html)
 }
 
 //если тип поля телефона - text, меняем его на tel для более удобного ввода с мобильных
-function replace_tel_type($html)
+//добавляем autocomplete к полям name и phone
+function fix_phone_and_name($html)
 {
-    $html = preg_replace('/(<input[^>]*name="(phone|tel)"[^>]*type=")(text)("[^>]*>)/', "\\1tel\\4", $html);
-    $html = preg_replace('/(<input[^>]*type=")(text)("[^>]*name="(phone|tel)"[^>]*>)/', "\\1tel\\3", $html);
+    $firstr='/(<input[^>]*name="(phone|tel)"[^>]*type=")(text)("[^>]*>)/';
+    $secondr='/(<input[^>]*type=")(text)("[^>]*name="(phone|tel)"[^>]*>)/';
+    $html = preg_replace($secondr, "\\1tel\\3", $html);
+    $html = preg_replace($firstr, "\\1tel\\4", $html);
+
+    //добавляем autocomplete к телефонам 
+    $telacmpltr='/<input[^>]*type="tel"[^>]*>/';
+    if (preg_match_all($telacmpltr,$html,$matches,PREG_OFFSET_CAPTURE)){
+        for($i=count($matches[0])-1;$i>=0;$i--){
+            if (!str_contains($matches[0][$i][0],"autocomplete")){
+                $replacement='<input autocomplete="tel"'.substr($matches[0][$i][0],6);
+                $html=substr_replace($html,$replacement,$matches[0][$i][1],strlen($matches[0][$i][0]));
+            }
+        }
+    }
+    //добавляем autocomplete к именам
+    $nameacmpltr='/<input[^>]*name="name"[^>]*>/';
+    if (preg_match_all($nameacmpltr,$html,$matches,PREG_OFFSET_CAPTURE)){
+        for($i=count($matches[0])-1;$i>=0;$i--){
+            if (!str_contains($matches[0][$i][0],"autocomplete")){
+                $replacement='<input autocomplete="name"'.substr($matches[0][$i][0],6);
+                $html=substr_replace($html,$replacement,$matches[0][$i][1],strlen($matches[0][$i][0]));
+            }
+        }
+    }
+
     return $html;
 }
 
