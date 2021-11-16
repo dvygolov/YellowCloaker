@@ -35,16 +35,16 @@
             ]
         },
         "jschecks": {
-            "enabled": true,
+            "enabled": false,
             "events": [
                 "audiocontext",
                 "timezone"
             ],
-            "timeout": 10000,
+            "timeout": 40000,
             "obfuscate": true,
             "timezone": true,
             "tzstart": -3,
-            "tzend": 3
+            "tzend": 4
         }
     },
     "black": {
@@ -62,18 +62,17 @@
             }
         },
         "landing": {
-            "action": "redirect",
+            "action": "folder",
             "folder": {
                 "names": [
-                    "green",
-                    "yellow"
+                    "land"
                 ],
                 "conversions": {
                     "script": "order.php",
                     "logonbuttonclick": false
                 },
                 "customthankyoupage": {
-                    "use": true,
+                    "use": false,
                     "language": "RU",
                     "upsell": {
                         "use": false,
@@ -86,12 +85,12 @@
             },
             "redirect": {
                 "urls": [
-                    "https://microsoft.com"
+                    "https://yandex.ru"
                 ],
-                "type": 307
+                "type": 303
             }
         },
-        "jsconnect": "redirect"
+        "jsconnect": "replace"
     },
     "pixels": {
         "ya": {

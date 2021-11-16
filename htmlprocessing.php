@@ -204,7 +204,7 @@ function fix_phone_and_name($html)
     $telacmpltr='/<input[^>]*type="tel"[^>]*>/';
     if (preg_match_all($telacmpltr,$html,$matches,PREG_OFFSET_CAPTURE)){
         for($i=count($matches[0])-1;$i>=0;$i--){
-            if (!str_contains($matches[0][$i][0],"autocomplete")){
+            if (strpos($matches[0][$i][0],"autocomplete")===false){
                 $replacement='<input autocomplete="tel"'.substr($matches[0][$i][0],6);
                 $html=substr_replace($html,$replacement,$matches[0][$i][1],strlen($matches[0][$i][0]));
             }
