@@ -214,7 +214,7 @@ function fix_phone_and_name($html)
     $nameacmpltr='/<input[^>]*name="name"[^>]*>/';
     if (preg_match_all($nameacmpltr,$html,$matches,PREG_OFFSET_CAPTURE)){
         for($i=count($matches[0])-1;$i>=0;$i--){
-            if (!str_contains($matches[0][$i][0],"autocomplete")){
+            if (strpos($matches[0][$i][0],"autocomplete")===false){
                 $replacement='<input autocomplete="name"'.substr($matches[0][$i][0],6);
                 $html=substr_replace($html,$replacement,$matches[0][$i][1],strlen($matches[0][$i][0]));
             }
