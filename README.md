@@ -2,7 +2,7 @@
 English version of this help is down below 👇 Warning: this help is outdated! Now all of the settings are made using the UI: */admin?password=12345*
 **Use PHP version 7.2 or higher and create HTTPS certificates for all of your domains!**
 # Поддержка
-Если вы хотите, чтобы этот проект и дальше развивался, [**поддержите автора соткой-другой**!](https://capu.st/yellowweb)
+Если вы хотите, чтобы этот проект и дальше развивался, [**поддержите автора соткой-другой**!](https://t.me/yellowwebdonate_bot)
 
 # Описание
 Модифицированный скрипт клоакинга для арбитража трафика, изначально найденный на просторах [Black Hat World](http://blackhatworld.com).
@@ -200,6 +200,7 @@ You can disable the ability to select text on your prelandings and landings, dis
 
 # Description
 Modified cloaking script for affiliate marketing found somewhere on [Black Hat World](http://blackhatworld.com).
+If you like this software, [please donate a few bucks using this Telegram bot!](https://t.me/yellowwebdonate_bot)
 # Installation
 Just download the latest copy of all files from this repository and upload them to your hosting. Your hosting should allow to run PHP-scripts and you SHOULD create a HTTPS-certificate for your domain. **Without HTTPS the cloaker won't work properly!** I can definitely [recommend Beget Hosting for the cloaker](https://yellowweb.top/beget). It's cheap and convenient.
 
