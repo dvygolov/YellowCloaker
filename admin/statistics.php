@@ -50,6 +50,8 @@ $tableOutput.="<TH scope='col'>CR% all</TH>";
 $tableOutput.="<TH scope='col'>CR% sales</TH>";
 $tableOutput.="<TH scope='col'>App% (w/o trash)</TH>";
 $tableOutput.="<TH scope='col'>App% (total)</TH>";
+$tableOutput.="<TH scope='col'>EPC</TH>";
+$tableOutput.="<TH scope='col'>Revenue</TH>";
 $tableOutput.="</TR></thead><tbody>";
 
 $lpctr_array = array();
@@ -79,6 +81,7 @@ $total_cr_all=array();
 $total_cr_sales=array();
 $total_app_wo_trash=array();
 $total_app=array();
+$total_revenue=0;
 
 $noprelanding= $black_preland_action==='none';
 
@@ -167,6 +170,7 @@ while ($date>=$startdate) {
     $hold_count=0;
     $reject_count=0;
     $trash_count=0;
+    $revenue=0;
     foreach ($day_leads as $leaditem) {
         $lead_status = $leaditem['status'];
         switch ($lead_status) {
@@ -177,6 +181,7 @@ while ($date>=$startdate) {
             case 'Purchase':
                 $total_purchases++;
                 $purchase_count++;
+                $revenue+=$leaditem['payout'];
                 break;
             case 'Reject':
                 $total_rejects++;
@@ -241,6 +246,10 @@ while ($date>=$startdate) {
     $approve = $leads_count==0?0:$purchase_count*100/$leads_count;
     $total_app[]= $approve;
     $tableOutput.="<TD scope='col'>".number_format($approve, 2, '.', '')."</TD>";
+    $epc= $unique_clicks_count==0?0:$revenue/$unique_clicks_count;
+    $tableOutput.="<TD scope='col'>".number_format($epc, 2, '.', '')."</TD>";
+    $tableOutput.="<TD scope='col'>".$revenue."</TD>";
+    $total_revenue+=$revenue;
     $tableOutput.="</TR>";
     $date->sub(new DateInterval('P1D'));
 }
@@ -262,6 +271,9 @@ $tapprove_wo_trash=($total_leads-$total_leads===0?0:$total_purchases*100/($total
 $tableOutput.="<TD scope='col'>".number_format($tapprove_wo_trash, 2, '.', '')."</TD>";
 $tapprove=($total_leads===0?0:$total_purchases*100/$total_leads);
 $tableOutput.="<TD scope='col'>".number_format($tapprove, 2, '.', '')."</TD>";
+$tepc=($total_uniques===0?0:$total_revenue/$total_uniques);
+$tableOutput.="<TD scope='col'>".number_format($tepc, 2, '.', '')."</TD>";
+$tableOutput.="<TD scope='col'>".$total_revenue."</TD>";
 $tableOutput.="</TR>";
 //Close the table tag
 $tableOutput.="</tbody></TABLE>";

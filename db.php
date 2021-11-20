@@ -98,6 +98,18 @@ function add_lead($subid,$name,$phone,$status='Lead') {
 	$leadsStore->insert($lead);
 }
 
+function update_lead($subid,$status,$payout){
+    $dataDir = __DIR__ . "/logs";
+    $leadsStore = new Store("leads", $dataDir);
+    $lead=$leadsStore->findOneBy([["subid","=",$subid]]);
+	if ($lead===null) return false;
+
+	$lead["status"]=$status;
+	$lead["payout"]=$payout;
+    $leadsStore->update($lead);
+	return true;
+}
+
 function email_exists_for_subid($subid){
     $dataDir = __DIR__ . "/logs";
     $leadsStore = new Store("leads", $dataDir);
