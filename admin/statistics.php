@@ -50,7 +50,7 @@ $tableOutput.="<TH scope='col'>CR% all</TH>";
 $tableOutput.="<TH scope='col'>CR% sales</TH>";
 $tableOutput.="<TH scope='col'>App% (w/o trash)</TH>";
 $tableOutput.="<TH scope='col'>App% (total)</TH>";
-$tableOutput.="<TH scope='col'>EPC</TH>";
+$tableOutput.="<TH scope='col'>EPuC</TH>";
 $tableOutput.="<TH scope='col'>Revenue</TH>";
 $tableOutput.="</TR></thead><tbody>";
 
