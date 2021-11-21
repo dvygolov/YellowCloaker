@@ -95,8 +95,12 @@ $sub_ids = $conf['subids'];
 $log_password = strval($conf['statistics.password']);
 $stats_timezone = $conf->get('statistics.timezone','Europe/Moscow');
 $stats_sub_names = $conf['statistics.subnames'];
-$lead_status_name = $conf['statistics.postback.lead'];
-$purchase_status_name = $conf['statistics.postback.purchase'];
-$reject_status_name = $conf['statistics.postback.reject'];
-$trash_status_name = $conf['statistics.postback.trash'];
+
+$s2s_postbacks = $conf['postback.s2s'];
+
+$lead_status_name = $conf['postback.lead'];
+$purchase_status_name = $conf['postback.purchase'];
+$reject_status_name = $conf['postback.reject'];
+$trash_status_name = $conf['postback.trash'];
+
 ?>

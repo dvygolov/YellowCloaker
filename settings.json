@@ -72,7 +72,7 @@
                     "logonbuttonclick": false
                 },
                 "customthankyoupage": {
-                    "use": false,
+                    "use": true,
                     "language": "RU",
                     "upsell": {
                         "use": false,
@@ -103,7 +103,7 @@
             "subname": "px",
             "pageview": true,
             "viewcontent": {
-                "use": true,
+                "use": false,
                 "time": 30,
                 "percent": 75
             },
@@ -220,12 +220,19 @@
                 "value": "Placement"
             }
         ],
-        "postback": {
-            "lead": "Lead",
-            "purchase": "Purchase",
-            "reject": "Reject",
-            "trash": "Trash"
-        },
         "timezone": "Europe/Moscow"
+    },
+    "postback": {
+        "lead": "Lead",
+        "purchase": "Purchase",
+        "reject": "Reject",
+        "trash": "Trash",
+        "s2s": [
+            {
+                "url": "https://habr.com/{domain}/?subid={subid}",
+                "method": "POST",
+                "events": ["Lead","Purchase" ]
+            }
+        ]
     }
 }

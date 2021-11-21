@@ -78,6 +78,26 @@ function get_html($url,$follow_location=false,$use_ua=false){
     return $html;
 }
 
+function get($url){
+    $curl = curl_init();
+    $optArray = array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+			CURLOPT_SSL_VERIFYPEER => false,
+			CURLOPT_HTTPHEADER => get_request_headers(false),
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => false,
+            CURLOPT_REFERER => $_SERVER['REQUEST_URI'],
+            CURLOPT_USERAGENT=>'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML like Gecko) Chrome/84.0.4147.89 Safari/537.36'
+			);
+    curl_setopt_array($curl, $optArray);
+    $content = curl_exec($curl);
+    $info = curl_getinfo($curl);
+    $error= curl_error($curl);
+    curl_close($curl);
+    return ["html"=>$content,"info"=>$info,"error"=>$error];
+}
+
 function post($url,$postfields){
     $curl = curl_init();
     curl_setopt_array($curl, array(

@@ -1669,7 +1669,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
 
                                                     <br>
                                                     <hr>
-                                                    <h4>#8 Настройка статистики и постбэка</h4>
+                                                    <h4>#8 Настройка статистики</h4>
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -1694,7 +1694,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                <br/>
+                                                    <br/>
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-5 col-md-12 col-sm-12 col-xs-12">
@@ -1732,6 +1732,8 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                     <a id="add-stats-sub-item" class="btn btn-sm btn-primary" href="javascript:;">Добавить</a>
                                                     </div>
                                                     <br>
+                                                    <hr>
+                                                    <h4>#9 Настройка постбэков</h4>
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-5 col-md-12 col-sm-12 col-xs-12">
@@ -1746,7 +1748,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                                 <div class="input-group custom-go-button">
-                                                                    <input type="text" name="statistics.postback.lead" class="form-control" placeholder="Lead" value="<?=$lead_status_name?>">
+                                                                    <input type="text" name="postback.lead" class="form-control" placeholder="Lead" value="<?=$lead_status_name?>">
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1759,7 +1761,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                                 <div class="input-group custom-go-button">
-                                                                    <input type="text" name="statistics.postback.purchase" class="form-control" placeholder="Purchase" value="<?=$purchase_status_name?>">
+                                                                    <input type="text" name="postback.purchase" class="form-control" placeholder="Purchase" value="<?=$purchase_status_name?>">
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1772,7 +1774,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                                 <div class="input-group custom-go-button">
-                                                                    <input type="text" name="statistics.postback.reject" class="form-control" placeholder="Reject" value="<?=$reject_status_name?>">
+                                                                    <input type="text" name="postback.reject" class="form-control" placeholder="Reject" value="<?=$reject_status_name?>">
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1785,10 +1787,72 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                                 <div class="input-group custom-go-button">
-                                                                    <input type="text" name="statistics.postback.trash" class="form-control" placeholder="Trash" value="<?=$trash_status_name?>">
+                                                                    <input type="text" name="postback.trash" class="form-control" placeholder="Trash" value="<?=$trash_status_name?>">
                                                                 </div>
                                                             </div>
                                                         </div>
+                                                    </div>
+                                                    <div class="form-group-inner">
+                                                        <div class="row">
+                                                            <div class="col-lg-5 col-md-12 col-sm-12 col-xs-12">
+                                                <label class="login2 pull-left pull-left-pro">Настойка S2S-постбеков:</label>
+                                                <br/>
+                                                            </div>
+                                                        </div>
+
+                                                    <div id="s2s_container">
+                                                        <?php  for ($i=0;$i<count($s2s_postbacks);$i++){?>
+                                                            <div class="form-group-inner s2s">
+                                                                <div class="row">
+                                                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                                                                        <label class="login2 pull-left pull-left-pro">Адрес:</label>
+                                                                        <br/><br/>
+                                                <p>Внутри адреса постбэка можно использовать следующие макросы:
+                                                {subid}, {prelanding}, {landing}, {px}, {domain}, {status}</p>
+                                                                    </div>
+                                                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                                                                         <div class="input-group">
+                                                                            <input type="text" class="form-control" placeholder="https://s2s-postback.com" value="<?=$s2s_postbacks[$i]["url"]?>" name="postback.s2s[<?=$i?>][url]">
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
+                                                                        <a href="javascript:void(0)" class="remove-s2s-item btn btn-sm btn-primary">Удалить</a>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                                                                        <label class="login2 pull-left pull-left-pro">Метод отправки постбэка:</label>
+                                                                    </div>
+                                                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                                                                         <div class="input-group">
+                                                                            <select class="form-control" name="postback.s2s[<?=$i?>][method]">
+                                                                                <option value="GET" <?=($s2s_postbacks[$i]["method"]==="GET"?' selected':'')?>>GET</option>
+                                                                                <option value="POST"<?=($s2s_postbacks[$i]["method"]==="POST"?' selected':'')?>>POST</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                                                                        <label class="login2 pull-left pull-left-pro">События, при которых будет отправлен постбэк:</label>
+                                                                    </div>
+                                                                    <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
+                                                                        <br/>
+                                                                        <br/>
+                                                                             <label class="form-check-input">
+                                                                            <input type="checkbox" class="form-check-input" name="postback.s2s[<?=$i?>][events][]" value="Lead"<?=(in_array("Lead",$s2s_postbacks[$i]["events"])?' checked':'')?>>Lead</label>&nbsp;&nbsp;
+                                                                             <label class="form-check-input">
+                                                                            <input type="checkbox" class="form-check-input" name="postback.s2s[<?=$i?>][events][]" value="Purchase"<?=(in_array("Purchase",$s2s_postbacks[$i]["events"])?' checked':'')?>>Purchase</label>&nbsp;&nbsp;
+                                                                             <label class="form-check-input">
+                                                                            <input type="checkbox" class="form-check-input" name="postback.s2s[<?=$i?>][events][]" value="Reject"<?=(in_array("Reject",$s2s_postbacks[$i]["events"])?' checked':'')?>>Reject</label>&nbsp;&nbsp;
+                                                                             <label class="form-check-input">
+                                                                            <input type="checkbox" class="form-check-input" name="postback.s2s[<?=$i?>][events][]" value="Trash"<?=(in_array("Trash",$s2s_postbacks[$i]["events"])?' checked':'')?>>Trash
+</label>
+                                                                    </div>
+                                                                </div>
+                                                        <?php }?>
+                                                    </div>
+                                                    <a id="add-s2s-item" class="btn btn-sm btn-primary" href="javascript:;">Добавить</a>
                                                     </div>
 
                                                     <hr>
@@ -1849,6 +1913,15 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
         cloneContainer: 'stats_subs',
         removeButtonClass: 'remove-stats-sub-item',
         maxLimit: 10,
+        minLimit: 1,
+        removeConfirm: false
+    });
+
+    $('#add-s2s-item').cloneData({
+        mainContainerId: 's2s_container',
+        cloneContainer: 's2s',
+        removeButtonClass: 'remove-s2s-item',
+        maxLimit: 5,
         minLimit: 1,
         removeConfirm: false
     });

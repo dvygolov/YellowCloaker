@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__.'/settings.php';
 require_once __DIR__.'/cookies.php';
+require_once __DIR__.'/pixels.php';
 
 //заменяем все макросы на реальные значения из куки
 function replace_all_macros($url)
@@ -15,6 +16,7 @@ function replace_all_macros($url)
     $tmp_url = str_replace('{landing}', $landing, $tmp_url);
     $tmp_url = str_replace('{prelanding}', $prelanding, $tmp_url);
     $tmp_url = str_replace('{subid}', $subid, $tmp_url);
+    $tmp_url = str_replace('{domain}', $_SERVER['SERVER_NAME'], $tmp_url);
     return $tmp_url;
 }
 
