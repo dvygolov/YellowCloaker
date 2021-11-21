@@ -229,9 +229,9 @@
         "trash": "Trash",
         "s2s": [
             {
-                "url": "https://habr.com/{domain}/?subid={subid}",
+                "url": "",
                 "method": "POST",
-                "events": ["Lead","Purchase" ]
+                "events": []
             }
         ]
     }
