@@ -184,7 +184,8 @@
         },
         "comebacker": false,
         "callbacker": false,
-        "addedtocart": false
+        "addedtocart": false,
+        "imageslazyload": true
     },
     "subids": [
         {
@@ -231,7 +232,10 @@
             {
                 "url": "",
                 "method": "POST",
-                "events": []
+                "events": [
+                    "Lead",
+                    "Purchase"
+                ]
             }
         ]
     }

@@ -65,6 +65,7 @@ function load_prelanding($url, $land_number)
     $html = preg_replace('/(<a[^>]+href=")([^"]*)/', $replacement, $html);
 
     $html = insert_additional_scripts($html);
+    $html = add_images_lazy_load($html);
 
     return $html;
 }
@@ -76,6 +77,7 @@ function load_landing($url)
 	global $fb_use_viewcontent, $fb_view_content_time, $fb_view_content_percent;
 	global $black_land_log_conversions_on_button_click,$black_land_use_custom_thankyou_page;
 	global $replace_landing, $replace_landing_address;
+    global $images_lazy_load;
 
     $fullpath = get_abs_from_rel($url);
     $fpwqs = get_abs_from_rel($url,true);
@@ -142,9 +144,11 @@ function load_landing($url)
 
     $html = fix_anchors($html);
     $html = replace_city_macros($html);
-    //заменяем поле с телефоном на более удобный тип - tel
+    //заменяем поле с телефоном на более удобный тип - tel + добавляем autocomplete
     $html = fix_phone_and_name($html);
     $html = insert_phone_mask($html);
+
+    $html = add_images_lazy_load($html);
 
     return $html;
 }
@@ -200,7 +204,7 @@ function fix_phone_and_name($html)
     $html = preg_replace($secondr, "\\1tel\\3", $html);
     $html = preg_replace($firstr, "\\1tel\\4", $html);
 
-    //добавляем autocomplete к телефонам 
+    //добавляем autocomplete к телефонам
     $telacmpltr='/<input[^>]*type="tel"[^>]*>/';
     if (preg_match_all($telacmpltr,$html,$matches,PREG_OFFSET_CAPTURE)){
         for($i=count($matches[0])-1;$i>=0;$i--){
@@ -242,6 +246,13 @@ function insert_phone_mask($html)
 	$domain = get_domain_with_prefix();
     $html = insert_before_tag($html, '</head>', "<script src=\"".$domain."/scripts/inputmask.js\"></script>");
     $html = insert_file_content_with_replace($html,'inputmaskbinding.js','</body>','{MASK}',$black_land_phone_mask);
+    return $html;
+}
+
+function add_images_lazy_load($html){
+    global $images_lazy_load;
+    if (!$images_lazy_load) return $html;
+    $html = preg_replace('/(<img\s)((?!.*?loading=([\'\"])[^\'\"]+\3)[^>]*)(>)/s', '<img loading="lazy" \\2\\4', $html);
     return $html;
 }
 

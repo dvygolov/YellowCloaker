@@ -1624,6 +1624,34 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    <div class="form-group-inner">
+                                                        <div class="row">
+                                                            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                                                                <label class="login2 pull-left pull-left-pro">Использовать отложенную загрузку (lazy loading) для картинок на прелендах/лендах?</label>
+                                                            </div>
+                                                            <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
+                                                                <div class="bt-df-checkbox pull-left">
+
+                                                                    <div class="row">
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                            <div class="i-checks pull-left">
+                                                                                <label>
+																						<input type="radio" <?=$images_lazy_load===false?'checked':''?> value="false" name="scripts.imageslazyload"> Нет </label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                            <div class="i-checks pull-left">
+                                                                                <label>
+																						<input type="radio" <?=$images_lazy_load===true?'checked':''?> value="true" name="scripts.imageslazyload"> Да</label>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                     <br>
                                                     <hr>
                                                     <h4>#7 Настройка суб-меток</h4>

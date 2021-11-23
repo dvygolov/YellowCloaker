@@ -89,6 +89,7 @@ $black_land_phone_mask = $conf['scripts.phonemask.mask'];
 $comebacker = $conf['scripts.comebacker'];
 $callbacker = $conf['scripts.callbacker'];
 $addedtocart = $conf['scripts.addedtocart'];
+$images_lazy_load = $conf['scripts.imageslazyload'];
 
 $sub_ids = $conf['subids'];
 
