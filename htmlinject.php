@@ -21,7 +21,7 @@ function insert_file_content_with_replace($html, $scriptname, $needle, $search, 
     return insert_before_tag($html, $needle, $script_code);
 }
 
-function insert_file_content($html, $scriptname, $needle)
+function insert_file_content($html, $scriptname, $needle, $before=true)
 {
     $code_file_name=__DIR__.'/scripts/'.$scriptname;
     if (!file_exists($code_file_name)) {
@@ -30,7 +30,10 @@ function insert_file_content($html, $scriptname, $needle)
     }
     $script_code = file_get_contents($code_file_name);
     if (empty($script_code)) return $html;
-    return insert_before_tag($html, $needle, $script_code);
+    if ($before)
+        return insert_before_tag($html, $needle, $script_code);
+    else
+        return insert_after_tag($html, $needle, $script_code);
 }
 
 function insert_after_tag($html, $needle, $str_to_insert)

@@ -49,9 +49,9 @@
     },
     "black": {
         "prelanding": {
-            "action": "none",
+            "action": "folder",
             "folders": [
-                "lrlpl"
+                "preland"
             ],
             "redirect": {
                 "urls": [

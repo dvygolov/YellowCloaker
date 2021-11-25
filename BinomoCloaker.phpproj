@@ -259,6 +259,7 @@
     <Content Include="scripts\comebacker\template.html" />
     <Content Include="scripts\removeland.html" />
     <Content Include="scripts\removepreland.html" />
+    <Content Include="scripts\replaceanchorswithsmoothscroll.js" />
     <Content Include="scripts\replacelanding.js" />
     <Content Include="thankyou\templates\email\SKfill.html" />
     <Content Include="thankyou\templates\email\SIfill.html" />

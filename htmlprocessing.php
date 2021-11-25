@@ -20,7 +20,9 @@ function load_prelanding($url, $land_number)
     $html=remove_scrapbook($html);
     $html=remove_from_html($html,'removepreland.html');
 
-    $html=insert_after_tag($html,"<head","<base href='".$fullpath."'>");
+    //чистим тег <head> от всякой ненужной мути
+    $html=preg_replace('/<head [^>]+>/','<head>',$html);
+    $html=insert_after_tag($html,"<head>","<base href='".$fullpath."'>");
     //добавляем в страницу скрипт GTM
     $html = insert_gtm_script($html);
     //добавляем в страницу скрипт Yandex Metrika
@@ -85,7 +87,8 @@ function load_landing($url)
     $html=get_html($fpwqs);
     $html=remove_scrapbook($html);
     $html=remove_from_html($html,'removeland.html');
-    $html=insert_after_tag($html,"<head","<base href='".$fullpath."'>");
+    $html=preg_replace('/<head [^>]+>/','<head>',$html);
+    $html=insert_after_tag($html,"<head>","<base href='".$fullpath."'>");
 
     if($black_land_use_custom_thankyou_page===true){
 		//меняем обработчик формы, чтобы у вайта и блэка была одна thankyou page
@@ -235,8 +238,7 @@ function replace_city_macros($html){
 }
 
 function fix_anchors($html){
-    $html = preg_replace('/(<a[^>]+href=")(#[^"]*)/', "\\1../\\2", $html);
-    return $html;
+    return insert_file_content($html,"replaceanchorswithsmoothscroll.js","<body>",false);
 }
 
 function insert_phone_mask($html)
