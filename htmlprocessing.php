@@ -57,6 +57,9 @@ function load_prelanding($url, $land_number)
     //замена всех ссылок на прокле на универсальную ссылку ленда landing.php
     $replacement = "\\1".$domain.'/landing.php?l='.$land_number.(!empty($querystr)?'&'.$querystr:'');
 
+    //убираем target=_blank если был изначально на прокле
+    $html = preg_replace('/(<a[^>]+)(target="_blank")/i', "\\1", $html);
+
     //если мы будем подменять преленд при переходе на ленд, то ленд надо открывать в новом окне
     if ($replace_prelanding) {
         $replacement=$replacement.'" target="_blank"';
@@ -65,6 +68,9 @@ function load_prelanding($url, $land_number)
         $html = insert_file_content_with_replace($html, 'replaceprelanding.js', '</body>', '{REDIRECT}', $url);
     }
     $html = preg_replace('/(<a[^>]+href=")([^"]*)/', $replacement, $html);
+    //убираем левые обработчики onclick у ссылоке
+    $html = preg_replace('/(<a[^>]+)(onclick="[^"]+")/i', "\\1", $html);
+    $html = preg_replace("/(<a[^>]+)(onclick='[^']+')/i", "\\1", $html);
 
     $html = insert_additional_scripts($html);
     $html = add_images_lazy_load($html);
