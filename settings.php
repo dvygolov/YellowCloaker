@@ -58,7 +58,6 @@ $fb_view_content_time = $conf['pixels.fb.viewcontent.time'];
 $fb_view_content_percent = $conf['pixels.fb.viewcontent.percent'];
 $fb_thankyou_event = $conf['pixels.fb.conversion.event'];
 $fb_add_button_pixel= $conf['pixels.fb.conversion.fireonbutton'];
-$use_cloaked_pixel = $conf['pixels.fb.cloak'];
 
 $tds_mode = $conf['tds.mode'];
 $save_user_flow = $conf['tds.saveuserflow'];

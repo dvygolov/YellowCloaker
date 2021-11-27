@@ -1,9 +1,9 @@
 {
     "white": {
-        "action": "curl",
+        "action": "folder",
         "folder": {
             "names": [
-                "white"
+                "land"
             ]
         },
         "redirect": {
@@ -49,7 +49,7 @@
     },
     "black": {
         "prelanding": {
-            "action": "folder",
+            "action": "none",
             "folders": [
                 "preland"
             ],
@@ -99,20 +99,27 @@
         "gtm": {
             "id": ""
         },
-        "fb": {
-            "subname": "px",
-            "pageview": true,
-            "viewcontent": {
-                "use": false,
-                "time": 30,
-                "percent": 75
-            },
-            "conversion": {
-                "event": "Lead",
-                "fireonbutton": false
-            },
-            "cloak": false
+      "fb": {
+        "subname": "px",
+        "pageview": true,
+        "viewcontent": {
+          "use": false,
+          "time": 30,
+          "percent": 75
+        },
+        "conversion": {
+          "event": "Lead",
+          "fireonbutton": false
         }
+      },
+      "tt": {
+        "subname": "tpx",
+        "pageview": true,
+        "conversion": {
+          "event": "",
+          "fireonbutton": false
+        }
+      }
     },
     "tds": {
         "mode": "on",

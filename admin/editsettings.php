@@ -1027,35 +1027,6 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Клоачить ли пиксель? <small>по методу <a href="https://telegra.ph/Kloachim-FB-Pixel-bez-iframe-02-15">из вот этой статьи</a></small></label>
-                                                            </div>
-                                                            <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                                                                <div class="bt-df-checkbox pull-left">
-
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-																						<input type="radio" <?=$use_cloaked_pixel===false?'checked':''?> value="false" name="pixels.fb.cloak"> Нет, не клоачить </label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-																						<input type="radio" <?=$use_cloaked_pixel===true?'checked':''?> value="true" name="pixels.fb.cloak"> Да, клоачить </label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
                                                     <br>
                                                     <hr>
                                                     <h4>#4 Настройка TDS</h4>

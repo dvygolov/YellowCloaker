@@ -1,9 +1,9 @@
 <script>
-function addbuttonpixel(){
+function addfbbuttonpixel(){
 	var buttons=document.querySelectorAll("form button");
 	buttons.forEach(function(button){
 		button.addEventListener('click', function() { 
-			firepixel(button);
+			firefbpixel(button);
 		});
 	});
 
@@ -15,8 +15,8 @@ function addbuttonpixel(){
 	});
 }
 
-function firepixel(element){
-	console.log("Started pixel fire..");
+function firefbpixel(element){
+	console.log("Started Facebook pixel firing..");
 	var node = element;
 	while (node.nodeName != "FORM" && node.parentNode) {
 		node = node.parentNode;
@@ -39,5 +39,5 @@ function firepixel(element){
 		fbq('track', '{EVENT}');
 }
 
-window.addEventListener('DOMContentLoaded', addbuttonpixel, false);
+window.addEventListener('DOMContentLoaded', addfbbuttonpixel, false);
 </script>

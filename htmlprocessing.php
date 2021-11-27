@@ -27,22 +27,14 @@ function load_prelanding($url, $land_number)
     $html = insert_gtm_script($html);
     //добавляем в страницу скрипт Yandex Metrika
     $html = insert_yandex_script($html);
+    //добавляем всё для пикселя Facebook
 	$fb_pixel = get_fbpixel();
     if (!empty($fb_pixel)){
         //добавляем в страницу скрипт Facebook Pixel с событием PageView
-        if ($fb_use_pageview){
-            $html = insert_fbpixel_script($html, 'PageView');
-        }
-
-        if ($fb_use_viewcontent){
-            if ($fb_view_content_time>0){
-                $html= insert_file_content_with_replace($html,'fbpxviewcontenttime.js','</head>',['{SECONDS}','{PAGE}'],[$fb_view_content_time,$url]);
-            }
-            if ($fb_view_content_percent>0){
-                $html= insert_file_content_with_replace($html,'fbpxviewcontentpercent.js','</head>',['{PERCENT}','{PAGE}'],[$fb_view_content_percent,$url]);
-            }
-        }
+        if ($fb_use_pageview) $html = insert_fbpixel_script($html, 'PageView');
+        $html=insert_fbpixel_viewcontent($html,$url);
     }
+    //добавляем всё для пикселя TikTok
 
     $html = replace_city_macros($html);
     $html = fix_phone_and_name($html);
@@ -68,7 +60,7 @@ function load_prelanding($url, $land_number)
         $html = insert_file_content_with_replace($html, 'replaceprelanding.js', '</body>', '{REDIRECT}', $url);
     }
     $html = preg_replace('/(<a[^>]+href=")([^"]*)/', $replacement, $html);
-    //убираем левые обработчики onclick у ссылоке
+    //убираем левые обработчики onclick у ссылок
     $html = preg_replace('/(<a[^>]+)(onclick="[^"]+")/i', "\\1", $html);
     $html = preg_replace("/(<a[^>]+)(onclick='[^']+')/i", "\\1", $html);
 
@@ -116,30 +108,10 @@ function load_landing($url)
     $html = insert_gtm_script($html);
     //добавляем в страницу скрипт Yandex Metrika
     $html = insert_yandex_script($html);
+    //добавляем всё, связанное с пикселем фб
+    $html = full_fbpixel_processing($html,$url);
+    //добавляем всё по тиктоку
 
-	$fb_pixel = get_fbpixel();
-    if (!empty($fb_pixel)){
-        //добавляем в страницу скрипт Facebook Pixel с событием PageView
-        if ($fb_use_pageview) {
-            $html = insert_fbpixel_script($html, 'PageView');
-        }
-        else if ($fb_add_button_pixel){
-            $html = insert_fbpixel_script($html, '');
-        }
-
-        if ($fb_use_viewcontent){
-            if ($fb_view_content_time>0){
-                $html= insert_file_content_with_replace($html,'fbpxviewcontenttime.js','</head>',['{SECONDS}','{PAGE}'],[$fb_view_content_time,$url]);
-            }
-            if ($fb_view_content_percent>0){
-                $html= insert_file_content_with_replace($html,'fbpxviewcontentpercent.js','</head>',['{PERCENT}','{PAGE}'],[$fb_view_content_percent,$url]);
-            }
-        }
-
-        if ($fb_add_button_pixel){
-            $html= insert_file_content_with_replace($html,'fbpxbuttonconversion.js','</head>','{EVENT}',$fb_thankyou_event);
-        }
-    }
 	if ($black_land_log_conversions_on_button_click){
         $html= insert_file_content($html,'btnclicklog.js','</head>');
 	}
@@ -252,8 +224,8 @@ function insert_phone_mask($html)
     global $black_land_use_phone_mask,$black_land_phone_mask;
 	if (!$black_land_use_phone_mask) return $html;
 	$domain = get_domain_with_prefix();
-    $html = insert_before_tag($html, '</head>', "<script src=\"".$domain."/scripts/inputmask.js\"></script>");
-    $html = insert_file_content_with_replace($html,'inputmaskbinding.js','</body>','{MASK}',$black_land_phone_mask);
+    $html = insert_before_tag($html, '</head>', "<script src=\"".$domain."/scripts/inputmask/inputmask.js\"></script>");
+    $html = insert_file_content_with_replace($html,'inputmask/inputmaskbinding.js','</body>','{MASK}',$black_land_phone_mask);
     return $html;
 }
 
