@@ -99,27 +99,32 @@
         "gtm": {
             "id": ""
         },
-      "fb": {
-        "subname": "px",
-        "pageview": true,
-        "viewcontent": {
-          "use": false,
-          "time": 30,
-          "percent": 75
+        "fb": {
+            "subname": "px",
+            "pageview": true,
+            "viewcontent": {
+                "use": false,
+                "time": 30,
+                "percent": 75
+            },
+            "conversion": {
+                "event": "Lead",
+                "fireonbutton": false
+            }
         },
-        "conversion": {
-          "event": "Lead",
-          "fireonbutton": false
+        "tt": {
+            "subname": "tpx",
+            "pageview": true,
+            "viewcontent": {
+                "use": true,
+                "time": 30,
+                "percent": 75
+            },
+            "conversion": {
+                "event": "Purchase",
+                "fireonbutton": false
+            }
         }
-      },
-      "tt": {
-        "subname": "tpx",
-        "pageview": true,
-        "conversion": {
-          "event": "",
-          "fireonbutton": false
-        }
-      }
     },
     "tds": {
         "mode": "on",

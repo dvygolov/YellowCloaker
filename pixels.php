@@ -1,11 +1,12 @@
 <?php
 require_once 'settings.php';
 require_once 'htmlinject.php';
+require_once 'cookies.php';
 
 function get_fbpixel(){
 	global $fbpixel_subname;
     //если пиксель не лежит в querystring, то также ищем его в куки
-    $fb_pixel = isset($_GET[$fbpixel_subname])?$_GET[$fbpixel_subname]:(isset($_COOKIE[$fbpixel_subname])?$_COOKIE[$fbpixel_subname]:'');
+    $fb_pixel = isset($_GET[$fbpixel_subname])?$_GET[$fbpixel_subname]:get_cookie($fbpixel_subname);
 	return $fb_pixel;
 }
 
@@ -52,8 +53,18 @@ function insert_fbpixel_script($html, $event=null)
     return insert_before_tag($html, '</head>', $px_code);
 }
 
+function insert_fbpixel_pageview($html){
+    global $fb_use_pageview;
+    if (get_fbpixel()=='') return $html;
+    if ($fb_use_pageview) {
+        $html = insert_fbpixel_script($html, 'PageView');
+    }
+    return $html;
+}
+
 function insert_fbpixel_viewcontent($html,$url){
     global $fb_use_viewcontent,$fb_view_content_time,$fb_view_content_percent;
+    if (get_fbpixel()=='') return $html;
     if ($fb_use_viewcontent){
         if ($fb_view_content_time>0){
             $html= insert_file_content_with_replace($html,'pixels/facebook/fbpxviewcontenttime.js','</head>',['{SECONDS}','{PAGE}'],[$fb_view_content_time,$url]);
@@ -68,21 +79,117 @@ function insert_fbpixel_viewcontent($html,$url){
 function full_fbpixel_processing($html,$url){
     global $fb_use_pageview, $fb_add_button_pixel, $fb_thankyou_event;
 
-	$fb_pixel = get_fbpixel();
-    if (!empty($fb_pixel)){
-        //добавляем в страницу скрипт Facebook Pixel с событием PageView
-        if ($fb_use_pageview) {
-            $html = insert_fbpixel_script($html, 'PageView');
-        }
-        else if ($fb_add_button_pixel){
-            $html = insert_fbpixel_script($html);
-        }
+	if (empty(get_fbpixel())) return $html;
+    //добавляем в страницу скрипт Facebook Pixel с событием PageView
+    if ($fb_use_pageview) {
+        $html = insert_fbpixel_script($html, 'PageView');
+    }
+    else if ($fb_add_button_pixel){
+        $html = insert_fbpixel_script($html);
+    }
 
-        $html=insert_fbpixel_viewcontent($html,$url);
+    $html=insert_fbpixel_viewcontent($html,$url);
 
-        if ($fb_add_button_pixel){
-            $html= insert_file_content_with_replace($html,'pixels/facebook/fbpxbuttonconversion.js','</head>','{EVENT}',$fb_thankyou_event);
+    if ($fb_add_button_pixel){
+        $html= insert_file_content_with_replace($html,'pixels/facebook/fbpxbuttonconversion.js','</head>','{EVENT}',$fb_thankyou_event);
+    }
+    return $html;
+}
+
+function get_ttpixel(){
+	global $ttpixel_subname;
+    //если пиксель не лежит в querystring, то также ищем его в куки
+    $tt_pixel = isset($_GET[$ttpixel_subname])?$_GET[$ttpixel_subname]:get_cookie($ttpixel_subname);
+	return $tt_pixel;
+}
+
+//если в querystring есть id пикселя тт, то встраиваем его скрытым полем в форму на лендинге
+//чтобы потом передать его на страницу "Спасибо" через send.php и там отстучать Lead
+function insert_ttpixel_id($html)
+{
+    global $ttpixel_subname;
+    $tt_pixel = get_ttpixel();
+    if (empty($tt_pixel)) return $html;
+
+    $tt_input = '<input type="hidden" name="'.$ttpixel_subname.'" value="'.$tt_pixel.'"/>';
+    $needle = '</form>';
+    return insert_before_tag($html, $needle, $tt_input);
+}
+
+//вставляет в head полный код пикселя фб с указанным в $event событием (Lead,PageView,Purchase итп)
+//если событие не указано, то и не шлём его
+function insert_ttpixel_script($html, $event=null)
+{
+    $tt_pixel = get_ttpixel();
+    if (empty($tt_pixel)) return $html;
+
+    $file_name=__DIR__.'/scripts/pixels/tiktok/ttpxcode.js';
+    if (!file_exists($file_name)) return $html;
+    $px_code = file_get_contents($file_name);
+    if (empty($px_code)) return $html;
+
+    $search='{PIXELID}';
+    $px_code = str_replace($search, $tt_pixel, $px_code);
+	if ($event==null){ //если не передали Event, значит добавляем только код пикселя без передачи событий
+		$search = "ttq.track('{EVENT}');";
+		$px_code = str_replace($search, $event, $px_code);
+		$search = "ttq.page();";
+		$px_code = str_replace($search, $event, $px_code);
+	}
+    else if ($event=='PageView'){
+		$search = "ttq.track('{EVENT}');";
+		$px_code = str_replace($search, '', $px_code);
+    }
+	else{
+		$search='{EVENT}';
+		$px_code = str_replace($search, $event, $px_code);
+	}
+
+    return insert_before_tag($html, '</head>', $px_code);
+}
+
+function insert_ttpixel_pageview($html){
+    global $tt_use_pageview;
+    if (get_ttpixel()=='') return $html;
+    if ($tt_use_pageview) {
+        $html = insert_ttpixel_script($html, 'PageView');
+    }
+    return $html;
+}
+
+function insert_ttpixel_viewcontent($html,$url){
+    global $tt_use_viewcontent,$tt_view_content_time,$tt_view_content_percent;
+    if (get_ttpixel()=='') return $html;
+    if ($tt_use_viewcontent){
+        if ($tt_view_content_time>0){
+            $html= insert_file_content_with_replace($html,
+                'pixels/tiktok/ttpxviewcontenttime.js','</head>',['{SECONDS}','{PAGE}'],[$tt_view_content_time,$url]);
         }
+        if ($tt_view_content_percent>0){
+            $html= insert_file_content_with_replace($html,
+                'pixels/tiktok/ttpxviewcontentpercent.js','</head>',['{PERCENT}','{PAGE}'],[$tt_view_content_percent,$url]);
+        }
+    }
+    return $html;
+}
+
+function full_ttpixel_processing($html,$url){
+    global $tt_use_pageview, $tt_add_button_pixel, $tt_thankyou_event;
+
+	$tt_pixel = get_ttpixel();
+    if ($tt_pixel==='') return $html;
+    //добавляем в страницу скрипт TikTok Pixel с событием PageView
+    if ($tt_use_pageview) {
+        $html = insert_ttpixel_script($html, 'PageView');
+    }
+    else if ($tt_add_button_pixel){
+        $html = insert_ttpixel_script($html);
+    }
+
+    $html=insert_ttpixel_viewcontent($html,$url);
+
+    if ($tt_add_button_pixel){
+        $html= insert_file_content_with_replace($html,'pixels/tiktok/ttpxbuttonconversion.js','</head>','{EVENT}',$tt_thankyou_event);
     }
     return $html;
 }

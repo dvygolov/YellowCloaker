@@ -10,7 +10,6 @@ require_once 'cookies.php';
 //Подгрузка контента блэк проклы из другой папки через CURL
 function load_prelanding($url, $land_number)
 {
-    global $fb_use_pageview, $fb_use_viewcontent, $fb_view_content_time, $fb_view_content_percent;
 	global $replace_prelanding, $replace_prelanding_address;
 
     $fullpath = get_abs_from_rel($url);
@@ -23,18 +22,17 @@ function load_prelanding($url, $land_number)
     //чистим тег <head> от всякой ненужной мути
     $html=preg_replace('/<head [^>]+>/','<head>',$html);
     $html=insert_after_tag($html,"<head>","<base href='".$fullpath."'>");
+    //ВСЕ ПИКСЕЛИ
     //добавляем в страницу скрипт GTM
     $html = insert_gtm_script($html);
     //добавляем в страницу скрипт Yandex Metrika
     $html = insert_yandex_script($html);
     //добавляем всё для пикселя Facebook
-	$fb_pixel = get_fbpixel();
-    if (!empty($fb_pixel)){
-        //добавляем в страницу скрипт Facebook Pixel с событием PageView
-        if ($fb_use_pageview) $html = insert_fbpixel_script($html, 'PageView');
-        $html=insert_fbpixel_viewcontent($html,$url);
-    }
+    $html=insert_fbpixel_pageview($html);
+    $html=insert_fbpixel_viewcontent($html,$url);
     //добавляем всё для пикселя TikTok
+    $html=insert_ttpixel_pageview($html);
+    $html=insert_ttpixel_viewcontent($html,$url);
 
     $html = replace_city_macros($html);
     $html = fix_phone_and_name($html);
@@ -73,8 +71,6 @@ function load_prelanding($url, $land_number)
 //Подгрузка контента блэк ленда из другой папки через CURL
 function load_landing($url)
 {
-    global $fb_use_pageview,$fb_thankyou_event,$fb_add_button_pixel;
-	global $fb_use_viewcontent, $fb_view_content_time, $fb_view_content_percent;
 	global $black_land_log_conversions_on_button_click,$black_land_use_custom_thankyou_page;
 	global $replace_landing, $replace_landing_address;
     global $images_lazy_load;
@@ -111,6 +107,7 @@ function load_landing($url)
     //добавляем всё, связанное с пикселем фб
     $html = full_fbpixel_processing($html,$url);
     //добавляем всё по тиктоку
+    $html = full_ttpixel_processing($html,$url);
 
 	if ($black_land_log_conversions_on_button_click){
         $html= insert_file_content($html,'btnclicklog.js','</head>');

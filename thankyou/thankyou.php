@@ -4,6 +4,7 @@ ini_set('display_errors','1');
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 //Конец включения отладочной информации
+
 require_once '../settings.php';
 require_once '../pixels.php';
 require_once '../htmlinject.php';
@@ -42,6 +43,7 @@ $html = insert_yandex_script($html);
 if (empty($_GET['nopixel']))
 {
     $html = insert_fbpixel_script($html,$fb_thankyou_event);
+    $html = insert_ttpixel_script($html,$tt_thankyou_event);
 }
 
 $search='{NAME}';

@@ -30,6 +30,14 @@ function set_subid(){
     return $cursubid;
 }
 
+function set_facebook_cookies(){
+	global $fbpixel_subname;
+	if (isset($_GET[$fbpixel_subname]) && $_GET[$fbpixel_subname]!='')
+		ywbsetcookie($fbpixel_subname,$_GET[$fbpixel_subname],'/');
+	if (isset($_GET['fbclid']) && $_GET['fbclid']!='')
+		ywbsetcookie('fbclid',$_GET['fbclid'],'/');
+}
+
 //проверяем, если у пользователя установлена куки, что он уже конвертился, а также имя и телефон, то сверяем время
 //если прошло менее суток, то хуй ему, а не лид, обнуляем время
 function has_conversion_cookies($name,$phone){
@@ -46,7 +54,7 @@ function has_conversion_cookies($name,$phone){
 			if ($secondsDiff<24*60*60)
 			{
 				$is_duplicate=true;
-				set_cookie('ctime',$ts);
+				ywbsetcookie('ctime',$ts);
 			}
 		}
 	}

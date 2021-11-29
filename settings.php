@@ -58,6 +58,13 @@ $fb_view_content_time = $conf['pixels.fb.viewcontent.time'];
 $fb_view_content_percent = $conf['pixels.fb.viewcontent.percent'];
 $fb_thankyou_event = $conf['pixels.fb.conversion.event'];
 $fb_add_button_pixel= $conf['pixels.fb.conversion.fireonbutton'];
+$ttpixel_subname = $conf['pixels.tt.subname'];
+$tt_use_pageview = $conf['pixels.tt.pageview'];
+$tt_use_viewcontent = $conf['pixels.tt.viewcontent.use'];
+$tt_view_content_time = $conf['pixels.tt.viewcontent.time'];
+$tt_view_content_percent = $conf['pixels.tt.viewcontent.percent'];
+$tt_thankyou_event = $conf['pixels.tt.conversion.event'];
+$tt_add_button_pixel= $conf['pixels.tt.conversion.fireonbutton'];
 
 $tds_mode = $conf['tds.mode'];
 $save_user_flow = $conf['tds.saveuserflow'];

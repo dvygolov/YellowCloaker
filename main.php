@@ -108,16 +108,8 @@ function black($clkrdetect)
         header('Access-Control-Allow-Origin: '.$parsed_url['scheme'].'://'.$parsed_url['host']);
     }
 	
-	$fbpx = get_fbpixel();
-	if ($fbpx!==''){
-		ywbsetcookie($fbpixel_subname,$fbpx,'/');
-	}
 	$cursubid=set_subid();
-    //устанавливаем fbclid в куки, если получали его из фб
-	if (isset($_GET['fbclid']) && $_GET['fbclid']!='')
-	{
-		ywbsetcookie('fbclid',$_GET['fbclid'],'/');
-	}
+    set_facebook_cookies();
 
 
 	$landings=[];

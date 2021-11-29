@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", function() {
 	};
 
 	executeWhenReachedPagePercentage({PERCENT}, function () {
-		fbq('track', 'ViewContent',{content_name:'{PAGE}',content_category:'Percent'});
+		ttq.track('ViewContent');
 	});
 });
 </script>

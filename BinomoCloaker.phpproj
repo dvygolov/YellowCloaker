@@ -262,6 +262,9 @@
     <Content Include="scripts\comebacker\img\product.png" />
     <Content Include="scripts\comebacker\script.js" />
     <Content Include="scripts\comebacker\template.html" />
+    <Content Include="scripts\pixels\tiktok\fbpxbuttonconversion.js" />
+    <Content Include="scripts\pixels\tiktok\ttpxviewcontentpercent.js" />
+    <Content Include="scripts\pixels\tiktok\ttpxviewcontenttime.js" />
     <Content Include="scripts\pixels\tiktok\ttpxcode.js" />
     <Content Include="scripts\removeland.html" />
     <Content Include="scripts\removepreland.html" />
