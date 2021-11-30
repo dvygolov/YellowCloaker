@@ -8,10 +8,8 @@ if (version_compare(phpversion(), '7.2.0', '<')) {
     die("PHP version should be 7.2 or higher! Change your PHP version and return.");
 }
 require_once '../settings.php';
-if ($log_password!==''&&(empty($_GET['password'])||$_GET['password'] !== $log_password)) {
-    echo 'No Password Given!';
-    exit();
-}
+require_once 'password.php';
+check_password();
 require_once 'db.php';
 
 date_default_timezone_set($stats_timezone);
@@ -111,7 +109,7 @@ $tableOutput.="</tbody></TABLE>";
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <title>Binomo Cloaker - Dashboard v1.0.0</title>
+    <title>Binomo Cloaker by Yellow Web</title>
     <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
 
@@ -248,10 +246,10 @@ $tableOutput.="</tbody></TABLE>";
                                                             if ($calendsd===$calended) {
                                                             echo $calendsd;
                                                             } else {
-                                                                echo "{$calendsd} - {$calended}";
+                                                            echo "{$calendsd} - {$calended}";
                                                             }
                                                             } else {
-                                                                echo $startdate->format('d.m.y');
+                                                            echo $startdate->format('d.m.y');
 
                                                             } ?>
                                                     </a>
@@ -289,7 +287,7 @@ $tableOutput.="</tbody></TABLE>";
         </script>
 
         <a name="top"></a>
-        <?=isset($tableOutput)?$tableOutput:'' ?>
+        <?=isset($tableoutput)?$tableoutput:'' ?>
         <a name="bottom"></a>
     </div>
     <!-- jquery

@@ -6,11 +6,9 @@ ini_set('display_startup_errors', 1);
 //Конец включения отладочной информации
 
 require_once '../settings.php';
-//Verify the password (if set)
-if ($log_password!==''&&(empty($_GET['password'])||$_GET['password'] !== $log_password)) {
-    echo 'No Password Given!';
-    exit();
-}
+require_once 'password.php';
+check_password();
+
 require_once 'db.php';
 require_once '../abtests/Calculator/SplitTestAnalyzer.php';
 require_once '../abtests/Calculator/Variation.php';
@@ -420,7 +418,7 @@ foreach ($subs_array as $sub_key=>$sub_values)
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <title>Binomo Cloaker - Dashboard v1.0.0</title>
+    <title>Binomo Cloaker by Yellow Web</title>
     <script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
 

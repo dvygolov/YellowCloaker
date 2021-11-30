@@ -5,11 +5,8 @@ ini_set('display_errors', '1');
 ini_set('display_startup_errors', 1);
 //Конец включения отладочной информации
 require_once '../settings.php';
-
-if ($log_password!==''&&(empty($_GET['password'])||$_GET['password'] !== $log_password)) {
-    echo 'No Password Given!';
-    exit();
-}
+require_once 'password.php';
+check_password();
 
 $startdate=isset($_GET['startdate'])?DateTime::createFromFormat('d.m.y', $_GET['startdate']):new DateTime();
 $enddate=isset($_GET['enddate'])?DateTime::createFromFormat('d.m.y', $_GET['enddate']):new DateTime();
@@ -27,7 +24,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Binomo Cloaker - Dashboard v1.0.0</title>
+    <title>Binomo Cloaker by Yellow Web</title>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
 
     <meta name="description" content="">
@@ -1833,6 +1830,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
 <div class="row">
 <div class="col-lg-5 col-md-12 col-sm-12 col-xs-12">
 <label class="login2 pull-left pull-left-pro">Настройка отображения таблиц по субметкам в стате:</label>
+<br/>
 <br/>
 <p>Слева название метки, которую кло возьмёт из адреса перехода.</p>
 <p>Справа название НА АНГЛИЙСКОМ таблицы, в которой будут показаны все значения выбранной метки и их стата: клики, конверсии</p>

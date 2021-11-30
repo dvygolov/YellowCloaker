@@ -46,6 +46,7 @@
     <Compile Include="abtests\StrategyInterface.php" />
     <Compile Include="admin\db.php" />
     <Compile Include="admin\index.php" />
+    <Compile Include="admin\password.php" />
     <Compile Include="admin\statistics.php" />
     <Compile Include="admin\savesettings.php" />
     <Compile Include="admin\editsettings.php" />
