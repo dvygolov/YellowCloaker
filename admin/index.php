@@ -287,7 +287,7 @@ $tableOutput.="</tbody></TABLE>";
         </script>
 
         <a name="top"></a>
-        <?=isset($tableoutput)?$tableoutput:'' ?>
+        <?=isset($tableOutput)?$tableOutput:'' ?>
         <a name="bottom"></a>
     </div>
     <!-- jquery
