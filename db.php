@@ -81,6 +81,7 @@ function add_lead($subid,$name,$phone,$status='Lead') {
 	$time = $dt->getTimestamp();
 
 	$land = get_cookie('landing');
+	if (empty($land)) $land='unknown';
 	$preland = get_cookie('prelanding');
 	if (empty($preland)) $preland='unknown';
 
@@ -95,14 +96,19 @@ function add_lead($subid,$name,$phone,$status='Lead') {
 		"preland"=>$preland,
 		"land" => $land
     ];
-	$leadsStore->insert($lead);
+	return $leadsStore->insert($lead);
 }
 
 function update_lead($subid,$status,$payout){
     $dataDir = __DIR__ . "/logs";
     $leadsStore = new Store("leads", $dataDir);
     $lead=$leadsStore->findOneBy([["subid","=",$subid]]);
-	if ($lead===null) return false;
+	if ($lead===null){
+        $bclicksStore = new Store("blackclicks", $dataDir);
+        $click=$bclicksStore->findOneBy([["subid","=",$subid]]);
+		if ($click===null) return false;
+		$lead=add_lead($subid,'','');
+    }
 
 	$lead["status"]=$status;
 	$lead["payout"]=$payout;
