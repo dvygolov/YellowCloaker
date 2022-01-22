@@ -7,8 +7,7 @@
     </RootNamespace>
     <OutputType>Library</OutputType>
     <ProjectTypeGuids>{A0786B88-2ADB-4C21-ABE8-AA2D79766269}</ProjectTypeGuids>
-    <Runtime>PHP</Runtime>
-    <RuntimeVersion>8.0</RuntimeVersion>
+    <RuntimeVersion>8.1</RuntimeVersion>
     <SaveServerSettingsInUserFile>false</SaveServerSettingsInUserFile>
     <EnvName>IISExpress</EnvName>
     <PHPDevHostName>localhost</PHPDevHostName>
@@ -76,8 +75,12 @@
     <Compile Include="config\Parser\AbstractParser.php" />
     <Compile Include="config\Parser\Json.php" />
     <Compile Include="config\Parser\ParserInterface.php" />
+    <Compile Include="config\Parser\Properties.php" />
+    <Compile Include="config\Parser\Serialize.php" />
     <Compile Include="config\Writer\AbstractWriter.php" />
     <Compile Include="config\Writer\Json.php" />
+    <Compile Include="config\Writer\Properties.php" />
+    <Compile Include="config\Writer\Serialize.php" />
     <Compile Include="config\Writer\WriterInterface.php" />
     <Compile Include="config\AbstractConfig.php" />
     <Compile Include="config\Config.php" />
