@@ -122,7 +122,8 @@ final class SplitTestAnalyzer implements \IteratorAggregate
         $this->computeProbabilities();
         return $this->result;
     }
-
+    
+    #[\ReturnTypeWillChange]
     public function getIterator()
     {
         $result = $this->getResult();

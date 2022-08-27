@@ -18,10 +18,10 @@ use BenTools\SplitTestAnalyzer\Variation;
 date_default_timezone_set($stats_timezone);
 $startdate=isset($_GET['startdate'])?
     DateTime::createFromFormat('d.m.y', $_GET['startdate'],new DateTimeZone($stats_timezone)):
-    new DateTime(null,new DateTimeZone($stats_timezone));
+    new DateTime("now",new DateTimeZone($stats_timezone));
 $enddate=isset($_GET['enddate'])?
     DateTime::createFromFormat('d.m.y', $_GET['enddate'],new DateTimeZone($stats_timezone)):
-    new DateTime(null,new DateTimeZone($stats_timezone));
+    new DateTime("now",new DateTimeZone($stats_timezone));
 
 $date_str='';
 if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {

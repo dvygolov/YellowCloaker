@@ -30,6 +30,7 @@ class IpUtils
 
         $method = substr_count($requestIp, ':') > 1 ? 'checkIp6' : 'checkIp4';
 
+        if ($method === 'checkIp6') return false;
         foreach ($ips as $ip) {
             if (self::$method($requestIp, $ip)) {
                 return true;

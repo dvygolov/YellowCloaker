@@ -5,6 +5,7 @@ namespace SleekDB;
 require_once __DIR__.'/Classes/CacheHandler.php';
 require_once __DIR__.'/Classes/DocumentFinder.php';
 require_once __DIR__.'/Classes/DocumentUpdater.php';
+
 use SleekDB\Classes\CacheHandler;
 use SleekDB\Classes\DocumentFinder;
 use SleekDB\Classes\DocumentUpdater;

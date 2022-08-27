@@ -335,7 +335,7 @@ function insert_subs_into_forms($html)
 //переписываем все относительные src и href (не начинающиеся с http или с //)
 function rewrite_relative_urls($html,$url)
 {
-	$modified = preg_replace('/\ssrc=[\'\"](?!http|\/\/)([^\'\"]+)[\'\"]/', " src=\"$url\\1\"", $html);
+	$modified = preg_replace('/\ssrc=[\'\"](?!http|\/\/|data:)([^\'\"]+)[\'\"]/', " src=\"$url\\1\"", $html);
 	$modified = preg_replace('/\shref=[\'\"](?!http|#|\/\/)([^\'\"]+)[\'\"]/', " href=\"$url\\1\"", $modified);
 	$modified = preg_replace('/background-image:\s*url\((?!http|#|\/\/)([^\)]+)\)/', "background-image: url($url\\1)", $modified);
 	return $modified;
