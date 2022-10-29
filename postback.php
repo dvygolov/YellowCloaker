@@ -26,7 +26,8 @@ function add_postback_log($subid,$status,$payout){
     $file = __DIR__."/pblogs/".date("d.m.y").".pb.log";
     $save_order = fopen($file, 'a+');
     if ($subid==='' || $status==='') {
-        $err_msg=date("Y-m-d H:i:s")." Error! No subid or status!\n";
+        $curLink = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}/{$_SERVER['REQUEST_URI']}";
+        $err_msg=date("Y-m-d H:i:s")." Error! No subid or status! {$curLink}\n";
         fwrite($save_order, $err_msg);
         fflush($save_order);
         fclose($save_order);
@@ -39,9 +40,9 @@ function add_postback_log($subid,$status,$payout){
     }
 }
 
-$subid= isset($_GET['subid'])?$_GET['subid']:(isset($_POST['subid'])?$_POST['subid']:'');
-$status= isset($_GET['status'])?$_GET['status']:(isset($_POST['status'])?$_POST['status']:'');
-$payout= isset($_GET['payout'])?$_GET['payout']:(isset($_POST['payout'])?$_POST['payout']:'');
+$subid= isset($_REQUEST['subid'])?$_REQUEST['subid']:'';
+$status= isset($_REQUEST['status'])?$_REQUEST['status']:'';
+$payout= isset($_REQUEST['payout'])?$_REQUEST['payout']:'';
 
 $inner_status='';
 switch($status){
