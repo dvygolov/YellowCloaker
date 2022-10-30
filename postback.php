@@ -13,16 +13,19 @@ require_once 'requestfunc.php';
 $curLink = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
 $subid = $_REQUEST['subid'] ?? '';
 if ($subid ===''){
+    http_response_code(500);
     echo "No subid found! Url: $curLink";
     return;
 }
 $status = $_REQUEST['status'] ?? '';
 if ($status ===''){
+    http_response_code(500);
     echo "No status found! Url: $curLink";
     return;
 }
 $payout = $_REQUEST['payout'] ?? '';
 if ($payout ===''){
+    http_response_code(500);
     echo "No payout found! Url: $curLink";
     return;
 }
@@ -43,31 +46,41 @@ switch ($status) {
 }
 add_postback_log($subid, $inner_status, $payout);
 $res = update_lead($subid, $inner_status, $payout);
-foreach ($s2s_postbacks as $s2s) {
-    if (!in_array($inner_status, $s2s['events'])) continue;
-    if (empty($s2s['url'])) continue;
-    $final_url = replace_all_macros($s2s['url']);
-    $final_url = str_replace('{status}', $inner_status, $final_url);
-    switch ($s2s['method']) {
-        case 'GET':
-            $s2s_res = get($final_url);
-            break;
-        case 'POST':
-            $urlParts = explode('?', $final_url);
-            if (count($urlParts) == 1)
-                $params = array();
-            else
-                parse_str($urlParts[1], $params);
-            $s2s_res = post($urlParts[0], $params);
-            break;
-    }
-    add_s2s_log($final_url, $inner_status, $s2s['method'], $s2s_res);
+process_s2s_posbacks($s2s_postbacks, $inner_status);
+
+if ($res) {
+    http_response_code(200);
+    echo "Postback for subid $subid with status $status and payout $payout accepted.";
+}
+else {
+    http_response_code(404);
+    echo "Postback for subid $subid with status $status and payout $payout NOT accepted! Subid NOT FOUND.";
 }
 
-if ($res)
-    echo "Postback for subid $subid with status $status accepted";
-else
-    echo "Postback for subid $subid with status $status NOT accepted!";
+function process_s2s_posbacks(array $s2s_postbacks,string $inner_status)
+{
+    foreach ($s2s_postbacks as $s2s) {
+        if (!in_array($inner_status, $s2s['events'])) continue;
+        if (empty($s2s['url'])) continue;
+        $final_url = replace_all_macros($s2s['url']);
+        $final_url = str_replace('{status}', $inner_status, $final_url);
+        $s2s_res = '';
+        switch ($s2s['method']) {
+            case 'GET':
+                $s2s_res = get($final_url);
+                break;
+            case 'POST':
+                $urlParts = explode('?', $final_url);
+                if (count($urlParts) == 1)
+                    $params = array();
+                else
+                    parse_str($urlParts[1], $params);
+                $s2s_res = post($urlParts[0], $params);
+                break;
+        }
+        add_s2s_log($final_url, $inner_status, $s2s['method'], $s2s_res);
+    }
+}
 
 function add_s2s_log($url, $status, $method, $s2s_res)
 {

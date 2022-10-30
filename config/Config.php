@@ -43,6 +43,8 @@ class Config extends AbstractConfig
         'Noodlehaus\Writer\Serialize'
     ];
 
+    protected string $root;
+
     /**
      * Static method for loading a Config instance.
      *
@@ -52,9 +54,9 @@ class Config extends AbstractConfig
      *
      * @return Config
      */
-    public static function load($values, $parser = null, $string = false)
+    public static function load($values,  $parser = null, $string = false)
     {
-        return new static($values, $parser, $string);
+        return new static($values,  $parser, $string);
     }
 
     /**
@@ -64,7 +66,7 @@ class Config extends AbstractConfig
      * @param  ParserInterface $parser Configuration parser
      * @param  bool            $string Enable loading from string
      */
-    public function __construct($values, ParserInterface $parser = null, $string = false)
+    public function __construct($values,  ParserInterface $parser = null, $string = false)
     {
         if ($string === true) {
             $this->loadFromString($values, $parser);

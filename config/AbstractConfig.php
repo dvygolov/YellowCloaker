@@ -16,6 +16,7 @@ use Iterator;
  */
 abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
 {
+    protected $namespace = "default";
     /**
      * Stores the configuration data
      *
@@ -38,6 +39,10 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
     public function __construct(array $data)
     {
         $this->data = array_merge($this->getDefaults(), $data);
+    }
+
+    public function setNamespace(string $namespace){
+        $this->namespace = $namespace;
     }
 
     /**
@@ -63,6 +68,7 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
     public function get($key, $default = null)
     {
         if ($this->has($key)) {
+            $key = "{$this->namespace}.{$key}";
             return $this->cache[$key];
         }
 
@@ -74,6 +80,7 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
      */
     public function set($key, $value)
     {
+        $key = "{$this->namespace}.{$key}";
         $segs = explode('.', $key);
         $root = &$this->data;
         $cacheKey = '';
@@ -113,6 +120,7 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
      */
     public function has($key)
     {
+        $key = "{$this->namespace}.{$key}";
         // Check if already cached
         if (isset($this->cache[$key])) {
             return true;
@@ -146,6 +154,7 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
     public function merge(ConfigInterface $config)
     {
         $this->data = array_replace_recursive($this->data, $config->all());
+        $this->cache = [];
         return $this;
     }
 

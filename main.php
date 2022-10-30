@@ -100,7 +100,6 @@ function black($clkrdetect)
     global $black_preland_action,$black_preland_folder_names;
 	global $black_land_action, $black_land_folder_names, $save_user_flow;
 	global $black_land_redirect_type,$black_land_redirect_urls;
-	global $fbpixel_subname;
 
     header('Access-Control-Allow-Credentials: true');
     if (isset($_SERVER['HTTP_REFERER'])) {
@@ -140,7 +139,6 @@ function black($clkrdetect)
         case 'folder': //если мы используем локальные проклы
             $prelandings=$black_preland_folder_names;
             if (empty($prelandings)) break;
-            $prelanding='';
             $res=select_prelanding($save_user_flow,$prelandings);
             $prelanding = $res[0];
             $res=select_landing($save_user_flow,$landings,$isfolderland);
@@ -151,7 +149,4 @@ function black($clkrdetect)
             add_black_click($cursubid, $clkrdetect, $prelanding, $landing);
 			break;
     }
-    return;
 }
-
-?>
