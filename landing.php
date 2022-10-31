@@ -1,11 +1,11 @@
 <?php
-require_once 'settings.php';
-require_once 'htmlprocessing.php';
-require_once 'db.php';
-require_once 'url.php';
-require_once 'redirect.php';
-require_once 'abtest.php';
-require_once 'cookies.php';
+require_once __DIR__.'/settings.php';
+require_once __DIR__.'/htmlprocessing.php';
+require_once __DIR__.'/db.php';
+require_once __DIR__.'/url.php';
+require_once __DIR__.'/redirect.php';
+require_once __DIR__.'/abtest.php';
+require_once __DIR__.'/cookies.php';
 
 //Включение отладочной информации
 ini_set('display_errors','1');

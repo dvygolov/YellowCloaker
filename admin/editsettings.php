@@ -4,7 +4,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', 1);
 //Конец включения отладочной информации
-require_once '../settings.php';
+require_once __DIR__.'/../settings.php';
 require_once 'password.php';
 check_password();
 

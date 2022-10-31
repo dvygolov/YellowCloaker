@@ -1,9 +1,9 @@
 <?php
-require_once 'htmlprocessing.php';
-require_once 'cookies.php';
-require_once 'redirect.php';
-require_once 'pixels.php';
-require_once 'abtest.php';
+require_once __DIR__.'/htmlprocessing.php';
+require_once __DIR__.'/cookies.php';
+require_once __DIR__.'/redirect.php';
+require_once __DIR__.'/pixels.php';
+require_once __DIR__.'/abtest.php';
 
 //Включение отладочной информации
 ini_set('display_errors', '1');

@@ -1,11 +1,11 @@
 <?php
-require_once 'js/obfuscator.php';
-require_once 'bases/ipcountry.php';
-require_once 'requestfunc.php';
-require_once 'pixels.php';
-require_once 'htmlinject.php';
-require_once 'url.php';
-require_once 'cookies.php';
+require_once __DIR__.'/js/obfuscator.php';
+require_once __DIR__.'/bases/ipcountry.php';
+require_once __DIR__.'/requestfunc.php';
+require_once __DIR__.'/pixels.php';
+require_once __DIR__.'/htmlinject.php';
+require_once __DIR__.'/url.php';
+require_once __DIR__.'/cookies.php';
 
 //Подгрузка контента блэк проклы из другой папки через CURL
 function load_prelanding($url, $land_number)

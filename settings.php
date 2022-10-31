@@ -11,13 +11,11 @@ require_once 'config/ErrorException.php';
 require_once 'config/Exception.php';
 require_once 'config/Exception/ParseException.php';
 require_once 'config/Exception/FileNotFoundException.php';
-$configs = get_all_configs();
+
 $conf = Config::load(__DIR__ . '/settings.json');
-$confNamespace = $_GET['config'];
-$cur_domain = $confNamespace ?? str_replace(".", "_", $_SERVER['SERVER_NAME']);
+
+$confNamespace = $_GET['config'] ?? get_config_name_by_domain($_SERVER['SERVER_NAME']);
 $cur_config = $conf->has($cur_domain) ? $cur_domain : 'default';
-while (is_string($conf[$cur_config]))
-    $cur_config = $conf[$cur_config];
 $conf->setNamespace($cur_config);
 
 $white_action = $conf->get('white.action', 'folder');
@@ -126,4 +124,15 @@ function get_all_configs()
         $configs[] = $c;
     }
     return $configs;
+}
+
+function get_config_name_by_domain($domain)
+{
+    $conf = Config::load(__DIR__ . '/settings.json');
+    foreach ($conf as $c => $v) {
+        $conf->setNamespace($c);
+        $domains = $conf->get("domains");
+        if (in_array($domain, $domains)) return $c;
+    }
+    return "default";
 }

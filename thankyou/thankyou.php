@@ -5,11 +5,11 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 //Конец включения отладочной информации
 
-require_once '../settings.php';
-require_once '../pixels.php';
-require_once '../htmlinject.php';
-require_once '../db.php';
-require_once '../cookies.php';
+require_once __DIR__.'/../settings.php';
+require_once __DIR__.'/../pixels.php';
+require_once __DIR__.'/../htmlinject.php';
+require_once __DIR__.'/../db.php';
+require_once __DIR__.'/../cookies.php';
 
 function mb_basename($path) {
     if (preg_match('@^.*[\\\\/]([^\\\\/]+)$@s', $path, $matches)) {
@@ -22,11 +22,11 @@ function mb_basename($path) {
 
 $ispost=($_SERVER['REQUEST_METHOD']==='POST');
 if ($ispost){
-    $name = isset($_POST['name'])?$_POST['name']:'';
-    $phone = isset($_POST['phone'])?$_POST['phone']:'';
-    $subid = isset($_POST['subid'])?$_POST['subid']:'';
-    $email = isset($_POST['email'])?$_POST['email']:'';
-    $lang = isset($_POST['language'])?$_POST['language']:'';
+    $name = $_POST['name'] ?? '';
+    $phone = $_POST['phone'] ?? '';
+    $subid = $_POST['subid'] ?? '';
+    $email = $_POST['email'] ?? '';
+    $lang = $_POST['language'] ?? '';
     add_email($subid,$email);
 }
 

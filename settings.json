@@ -1,5 +1,6 @@
 {
   "default":{
+    "domains": ["127.0.0.1","localhost"],
     "white": {
       "action": "folder",
       "folder": {
@@ -251,6 +252,5 @@
         }
       ]
     }
-  },
-  "PhpStorm 2022_2_2": "default"
+  }
 }

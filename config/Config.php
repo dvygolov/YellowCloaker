@@ -5,7 +5,6 @@ namespace Noodlehaus;
 use Noodlehaus\Exception\FileNotFoundException;
 use Noodlehaus\Exception\UnsupportedFormatException;
 use Noodlehaus\Exception\EmptyDirectoryException;
-use InvalidArgumentException;
 use Noodlehaus\Parser\ParserInterface;
 use Noodlehaus\Writer\WriterInterface;
 
@@ -42,8 +41,6 @@ class Config extends AbstractConfig
         'Noodlehaus\Writer\Properties',
         'Noodlehaus\Writer\Serialize'
     ];
-
-    protected string $root;
 
     /**
      * Static method for loading a Config instance.

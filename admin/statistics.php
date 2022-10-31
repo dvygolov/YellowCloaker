@@ -5,13 +5,13 @@ ini_set('display_errors', '1');
 ini_set('display_startup_errors', 1);
 //Конец включения отладочной информации
 
-require_once '../settings.php';
-require_once 'password.php';
+require_once __DIR__.'/../settings.php';
+require_once __DIR__.'/password.php';
 check_password();
 
-require_once 'db.php';
-require_once '../abtests/Calculator/SplitTestAnalyzer.php';
-require_once '../abtests/Calculator/Variation.php';
+require_once __DIR__.'/db.php';
+require_once __DIR__.'/../abtests/Calculator/SplitTestAnalyzer.php';
+require_once __DIR__.'/../abtests/Calculator/Variation.php';
 use BenTools\SplitTestAnalyzer\SplitTestAnalyzer;
 use BenTools\SplitTestAnalyzer\Variation;
 

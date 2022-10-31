@@ -5,10 +5,11 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 //Конец включения отладочной информации
 
-require_once 'core.php';
-require_once 'settings.php';
-require_once 'db.php';
-require_once 'main.php';
+require_once __DIR__.'/core.php';
+require_once __DIR__.'/settings.php';
+require_once __DIR__.'/db.php';
+require_once __DIR__.'/main.php';
+
 //передаём все параметры в кло
 $cloaker = new Cloaker($os_white, $country_white, $lang_white,
     $ip_black_filename, $ip_black_cidr, $tokens_black, $url_should_contain,

@@ -1,13 +1,13 @@
 <?php
-require 'bases/browser/DetectorInterface.php';
-require 'bases/browser/UserAgent.php';
-require 'bases/browser/Os.php';
-require 'bases/browser/OsDetector.php';
-require 'bases/browser/AcceptLanguage.php';
-require 'bases/browser/Language.php';
-require 'bases/browser/LanguageDetector.php';
-require 'bases/iputils.php';
-require 'bases/ipcountry.php';
+require __DIR__.'/bases/browser/DetectorInterface.php';
+require __DIR__.'/bases/browser/UserAgent.php';
+require __DIR__.'/bases/browser/Os.php';
+require __DIR__.'/bases/browser/OsDetector.php';
+require __DIR__.'/bases/browser/AcceptLanguage.php';
+require __DIR__.'/bases/browser/Language.php';
+require __DIR__.'/bases/browser/LanguageDetector.php';
+require __DIR__.'/bases/iputils.php';
+require __DIR__.'/bases/ipcountry.php';
 
 use Sinergi\BrowserDetector\Os;
 use Sinergi\BrowserDetector\Language;

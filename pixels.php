@@ -1,7 +1,7 @@
 <?php
-require_once 'settings.php';
-require_once 'htmlinject.php';
-require_once 'cookies.php';
+require_once __DIR__.'/settings.php';
+require_once __DIR__.'/htmlinject.php';
+require_once __DIR__.'/cookies.php';
 
 function get_fbpixel()
 {

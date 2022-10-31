@@ -5,10 +5,10 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 //Конец включения отладочной информации
 
-require_once 'settings.php';
-require_once 'db.php';
-require_once 'url.php';
-require_once 'requestfunc.php';
+require_once __DIR__.'/settings.php';
+require_once __DIR__.'/db.php';
+require_once __DIR__.'/url.php';
+require_once __DIR__.'/requestfunc.php';
 
 $curLink = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}";
 $subid = $_REQUEST['subid'] ?? '';

@@ -1,5 +1,5 @@
 <?php
-require_once 'url.php';
+require_once __DIR__.'/url.php';
 
 function redirect($url, $redirect_type = 302, $add_querystring = true)
 {
