@@ -1,19 +1,18 @@
-var domain = '{DOMAIN}';
-var callback = function (result) {
-    var scrpt = document.createElement('script');
+let domain = '{DOMAIN}';
+let callback = function (result) {
+    let scrpt = document.createElement('script');
     scrpt.setAttribute('id', 'ywb_process');
-    var curscript = result.isBot ? 'logjsbot' : 'process';
+    let curscript = result.isBot ? 'logjsbot' : 'process';
     if (result.isBot) {
         log("You are a fucking bot! Reason:" + result.reason);
         scrpt.setAttribute('src', 'https://' + domain + '/js/' + curscript + '.php?reason=' + result.reason);
-    }
-    else
+    } else
         scrpt.setAttribute('src', 'https://' + domain + '/js/' + curscript + '.php');
     document.body.appendChild(scrpt);
     document.getElementById('ywb_process').remove();
 };
 
-var botDetector = new BotDetector({
+let botDetector = new BotDetector({
     timeout: {JSTIMEOUT},
     callback: callback,
     tests: ["{JSCHECKS}"],

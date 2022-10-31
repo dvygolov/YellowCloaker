@@ -95,6 +95,7 @@ function add_s2s_log($url, $status, $method, $s2s_res)
 
 function add_postback_log($subid, $status, $payout)
 {
+    global $curLink;
     //создаёт папку для лога постбэков, если её нет
     if (!file_exists(__DIR__ . "/pblogs")) mkdir(__DIR__ . "/pblogs");
     $file = __DIR__ . "/pblogs/" . date("d.m.y") . ".pb.log";
@@ -111,5 +112,3 @@ function add_postback_log($subid, $status, $payout)
         fclose($save_order);
     }
 }
-
-?>

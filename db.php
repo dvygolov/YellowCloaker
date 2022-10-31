@@ -180,5 +180,3 @@ function lead_is_duplicate($subid, $phone)
         return true;
     }
 }
-
-?>

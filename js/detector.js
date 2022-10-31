@@ -3,7 +3,7 @@ function log(text) {
 }
 
 function arrayRemove(arr, item) {
-    for (var i = 0; i < arr.length; i++) {
+    for (let i = 0; i < arr.length; i++) {
         if (arr[i] === item) {
             arr.splice(i, 1);
             i--;
@@ -13,7 +13,7 @@ function arrayRemove(arr, item) {
 }
 
 function BotDetector(args) {
-    var self = this;
+    let self = this;
     self.isBot = false;
     self.reason = '';
     self.tests = {};
@@ -46,13 +46,13 @@ function BotDetector(args) {
         AUDIOCONTEXT: 'audiocontext'
     };
 
-    var selectedTests = args.tests || [];
+    let selectedTests = args.tests || [];
     log('Listening for:' + selectedTests.join());
 
     if (selectedTests.includes(Tests.TIMEZONE)) {
         log('Min allowed tz: ' + self.tzStart);
         log('Max allowed tz: ' + self.tzEnd);
-        var curZone = -(new Date().getTimezoneOffset() / 60);
+        let curZone = -(new Date().getTimezoneOffset() / 60);
         log('Current tz: ' + curZone);
         if (curZone < self.tzStart || curZone > self.tzEnd) {
             self.reason = 'timezone:' + curZone;
@@ -60,7 +60,7 @@ function BotDetector(args) {
             self.callback(self);
             return;
         }
-        selectedTests=arrayRemove(selectedTests, Tests.TIMEZONE);
+        selectedTests = arrayRemove(selectedTests, Tests.TIMEZONE);
     }
 
     if (selectedTests.includes(Tests.AUDIOCONTEXT)) {
@@ -69,8 +69,7 @@ function BotDetector(args) {
             context = new AudioContext();
             log('Audio engine found!');
             selectedTests = arrayRemove(selectedTests, Tests.AUDIOCONTEXT);
-        }
-        catch (e) {
+        } catch (e) {
             self.reason = 'audiocontext';
             self.isBot = true;
             self.callback(self);
@@ -78,7 +77,7 @@ function BotDetector(args) {
         }
     }
 
-    if (selectedTests.length == 0) //if previous two tests passed and there are no others
+    if (selectedTests.length === 0) //if previous two tests passed and there are no others
     {
         log('No interactive tests, all ok, exiting...');
         self.callback(self);
@@ -91,7 +90,7 @@ function BotDetector(args) {
             case Tests.SCROLL:
             case Tests.TOUCHSTART:
                 self.tests[st] = function () {
-                    var e = function (evt) {
+                    let e = function (evt) {
                         log(st + evt.target);
                         self.tests[st] = true;
                         self.update();
@@ -103,7 +102,7 @@ function BotDetector(args) {
                 break;
             case Tests.DEVICEORIENTATION:
                 self.tests[st] = function () {
-                    var e = function (et) {
+                    let e = function (et) {
                         log(st + ': Alpha:' + et.alpha + ' Beta:' + et.beta + ' Gamma:' + et.gamma);
                         self.orientationCount++;
                         if (self.orientation !== null) {
@@ -132,7 +131,7 @@ function BotDetector(args) {
                 break;
             case Tests.DEVICEMOTION:
                 self.tests[st] = function () {
-                    var e = function (et) {
+                    let e = function (et) {
                         log(st + ': X:' + et.acceleration.x + ' Y:' + et.acceleration.y + ' Z:' + et.acceleration.z);
                         self.motionCount++;
                         if (self.acceleration !== null) {
@@ -164,10 +163,10 @@ function BotDetector(args) {
 }
 
 BotDetector.prototype.update = function () {
-    var self = this;
-    var count = 0;
-    var passReason = '';
-    for (var t in self.tests) {
+    let self = this;
+    let count = 0;
+    let passReason = '';
+    for (let t in self.tests) {
         if (self.tests.hasOwnProperty(t) && self.tests[t] === true) {
             passReason += t + ';';
             count++;
@@ -183,10 +182,10 @@ BotDetector.prototype.update = function () {
 };
 
 BotDetector.prototype.monitor = function () {
-    var self = this;
+    let self = this;
     if (self.isBot)
         return;
-    for (var i in self.tests) {
+    for (let i in self.tests) {
         if (self.tests.hasOwnProperty(i)) {
             self.tests[i].call();
         }

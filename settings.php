@@ -11,8 +11,9 @@ require_once 'config/ErrorException.php';
 require_once 'config/Exception.php';
 require_once 'config/Exception/ParseException.php';
 require_once 'config/Exception/FileNotFoundException.php';
-
+$configs = get_all_configs();
 $conf = Config::load(__DIR__ . '/settings.json');
+$confNamespace = $_GET['config'];
 $cur_domain = $confNamespace ?? str_replace(".", "_", $_SERVER['SERVER_NAME']);
 $cur_config = $conf->has($cur_domain) ? $cur_domain : 'default';
 while (is_string($conf[$cur_config]))
@@ -116,3 +117,13 @@ $lead_status_name = $conf['postback.lead'];
 $purchase_status_name = $conf['postback.purchase'];
 $reject_status_name = $conf['postback.reject'];
 $trash_status_name = $conf['postback.trash'];
+
+function get_all_configs()
+{
+    $conf = Config::load(__DIR__ . '/settings.json');
+    $configs = [];
+    foreach ($conf as $c => $v) {
+        $configs[] = $c;
+    }
+    return $configs;
+}

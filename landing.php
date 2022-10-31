@@ -14,12 +14,11 @@ error_reporting(E_ALL);
 //Конец включения отладочной информации
 
 //добавляем в лог факт пробива проклы
-
 $prelanding = get_cookie('prelanding');
 $subid = get_subid();
 add_lpctr($subid,$prelanding); //запись пробива проклы
 
-$l=isset($_GET['l'])?$_GET['l']:-1;
+$l= $_GET['l'] ?? -1;
 
 switch ($black_land_action){
     case 'folder':
@@ -34,4 +33,3 @@ switch ($black_land_action){
         redirect($fullpath,$black_land_redirect_type,false);
         break;
 }
-?>

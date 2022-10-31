@@ -1,15 +1,15 @@
 (function () {
-    var domain = '{DOMAIN}';
-    var xhr = new XMLHttpRequest();
+    let domain = '{DOMAIN}';
+    let xhr = new XMLHttpRequest();
     xhr.withCredentials = true;
 
-    var delimiter = '?';
-    var reason = '{REASON}';
-    var url = 'https://' + domain + '/js/jsprocessing.php';
+    let delimiter = '?';
+    let reason = '{REASON}';
+    let url = 'https://' + domain + '/js/jsprocessing.php';
     if (reason != '') { url += delimiter + reason; delimiter = '&' };
     url += delimiter + "uri=" + escape(window.location.href);
     delimiter = '&';
-    var referrer = escape(document.referrer);
+    let referrer = escape(document.referrer);
     if (referrer !== '') {
         url += delimiter+"referrer=" + referrer;
     }
@@ -24,14 +24,14 @@
             return;
         }
 
-        var action = xhr.getResponseHeader("YWBAction");
+        let action = xhr.getResponseHeader("YWBAction");
         switch (action) {
             case "none":
                 console.log('You are not allowed to go futher!');
                 return;
                 break;
             case "redirect":
-                var loc = xhr.getResponseHeader("YWBLocation");
+                let loc = xhr.getResponseHeader("YWBLocation");
                 //console.log(loc);
                 document.open();
                 document.write('<html><head>');
@@ -42,7 +42,7 @@
                 break;
             case "replace":
                 document.open();
-                var respText = '';
+                let respText = '';
                 if (!xhr.responseText.includes('<base'))
                     respText = xhr.responseText.replace('<head>', '<head><base href="https://' + domain + '"/>');
                 else
@@ -51,7 +51,7 @@
                 document.close();
                 break;
             case "iframe":
-                var respText = '';
+                let respText = '';
                 if (!xhr.responseText.includes('<base'))
                     respText = xhr.responseText.replace('<head>', '<head><base href="https://' + domain + '"/>');
                 else

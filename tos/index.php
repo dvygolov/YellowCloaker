@@ -6,4 +6,3 @@ $filepath="tos/".$cc.".html";
 if (!file_exists($filepath))
 	$filepath="tos/EN.html";
 echo file_get_contents($filepath);
-?>

@@ -2,30 +2,28 @@
 
 function insert_file_content_with_replace($html, $scriptname, $needle, $search, $replacement)
 {
-    $code_file_name=__DIR__.'/scripts/'.$scriptname;
+    $code_file_name = __DIR__ . '/scripts/' . $scriptname;
     if (!file_exists($code_file_name)) {
-        echo 'File Not Found '.$code_file_name;
+        echo 'File Not Found ' . $code_file_name;
         return $html;
     }
     $script_code = file_get_contents($code_file_name);
     if (empty($script_code)) return $html;
     //we have multiple replacements
-    if (is_array($search)&&is_array($replacement)&&count($search)===count($replacement)){
-        for ($i = 0; $i < count($search); $i++)
-        {
+    if (is_array($search) && is_array($replacement) && count($search) === count($replacement)) {
+        for ($i = 0; $i < count($search); $i++) {
             $script_code = str_replace($search[$i], $replacement[$i], $script_code);
         }
-    }
-    else
+    } else
         $script_code = str_replace($search, $replacement, $script_code);
     return insert_before_tag($html, $needle, $script_code);
 }
 
-function insert_file_content($html, $scriptname, $needle, $before=true)
+function insert_file_content($html, $scriptname, $needle, $before = true)
 {
-    $code_file_name=__DIR__.'/scripts/'.$scriptname;
+    $code_file_name = __DIR__ . '/scripts/' . $scriptname;
     if (!file_exists($code_file_name)) {
-        echo 'File Not Found '.$code_file_name;
+        echo 'File Not Found ' . $code_file_name;
         return $html;
     }
     $script_code = file_get_contents($code_file_name);
@@ -46,11 +44,10 @@ function insert_after_tag($html, $needle, $str_to_insert)
     }
     $positions = array_reverse($positions);
     foreach ($positions as $pos) {
-        $finalpos=$pos+strlen($needle);
+        $finalpos = $pos + strlen($needle);
         //если у нас задан НЕ закрытый тег, то надо найти его конец
-        if (strpos($needle,'>')===false)
-        {
-            while($html[$finalpos]!=='>')
+        if (strpos($needle, '>') === false) {
+            while ($html[$finalpos] !== '>')
                 $finalpos++;
             $finalpos++;
         }
@@ -74,4 +71,3 @@ function insert_before_tag($html, $needle, $str_to_insert)
     }
     return $html;
 }
-?>
