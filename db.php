@@ -14,23 +14,15 @@ function add_white_click($data, $reason)
     $dataDir = __DIR__ . "/logs";
     $wclicksStore = new Store("whiteclicks", $dataDir);
 
-    $calledIp = $data['ip'];
-    $country = $data['country'];
-    $dt = new DateTime();
-    $time = $dt->getTimestamp();
-    $os = $data['os'];
-    $isp = str_replace(',', ' ', $data['isp']);
-    $user_agent = str_replace(',', ' ', $data['ua']);
-
     parse_str($_SERVER['QUERY_STRING'], $queryarr);
 
     $click = [
-        "time" => $time,
-        "ip" => $calledIp,
-        "country" => $country,
-        "os" => $os,
-        "isp" => $isp,
-        "ua" => $user_agent,
+        "time" => (new DateTime())->getTimestamp(),
+        "ip" => $data['ip'],
+        "country" => $data['country'],
+        "os" => $data['os'],
+        "isp" => str_replace(',', ' ', $data['isp']),
+        "ua" => str_replace(',', ' ', $data['ua']),
         "reason" => $reason,
         "subs" => $queryarr
     ];
@@ -42,29 +34,19 @@ function add_black_click($subid, $data, $preland, $land)
     $dataDir = __DIR__ . "/logs";
     $bclicksStore = new Store("blackclicks", $dataDir);
 
-    $calledIp = $data['ip'];
-    $country = $data['country'];
-    $dt = new DateTime();
-    $time = $dt->getTimestamp();
-    $os = $data['os'];
-    $isp = str_replace(',', ' ', $data['isp']);
-    $user_agent = str_replace(',', ' ', $data['ua']);
-    $prelanding = empty($preland) ? 'unknown' : $preland;
-    $landing = empty($land) ? 'unknown' : $land;
-
     parse_str($_SERVER['QUERY_STRING'], $queryarr);
 
     $click = [
         "subid" => $subid,
-        "time" => $time,
-        "ip" => $calledIp,
-        "country" => $country,
-        "os" => $os,
-        "isp" => $isp,
-        "ua" => $user_agent,
+        "time" => (new DateTime())->getTimestamp(),
+        "ip" => $data['ip'],
+        "country" => $data['country'],
+        "os" => $data['os'],
+        "isp" => str_replace(',', ' ', $data['isp']),
+        "ua" => str_replace(',', ' ', $data['ua']),
         "subs" => $queryarr,
-        "preland" => $prelanding,
-        "land" => $landing
+        "preland" => empty($preland) ? 'unknown' : $preland,
+        "land" => empty($land) ? 'unknown' : $land
     ];
     $bclicksStore->insert($click);
 }

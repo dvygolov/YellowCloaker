@@ -60,7 +60,7 @@
                         </ul>
                     </li>
                     <li>
-                        <a class="has-arrow" href="editsettings.php?config=<?= $config ?>&password=<?= $_GET['password'] ?><?= $date_str !== '' ? $date_str : '' ?>" aria-expanded="false">
+                        <a href="editsettings.php?config=<?= $config ?>&password=<?= $_GET['password'] ?><?= $date_str !== '' ? $date_str : '' ?>" aria-expanded="false">
                             <i class="icon nalika-table icon-wrap"></i>
                             <span class="mini-click-non">Settings</span>
                         </a>
