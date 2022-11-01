@@ -1,5 +1,5 @@
 ```                
-                            Binomo Cloaker  
+                            Yellow Cloaker  
     _            __     __  _ _             __          __  _     
    | |           \ \   / / | | |            \ \        / / | |    
    | |__  _   _   \ \_/ /__| | | _____      _\ \  /\  / /__| |__  
@@ -15,7 +15,7 @@ Bitcoin: bc1qqv99jasckntqnk0pkjnrjtpwu0yurm0qd0gnqv
 Ethereum: 0xBC118D3FDE78eE393A154C29A4545c575506ad6B  
 ```
 
-# Binomo Cloaker [Yellow Web](https://yellowweb.top) Edition
+# Yellow Cloaker by [Yellow Web](https://yellowweb.top)
 English version of this help is down below 👇 Warning: this help is outdated! Now all of the settings are made using the UI: */admin?password=12345*
 **Use PHP version 7.2 or higher and create HTTPS certificates for all of your domains!**
 # Поддержка
