@@ -4,7 +4,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', '1');
 ini_set('display_startup_errors', 1);
 //Конец включения отладочной информации
-require_once __DIR__.'/../settings.php';
+require_once __DIR__ . '/../settings.php';
 require_once 'password.php';
 check_password();
 
@@ -20,137 +20,16 @@ if (isset($_GET['startdate']) && isset($_GET['enddate'])) {
 ?>
 <!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>Binomo Cloaker by Yellow Web</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
-
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- favicon
-		============================================ -->
-    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.png"/>
-    <!-- Google Fonts
-		============================================ -->
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,700,900" rel="stylesheet"/>
-    <!-- nalika Icon CSS
-		============================================ -->
-    <link rel="stylesheet" href="css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="css/nalika-icon.css"/>
-    <!-- main CSS
-		============================================ -->
-    <link rel="stylesheet" href="css/main.css"/>
-    <!-- metisMenu CSS
-		============================================ -->
-    <link rel="stylesheet" href="css/metisMenu/metisMenu.min.css"/>
-    <link rel="stylesheet" href="css/metisMenu/metisMenu-vertical.css"/>
-    <!-- style CSS
-		============================================ -->
-    <link rel="stylesheet" href="css/style.css"/>
-</head>
-
+<?php include "head.php" ?>
 <body>
-<div class="left-sidebar-pro">
-    <nav id="sidebar" class="">
-        <div class="sidebar-header">
-            <a href="/admin/index.php?password=<?= $_GET['password'] ?><?= $date_str !== '' ? $date_str : '' ?>"><img
-                        class="main-logo" src="img/logo/logo.png" alt=""/></a>
-            <strong><img src="img/favicon.png" alt="" style="width:50px"/></strong>
-        </div>
-        <div class="nalika-profile">
-            <div class="profile-dtl">
-                <a href="https://t.me/yellow_web"><img src="img/notification/4.jpg" alt=""/></a>
-                <?php include "version.php" ?>
-            </div>
-        </div>
-        <div class="left-custom-menu-adp-wrap comment-scrollbar">
-            <nav class="sidebar-nav left-sidebar-menu-pro">
-                <ul class="metismenu" id="menu1">
-                    <li class="active">
-                        <a class="has-arrow"
-                           href="index.php?password=<?= $_GET['password'] ?><?= $date_str !== '' ? $date_str : '' ?>"
-                           aria-expanded="false"><i class="icon nalika-bar-chart icon-wrap"></i> <span
-                                    class="mini-click-non">Traffic</span></a>
-                        <ul class="submenu-angle" aria-expanded="false">
-                            <li><a title="Стата"
-                                   href="statistics.php?password=<?= $_GET['password'] ?><?= $date_str !== '' ? $date_str : '' ?>"><span
-                                            class="mini-sub-pro">Statistics</span></a></li>
-                            <li><a title="Разрешённый"
-                                   href="index.php?password=<?= $_GET['password'] ?><?= $date_str !== '' ? $date_str : '' ?>"><span
-                                            class="mini-sub-pro">Allowed</span></a></li>
-                            <li><a title="Лиды"
-                                   href="index.php?filter=leads&password=<?= $_GET['password'] ?><?= $date_str !== '' ? $date_str : '' ?>"><span
-                                            class="mini-sub-pro">Leads</span></a></li>
-                            <li><a title="Заблокированный"
-                                   href="index.php?filter=blocked&password=<?= $_GET['password'] ?><?= $date_str !== '' ? $date_str : '' ?>"><span
-                                            class="mini-sub-pro">Blocked</span></a></li>
-                        </ul>
-                    </li>
-                    <li>
-                        <a href="editsettings.php?password=<?= $_GET['password'] ?><?= $date_str !== '' ? $date_str : '' ?>"
-                           aria-expanded="false"><i class="icon nalika-table icon-wrap"></i> <span
-                                    class="mini-click-non">Settings</span></a>
-                    </li>
-                </ul>
-            </nav>
-        </div>
-    </nav>
-</div>
-<!-- Start Welcome area -->
+<?php include "menu.php" ?>
 <div class="all-content-wrapper">
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                <div class="logo-pro">
-                    <a href="index.html"><img class="main-logo" src="img/logo/logo.png" alt=""/></a>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="header-advance-area">
-        <div class="header-top-area">
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                        <div class="header-top-wraper">
-                            <div class="row">
-                                <div class="col-lg-1 col-md-0 col-sm-1 col-xs-12">
-                                    <div class="menu-switcher-pro">
-                                        <button type="button" id="sidebarCollapse"
-                                                class="btn bar-button-pro header-drl-controller-btn btn-info navbar-btn">
-                                            <i class="icon nalika-menu-task"></i>
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div class="col-lg-11 col-md-1 col-sm-12 col-xs-12">
-                                    <div class="header-right-info">
-                                        <ul class="nav navbar-nav mai-top-nav header-right-menu">
-                                            <li class="nav-item dropdown">
-                                            <li class="nav-item">
-                                                <a class="nav-link" href="" onClick="location.reload()">Refresh</a>
-                                            </li>
-                                            </li>
-                                        </ul>
-                                    </div>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </div>
+    <?php include "header.php" ?>
     <a name="top"></a>
 
-    <form action="savesettings.php?password=<?= $log_password ?>" method="post">
+    <form action="savesettings.php?password=<?= $log_password ?>&config=<?=$config?>" method="post">
         <div class="basic-form-area mg-tb-15">
             <div class="container-fluid">
-
                 <div class="row">
                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <div class="sparkline12-list">
@@ -159,6 +38,21 @@ if (isset($_GET['startdate']) && isset($_GET['enddate'])) {
                                     <div class="row">
                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                             <div class="all-form-element-inner">
+                                                <h4>#0 Настройка доменов</h4>
+                                                <div class="form-group-inner">
+                                                    <div class="row">
+                                                        <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+                                                            <label class="login2 pull-left pull-left-pro">Список доменов для этой конфигурации:</label>
+                                                        </div>
+                                                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
+                                                            <div class="input-group custom-go-button">
+                                                                <input type="text" class="form-control"
+                                                                       placeholder="domain.com" name="domains"
+                                                                       value="<?= implode(',', $domain_names) ?>">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                                 <hr>
                                                 <h4>#1 Настройка вайта</h4>
                                                 <div class="form-group-inner">
@@ -2506,7 +2400,9 @@ if (isset($_GET['startdate']) && isset($_GET['enddate'])) {
                                                     </div>
 
                                                     <div id="s2s_container">
-                                                        <?php for ($i = 0;$i < count($s2s_postbacks);$i++){ ?>
+                                                        <?php for ($i = 0;
+                                                        $i < count($s2s_postbacks);
+                                                        $i++){ ?>
                                                         <div class="form-group-inner s2s">
                                                             <div class="row">
                                                                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
@@ -2608,12 +2504,6 @@ if (isset($_GET['startdate']) && isset($_GET['enddate'])) {
     </form>
 
 </div>
-<!-- jquery
-    ============================================ -->
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<!-- bootstrap JS
-    ============================================ -->
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <!--cloneData-->
 <script src="js/cloneData.js"></script>
 <script>
@@ -2653,22 +2543,6 @@ if (isset($_GET['startdate']) && isset($_GET['enddate'])) {
         removeConfirm: false
     });
 </script>
-<!-- meanmenu JS
-    ============================================ -->
-<script src="js/jquery.meanmenu.js"></script>
-<!-- sticky JS
-    ============================================ -->
-<script src="js/jquery.sticky.js"></script>
-<!-- metisMenu JS
-    ============================================ -->
-<script src="js/metisMenu/metisMenu.min.js"></script>
-<script src="js/metisMenu/metisMenu-active.js"></script>
-<!-- plugins JS
-    ============================================ -->
-<script src="js/plugins.js"></script>
-<!-- main JS
-    ============================================ -->
-<script src="js/main.js"></script>
 </body>
 
 <?php
@@ -2686,7 +2560,6 @@ function select_timezone($selectname, $selected = '')
     $select .= '</select>';
     return $select;
 }
-
 ?>
 
 </html>

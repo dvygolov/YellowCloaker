@@ -14,10 +14,9 @@ require_once 'config/Exception/FileNotFoundException.php';
 
 $conf = Config::load(__DIR__ . '/settings.json');
 
-$confNamespace = $_GET['config'] ?? get_config_name_by_domain($_SERVER['SERVER_NAME']);
-$cur_config = $conf->has($cur_domain) ? $cur_domain : 'default';
+$cur_config = $_GET['config'] ?? get_config_name_by_domain($_SERVER['SERVER_NAME']);
 $conf->setNamespace($cur_config);
-
+$domain_names = $conf->get('domains');
 $white_action = $conf->get('white.action', 'folder');
 $white_folder_names = $conf->get('white.folder.names', ['white']);
 $white_redirect_urls = $conf->get('white.redirect.urls', []);

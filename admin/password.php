@@ -1,14 +1,25 @@
 <?php
-require_once __DIR__.'/../settings.php';
+require_once __DIR__ . '/../settings.php';
+require_once __DIR__ . '/../logging.php';
 
-function check_password(){
+function check_password()
+{
     global $log_password;
-    if (!empty($log_password)){
-        if (!isset($_GET['password']))
-            die("No password in querystring!");
-        if (empty($_GET['password']))
-            die("Empty password in querystring!");
-        if ($_GET['password'] !== $log_password)
-            die("Incorrect password!");
+    if (!empty($log_password)) {
+        if (!isset($_GET['password'])) {
+            $msg = "No password in querystring!";
+            add_log("login", $msg, true);
+            die($msg);
+        }
+        if (empty($_GET['password'])) {
+            $msg = "Empty password in querystring!";
+            add_log("login", $msg, true);
+            die($msg);
+        }
+        if ($_GET['password'] !== $log_password) {
+            $msg = "Incorrect password!";
+            add_log("login", $msg, true);
+            die($msg);
+        }
     }
 }
