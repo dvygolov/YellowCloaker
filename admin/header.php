@@ -29,13 +29,14 @@
                                 <div class="header-right-info">
                                     <ul class="nav navbar-nav mai-top-nav header-right-menu">
                                         <li class="nav-item">
-                                            <a class="nav-link"> Config:</a>
+                                            <a class="nav-link">Current Config:</a>
                                             <select>
                                                 <?php
-                                                $all_configs = get_all_configs();
-                                                foreach ($all_configs as $config) {
+                                                $curConfig = $_GET['config']??"default";
+                                                $allConfigNames = get_all_config_names();
+                                                foreach ($allConfigNames as $configName) {
                                                     ?>
-                                                    <option><?=$config?></option>
+                                                    <option<?=($configName===$curConfig?" selected":"")?>><?=$configName?></option>
                                                     <?php
                                                 }
                                                 ?>

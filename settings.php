@@ -115,7 +115,7 @@ $purchase_status_name = $conf['postback.purchase'];
 $reject_status_name = $conf['postback.reject'];
 $trash_status_name = $conf['postback.trash'];
 
-function get_all_configs()
+function get_all_config_names()
 {
     $conf = Config::load(__DIR__ . '/settings.json');
     $configs = [];

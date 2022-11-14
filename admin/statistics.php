@@ -417,7 +417,7 @@ foreach ($subs_array as $sub_key => $sub_values) {
 <?php include "menu.php" ?>
 <div class="all-content-wrapper">
     <?php include "header.php" ?>
-    <a name="top"></a>
+    <a id="top"></a>
     <?= $tableOutput ?>
     <?= ($noprelanding ? '' : $lpctrTableOutput) ?>
     <?= $landcrTableOutput ?>
@@ -426,7 +426,7 @@ foreach ($subs_array as $sub_key => $sub_values) {
         echo $subTableOutput;
     }
     ?>
-    <a name="bottom"></a>
+    <a id="bottom"></a>
 </div>
 </body>
 </html>

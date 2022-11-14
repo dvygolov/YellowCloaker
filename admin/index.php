@@ -30,12 +30,12 @@ if (isset($_GET['startdate']) && isset($_GET['enddate'])) {
     $date_str = "&startdate={$startstr}&enddate={$endstr}";
 }
 
-$filter = isset($_GET['filter']) ? $_GET['filter'] : '';
+$filter = $_GET['filter'] ?? '';
 
 $dataDir = __DIR__ . "/../logs";
 switch ($filter) {
     case '':
-        $header = ["Subid", "IP", "Country", "ISP", "Time", "OS", "UA", "QueryString", "Preland", "Land"];
+        $header = ["Subid", "IP", "Country", "ISP", "Time", "OS", "UA", "Subs", "Preland", "Land"];
         $dataset = get_black_clicks($startdate->getTimestamp(), $enddate->getTimestamp());
         break;
     case 'leads':
@@ -43,66 +43,14 @@ switch ($filter) {
         $dataset = get_leads($startdate->getTimestamp(), $enddate->getTimestamp());
         break;
     case 'blocked':
-        $header = ["IP", "Country", "ISP", "Time", "Reason", "OS", "UA", "QueryString"];
+        $header = ["IP", "Country", "ISP", "Time", "Reason", "OS", "UA", "Subs"];
         $dataset = get_white_clicks($startdate->getTimestamp(), $enddate->getTimestamp());
         break;
 }
-
-//Open the table tag
-$tableOutput = "<TABLE class='table w-auto table-striped'>";
-//Print the table header
-$tableOutput .= "<thead class='thead-dark'>";
-$tableOutput .= "<TR>";
-$tableOutput .= "<TH scope='col'>Row</TH>";
-foreach ($header as $field) {
-    $tableOutput .= "<TH scope='col'>" . $field . "</TH>";
-} //Add the columns
-$tableOutput .= "</TR></thead><tbody>";
-$countLines = 0;
-foreach ($dataset as $line) {
-    $countLines++;
-    $tableOutput .= "<TR><TD>" . $countLines . "</TD>";
-    $i = 0;
-    switch ($filter) {
-        case '':
-            $tableOutput .= "<TD><a name='" . $line['subid'] . "'>" . $line['subid'] . "</a></TD>";
-            $tableOutput .= "<TD>" . $line['ip'] . "</TD>";
-            $tableOutput .= "<TD>" . $line['country'] . "</TD>";
-            $tableOutput .= "<TD>" . $line['isp'] . "</TD>";
-            $tableOutput .= "<TD>" . date('Y-m-d H:i:s', $line['time']) . "</TD>";
-            $tableOutput .= "<TD>" . $line['os'] . "</TD>";
-            $tableOutput .= "<TD>" . $line['ua'] . "</TD>";
-            $tableOutput .= "<TD>" . http_build_query($line['subs']) . "</TD>";
-            $tableOutput .= "<TD>" . $line['preland'] . "</TD>";
-            $tableOutput .= "<TD>" . $line['land'] . "</TD>";
-            break;
-        case 'blocked':
-            $tableOutput .= "<TD>" . $line['ip'] . "</TD>";
-            $tableOutput .= "<TD>" . $line['country'] . "</TD>";
-            $tableOutput .= "<TD>" . $line['isp'] . "</TD>";
-            $tableOutput .= "<TD>" . date('Y-m-d H:i:s', $line['time']) . "</TD>";
-            $tableOutput .= "<TD>" . implode(',', $line['reason']) . "</TD>";
-            $tableOutput .= "<TD>" . $line['os'] . "</TD>";
-            $tableOutput .= "<TD>" . $line['ua'] . "</TD>";
-            $tableOutput .= "<TD>" . http_build_query($line['subs']) . "</TD>";
-            break;
-        case 'leads':
-            $tableOutput .= "<TD><a href='index.php?password=" . $_GET['password'] . ($date_str !== '' ? $date_str : '') . "#" . $line['subid'] . "'>" . $line['subid'] . "</a></TD>";
-            $tableOutput .= "<TD>" . date('Y-m-d H:i:s', $line['time']) . "</TD>";
-            $tableOutput .= "<TD>" . $line['name'] . "</TD>";
-            $tableOutput .= "<TD>" . $line['phone'] . "</TD>";
-            $tableOutput .= "<TD>" . (empty($line['email']) ? 'no' : $line['email']) . "</TD>";
-            $tableOutput .= "<TD>" . $line['status'] . "</TD>";
-            $tableOutput .= "<TD>" . $line['preland'] . "</TD>";
-            $tableOutput .= "<TD>" . $line['land'] . "</TD>";
-            $tableOutput .= "<TD>" . $line['fbp'] . "</TD>";
-            $tableOutput .= "<TD>" . $line['fbclid'] . "</TD>";
-            break;
-    }
-    $tableOutput .= "</TR>";
-}
-
-$tableOutput .= "</tbody></TABLE>";
+require_once __DIR__ . '/tableformatter.php';
+$tableOutput = create_table($header);
+$tableOutput = fill_table($tableOutput, $header, $dataset);
+$tableOutput = close_table($tableOutput);
 ?>
 <!doctype html>
 <html lang="en">
@@ -111,9 +59,9 @@ $tableOutput .= "</tbody></TABLE>";
 <?php include "menu.php" ?>
 <div class="all-content-wrapper">
     <?php include "header.php" ?>
-    <a name="top"></a>
-    <?= isset($tableOutput) ? $tableOutput : '' ?>
-    <a name="bottom"></a>
+    <a id="top"></a>
+    <?= $tableOutput ?? '' ?>
+    <a id="bottom"></a>
 </div>
 </body>
 </html>
