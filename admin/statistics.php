@@ -1,14 +1,5 @@
 <?php
-//Включение отладочной информации
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', 1);
-//Конец включения отладочной информации
-
-require_once __DIR__ . '/../settings.php';
-require_once __DIR__ . '/password.php';
-check_password();
-
+require_once __DIR__ . '/initialization.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/../abtests/Calculator/SplitTestAnalyzer.php';
 require_once __DIR__ . '/../abtests/Calculator/Variation.php';
@@ -16,20 +7,6 @@ require_once __DIR__ . '/../abtests/Calculator/Variation.php';
 use BenTools\SplitTestAnalyzer\SplitTestAnalyzer;
 use BenTools\SplitTestAnalyzer\Variation;
 
-date_default_timezone_set($stats_timezone);
-$startdate = isset($_GET['startdate']) ?
-    DateTime::createFromFormat('d.m.y', $_GET['startdate'], new DateTimeZone($stats_timezone)) :
-    new DateTime("now", new DateTimeZone($stats_timezone));
-$enddate = isset($_GET['enddate']) ?
-    DateTime::createFromFormat('d.m.y', $_GET['enddate'], new DateTimeZone($stats_timezone)) :
-    new DateTime("now", new DateTimeZone($stats_timezone));
-
-$date_str = '';
-if (isset($_GET['startdate']) && isset($_GET['enddate'])) {
-    $startstr = $_GET['startdate'];
-    $endstr = $_GET['enddate'];
-    $date_str = "&startdate={$startstr}&enddate={$endstr}";
-}
 
 //Open the table tag
 $tableOutput = "<TABLE class='table w-auto table-striped'>";
@@ -91,7 +68,7 @@ while ($date >= $startdate) {
     $curend = date_create("@$ts");
     $curend->setTime(23, 59, 59);
     $formatteddate = $date->format('d.m.y');
-    $day_traf = get_black_clicks($curstart->getTimestamp(), $curend->getTimestamp());
+    $day_traf = get_black_clicks($curstart->getTimestamp(), $curend->getTimestamp(), $config);
     $day_ctr = get_lpctr($curstart->getTimestamp(), $curend->getTimestamp());
     $day_leads = get_leads($curstart->getTimestamp(), $curend->getTimestamp());
 

@@ -7,8 +7,20 @@ require_once __DIR__ . "/db/Query.php";
 require_once __DIR__ . "/db/Cache.php";
 require_once __DIR__ . "/cookies.php";
 
+use SleekDB\Exceptions\IdNotAllowedException;
+use SleekDB\Exceptions\InvalidConfigurationException;
+use SleekDB\Exceptions\IOException;
+use SleekDB\Exceptions\JsonException;
+use SleekDB\Exceptions\InvalidArgumentException;
 use SleekDB\Store;
 
+/**
+ * @throws IOException
+ * @throws JsonException
+ * @throws InvalidConfigurationException
+ * @throws IdNotAllowedException
+ * @throws InvalidArgumentException
+ */
 function add_white_click($data, $reason)
 {
     $dataDir = __DIR__ . "/logs";
@@ -29,6 +41,13 @@ function add_white_click($data, $reason)
     $wclicksStore->insert($click);
 }
 
+/**
+ * @throws IOException
+ * @throws JsonException
+ * @throws InvalidConfigurationException
+ * @throws InvalidArgumentException
+ * @throws IdNotAllowedException
+ */
 function add_black_click($subid, $data, $preland, $land)
 {
     $dataDir = __DIR__ . "/logs";
@@ -51,7 +70,14 @@ function add_black_click($subid, $data, $preland, $land)
     $bclicksStore->insert($click);
 }
 
-function add_lead($subid, $name, $phone, $status = 'Lead')
+/**
+ * @throws IOException
+ * @throws JsonException
+ * @throws InvalidConfigurationException
+ * @throws InvalidArgumentException
+ * @throws IdNotAllowedException
+ */
+function add_lead($subid, $name, $phone, $status = 'Lead'): array
 {
     $dataDir = __DIR__ . "/logs";
     $leadsStore = new Store("leads", $dataDir);
@@ -84,7 +110,14 @@ function add_lead($subid, $name, $phone, $status = 'Lead')
     return $leadsStore->insert($lead);
 }
 
-function update_lead($subid, $status, $payout)
+/**
+ * @throws IdNotAllowedException
+ * @throws InvalidArgumentException
+ * @throws IOException
+ * @throws JsonException
+ * @throws InvalidConfigurationException
+ */
+function update_lead($subid, $status, $payout): bool
 {
     $dataDir = __DIR__ . "/logs";
     $leadsStore = new Store("leads", $dataDir);
@@ -102,7 +135,12 @@ function update_lead($subid, $status, $payout)
     return true;
 }
 
-function email_exists_for_subid($subid)
+/**
+ * @throws IOException
+ * @throws InvalidConfigurationException
+ * @throws InvalidArgumentException
+ */
+function email_exists_for_subid($subid): bool
 {
     $dataDir = __DIR__ . "/logs";
     $leadsStore = new Store("leads", $dataDir);
@@ -112,6 +150,11 @@ function email_exists_for_subid($subid)
     return false;
 }
 
+/**
+ * @throws IOException
+ * @throws InvalidConfigurationException
+ * @throws InvalidArgumentException
+ */
 function add_email($subid, $email)
 {
     $dataDir = __DIR__ . "/logs";
@@ -122,6 +165,13 @@ function add_email($subid, $email)
     $leadsStore->update($lead);
 }
 
+/**
+ * @throws IOException
+ * @throws JsonException
+ * @throws InvalidConfigurationException
+ * @throws IdNotAllowedException
+ * @throws InvalidArgumentException
+ */
 function add_lpctr($subid, $preland)
 {
     $dataDir = __DIR__ . "/logs";
@@ -140,7 +190,12 @@ function add_lpctr($subid, $preland)
 //проверяем, есть ли в файле лидов subid текущего пользователя
 //если есть, и также есть такой же номер - значит ЭТО ДУБЛЬ!
 //И нам не нужно слать его в ПП и не нужно показывать пиксель ФБ!!
-function lead_is_duplicate($subid, $phone)
+/**
+ * @throws IOException
+ * @throws InvalidConfigurationException
+ * @throws InvalidArgumentException
+ */
+function lead_is_duplicate($subid, $phone): bool
 {
     $dataDir = __DIR__ . "/logs";
     $leadsStore = new Store("leads", $dataDir);

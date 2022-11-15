@@ -1,22 +1,5 @@
 <?php
-//Start debug info
-error_reporting(E_ALL);
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', 1);
-//End debug info
-require_once __DIR__ . '/../settings.php';
-require_once 'password.php';
-check_password();
-
-$startdate = isset($_GET['startdate']) ? DateTime::createFromFormat('d.m.y', $_GET['startdate']) : new DateTime();
-$enddate = isset($_GET['enddate']) ? DateTime::createFromFormat('d.m.y', $_GET['enddate']) : new DateTime();
-
-$date_str = '';
-if (isset($_GET['startdate']) && isset($_GET['enddate'])) {
-    $startstr = $_GET['startdate'];
-    $endstr = $_GET['enddate'];
-    $date_str = "&startdate={$startstr}&enddate={$endstr}";
-}
+require_once __DIR__ . '/initialization.php';
 ?>
 <!doctype html>
 <html lang="en">

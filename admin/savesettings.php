@@ -40,4 +40,3 @@ foreach($_POST as $key=>$value){
 }
 $conf->toFile(__DIR__.'/../settings.json',new Json());
 redirect('editsettings.php?password='.$log_password,302,false);
-?>

@@ -6,17 +6,17 @@ function check_password()
 {
     global $log_password;
     if (!empty($log_password)) {
-        if (!isset($_GET['password'])) {
+        if (!isset($_REQUEST['password'])) {
             $msg = "No password in querystring!";
             add_log("login", $msg, true);
             die($msg);
         }
-        if (empty($_GET['password'])) {
+        if (empty($_REQUEST['password'])) {
             $msg = "Empty password in querystring!";
             add_log("login", $msg, true);
             die($msg);
         }
-        if ($_GET['password'] !== $log_password) {
+        if ($_REQUEST['password'] !== $log_password) {
             $msg = "Incorrect password!";
             add_log("login", $msg, true);
             die($msg);
