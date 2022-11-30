@@ -10,7 +10,7 @@
           |___/             https://yellowweb.top                 
 
 If you like this script, PLEASE DONATE!  
-WebMoney: Z182653170916  
+USDT TRC20: TKeNEVndhPSKXuYmpEwF4fVtWUvfCnWmra
 Bitcoin: bc1qqv99jasckntqnk0pkjnrjtpwu0yurm0qd0gnqv  
 Ethereum: 0xBC118D3FDE78eE393A154C29A4545c575506ad6B  
 ```
