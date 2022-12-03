@@ -30,7 +30,7 @@ header('Access-Control-Allow-Credentials: true');
 
 if ($check_result === 1 || $tds_mode === 'full') {
     //это бот, который прошёл javascript-проверку, ну или эта проверка выключена
-    add_white_click($cloaker->detect, $cloaker->result);
+    add_white_click($cloaker->detect, $cloaker->result, $cur_config);
     header("Access-Control-Expose-Headers: YWBAction", false, 200);
     header("YWBAction: none", true, 200);
     return http_response_code(200);

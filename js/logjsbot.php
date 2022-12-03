@@ -16,5 +16,4 @@ $check_result = $cloaker->check();
 //Добавляем, по какому из js-событий мы поймали бота
 $reason= $_GET['reason'] ?? 'js_tests';
 $cloaker->result[]=$reason;
-add_white_click($cloaker->detect, $cloaker->result);
-?>
+add_white_click($cloaker->detect, $cloaker->result, $cur_config);

@@ -14,7 +14,7 @@ require_once __DIR__."/../db/Cache.php";
  */
 function get_white_clicks($startdate, $enddate, $config): array
 {
-    $dataDir = __DIR__ . "/../logs";
+    $dataDir = __DIR__ . "/../logs/".$config;
     $wclicksStore = new Store("whiteclicks", $dataDir);
 	return $wclicksStore->findBy([["config","=",$config],["time",">=",$startdate],["time","<=",$enddate]],["time"=>"desc"]);
 }
@@ -26,7 +26,7 @@ function get_white_clicks($startdate, $enddate, $config): array
  */
 function get_black_clicks($startdate, $enddate, $config): array
 {
-    $dataDir = __DIR__ . "/../logs";
+    $dataDir = __DIR__ . "/../logs/".$config;
     $bclicksStore = new Store("blackclicks", $dataDir);
 	return $bclicksStore->findBy([["config","=",$config],["time",">=",$startdate],["time","<=",$enddate]],["time"=>"desc"]);
 }
@@ -38,7 +38,7 @@ function get_black_clicks($startdate, $enddate, $config): array
  */
 function get_leads($startdate, $enddate, $config): array
 {
-    $dataDir = __DIR__ . "/../logs";
+    $dataDir = __DIR__ . "/../logs/".$config;
     $leadsStore = new Store("leads", $dataDir);
 	return $leadsStore->findBy([["config","=",$config],["time",">=",$startdate],["time","<=",$enddate]],["time"=>"desc"]);
 }
@@ -50,7 +50,7 @@ function get_leads($startdate, $enddate, $config): array
  */
 function get_lpctr($startdate, $enddate, $config): array
 {
-    $dataDir = __DIR__ . "/../logs";
+    $dataDir = __DIR__ . "/../logs/".$config;
     $lpctrStore = new Store("lpctr", $dataDir);
 	return $lpctrStore->findBy([["config","=",$config],["time",">=",$startdate],["time","<=",$enddate]],["time"=>"desc"]);
 }

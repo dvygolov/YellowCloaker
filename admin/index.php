@@ -8,15 +8,15 @@ $dataDir = __DIR__ . "/../logs";
 switch ($filter) {
     case '':
         $header = ["Subid", "IP", "Country", "ISP", "Time", "OS", "UA", "Subs", "Preland", "Land"];
-        $dataset = get_black_clicks($startdate->getTimestamp(), $enddate->getTimestamp());
+        $dataset = get_black_clicks($startdate->getTimestamp(), $enddate->getTimestamp(), $config);
         break;
     case 'leads':
         $header = ["Subid", "Time", "Name", "Phone", "Email", "Status", "Preland", "Land", "Fbp", "Fbclid"];
-        $dataset = get_leads($startdate->getTimestamp(), $enddate->getTimestamp());
+        $dataset = get_leads($startdate->getTimestamp(), $enddate->getTimestamp(), $config);
         break;
     case 'blocked':
         $header = ["IP", "Country", "ISP", "Time", "Reason", "OS", "UA", "Subs"];
-        $dataset = get_white_clicks($startdate->getTimestamp(), $enddate->getTimestamp());
+        $dataset = get_white_clicks($startdate->getTimestamp(), $enddate->getTimestamp(), $config);
         break;
 }
 require_once __DIR__ . '/tableformatter.php';

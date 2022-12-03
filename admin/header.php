@@ -36,7 +36,7 @@
                                                 $allConfigNames = get_all_config_names();
                                                 foreach ($allConfigNames as $configName) {
                                                     ?>
-                                                    <option onclick=""<?=($configName===$curConfig?" selected":"")?>><?=$configName?></option>
+                                                    <option onclick="selectConfig('<?=$configName?>')"<?=($configName===$curConfig?" selected":"")?>><?=$configName?></option>
                                                     <?php
                                                 }
                                                 ?>
@@ -74,6 +74,15 @@
         </div>
     </div>
 </div>
+<script>
+    function selectConfig(configName){
+        let url = new URL(window.location.href);
+        let p = new URLSearchParams(window.location.search);
+        p.set("config",configName);
+        url.search = p.toString();
+        window.location.href = url.href;
+    }
+</script>
 <script>
     let picker = new Litepicker({
         element: document.getElementById('litepicker'),

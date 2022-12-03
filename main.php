@@ -1,9 +1,9 @@
 <?php
-require_once __DIR__.'/htmlprocessing.php';
-require_once __DIR__.'/cookies.php';
-require_once __DIR__.'/redirect.php';
-require_once __DIR__.'/pixels.php';
-require_once __DIR__.'/abtest.php';
+require_once __DIR__ . '/htmlprocessing.php';
+require_once __DIR__ . '/cookies.php';
+require_once __DIR__ . '/redirect.php';
+require_once __DIR__ . '/pixels.php';
+require_once __DIR__ . '/abtest.php';
 
 //Включение отладочной информации
 ini_set('display_errors', '1');
@@ -99,6 +99,7 @@ function black($clkrdetect)
     global $black_preland_action, $black_preland_folder_names;
     global $black_land_action, $black_land_folder_names, $save_user_flow;
     global $black_land_redirect_type, $black_land_redirect_urls;
+    global $cur_config;
 
     header('Access-Control-Allow-Credentials: true');
     if (isset($_SERVER['HTTP_REFERER'])) {
@@ -122,7 +123,7 @@ function black($clkrdetect)
         case 'none':
             $res = select_landing($save_user_flow, $landings, $isfolderland);
             $landing = $res[0];
-            add_black_click($cursubid, $clkrdetect, '', $landing);
+            add_black_click($cursubid, $clkrdetect, '', $landing, $cur_config);
 
             switch ($black_land_action) {
                 case 'folder':
@@ -143,7 +144,7 @@ function black($clkrdetect)
             $t = $res[1];
 
             echo load_prelanding($prelanding, $t);
-            add_black_click($cursubid, $clkrdetect, $prelanding, $landing);
+            add_black_click($cursubid, $clkrdetect, $prelanding, $landing, $cur_config);
             break;
     }
 }

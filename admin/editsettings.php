@@ -10,7 +10,7 @@ require_once __DIR__ . '/initialization.php';
     <?php include "header.php" ?>
     <a id="top"></a>
 
-    <form action="savesettings.php?password=<?= $log_password ?>&config=<?=$config?>" method="post">
+    <form action="savesettings.php?password=<?= $log_password ?>&config=<?= $config ?>" method="post">
         <div class="basic-form-area mg-tb-15">
             <div class="container-fluid">
                 <div class="row">
@@ -21,11 +21,15 @@ require_once __DIR__ . '/initialization.php';
                                     <div class="row">
                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                             <div class="all-form-element-inner">
-                                                <h4>#0 Настройка доменов</h4>
+                                                <h4>#0 Domains</h4>
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Список доменов для этой конфигурации:</label>
+                                                            <label class="login2 pull-left pull-left-pro">
+                                                                <img src="img/info.ico"
+                                                                     title="Enter all of your domains WITHOUT HTTP, comma-separated, WITHOUT SPACES!"/>
+                                                                Domains list for this config:
+                                                            </label>
                                                         </div>
                                                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                             <div class="input-group custom-go-button">
@@ -41,7 +45,8 @@ require_once __DIR__ . '/initialization.php';
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Choose method:</label>
+                                                            <label class="login2 pull-left pull-left-pro">Choose
+                                                                method:</label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                             <div class="bt-df-checkbox pull-left">
@@ -88,7 +93,9 @@ require_once __DIR__ . '/initialization.php';
                                                                                 <input type="radio" <?= $white_action === 'error' ? 'checked' : '' ?>
                                                                                        value="error" name="white.action"
                                                                                        onclick="(document.getElementById('b_2').style.display='none'); (document.getElementById('b_3').style.display='none'); (document.getElementById('b_4').style.display='none'); (document.getElementById('b_5').style.display='block')">
-                                                                                Return HTTP-code <small>(for example, 404 for NotFound or 200 for OK)</small>
+                                                                                Return HTTP-code <small>(for example,
+                                                                                    404 for NotFound or 200 for
+                                                                                    OK)</small>
                                                                             </label>
                                                                         </div>
                                                                     </div>
@@ -102,7 +109,8 @@ require_once __DIR__ . '/initialization.php';
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Safe page folder:</label>
+                                                                <label class="login2 pull-left pull-left-pro">Safe page
+                                                                    folder:</label>
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                                 <div class="input-group custom-go-button">
@@ -119,7 +127,8 @@ require_once __DIR__ . '/initialization.php';
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Redirect address:</label>
+                                                                <label class="login2 pull-left pull-left-pro">Redirect
+                                                                    address:</label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                                                                 <div class="input-group custom-go-button">
@@ -135,7 +144,8 @@ require_once __DIR__ . '/initialization.php';
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Choose Redirect HTTP-code:</label>
+                                                                <label class="login2 pull-left pull-left-pro">Choose
+                                                                    Redirect HTTP-code:</label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
@@ -195,7 +205,8 @@ require_once __DIR__ . '/initialization.php';
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Url for loading:</label>
+                                                                <label class="login2 pull-left pull-left-pro">Url for
+                                                                    loading:</label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                                                                 <div class="input-group custom-go-button">
@@ -230,7 +241,8 @@ require_once __DIR__ . '/initialization.php';
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Show individual
+                                                            <label class="login2 pull-left pull-left-pro">Show
+                                                                individual
                                                                 domain-specific safe page? </label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
@@ -309,11 +321,11 @@ require_once __DIR__ . '/initialization.php';
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Use Javascript filters?
+                                                            <label class="login2 pull-left pull-left-pro">
+                                                                <img src="img/info.ico"
+                                                                     title="If JS filters are switched ON, then the user will be shown a safe page for a moment and only after all the checks are passed he'll be shown the money page."/>
+                                                                Use Javascript filters?
                                                                 <small>
-                                                                    If JS filters are switched ON, then the user will
-                                                                    be shown a safe page for a moment and only after all the checks
-                                                                    are passed he'll be shown the money page.
                                                                 </small>
                                                             </label>
                                                         </div>
@@ -353,7 +365,8 @@ require_once __DIR__ . '/initialization.php';
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">JS-Test timeout (msec): </label>
+                                                                <label class="login2 pull-left pull-left-pro">JS-Test
+                                                                    timeout (msec): </label>
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                                 <div class="input-group custom-go-button">
@@ -368,7 +381,8 @@ require_once __DIR__ . '/initialization.php';
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">What will be tested? </label>
+                                                                <label class="login2 pull-left pull-left-pro">What will
+                                                                    be tested? </label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
@@ -424,7 +438,8 @@ require_once __DIR__ . '/initialization.php';
                                                                                     <input type="checkbox"
                                                                                            name="white.jschecks.events[]"
                                                                                            value="deviceorientation" <?= in_array('deviceorientation', $js_checks) ? 'checked' : '' ?>>
-                                                                                    Device orientation (Android only)</label>
+                                                                                    Device orientation (Android
+                                                                                    only)</label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -461,7 +476,8 @@ require_once __DIR__ . '/initialization.php';
                                                          style="display:<?= in_array('timezone', $js_checks) ? 'block' : 'none' ?>;">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Minimum allowed timezone</label>
+                                                                <label class="login2 pull-left pull-left-pro">Minimum
+                                                                    allowed timezone</label>
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                                 <div class="input-group custom-go-button">
@@ -474,7 +490,8 @@ require_once __DIR__ . '/initialization.php';
                                                         </div>
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Maximum allowed timezone</label>
+                                                                <label class="login2 pull-left pull-left-pro">Maximum
+                                                                    allowed timezone</label>
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                                 <div class="input-group custom-go-button">
@@ -488,7 +505,8 @@ require_once __DIR__ . '/initialization.php';
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Obfuscate JS-test code?</label>
+                                                                <label class="login2 pull-left pull-left-pro">Obfuscate
+                                                                    JS-test code?</label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
@@ -527,7 +545,8 @@ require_once __DIR__ . '/initialization.php';
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Choose prelanding loading method: </label>
+                                                            <label class="login2 pull-left pull-left-pro">Choose
+                                                                prelanding loading method: </label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                             <div class="bt-df-checkbox pull-left">
@@ -566,7 +585,11 @@ require_once __DIR__ . '/initialization.php';
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Prelanding folder(s)</label>
+                                                                <label class="login2 pull-left pull-left-pro">
+                                                                    <img src="img/info.ico"
+                                                                         title="If you want to perform an A/B Test then enter several folders comma-separated, WITHOUT SPACES"/>
+                                                                    Prelanding folder(s)
+                                                                </label>
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                                 <div class="input-group custom-go-button">
@@ -584,7 +607,8 @@ require_once __DIR__ . '/initialization.php';
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Choose landing loading method:</label>
+                                                            <label class="login2 pull-left pull-left-pro">Choose landing
+                                                                loading method:</label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                             <div class="bt-df-checkbox pull-left">
@@ -622,7 +646,11 @@ require_once __DIR__ . '/initialization.php';
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Landing folder(s)</label>
+                                                                <label class="login2 pull-left pull-left-pro">
+                                                                    <img src="img/info.ico"
+                                                                         title="If you want to perform an A/B Test then enter several folders comma-separated, WITHOUT SPACES"/>
+                                                                    Landing folder(s)
+                                                                </label>
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                                 <div class="input-group custom-go-button">
@@ -638,7 +666,8 @@ require_once __DIR__ . '/initialization.php';
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro"> Использовать страницу Спасибо: </label>
+                                                                <label class="login2 pull-left pull-left-pro">ThankYou
+                                                                    Page Settings</label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
@@ -651,7 +680,9 @@ require_once __DIR__ . '/initialization.php';
                                                                                            value="true"
                                                                                            name="black.landing.folder.customthankyoupage.use"
                                                                                            onclick="(document.getElementById('ctpage').style.display = 'block'); (document.getElementById('pppage').style.display = 'none')">
-                                                                                    Кастомную, на стороне кло </label>
+                                                                                    Use the Built-in ThankYou Page
+                                                                                    <img src="img/info.ico" title="First try this method! Only if smth doesn't work well - then use your own!"/>
+                                                                                </label
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -663,7 +694,9 @@ require_once __DIR__ . '/initialization.php';
                                                                                            value="false"
                                                                                            name="black.landing.folder.customthankyoupage.use"
                                                                                            onclick="(document.getElementById('ctpage').style.display = 'none'); (document.getElementById('pppage').style.display = 'block')">
-                                                                                    Обычную, на стороне ПП </label>
+                                                                                    Use the one from your landing(s)
+                                                                                    <img src="img/info.ico" title="You'll have to manually insert Facebook's/TikTok's or Google's pixels onto your thankyou page then"/>
+                                                                                </label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -676,8 +709,8 @@ require_once __DIR__ . '/initialization.php';
                                                          style="display:<?= $black_land_use_custom_thankyou_page === true ? 'block' : 'none' ?>">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Язык, на
-                                                                    котором показывать страницу Спасибо Кло: </label>
+                                                                <label class="login2 pull-left pull-left-pro">Built-in
+                                                                    ThankYou Page language:</label>
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                                 <div class="input-group custom-go-button">
@@ -690,9 +723,11 @@ require_once __DIR__ . '/initialization.php';
                                                         </div>
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro"> Путь от
-                                                                    корня лендинга до скрипта отправки данных с
-                                                                    формы:</label>
+                                                                <label class="login2 pull-left pull-left-pro">
+                                                                    <img src="img/info.ico" title=""/>
+                                                                    Relative path of the php-script that sends leads to the affiliate network:
+                                                                    <img src="img/info.ico" title="Usually this file is named order.php, confirm.php or smth like that. Open your landing's index.html and look at the form's action attribute. It is usually written there."/>
+                                                                </label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                                                                 <div class="input-group custom-go-button">
@@ -705,8 +740,9 @@ require_once __DIR__ . '/initialization.php';
                                                         </div>
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Использовать
-                                                                    допродажи на странице Спасибо: </label>
+                                                                <label class="login2 pull-left pull-left-pro">
+                                                                    Use upsells on the built-in ThankYou Page?
+                                                                </label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
@@ -719,7 +755,7 @@ require_once __DIR__ . '/initialization.php';
                                                                                            value="true"
                                                                                            name="black.landing.folder.customthankyoupage.upsell.use"
                                                                                            onclick="document.getElementById('thankupsell').style.display = 'block'">
-                                                                                    Да</label>
+                                                                                    Yes</label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -730,7 +766,7 @@ require_once __DIR__ . '/initialization.php';
                                                                                     <input type="radio" <?= $thankyou_upsell === false ? 'checked' : '' ?>
                                                                                            value="false"
                                                                                            name="black.landing.folder.customthankyoupage.upsell.use"
-                                                                                           onclick="document.getElementById('thankupsell').style.display = 'none'">Нет</label>
+                                                                                           onclick="document.getElementById('thankupsell').style.display = 'none'">No</label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -742,8 +778,9 @@ require_once __DIR__ . '/initialization.php';
                                                          style="display:<?= $thankyou_upsell === true ? 'block' : 'none' ?>">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Заголовок
-                                                                    апсейла:</label>
+                                                                <label class="login2 pull-left pull-left-pro">
+                                                                    Upsell's Title:
+                                                                </label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                                                                 <div class="input-group custom-go-button">
@@ -756,8 +793,9 @@ require_once __DIR__ . '/initialization.php';
                                                         </div>
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Текст
-                                                                    апсейла:</label>
+                                                                <label class="login2 pull-left pull-left-pro">
+                                                                    Upsell's text:
+                                                                </label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                                                                 <div class="input-group custom-go-button">
@@ -770,13 +808,14 @@ require_once __DIR__ . '/initialization.php';
                                                         </div>
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Полный
-                                                                    адрес ленда апсейла:</label>
+                                                                <label class="login2 pull-left pull-left-pro">
+                                                                    Upsell's landing url:
+                                                                </label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                                                                 <div class="input-group custom-go-button">
                                                                     <input type="text" class="form-control"
-                                                                           placeholder="https://ya.ru"
+                                                                           placeholder="https://google.com"
                                                                            name="black.landing.folder.customthankyoupage.upsell.url"
                                                                            value="<?= $thankyou_upsell_url ?>">
                                                                 </div>
@@ -784,9 +823,10 @@ require_once __DIR__ . '/initialization.php';
                                                         </div>
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Имя папки
-                                                                    с картинками для витрины <small>папка должна быть
-                                                                        создана в thankyou/upsell</small></label>
+                                                                <label class="login2 pull-left pull-left-pro">
+                                                                    <img src="img/info.ico" title="This folder should be created inside 'thankyou/upsell'"/>
+                                                                    Folder name for upsell images:
+                                                                </label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                                                                 <div class="input-group custom-go-button">
@@ -802,13 +842,12 @@ require_once __DIR__ . '/initialization.php';
                                                          style="display:<?= $black_land_use_custom_thankyou_page === false ? 'block' : 'none' ?>">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Добавить в
-                                                                    обработчик кнопки Заказать на ленде подсчёт
-                                                                    конверсий кло? </label>
+                                                                <label class="login2 pull-left pull-left-pro">
+                                                                    Should I count conversions using the Submit Order button on the Landing Page?
+                                                                    </label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
-
                                                                     <div class="row">
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
@@ -816,9 +855,9 @@ require_once __DIR__ . '/initialization.php';
                                                                                     <input type="radio" <?= $black_land_log_conversions_on_button_click === false ? 'checked' : '' ?>
                                                                                            value="false"
                                                                                            name="black.landing.folder.conversions.logonbuttonclick">
-                                                                                    Нет <small>(конверсия будет
-                                                                                        считаться на КАСТОМНОЙ
-                                                                                        стр.Спасибо)</small> </label>
+                                                                                   No
+                                                                                   <img src="img/info.ico" title="If so, the cloaker will not be able to count conversions at all 🤷‍️"/>
+                                                                                </label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -829,7 +868,7 @@ require_once __DIR__ . '/initialization.php';
                                                                                     <input type="radio" <?= $black_land_log_conversions_on_button_click === true ? 'checked' : '' ?>
                                                                                            value="true"
                                                                                            name="black.landing.folder.conversions.logonbuttonclick">
-                                                                                    Да </label>
+                                                                                    Yes </label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -838,23 +877,22 @@ require_once __DIR__ . '/initialization.php';
                                                         </div>
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Откуда
-                                                                    отстукивать в Facebook конверсию? </label>
+                                                                <label class="login2 pull-left pull-left-pro">
+                                                                    How should we track Facebook's conversions?
+                                                                </label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
-
                                                                     <div class="row">
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
+                                                                                    <img src="img/info.ico" title="If you won't use the built-in ThankYou Page then you'll have to insert Facebook Pixel's Code inside your own thankyou page!"/>
                                                                                     <input type="radio" <?= $fb_add_button_pixel === false ? 'checked' : '' ?>
                                                                                            value="false"
                                                                                            name="pixels.fb.conversion.fireonbutton">
-                                                                                    Со страницы спасибо <small>(если не
-                                                                                        используете кастомную Спасибо,
-                                                                                        впишите код
-                                                                                        пикселя!)</small></label>
+                                                                                    Using ThankYou Page
+                                                                                </label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -865,7 +903,8 @@ require_once __DIR__ . '/initialization.php';
                                                                                     <input type="radio" <?= $fb_add_button_pixel === true ? 'checked' : '' ?>
                                                                                            value="true"
                                                                                            name="pixels.fb.conversion.fireonbutton">
-                                                                                    С кнопки на ленде </label>
+                                                                                    Using Submit Form Button on the landing
+                                                                                </label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -2524,6 +2563,7 @@ function select_timezone($selectname, $selected = '')
     $select .= '</select>';
     return $select;
 }
+
 ?>
 
 </html>

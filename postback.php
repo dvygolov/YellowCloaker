@@ -46,7 +46,7 @@ switch ($status) {
         break;
 }
 add_postback_log($subid, $inner_status, $payout, $curLink);
-$res = update_lead($subid, $inner_status, $payout);
+$res = update_lead($subid, $inner_status, $payout, $cur_config); //TODO: think about it!
 process_s2s_posbacks($s2s_postbacks, $inner_status);
 
 if ($res) {
@@ -78,7 +78,7 @@ function process_s2s_posbacks(array $s2s_postbacks, string $inner_status)
                 $s2s_res = post($urlParts[0], $params);
                 break;
         }
-        add_log("postback","{$s2s['method']}, $final_url, $inner_status, {$s2s_res['info']['http_code']}");
+        add_log("postback", "{$s2s['method']}, $final_url, $inner_status, {$s2s_res['info']['http_code']}");
     }
 }
 

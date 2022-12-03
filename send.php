@@ -5,11 +5,11 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 //Конец включения отладочной информации
 
-require_once __DIR__.'/settings.php';
-require_once __DIR__.'/db.php';
-require_once __DIR__.'/cookies.php';
-require_once __DIR__.'/redirect.php';
-require_once __DIR__.'/requestfunc.php';
+require_once __DIR__ . '/settings.php';
+require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/cookies.php';
+require_once __DIR__ . '/redirect.php';
+require_once __DIR__ . '/requestfunc.php';
 
 $name = '';
 if (isset($_POST['name']))
@@ -72,7 +72,7 @@ if (!$is_duplicate) {
     //в ответе должен быть редирект, если его нет - грузим обычную страницу Спасибо кло
     switch ($res["info"]["http_code"]) {
         case 302:
-            add_lead($subid, $name, $phone);
+            add_lead($subid, $name, $phone, $cur_config);
             if ($black_land_use_custom_thankyou_page) {
                 redirect("thankyou/thankyou.php?" . http_build_query($_GET), 302, false);
             } else {
@@ -80,7 +80,7 @@ if (!$is_duplicate) {
             }
             break;
         case 200:
-            add_lead($subid, $name, $phone);
+            add_lead($subid, $name, $phone, $cur_config);
             if ($black_land_use_custom_thankyou_page) {
                 jsredirect("thankyou/thankyou.php?" . http_build_query($_GET));
             } else {

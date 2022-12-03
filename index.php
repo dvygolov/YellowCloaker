@@ -17,7 +17,7 @@ $cloaker = new Cloaker($os_white, $country_white, $lang_white,
 
 //если включен full_cloak_on, то шлём всех на white page, полностью набрасываем плащ)
 if ($tds_mode == 'full') {
-    add_white_click($cloaker->detect, ['fullcloak']);
+    add_white_click($cloaker->detect, ['fullcloak'], $cur_config);
     white(false);
     return;
 }
@@ -34,7 +34,7 @@ if ($use_js_checks === true) {
         black($cloaker->detect);
         return;
     } else { //Обнаружили бота или модера
-        add_white_click($cloaker->detect, $cloaker->result);
+        add_white_click($cloaker->detect, $cloaker->result, $cur_config);
         white(false);
         return;
     }

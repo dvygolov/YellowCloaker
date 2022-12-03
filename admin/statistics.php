@@ -69,8 +69,8 @@ while ($date >= $startdate) {
     $curend->setTime(23, 59, 59);
     $formatteddate = $date->format('d.m.y');
     $day_traf = get_black_clicks($curstart->getTimestamp(), $curend->getTimestamp(), $config);
-    $day_ctr = get_lpctr($curstart->getTimestamp(), $curend->getTimestamp());
-    $day_leads = get_leads($curstart->getTimestamp(), $curend->getTimestamp());
+    $day_ctr = get_lpctr($curstart->getTimestamp(), $curend->getTimestamp(), $config);
+    $day_leads = get_leads($curstart->getTimestamp(), $curend->getTimestamp(), $config);
 
     $leads_count = ($day_leads === array()) ? 0 : count($day_leads);
     $total_leads += $leads_count;

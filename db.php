@@ -21,9 +21,9 @@ use SleekDB\Store;
  * @throws IdNotAllowedException
  * @throws InvalidArgumentException
  */
-function add_white_click($data, $reason)
+function add_white_click($data, $reason, $config)
 {
-    $dataDir = __DIR__ . "/logs";
+    $dataDir = __DIR__ . "/logs/".$config;
     $wclicksStore = new Store("whiteclicks", $dataDir);
 
     parse_str($_SERVER['QUERY_STRING'], $queryarr);
@@ -48,9 +48,9 @@ function add_white_click($data, $reason)
  * @throws InvalidArgumentException
  * @throws IdNotAllowedException
  */
-function add_black_click($subid, $data, $preland, $land)
+function add_black_click($subid, $data, $preland, $land, $config)
 {
-    $dataDir = __DIR__ . "/logs";
+    $dataDir = __DIR__ . "/logs/".$config;
     $bclicksStore = new Store("blackclicks", $dataDir);
 
     parse_str($_SERVER['QUERY_STRING'], $queryarr);
@@ -77,9 +77,9 @@ function add_black_click($subid, $data, $preland, $land)
  * @throws InvalidArgumentException
  * @throws IdNotAllowedException
  */
-function add_lead($subid, $name, $phone, $status = 'Lead'): array
+function add_lead($subid, $name, $phone, $status = 'Lead', $config): array
 {
-    $dataDir = __DIR__ . "/logs";
+    $dataDir = __DIR__ . "/logs/".$config;
     $leadsStore = new Store("leads", $dataDir);
 
     $fbp = get_cookie('_fbp');
@@ -117,16 +117,16 @@ function add_lead($subid, $name, $phone, $status = 'Lead'): array
  * @throws JsonException
  * @throws InvalidConfigurationException
  */
-function update_lead($subid, $status, $payout): bool
+function update_lead($subid, $status, $payout, $config): bool
 {
-    $dataDir = __DIR__ . "/logs";
+    $dataDir = __DIR__ . "/logs/".$config;
     $leadsStore = new Store("leads", $dataDir);
     $lead = $leadsStore->findOneBy([["subid", "=", $subid]]);
     if ($lead === null) {
         $bclicksStore = new Store("blackclicks", $dataDir);
         $click = $bclicksStore->findOneBy([["subid", "=", $subid]]);
         if ($click === null) return false;
-        $lead = add_lead($subid, '', '');
+        $lead = add_lead($subid, '', '', $config);
     }
 
     $lead["status"] = $status;
@@ -140,9 +140,9 @@ function update_lead($subid, $status, $payout): bool
  * @throws InvalidConfigurationException
  * @throws InvalidArgumentException
  */
-function email_exists_for_subid($subid): bool
+function email_exists_for_subid($subid, $config): bool
 {
-    $dataDir = __DIR__ . "/logs";
+    $dataDir = __DIR__ . "/logs/".$config;
     $leadsStore = new Store("leads", $dataDir);
     $lead = $leadsStore->findOneBy([["subid", "=", $subid]]);
     if ($lead === null) return false;
@@ -155,9 +155,9 @@ function email_exists_for_subid($subid): bool
  * @throws InvalidConfigurationException
  * @throws InvalidArgumentException
  */
-function add_email($subid, $email)
+function add_email($subid, $email, $config)
 {
-    $dataDir = __DIR__ . "/logs";
+    $dataDir = __DIR__ . "/logs/".$config;
     $leadsStore = new Store("leads", $dataDir);
     $lead = $leadsStore->findOneBy([["subid", "=", $subid]]);
     if ($lead === null) return;
@@ -172,9 +172,9 @@ function add_email($subid, $email)
  * @throws IdNotAllowedException
  * @throws InvalidArgumentException
  */
-function add_lpctr($subid, $preland)
+function add_lpctr($subid, $preland, $config)
 {
-    $dataDir = __DIR__ . "/logs";
+    $dataDir = __DIR__ . "/logs/".$config;
     $lpctrStore = new Store("lpctr", $dataDir);
     $dt = new DateTime();
     $time = $dt->getTimestamp();
@@ -195,9 +195,9 @@ function add_lpctr($subid, $preland)
  * @throws InvalidConfigurationException
  * @throws InvalidArgumentException
  */
-function lead_is_duplicate($subid, $phone): bool
+function lead_is_duplicate($subid, $phone, $config): bool
 {
-    $dataDir = __DIR__ . "/logs";
+    $dataDir = __DIR__ . "/logs/".$config;
     $leadsStore = new Store("leads", $dataDir);
     if ($subid != '') {
         $lead = $leadsStore->findOneBy([["subid", "=", $subid]]);
