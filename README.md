@@ -412,6 +412,7 @@ This cloaker uses:
 - Bot IP Ranges from various sources collected all over from the Internet in CIDR format
 - Sinergi BrowserDetector for (surprise!) browser detection
 - IP Utils from Symphony for checking if the IP address is in a selected range
+- Icons from https://www.flaticon.com/free-icons/question
 
 ## Traffic flow
 After the visitor passes the cloaker's filters he is usually shown the prelanding (if you have one). On the prelanding all links are being replaced by the link to the *landing.php* script. After the visitor clicks on the link, the *landing.php* script gets the landing's content, replaces action of all of the forms to *send.php*, adds all additional scripts and shows the content to the visitor. When the visitor fills the form and sends it *send.php* calls the original send script and then removes all of the redirects from it. After that *send.php* redirects to the *thankyou.php* which shows the thankyou page as described in the sections above.
