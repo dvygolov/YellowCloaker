@@ -46,7 +46,7 @@ switch ($status) {
         break;
 }
 add_postback_log($subid, $inner_status, $payout, $curLink);
-$res = update_lead($subid, $inner_status, $payout, $cur_config); //TODO: think about it!
+$res = update_lead($subid, $inner_status, $payout);
 process_s2s_posbacks($s2s_postbacks, $inner_status);
 
 if ($res) {

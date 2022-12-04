@@ -90,13 +90,22 @@ $menuQueryString = "password={$password}&config={$config}{$date_str}";
 <script>
     document.getElementById("addconfig").onclick = async () => {
         let configName = prompt("Enter new config name:");
-        if (configName=='' || configName==null) {
+        if (configName == '' || configName == null) {
             alert('Config name not entered!');
             return;
         }
-        let res = await fetch(`/configmanager.php?action=add&name=${configName}`);
+        let res = await fetch("configmanager.php?password=<?=$password?>", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `action=add&name=${configName}`
+        });
         let js = await res.json();
-        window.location.reload();
+        if (js["result"] == "OK")
+            window.location.reload();
+        else
+            alert(`An error occured: ${js["result"]}`);
     };
 
     document.getElementById("delconfig").onclick = async () => {
@@ -105,8 +114,17 @@ $menuQueryString = "password={$password}&config={$config}{$date_str}";
             alert("Can't delete default config!");
             return;
         }
-        let res = await fetch(`/configmanager.php?action=del&name=${config}`);
+        let res = await fetch("configmanager.php?password=<?=$password?>", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `action=del&name=${config}`
+        });
         let js = await res.json();
-        window.location.reload();
+        if (js["result"] == "OK")
+            window.location.reload();
+        else
+            alert(`An error occured: ${js["result"]}`);
     };
 </script>

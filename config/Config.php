@@ -5,6 +5,7 @@ namespace Noodlehaus;
 use Noodlehaus\Exception\FileNotFoundException;
 use Noodlehaus\Exception\UnsupportedFormatException;
 use Noodlehaus\Exception\EmptyDirectoryException;
+use Noodlehaus\Exception\WriteException;
 use Noodlehaus\Parser\ParserInterface;
 use Noodlehaus\Writer\WriterInterface;
 
@@ -25,7 +26,7 @@ class Config extends AbstractConfig
      *
      * @var array
      */
-    protected $supportedParsers = [
+    protected array $supportedParsers = [
         'Noodlehaus\Parser\Json',
         'Noodlehaus\Parser\Properties',
         'Noodlehaus\Parser\Serialize'
@@ -36,7 +37,7 @@ class Config extends AbstractConfig
      *
      * @var array
      */
-    protected $supportedWriters = [
+    protected array $supportedWriters = [
         'Noodlehaus\Writer\Json',
         'Noodlehaus\Writer\Properties',
         'Noodlehaus\Writer\Serialize'
@@ -45,13 +46,14 @@ class Config extends AbstractConfig
     /**
      * Static method for loading a Config instance.
      *
-     * @param  string|array    $values Filenames or string with configuration
-     * @param  ParserInterface $parser Configuration parser
-     * @param  bool            $string Enable loading from string
+     * @param string|array $values Filenames or string with configuration
+     * @param null $parser Configuration parser
+     * @param bool $string Enable loading from string
      *
      * @return Config
+     * @throws EmptyDirectoryException
      */
-    public static function load($values,  $parser = null, $string = false)
+    public static function load($values, $parser = null, bool $string = false): Config
     {
         return new static($values,  $parser, $string);
     }
@@ -59,11 +61,12 @@ class Config extends AbstractConfig
     /**
      * Loads a Config instance.
      *
-     * @param  string|array    $values Filenames or string with configuration
-     * @param  ParserInterface $parser Configuration parser
-     * @param  bool            $string Enable loading from string
+     * @param string|array $values Filenames or string with configuration
+     * @param ParserInterface|null $parser Configuration parser
+     * @param bool $string Enable loading from string
+     * @throws EmptyDirectoryException
      */
-    public function __construct($values,  ParserInterface $parser = null, $string = false)
+    public function __construct($values, ParserInterface $parser = null, bool $string = false)
     {
         if ($string === true) {
             $this->loadFromString($values, $parser);
@@ -77,10 +80,12 @@ class Config extends AbstractConfig
     /**
      * Loads configuration from file.
      *
-     * @param  string|array     $path   Filenames or directories with configuration
-     * @param  ParserInterface  $parser Configuration parser
+     * @param string|array $path Filenames or directories with configuration
+     * @param ParserInterface|null $parser Configuration parser
      *
      * @throws EmptyDirectoryException If `$path` is an empty directory
+     * @throws FileNotFoundException
+     * @throws UnsupportedFormatException
      */
     protected function loadFromFile($path, ParserInterface $parser = null)
     {
@@ -117,12 +122,13 @@ class Config extends AbstractConfig
     /**
      * Writes configuration to file.
      *
-     * @param  string           $filename   Filename to save configuration to
-     * @param  WriterInterface  $writer Configuration writer
+     * @param string $filename Filename to save configuration to
+     * @param WriterInterface|null $writer Configuration writer
      *
-     * @throws WriteException if the data could not be written to the file
+     * @throws WriteException
+     * @throws UnsupportedFormatException
      */
-    public function toFile($filename, WriterInterface $writer = null)
+    public function toFile(string $filename, WriterInterface $writer = null)
     {
         if ($writer === null) {
             // Get file information
@@ -152,10 +158,10 @@ class Config extends AbstractConfig
     /**
      * Loads configuration from string.
      *
-     * @param string          $configuration String with configuration
+     * @param string $configuration String with configuration
      * @param ParserInterface $parser        Configuration parser
      */
-    protected function loadFromString($configuration, ParserInterface $parser)
+    protected function loadFromString(string $configuration, ParserInterface $parser)
     {
         $this->data = [];
 
@@ -167,9 +173,9 @@ class Config extends AbstractConfig
      * Writes configuration to string.
      *
      * @param  WriterInterface  $writer Configuration writer
-     * @param boolean           $pretty Encode pretty
+     * @param boolean $pretty Encode pretty
      */
-    public function toString(WriterInterface $writer, $pretty = true)
+    public function toString(WriterInterface $writer, bool $pretty = true): array
     {
         return $writer->toString($this->all(), $pretty);
     }
@@ -177,13 +183,13 @@ class Config extends AbstractConfig
     /**
      * Gets a parser for a given file extension.
      *
-     * @param  string $extension
+     * @param string $extension
      *
      * @return Noodlehaus\Parser\ParserInterface
      *
      * @throws UnsupportedFormatException If `$extension` is an unsupported file format
      */
-    protected function getParser($extension)
+    protected function getParser(string $extension): Noodlehaus\Parser\ParserInterface
     {
         foreach ($this->supportedParsers as $parser) {
             if (in_array($extension, $parser::getSupportedExtensions())) {
@@ -198,13 +204,13 @@ class Config extends AbstractConfig
     /**
      * Gets a writer for a given file extension.
      *
-     * @param  string $extension
+     * @param string $extension
      *
      * @return Noodlehaus\Writer\WriterInterface
      *
      * @throws UnsupportedFormatException If `$extension` is an unsupported file format
      */
-    protected function getWriter($extension)
+    protected function getWriter(string $extension): Noodlehaus\Writer\WriterInterface
     {
         foreach ($this->supportedWriters as $writer) {
             if (in_array($extension, $writer::getSupportedExtensions())) {
@@ -219,13 +225,14 @@ class Config extends AbstractConfig
     /**
      * Gets an array of paths
      *
-     * @param  array $path
+     * @param array $path
      *
      * @return array
      *
-     * @throws FileNotFoundException   If a file is not found at `$path`
+     * @throws EmptyDirectoryException
+     * @throws FileNotFoundException If a file is not found at `$path`
      */
-    protected function getPathFromArray($path)
+    protected function getPathFromArray(array $path): array
     {
         $paths = [];
 
@@ -266,7 +273,7 @@ class Config extends AbstractConfig
      *
      * @throws FileNotFoundException   If a file is not found at `$path`
      */
-    protected function getValidPath($path)
+    protected function getValidPath($path): array
     {
         // If `$path` is array
         if (is_array($path)) {

@@ -23,7 +23,7 @@ use SleekDB\Store;
  */
 function add_white_click($data, $reason, $config)
 {
-    $dataDir = __DIR__ . "/logs/".$config;
+    $dataDir = __DIR__ . "/logs";
     $wclicksStore = new Store("whiteclicks", $dataDir);
 
     parse_str($_SERVER['QUERY_STRING'], $queryarr);
@@ -36,7 +36,8 @@ function add_white_click($data, $reason, $config)
         "isp" => str_replace(',', ' ', $data['isp']),
         "ua" => str_replace(',', ' ', $data['ua']),
         "reason" => $reason,
-        "subs" => $queryarr
+        "subs" => $queryarr,
+        "config" => $config
     ];
     $wclicksStore->insert($click);
 }
@@ -50,7 +51,7 @@ function add_white_click($data, $reason, $config)
  */
 function add_black_click($subid, $data, $preland, $land, $config)
 {
-    $dataDir = __DIR__ . "/logs/".$config;
+    $dataDir = __DIR__ . "/logs";
     $bclicksStore = new Store("blackclicks", $dataDir);
 
     parse_str($_SERVER['QUERY_STRING'], $queryarr);
@@ -65,7 +66,8 @@ function add_black_click($subid, $data, $preland, $land, $config)
         "ua" => str_replace(',', ' ', $data['ua']),
         "subs" => $queryarr,
         "preland" => empty($preland) ? 'unknown' : $preland,
-        "land" => empty($land) ? 'unknown' : $land
+        "land" => empty($land) ? 'unknown' : $land,
+        "config" => $config
     ];
     $bclicksStore->insert($click);
 }
@@ -79,7 +81,7 @@ function add_black_click($subid, $data, $preland, $land, $config)
  */
 function add_lead($subid, $name, $phone, $status = 'Lead', $config): array
 {
-    $dataDir = __DIR__ . "/logs/".$config;
+    $dataDir = __DIR__ . "/logs";
     $leadsStore = new Store("leads", $dataDir);
 
     $fbp = get_cookie('_fbp');
@@ -105,7 +107,8 @@ function add_lead($subid, $name, $phone, $status = 'Lead', $config): array
         "fbp" => $fbp,
         "fbclid" => $fbclid,
         "preland" => $preland,
-        "land" => $land
+        "land" => $land,
+        "config" => $config
     ];
     return $leadsStore->insert($lead);
 }
@@ -117,9 +120,9 @@ function add_lead($subid, $name, $phone, $status = 'Lead', $config): array
  * @throws JsonException
  * @throws InvalidConfigurationException
  */
-function update_lead($subid, $status, $payout, $config): bool
+function update_lead($subid, $status, $payout): bool
 {
-    $dataDir = __DIR__ . "/logs/".$config;
+    $dataDir = __DIR__ . "/logs";
     $leadsStore = new Store("leads", $dataDir);
     $lead = $leadsStore->findOneBy([["subid", "=", $subid]]);
     if ($lead === null) {
@@ -140,9 +143,9 @@ function update_lead($subid, $status, $payout, $config): bool
  * @throws InvalidConfigurationException
  * @throws InvalidArgumentException
  */
-function email_exists_for_subid($subid, $config): bool
+function email_exists_for_subid($subid): bool
 {
-    $dataDir = __DIR__ . "/logs/".$config;
+    $dataDir = __DIR__ . "/logs";
     $leadsStore = new Store("leads", $dataDir);
     $lead = $leadsStore->findOneBy([["subid", "=", $subid]]);
     if ($lead === null) return false;
@@ -155,9 +158,9 @@ function email_exists_for_subid($subid, $config): bool
  * @throws InvalidConfigurationException
  * @throws InvalidArgumentException
  */
-function add_email($subid, $email, $config)
+function add_email($subid, $email)
 {
-    $dataDir = __DIR__ . "/logs/".$config;
+    $dataDir = __DIR__ . "/logs";
     $leadsStore = new Store("leads", $dataDir);
     $lead = $leadsStore->findOneBy([["subid", "=", $subid]]);
     if ($lead === null) return;
@@ -174,7 +177,7 @@ function add_email($subid, $email, $config)
  */
 function add_lpctr($subid, $preland, $config)
 {
-    $dataDir = __DIR__ . "/logs/".$config;
+    $dataDir = __DIR__ . "/logs";
     $lpctrStore = new Store("lpctr", $dataDir);
     $dt = new DateTime();
     $time = $dt->getTimestamp();
@@ -182,7 +185,8 @@ function add_lpctr($subid, $preland, $config)
     $lpctr = [
         "time" => $time,
         "subid" => $subid,
-        "preland" => $preland
+        "preland" => $preland,
+        "config" => $config
     ];
     $lpctrStore->insert($lpctr);
 }
@@ -195,9 +199,9 @@ function add_lpctr($subid, $preland, $config)
  * @throws InvalidConfigurationException
  * @throws InvalidArgumentException
  */
-function lead_is_duplicate($subid, $phone, $config): bool
+function lead_is_duplicate($subid, $phone): bool
 {
-    $dataDir = __DIR__ . "/logs/".$config;
+    $dataDir = __DIR__ . "/logs";
     $leadsStore = new Store("leads", $dataDir);
     if ($subid != '') {
         $lead = $leadsStore->findOneBy([["subid", "=", $subid]]);

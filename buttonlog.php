@@ -12,6 +12,6 @@ require_once __DIR__ . '/settings.php';
 $subid = get_subid();
 $name = $_POST['name'];
 $phone = $_POST['phone'];
-$is_duplicate = lead_is_duplicate($subid, $phone, $cur_config);
+$is_duplicate = lead_is_duplicate($subid, $phone);
 if ($is_duplicate === false)
     add_lead($subid, $name, $phone, $cur_config);

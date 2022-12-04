@@ -1,6 +1,7 @@
 <?php
 
 use Noodlehaus\Config;
+use Noodlehaus\Exception\EmptyDirectoryException;
 
 require_once 'config/ConfigInterface.php';
 require_once 'config/AbstractConfig.php';
@@ -115,7 +116,10 @@ $purchase_status_name = $conf['postback.purchase'];
 $reject_status_name = $conf['postback.reject'];
 $trash_status_name = $conf['postback.trash'];
 
-function get_all_config_names()
+/**
+ * @throws EmptyDirectoryException
+ */
+function get_all_config_names(): array
 {
     $conf = Config::load(__DIR__ . '/settings.json');
     $configs = [];
@@ -125,7 +129,10 @@ function get_all_config_names()
     return $configs;
 }
 
-function get_config_name_by_domain($domain)
+/**
+ * @throws EmptyDirectoryException
+ */
+function get_config_name_by_domain($domain): string
 {
     $conf = Config::load(__DIR__ . '/settings.json');
     foreach ($conf as $c => $v) {
@@ -134,4 +141,22 @@ function get_config_name_by_domain($domain)
         if (in_array($domain, $domains)) return $c;
     }
     return "default";
+}
+
+/**
+ * @throws EmptyDirectoryException
+ */
+function del_config($name)
+{
+    $conf = Config::load(__DIR__ . '/settings.json');
+    $conf->deleteNamespace($name);
+}
+
+/**
+ * @throws EmptyDirectoryException
+ */
+function add_config($name)
+{
+    $conf = Config::load(__DIR__ . '/settings.json');
+    $conf->addNamespace($name);
 }

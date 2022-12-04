@@ -16,20 +16,20 @@ use Iterator;
  */
 abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
 {
-    protected $namespace = "default";
+    protected string $namespace = "default";
     /**
      * Stores the configuration data
      *
      * @var array|null
      */
-    protected $data = null;
+    protected ?array $data = null;
 
     /**
      * Caches the configuration data
      *
      * @var array
      */
-    protected $cache = [];
+    protected array $cache = [];
 
     /**
      * Constructor method and sets default options, if any
@@ -41,8 +41,21 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
         $this->data = array_merge($this->getDefaults(), $data);
     }
 
+    /**
+     * Sets a specific namespace, it will be used as a start of the name for getting parameters
+     * @param string $namespace
+     * @return void
+     */
     public function setNamespace(string $namespace){
         $this->namespace = $namespace;
+    }
+
+    public function deleteNamespace($name){
+
+    }
+
+    public function addNamespace($name){
+
     }
 
     /**
@@ -53,7 +66,7 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
      *
      * @codeCoverageIgnore
      */
-    protected function getDefaults()
+    protected function getDefaults(): array
     {
         return [];
     }
@@ -118,7 +131,7 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
     /**
      * {@inheritDoc}
      */
-    public function has($key)
+    public function has($key): bool
     {
         $key = "{$this->namespace}.{$key}";
         // Check if already cached
@@ -151,7 +164,7 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
      * @param ConfigInterface $config
      * @return ConfigInterface
      */
-    public function merge(ConfigInterface $config)
+    public function merge(ConfigInterface $config): ConfigInterface
     {
         $this->data = array_replace_recursive($this->data, $config->all());
         $this->cache = [];
@@ -161,7 +174,7 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
     /**
      * {@inheritDoc}
      */
-    public function all()
+    public function all(): ?array
     {
         return $this->data;
     }

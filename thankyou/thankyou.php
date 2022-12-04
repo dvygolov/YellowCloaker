@@ -28,7 +28,7 @@ if ($ispost) {
     $subid = $_POST['subid'] ?? '';
     $email = $_POST['email'] ?? '';
     $lang = $_POST['language'] ?? '';
-    add_email($subid, $email, $cur_config);
+    add_email($subid, $email);
 }
 
 $filepath = __DIR__ . '/templates/' . $black_land_thankyou_page_language . '.html';
@@ -99,7 +99,7 @@ if ($ispost) {
     }
 } else {
     $subid = get_subid();
-    if (empty($subid) || email_exists_for_subid($subid, $cur_config)) {
+    if (empty($subid) || email_exists_for_subid($subid)) {
         $html = str_replace('{EMAIL}', '', $html);
     } else {
         $emailtemplatepath = __DIR__ . '/templates/email/' . $black_land_thankyou_page_language . 'fill.html';
