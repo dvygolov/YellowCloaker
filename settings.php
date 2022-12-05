@@ -2,16 +2,20 @@
 
 use Noodlehaus\Config;
 use Noodlehaus\Exception\EmptyDirectoryException;
+use Noodlehaus\Writer\Json;
 
-require_once 'config/ConfigInterface.php';
-require_once 'config/AbstractConfig.php';
-require_once 'config/Config.php';
-require_once 'config/Parser/ParserInterface.php';
-require_once 'config/Parser/Json.php';
-require_once 'config/ErrorException.php';
-require_once 'config/Exception.php';
-require_once 'config/Exception/ParseException.php';
-require_once 'config/Exception/FileNotFoundException.php';
+require_once __DIR__.'/config/ConfigInterface.php';
+require_once __DIR__.'/config/AbstractConfig.php';
+require_once __DIR__.'/config/Config.php';
+require_once __DIR__.'/config/Parser/ParserInterface.php';
+require_once __DIR__.'/config/Parser/Json.php';
+require_once __DIR__.'/config/Writer/AbstractWriter.php';
+require_once __DIR__.'/config/Writer/WriterInterface.php';
+require_once __DIR__.'/config/Writer/Json.php';
+require_once __DIR__.'/config/ErrorException.php';
+require_once __DIR__.'/config/Exception.php';
+require_once __DIR__.'/config/Exception/ParseException.php';
+require_once __DIR__.'/config/Exception/FileNotFoundException.php';
 
 $conf = Config::load(__DIR__ . '/settings.json');
 
@@ -157,6 +161,24 @@ function del_config($name)
  */
 function add_config($name)
 {
+    $conf1 = Config::load(__DIR__ . '/settings.json');
+    $conf1->setNamespace("default");
+    $conf2 = Config::load(__DIR__ . '/settings.json');
+    $conf2->setNamespace($name);
+}
+
+function save_config($name)
+{
     $conf = Config::load(__DIR__ . '/settings.json');
-    $conf->addNamespace($name);
+    $conf->setNamespace($name);
+    foreach ($_POST as $key => $value) {
+        $confkey = str_replace('_', '.', $key);
+        if (is_string($value) && is_array($conf[$confkey])) {
+            $value = $value === '' ? [] : explode(',', $value);
+        } else if ($value === 'false' || $value === 'true') {
+            $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+        }
+        $conf[$confkey] = $value;
+    }
+    $conf->toFile(__DIR__ . '/settings.json', new Json());
 }

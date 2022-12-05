@@ -10,7 +10,7 @@ require_once __DIR__ . '/initialization.php';
     <?php include "header.php" ?>
     <a id="top"></a>
 
-    <form action="savesettings.php?password=<?= $log_password ?>&config=<?= $config ?>" method="post">
+    <form id="saveconfig">
         <div class="basic-form-area mg-tb-15">
             <div class="container-fluid">
                 <div class="row">
@@ -681,7 +681,8 @@ require_once __DIR__ . '/initialization.php';
                                                                                            name="black.landing.folder.customthankyoupage.use"
                                                                                            onclick="(document.getElementById('ctpage').style.display = 'block'); (document.getElementById('pppage').style.display = 'none')">
                                                                                     Use the Built-in ThankYou Page
-                                                                                    <img src="img/info.ico" title="First try this method! Only if smth doesn't work well - then use your own!"/>
+                                                                                    <img src="img/info.ico"
+                                                                                         title="First try this method! Only if smth doesn't work well - then use your own!"/>
                                                                                 </label
                                                                             </div>
                                                                         </div>
@@ -695,7 +696,8 @@ require_once __DIR__ . '/initialization.php';
                                                                                            name="black.landing.folder.customthankyoupage.use"
                                                                                            onclick="(document.getElementById('ctpage').style.display = 'none'); (document.getElementById('pppage').style.display = 'block')">
                                                                                     Use the one from your landing(s)
-                                                                                    <img src="img/info.ico" title="You'll have to manually insert Facebook's/TikTok's or Google's pixels onto your thankyou page then"/>
+                                                                                    <img src="img/info.ico"
+                                                                                         title="You'll have to manually insert Facebook's/TikTok's or Google's pixels onto your thankyou page then"/>
                                                                                 </label>
                                                                             </div>
                                                                         </div>
@@ -725,8 +727,10 @@ require_once __DIR__ . '/initialization.php';
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
                                                                 <label class="login2 pull-left pull-left-pro">
                                                                     <img src="img/info.ico" title=""/>
-                                                                    Relative path of the php-script that sends leads to the affiliate network:
-                                                                    <img src="img/info.ico" title="Usually this file is named order.php, confirm.php or smth like that. Open your landing's index.html and look at the form's action attribute. It is usually written there."/>
+                                                                    Relative path of the php-script that sends leads to
+                                                                    the affiliate network:
+                                                                    <img src="img/info.ico"
+                                                                         title="Usually this file is named order.php, confirm.php or smth like that. Open your landing's index.html and look at the form's action attribute. It is usually written there."/>
                                                                 </label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
@@ -824,7 +828,8 @@ require_once __DIR__ . '/initialization.php';
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
                                                                 <label class="login2 pull-left pull-left-pro">
-                                                                    <img src="img/info.ico" title="This folder should be created inside 'thankyou/upsell'"/>
+                                                                    <img src="img/info.ico"
+                                                                         title="This folder should be created inside 'thankyou/upsell'"/>
                                                                     Folder name for upsell images:
                                                                 </label>
                                                             </div>
@@ -843,8 +848,9 @@ require_once __DIR__ . '/initialization.php';
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                                                                 <label class="login2 pull-left pull-left-pro">
-                                                                    Should I count conversions using the Submit Order button on the Landing Page?
-                                                                    </label>
+                                                                    Should I count conversions using the Submit Order
+                                                                    button on the Landing Page?
+                                                                </label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
@@ -855,8 +861,9 @@ require_once __DIR__ . '/initialization.php';
                                                                                     <input type="radio" <?= $black_land_log_conversions_on_button_click === false ? 'checked' : '' ?>
                                                                                            value="false"
                                                                                            name="black.landing.folder.conversions.logonbuttonclick">
-                                                                                   No
-                                                                                   <img src="img/info.ico" title="If so, the cloaker will not be able to count conversions at all 🤷‍️"/>
+                                                                                    No
+                                                                                    <img src="img/info.ico"
+                                                                                         title="If so, the cloaker will not be able to count conversions at all 🤷‍️"/>
                                                                                 </label>
                                                                             </div>
                                                                         </div>
@@ -887,7 +894,8 @@ require_once __DIR__ . '/initialization.php';
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-                                                                                    <img src="img/info.ico" title="If you won't use the built-in ThankYou Page then you'll have to insert Facebook Pixel's Code inside your own thankyou page!"/>
+                                                                                    <img src="img/info.ico"
+                                                                                         title="If you won't use the built-in ThankYou Page then you'll have to insert Facebook Pixel's Code inside your own thankyou page!"/>
                                                                                     <input type="radio" <?= $fb_add_button_pixel === false ? 'checked' : '' ?>
                                                                                            value="false"
                                                                                            name="pixels.fb.conversion.fireonbutton">
@@ -903,7 +911,8 @@ require_once __DIR__ . '/initialization.php';
                                                                                     <input type="radio" <?= $fb_add_button_pixel === true ? 'checked' : '' ?>
                                                                                            value="true"
                                                                                            name="pixels.fb.conversion.fireonbutton">
-                                                                                    Using Submit Form Button on the landing
+                                                                                    Using Submit Form Button on the
+                                                                                    landing
                                                                                 </label>
                                                                             </div>
                                                                         </div>

@@ -1,510 +1,516 @@
 {
-  "default":{
-    "domains": ["127.0.0.1","localhost"],
-    "white": {
-      "action": "folder",
-      "folder": {
-        "names": [
-          "white"
-        ]
-      },
-      "redirect": {
-        "type": "303",
-        "urls": [
-          "https://ya.ru",
-          "https://google.com"
-        ]
-      },
-      "curl": {
-        "urls": [
-          "https://www.9111.ru/"
-        ]
-      },
-      "error": {
-        "codes": []
-      },
-      "domainfilter": {
-        "use": false,
+    "default": {
         "domains": [
-          {
-            "name": "lalala.xxx.com",
-            "action": "site:white"
-          },
-          {
-            "name": "lamama.xxx.com",
-            "action": "site:white"
-          }
-        ]
-      },
-      "jschecks": {
-        "enabled": false,
-        "events": [
-          "audiocontext",
-          "timezone"
+            "127.0.0.1",
+            "localhost"
         ],
-        "timeout": "40000",
-        "obfuscate": true,
-        "timezone": true,
-        "tzstart": "-3",
-        "tzend": "4"
-      }
-    },
-    "black": {
-      "prelanding": {
-        "action": "none",
-        "folders": [
-          "preland"
-        ],
-        "redirect": {
-          "urls": [
-            "https://ya.ru",
-            "https://google.com"
-          ],
-          "type": 302
-        }
-      },
-      "landing": {
-        "action": "folder",
-        "folder": {
-          "names": [
-            "land"
-          ],
-          "conversions": {
-            "script": "order.php",
-            "logonbuttonclick": false
-          },
-          "customthankyoupage": {
-            "use": true,
-            "language": "RU",
-            "upsell": {
-              "use": false,
-              "imgdir": "img",
-              "header": "This is a header!",
-              "text": "This is a text!",
-              "url": "http://ya.ru"
+        "white": {
+            "action": "folder",
+            "folder": {
+                "names": [
+                    "white"
+                ]
+            },
+            "redirect": {
+                "type": "303",
+                "urls": [
+                    "https://ya.ru",
+                    "https://google.com"
+                ]
+            },
+            "curl": {
+                "urls": [
+                    "https://www.9111.ru/"
+                ]
+            },
+            "error": {
+                "codes": []
+            },
+            "domainfilter": {
+                "use": false,
+                "domains": [
+                    {
+                        "name": "lalala.xxx.com",
+                        "action": "site:white"
+                    },
+                    {
+                        "name": "lamama.xxx.com",
+                        "action": "site:white"
+                    }
+                ]
+            },
+            "jschecks": {
+                "enabled": false,
+                "events": [
+                    "audiocontext",
+                    "timezone"
+                ],
+                "timeout": "40000",
+                "obfuscate": true,
+                "timezone": true,
+                "tzstart": "-3",
+                "tzend": "4"
             }
-          }
         },
-        "redirect": {
-          "urls": [
-            "https://yandex.ru"
-          ],
-          "type": "303"
+        "black": {
+            "prelanding": {
+                "action": "none",
+                "folders": [
+                    "preland"
+                ],
+                "redirect": {
+                    "urls": [
+                        "https://ya.ru",
+                        "https://google.com"
+                    ],
+                    "type": 302
+                }
+            },
+            "landing": {
+                "action": "folder",
+                "folder": {
+                    "names": [
+                        "land"
+                    ],
+                    "conversions": {
+                        "script": "order.php",
+                        "logonbuttonclick": false
+                    },
+                    "customthankyoupage": {
+                        "use": true,
+                        "language": "RU",
+                        "upsell": {
+                            "use": false,
+                            "imgdir": "img",
+                            "header": "This is a header!",
+                            "text": "This is a text!",
+                            "url": "http://ya.ru"
+                        }
+                    }
+                },
+                "redirect": {
+                    "urls": [
+                        "https://yandex.ru"
+                    ],
+                    "type": "303"
+                }
+            },
+            "jsconnect": "replace"
+        },
+        "pixels": {
+            "ya": {
+                "id": ""
+            },
+            "gtm": {
+                "id": ""
+            },
+            "fb": {
+                "subname": "px",
+                "pageview": true,
+                "viewcontent": {
+                    "use": false,
+                    "time": "30",
+                    "percent": "75"
+                },
+                "conversion": {
+                    "event": "Lead",
+                    "fireonbutton": false
+                }
+            },
+            "tt": {
+                "subname": "tpx",
+                "pageview": true,
+                "viewcontent": {
+                    "use": true,
+                    "time": "30",
+                    "percent": "75"
+                },
+                "conversion": {
+                    "event": "Purchase",
+                    "fireonbutton": false
+                }
+            }
+        },
+        "tds": {
+            "mode": "on",
+            "saveuserflow": false,
+            "filters": {
+                "allowed": {
+                    "countries": [
+                        "UA",
+                        "BY"
+                    ],
+                    "os": [
+                        "Android",
+                        "iOS",
+                        "Windows",
+                        "OS X"
+                    ],
+                    "inurl": [],
+                    "languages": []
+                },
+                "blocked": {
+                    "ips": {
+                        "filename": "",
+                        "cidrformat": false
+                    },
+                    "tokens": [],
+                    "useragents": [
+                        "facebook",
+                        "Facebot",
+                        "curl",
+                        "gce-spider",
+                        "yandex.com/bots",
+                        "OdklBot"
+                    ],
+                    "isps": [
+                        "facebook",
+                        "google",
+                        "yandex",
+                        "amazon",
+                        "azure",
+                        "digitalocean",
+                        "microsoft"
+                    ],
+                    "referer": {
+                        "empty": false,
+                        "stopwords": []
+                    },
+                    "vpntor": false
+                }
+            }
+        },
+        "scripts": {
+            "back": {
+                "action": "off",
+                "value": "https://ya.ru"
+            },
+            "disabletextcopy": false,
+            "prelandingreplace": {
+                "use": false,
+                "url": "https://ya.ru"
+            },
+            "landingreplace": {
+                "use": false,
+                "url": "https://ya.ru"
+            },
+            "phonemask": {
+                "use": true,
+                "mask": "+7(\\\\999)999-99-99"
+            },
+            "comebacker": false,
+            "callbacker": false,
+            "addedtocart": false,
+            "imageslazyload": true
+        },
+        "subids": [
+            {
+                "name": "subid",
+                "rewrite": "sub1"
+            },
+            {
+                "name": "adn",
+                "rewrite": "sub2"
+            },
+            {
+                "name": "ad",
+                "rewrite": "sub3"
+            },
+            {
+                "name": "pl",
+                "rewrite": "sub4"
+            }
+        ],
+        "statistics": {
+            "password": "12345",
+            "subnames": [
+                {
+                    "name": "adn",
+                    "value": "Adset"
+                },
+                {
+                    "name": "ad",
+                    "value": "Creative"
+                },
+                {
+                    "name": "pl",
+                    "value": "Placement"
+                }
+            ],
+            "timezone": "Europe/Moscow"
+        },
+        "postback": {
+            "lead": "Lead",
+            "purchase": "Purchase",
+            "reject": "Reject",
+            "trash": "Trash",
+            "s2s": [
+                {
+                    "url": "",
+                    "method": "POST",
+                    "events": [
+                        "Lead",
+                        "Purchase"
+                    ]
+                }
+            ]
         }
-      },
-      "jsconnect": "replace"
     },
-    "pixels": {
-      "ya": {
-        "id": ""
-      },
-      "gtm": {
-        "id": ""
-      },
-      "fb": {
-        "subname": "px",
-        "pageview": true,
-        "viewcontent": {
-          "use": false,
-          "time": "30",
-          "percent": "75"
-        },
-        "conversion": {
-          "event": "Lead",
-          "fireonbutton": false
-        }
-      },
-      "tt": {
-        "subname": "tpx",
-        "pageview": true,
-        "viewcontent": {
-          "use": true,
-          "time": "30",
-          "percent": "75"
-        },
-        "conversion": {
-          "event": "Purchase",
-          "fireonbutton": false
-        }
-      }
-    },
-    "tds": {
-      "mode": "on",
-      "saveuserflow": false,
-      "filters": {
-        "allowed": {
-          "countries": [
-            "UA",
-            "BY"
-          ],
-          "os": [
-            "Android",
-            "iOS",
-            "Windows",
-            "OS X"
-          ],
-          "inurl": [],
-          "languages": []
-        },
-        "blocked": {
-          "ips": {
-            "filename": "",
-            "cidrformat": false
-          },
-          "tokens": [],
-          "useragents": [
-            "facebook",
-            "Facebot",
-            "curl",
-            "gce-spider",
-            "yandex.com/bots",
-            "OdklBot"
-          ],
-          "isps": [
-            "facebook",
-            "google",
-            "yandex",
-            "amazon",
-            "azure",
-            "digitalocean",
-            "microsoft"
-          ],
-          "referer": {
-            "empty": false,
-            "stopwords": []
-          },
-          "vpntor": false
-        }
-      }
-    },
-    "scripts": {
-      "back": {
-        "action": "off",
-        "value": "https://ya.ru"
-      },
-      "disabletextcopy": false,
-      "prelandingreplace": {
-        "use": false,
-        "url": "https://ya.ru"
-      },
-      "landingreplace": {
-        "use": false,
-        "url": "https://ya.ru"
-      },
-      "phonemask": {
-        "use": true,
-        "mask": "+7(\\\\999)999-99-99"
-      },
-      "comebacker": false,
-      "callbacker": false,
-      "addedtocart": false,
-      "imageslazyload": true
-    },
-    "subids": [
-      {
-        "name": "subid",
-        "rewrite": "sub1"
-      },
-      {
-        "name": "adn",
-        "rewrite": "sub2"
-      },
-      {
-        "name": "ad",
-        "rewrite": "sub3"
-      },
-      {
-        "name": "pl",
-        "rewrite": "sub4"
-      }
-    ],
-    "statistics": {
-      "password": "12345",
-      "subnames": [
-        {
-          "name": "adn",
-          "value": "Adset"
-        },
-        {
-          "name": "ad",
-          "value": "Creative"
-        },
-        {
-          "name": "pl",
-          "value": "Placement"
-        }
-      ],
-      "timezone": "Europe/Moscow"
-    },
-    "postback": {
-      "lead": "Lead",
-      "purchase": "Purchase",
-      "reject": "Reject",
-      "trash": "Trash",
-      "s2s": [
-        {
-          "url": "",
-          "method": "POST",
-          "events": [
-            "Lead",
-            "Purchase"
-          ]
-        }
-      ]
-    }
-  },
-  "test":{
-    "domains": ["xxx.com"],
-    "white": {
-      "action": "folder",
-      "folder": {
-        "names": [
-          "huyaite"
-        ]
-      },
-      "redirect": {
-        "type": "303",
-        "urls": [
-          "https://ya.ru",
-          "https://google.com"
-        ]
-      },
-      "curl": {
-        "urls": [
-          "https://www.9111.ru/"
-        ]
-      },
-      "error": {
-        "codes": []
-      },
-      "domainfilter": {
-        "use": false,
+    "test": {
         "domains": [
-          {
-            "name": "lalala.xxx.com",
-            "action": "site:white"
-          },
-          {
-            "name": "lamama.xxx.com",
-            "action": "site:white"
-          }
-        ]
-      },
-      "jschecks": {
-        "enabled": false,
-        "events": [
-          "audiocontext",
-          "timezone"
+            "xxx.com",
+            "yyy.com"
         ],
-        "timeout": "40000",
-        "obfuscate": true,
-        "timezone": true,
-        "tzstart": "-3",
-        "tzend": "4"
-      }
-    },
-    "black": {
-      "prelanding": {
-        "action": "none",
-        "folders": [
-          "preland"
-        ],
-        "redirect": {
-          "urls": [
-            "https://ya.ru",
-            "https://google.com"
-          ],
-          "type": 302
-        }
-      },
-      "landing": {
-        "action": "folder",
-        "folder": {
-          "names": [
-            "land"
-          ],
-          "conversions": {
-            "script": "order.php",
-            "logonbuttonclick": false
-          },
-          "customthankyoupage": {
-            "use": true,
-            "language": "RU",
-            "upsell": {
-              "use": false,
-              "imgdir": "img",
-              "header": "This is a header!",
-              "text": "This is a text!",
-              "url": "http://ya.ru"
+        "white": {
+            "action": "folder",
+            "folder": {
+                "names": [
+                    "huyaite"
+                ]
+            },
+            "redirect": {
+                "type": "303",
+                "urls": [
+                    "https://ya.ru",
+                    "https://google.com"
+                ]
+            },
+            "curl": {
+                "urls": [
+                    "https://www.9111.ru/"
+                ]
+            },
+            "error": {
+                "codes": []
+            },
+            "domainfilter": {
+                "use": false,
+                "domains": [
+                    {
+                        "name": "lalala.xxx.com",
+                        "action": "site:white"
+                    },
+                    {
+                        "name": "lamama.xxx.com",
+                        "action": "site:white"
+                    }
+                ]
+            },
+            "jschecks": {
+                "enabled": false,
+                "events": [
+                    "audiocontext",
+                    "timezone"
+                ],
+                "timeout": "40000",
+                "obfuscate": true,
+                "timezone": true,
+                "tzstart": "-3",
+                "tzend": "4"
             }
-          }
         },
-        "redirect": {
-          "urls": [
-            "https://yandex.ru"
-          ],
-          "type": "303"
-        }
-      },
-      "jsconnect": "replace"
-    },
-    "pixels": {
-      "ya": {
-        "id": ""
-      },
-      "gtm": {
-        "id": ""
-      },
-      "fb": {
-        "subname": "px",
-        "pageview": true,
-        "viewcontent": {
-          "use": false,
-          "time": "30",
-          "percent": "75"
+        "black": {
+            "prelanding": {
+                "action": "none",
+                "folders": [
+                    "preland"
+                ],
+                "redirect": {
+                    "urls": [
+                        "https://ya.ru",
+                        "https://google.com"
+                    ],
+                    "type": 302
+                }
+            },
+            "landing": {
+                "action": "folder",
+                "folder": {
+                    "names": [
+                        "land"
+                    ],
+                    "conversions": {
+                        "script": "order.php",
+                        "logonbuttonclick": false
+                    },
+                    "customthankyoupage": {
+                        "use": true,
+                        "language": "RU",
+                        "upsell": {
+                            "use": false,
+                            "imgdir": "img",
+                            "header": "This is a header!",
+                            "text": "This is a text!",
+                            "url": "http://ya.ru"
+                        }
+                    }
+                },
+                "redirect": {
+                    "urls": [
+                        "https://yandex.ru"
+                    ],
+                    "type": "303"
+                }
+            },
+            "jsconnect": "replace"
         },
-        "conversion": {
-          "event": "Lead",
-          "fireonbutton": false
-        }
-      },
-      "tt": {
-        "subname": "tpx",
-        "pageview": true,
-        "viewcontent": {
-          "use": true,
-          "time": "30",
-          "percent": "75"
+        "pixels": {
+            "ya": {
+                "id": ""
+            },
+            "gtm": {
+                "id": ""
+            },
+            "fb": {
+                "subname": "px",
+                "pageview": true,
+                "viewcontent": {
+                    "use": false,
+                    "time": "30",
+                    "percent": "75"
+                },
+                "conversion": {
+                    "event": "Lead",
+                    "fireonbutton": false
+                }
+            },
+            "tt": {
+                "subname": "tpx",
+                "pageview": true,
+                "viewcontent": {
+                    "use": true,
+                    "time": "30",
+                    "percent": "75"
+                },
+                "conversion": {
+                    "event": "Purchase",
+                    "fireonbutton": false
+                }
+            }
         },
-        "conversion": {
-          "event": "Purchase",
-          "fireonbutton": false
-        }
-      }
-    },
-    "tds": {
-      "mode": "on",
-      "saveuserflow": false,
-      "filters": {
-        "allowed": {
-          "countries": [
-            "UA",
-            "BY"
-          ],
-          "os": [
-            "Android",
-            "iOS",
-            "Windows",
-            "OS X"
-          ],
-          "inurl": [],
-          "languages": []
+        "tds": {
+            "mode": "on",
+            "saveuserflow": false,
+            "filters": {
+                "allowed": {
+                    "countries": [
+                        "UA",
+                        "BY"
+                    ],
+                    "os": [
+                        "Android",
+                        "iOS",
+                        "Windows",
+                        "OS X"
+                    ],
+                    "inurl": [],
+                    "languages": []
+                },
+                "blocked": {
+                    "ips": {
+                        "filename": "",
+                        "cidrformat": false
+                    },
+                    "tokens": [],
+                    "useragents": [
+                        "facebook",
+                        "Facebot",
+                        "curl",
+                        "gce-spider",
+                        "yandex.com/bots",
+                        "OdklBot"
+                    ],
+                    "isps": [
+                        "facebook",
+                        "google",
+                        "yandex",
+                        "amazon",
+                        "azure",
+                        "digitalocean",
+                        "microsoft"
+                    ],
+                    "referer": {
+                        "empty": false,
+                        "stopwords": []
+                    },
+                    "vpntor": false
+                }
+            }
         },
-        "blocked": {
-          "ips": {
-            "filename": "",
-            "cidrformat": false
-          },
-          "tokens": [],
-          "useragents": [
-            "facebook",
-            "Facebot",
-            "curl",
-            "gce-spider",
-            "yandex.com/bots",
-            "OdklBot"
-          ],
-          "isps": [
-            "facebook",
-            "google",
-            "yandex",
-            "amazon",
-            "azure",
-            "digitalocean",
-            "microsoft"
-          ],
-          "referer": {
-            "empty": false,
-            "stopwords": []
-          },
-          "vpntor": false
-        }
-      }
-    },
-    "scripts": {
-      "back": {
-        "action": "off",
-        "value": "https://ya.ru"
-      },
-      "disabletextcopy": false,
-      "prelandingreplace": {
-        "use": false,
-        "url": "https://ya.ru"
-      },
-      "landingreplace": {
-        "use": false,
-        "url": "https://ya.ru"
-      },
-      "phonemask": {
-        "use": true,
-        "mask": "+7(\\\\999)999-99-99"
-      },
-      "comebacker": false,
-      "callbacker": false,
-      "addedtocart": false,
-      "imageslazyload": true
-    },
-    "subids": [
-      {
-        "name": "subid",
-        "rewrite": "sub1"
-      },
-      {
-        "name": "adn",
-        "rewrite": "sub2"
-      },
-      {
-        "name": "ad",
-        "rewrite": "sub3"
-      },
-      {
-        "name": "pl",
-        "rewrite": "sub4"
-      }
-    ],
-    "statistics": {
-      "password": "12345",
-      "subnames": [
-        {
-          "name": "adn",
-          "value": "Adset"
+        "scripts": {
+            "back": {
+                "action": "off",
+                "value": "https://ya.ru"
+            },
+            "disabletextcopy": false,
+            "prelandingreplace": {
+                "use": false,
+                "url": "https://ya.ru"
+            },
+            "landingreplace": {
+                "use": false,
+                "url": "https://ya.ru"
+            },
+            "phonemask": {
+                "use": true,
+                "mask": "+7(\\\\999)999-99-99"
+            },
+            "comebacker": false,
+            "callbacker": false,
+            "addedtocart": false,
+            "imageslazyload": true
         },
-        {
-          "name": "ad",
-          "value": "Creative"
+        "subids": [
+            {
+                "name": "subid",
+                "rewrite": "sub1"
+            },
+            {
+                "name": "adn",
+                "rewrite": "sub2"
+            },
+            {
+                "name": "ad",
+                "rewrite": "sub3"
+            },
+            {
+                "name": "pl",
+                "rewrite": "sub4"
+            }
+        ],
+        "statistics": {
+            "password": "12345",
+            "subnames": [
+                {
+                    "name": "adn",
+                    "value": "Adset"
+                },
+                {
+                    "name": "ad",
+                    "value": "Creative"
+                },
+                {
+                    "name": "pl",
+                    "value": "Placement"
+                }
+            ],
+            "timezone": "Europe/Moscow"
         },
-        {
-          "name": "pl",
-          "value": "Placement"
+        "postback": {
+            "lead": "Lead",
+            "purchase": "Purchase",
+            "reject": "Reject",
+            "trash": "Trash",
+            "s2s": [
+                {
+                    "url": "",
+                    "method": "POST",
+                    "events": [
+                        "Lead",
+                        "Purchase"
+                    ]
+                }
+            ]
         }
-      ],
-      "timezone": "Europe/Moscow"
-    },
-    "postback": {
-      "lead": "Lead",
-      "purchase": "Purchase",
-      "reject": "Reject",
-      "trash": "Trash",
-      "s2s": [
-        {
-          "url": "",
-          "method": "POST",
-          "events": [
-            "Lead",
-            "Purchase"
-          ]
-        }
-      ]
     }
-  }
 }

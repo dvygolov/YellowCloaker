@@ -2,7 +2,7 @@
 require_once __DIR__ . '/password.php';
 require_once __DIR__ . '/../settings.php';
 $passOk = check_password(false);
-if ($passOk)
+if (!$passOk)
     return send_configmanager_result("Error: password check not passed!");
 
 $action = $_REQUEST['action'];
@@ -14,6 +14,10 @@ switch ($action) {
         break;
     case 'del':
         del_config($config);
+        return send_configmanager_result("OK");
+        break;
+    case 'save':
+        save_config($config);
         return send_configmanager_result("OK");
         break;
     default:

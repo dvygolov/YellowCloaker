@@ -27,7 +27,7 @@ class Properties extends AbstractWriter
     /**
      * {@inheritdoc}
      */
-    public static function getSupportedExtensions()
+    public static function getSupportedExtensions(): array
     {
         return ['properties'];
     }
@@ -38,7 +38,7 @@ class Properties extends AbstractWriter
      *
      * @return string Converted array as Properties
      */
-    protected function toProperties(array $arr)
+    protected function toProperties(array $arr): string
     {
         $converted = '';
 

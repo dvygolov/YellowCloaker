@@ -52,6 +52,8 @@ class Config extends AbstractConfig
      *
      * @return Config
      * @throws EmptyDirectoryException
+     * @throws FileNotFoundException
+     * @throws UnsupportedFormatException
      */
     public static function load($values, $parser = null, bool $string = false): Config
     {
@@ -65,6 +67,8 @@ class Config extends AbstractConfig
      * @param ParserInterface|null $parser Configuration parser
      * @param bool $string Enable loading from string
      * @throws EmptyDirectoryException
+     * @throws FileNotFoundException
+     * @throws UnsupportedFormatException
      */
     public function __construct($values, ParserInterface $parser = null, bool $string = false)
     {
@@ -185,11 +189,11 @@ class Config extends AbstractConfig
      *
      * @param string $extension
      *
-     * @return Noodlehaus\Parser\ParserInterface
+     * @return ParserInterface
      *
      * @throws UnsupportedFormatException If `$extension` is an unsupported file format
      */
-    protected function getParser(string $extension): Noodlehaus\Parser\ParserInterface
+    protected function getParser(string $extension): ParserInterface
     {
         foreach ($this->supportedParsers as $parser) {
             if (in_array($extension, $parser::getSupportedExtensions())) {
@@ -206,11 +210,11 @@ class Config extends AbstractConfig
      *
      * @param string $extension
      *
-     * @return Noodlehaus\Writer\WriterInterface
+     * @return WriterInterface
      *
      * @throws UnsupportedFormatException If `$extension` is an unsupported file format
      */
-    protected function getWriter(string $extension): Noodlehaus\Writer\WriterInterface
+    protected function getWriter(string $extension): WriterInterface
     {
         foreach ($this->supportedWriters as $writer) {
             if (in_array($extension, $writer::getSupportedExtensions())) {

@@ -63,7 +63,7 @@ $menuQueryString = "password={$password}&config={$config}{$date_str}";
                             </li>
                         </ul>
                     </li>
-                    <li>
+                    <li class="active">
                         <a class="has-arrow"
                            href="editsettings.php?<?= $menuQueryString ?>"
                            aria-expanded="false">
@@ -88,43 +88,63 @@ $menuQueryString = "password={$password}&config={$config}{$date_str}";
     </nav>
 </div>
 <script>
-    document.getElementById("addconfig").onclick = async () => {
-        let configName = prompt("Enter new config name:");
-        if (configName == '' || configName == null) {
-            alert('Config name not entered!');
-            return;
-        }
-        let res = await fetch("configmanager.php?password=<?=$password?>", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `action=add&name=${configName}`
-        });
-        let js = await res.json();
-        if (js["result"] == "OK")
-            window.location.reload();
-        else
-            alert(`An error occured: ${js["result"]}`);
-    };
+    document.addEventListener("DOMContentLoaded", function(event) {
+        document.getElementById("saveconfig").addEventListener("submit", async (e) => {
+            e.preventDefault();
 
-    document.getElementById("delconfig").onclick = async () => {
-        let config = "<?=$config?>";
-        if (config == 'default') {
-            alert("Can't delete default config!");
-            return;
-        }
-        let res = await fetch("configmanager.php?password=<?=$password?>", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `action=del&name=${config}`
+            let res = await fetch("configmanager.php?password=<?=$password?>&action=save&name=<?=$config?>", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(new FormData(document.getElementById("saveconfig")).entries()).toString()
+            });
+            let js = await res.json();
+            if (js["result"] == "OK")
+                alert("Settings saved!")
+            else
+                alert(`An error occured: ${js["result"]}`);
+            return false;
         });
-        let js = await res.json();
-        if (js["result"] == "OK")
-            window.location.reload();
-        else
-            alert(`An error occured: ${js["result"]}`);
-    };
+
+        document.getElementById("addconfig").onclick = async () => {
+            let configName = prompt("Enter new config name:");
+            if (configName == '' || configName == null) {
+                alert('Config name not entered!');
+                return;
+            }
+            let res = await fetch("configmanager.php?password=<?=$password?>", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=add&name=${configName}`
+            });
+            let js = await res.json();
+            if (js["result"] == "OK")
+                window.location.reload();
+            else
+                alert(`An error occured: ${js["result"]}`);
+        };
+
+        document.getElementById("delconfig").onclick = async () => {
+            let config = "<?=$config?>";
+            if (config == 'default') {
+                alert("Can't delete default config!");
+                return;
+            }
+            let res = await fetch("configmanager.php?password=<?=$password?>", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=del&name=${config}`
+            });
+            let js = await res.json();
+            if (js["result"] == "OK")
+                window.location.reload();
+            else
+                alert(`An error occured: ${js["result"]}`);
+        };
+    });
 </script>

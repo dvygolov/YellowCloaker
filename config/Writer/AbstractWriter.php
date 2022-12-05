@@ -1,7 +1,7 @@
 <?php
 
 namespace Noodlehaus\Writer;
-
+require_once __DIR__.'/WriterInterface.php';
 use Noodlehaus\Exception\WriteException;
 
 /**
@@ -20,14 +20,13 @@ abstract class AbstractWriter implements WriterInterface
     /**
      * {@inheritdoc}
      */
-    public function toFile($config, $filename)
+    public function toFile($config, $filename): string
     {
         $contents = $this->toString($config);
         $success = @file_put_contents($filename, $contents);
         if ($success === false) {
             throw new WriteException(['file' => $filename]);
         }
-
         return $contents;
     }
 }

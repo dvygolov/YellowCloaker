@@ -50,14 +50,6 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
         $this->namespace = $namespace;
     }
 
-    public function deleteNamespace($name){
-
-    }
-
-    public function addNamespace($name){
-
-    }
-
     /**
      * Override this method in your own subclass to provide an array of default
      * options and values
@@ -78,7 +70,7 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
     /**
      * {@inheritDoc}
      */
-    public function get($key, $default = null)
+    public function get(string $key, $default = null)
     {
         if ($this->has($key)) {
             $key = "{$this->namespace}.{$key}";
@@ -91,7 +83,7 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
     /**
      * {@inheritDoc}
      */
-    public function set($key, $value)
+    public function set(string $key, $value)
     {
         $key = "{$this->namespace}.{$key}";
         $segs = explode('.', $key);
@@ -131,7 +123,7 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
     /**
      * {@inheritDoc}
      */
-    public function has($key): bool
+    public function has(string $key): bool
     {
         $key = "{$this->namespace}.{$key}";
         // Check if already cached
