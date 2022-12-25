@@ -34,7 +34,7 @@ function get_request_headers($ispost=false){
 	$ip=getip();
     $headers=array(
 				'X-YWBCLO-UIP: '.$ip,
-				'X-FORWARDED-FOR '.$ip,
+				'X-FORWARDED-FOR: '.$ip,
 				//'CF-CONNECTING-IP: '.$ip,
 				'FORWARDED-FOR: '.$ip,
 				'X-COMING-FROM: '.$ip,
