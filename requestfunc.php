@@ -39,7 +39,7 @@ function get_request_headers($ispost = false)
     $ip = getip();
     $headers = array(
         'X-YWBCLO-UIP: ' . $ip,
-        'X-FORWARDED-FOR ' . $ip,
+        //'X-FORWARDED-FOR ' . $ip, //Don't uncomment, it will break http/2 loading
         //'CF-CONNECTING-IP: '.$ip,
         'FORWARDED-FOR: ' . $ip,
         'X-COMING-FROM: ' . $ip,
@@ -47,7 +47,8 @@ function get_request_headers($ispost = false)
         'FORWARDED-FOR-IP: ' . $ip,
         'CLIENT-IP: ' . $ip,
         'X-REAL-IP: ' . $ip,
-        'REMOTE-ADDR: ' . $ip);
+        'REMOTE-ADDR: ' . $ip
+    );
     if ($ispost)
         $headers[] = "Content-Type: application/x-www-form-urlencoded";
     return $headers;
@@ -128,3 +129,4 @@ function post($url, $postfields)
     curl_close($curl);
     return ["html" => $content, "info" => $info, "error" => $error];
 }
+
