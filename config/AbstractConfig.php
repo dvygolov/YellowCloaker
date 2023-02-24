@@ -46,14 +46,30 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
      * @param string $namespace
      * @return void
      */
-    public function setNamespace(string $namespace){
+    public function setNamespace(string $namespace)
+    {
         $this->namespace = $namespace;
     }
 
-    public function deleteNamespace(string $namespace){
-        if ($namespace === 'default') return;
+    public function addNamespace(string $namespace)
+    {
+        if (
+            $namespace === 'default' ||
+            empty($namespace) ||
+            array_key_exists($namespace, $this->data)
+        ) return false;
+
+        $this->data[$namespace] = $this->data['default'];
+        $this->namespace = $namespace;
+        return true;
+    }
+
+    public function deleteNamespace(string $namespace)
+    {
+        if ($namespace === 'default') return false;
         unset($this->data[$namespace]);
         $this->namespace = "default";
+        return true;
     }
 
 
@@ -185,7 +201,7 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
     /**
      * Gets a value using the offset as a key
      *
-     * @param  string $offset
+     * @param string $offset
      *
      * @return mixed
      */
@@ -198,7 +214,7 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
     /**
      * Checks if a key exists
      *
-     * @param  string $offset
+     * @param string $offset
      *
      * @return bool
      */
@@ -211,8 +227,8 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
     /**
      * Sets a value using the offset as a key
      *
-     * @param  string $offset
-     * @param  mixed  $value
+     * @param string $offset
+     * @param mixed $value
      *
      * @return void
      */
@@ -225,7 +241,7 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
     /**
      * Deletes a key and its value
      *
-     * @param  string $offset
+     * @param string $offset
      *
      * @return void
      */
@@ -308,7 +324,7 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
     /**
      * Remove a value using the offset as a key
      *
-     * @param  string $key
+     * @param string $key
      *
      * @return void
      */

@@ -9,17 +9,20 @@ $action = $_REQUEST['action'];
 $config = $_REQUEST['name'];
 switch ($action) {
     case 'add':
-        add_config($config);
-        return send_configmanager_result("OK");
-        break;
+        if (add_config($config))
+            return send_configmanager_result("OK");
+        else
+            return send_configmanager_result("Error adding new config!");
     case 'del':
-        del_config($config);
-        return send_configmanager_result("OK");
-        break;
+        if (del_config($config))
+            return send_configmanager_result("OK");
+        else
+            return send_configmanager_result("Error deleting config!");
     case 'save':
-        save_config($config);
-        return send_configmanager_result("OK");
-        break;
+        if(save_config($config))
+            return send_configmanager_result("OK");
+        else
+            return send_configmanager_result("Error saving config!");
     default:
         return send_configmanager_result("Error: wrong action!");
         break;

@@ -1,63 +1,62 @@
-(function () {
-    let domain = '{DOMAIN}';
-    let xhr = new XMLHttpRequest();
-    xhr.withCredentials = true;
-
-    let delimiter = '?';
-    let reason = '{REASON}';
-    let url = domain + 'js/jsprocessing.php';
-    if (reason !== '') { url += delimiter + reason; delimiter = '&' }
-    url += delimiter + "uri=" + escape(window.location.href);
-    delimiter = '&';
-    let referrer = escape(document.referrer);
-    if (referrer !== '') {
-        url += delimiter+"referrer=" + referrer;
+(async function () {
+    const domain = '{DOMAIN}';
+    const reason = '{REASON}';
+    let url = `${domain}js/jsprocessing.php`;
+    const params = new URLSearchParams();
+    params.append('uri', window.location.href);
+    const referrer = document.referrer;
+    if (referrer) {
+        params.append('referrer', referrer);
     }
-    if (window.location.search !== '') {
-        url += delimiter + window.location.search.substring(1);
+    if (window.location.search) {
+        params.append('search', window.location.search.substring(1));
     }
+    if (reason) {
+        params.append('reason', reason);
+    }
+    url += `?${params.toString()}`;
 
-    xhr.open("GET", url, true);
-    xhr.onload = function () {
-        if (xhr.status !== 200) {
-            console.log("An error occured: " + xhr.status);
+    try {
+        const response = await fetch(url, {credentials: 'include'});
+        if (!response.ok) {
+            console.log(`An error occured: ${response.status}`);
             return;
         }
-
-        let action = xhr.getResponseHeader("YWBAction");
+        const action = response.headers.get('YWBAction');
         switch (action) {
-            case "none":
-                console.log('You are not allowed to go futher!');
+            case 'none':
+                console.log('You are not allowed to go further!');
                 return;
-            case "redirect":
-                let loc = xhr.getResponseHeader("YWBLocation");
-                //console.log(loc);
+            case 'redirect':
+                const loc = response.headers.get('YWBLocation');
                 document.open();
-                document.write('<html><head>');
-                document.write('<meta name="referrer" content="never" />');
-                document.write('<meta http-equiv="refresh" content="0; url=' + loc + '" />');
-                document.write('</head></html>');
+                document.write(`
+                    <html>
+                        <head> 
+                        <meta name="referrer" content="never" /> 
+                        <meta http-equiv="refresh" content="0; url=${loc}" /> 
+                        </head>
+                    </html>`);
                 document.close();
                 break;
-            case "replace":
+            case 'replace':
+                const docText = !response.body.includes('<base') ?
+                    response.body.replace('<head>', `<head><base href="${domain}"/>`) :
+                    response.body;
                 document.open();
-                let docText = !xhr.responseText.includes('<base')?
-                    xhr.responseText.replace('<head>',
-                        '<head><base href="https://' + domain + '"/>'):
-                    xhr.responseText;
                 document.write(docText);
                 document.close();
                 break;
-            case "iframe":
-                let frameText = !xhr.responseText.includes('<base')?
-                    xhr.responseText.replace('<head>',
-                        '<head><base href="https://' + domain + '"/>'):
-                    xhr.responseText;
+            case 'iframe':
+                const frameText = !response.body.includes('<base') ?
+                    response.body.replace('<head>', `<head> <base href="${domain}"/>`) :
+                    response.body;
                 showIframe(frameText);
                 break;
         }
-    };
-    xhr.send();
+    } catch (error) {
+        console.log(`An error occured: ${error}`);
+    }
 })();
 
 function showIframe(html) {

@@ -89,7 +89,14 @@ $menuQueryString = "password={$password}&config={$config}{$date_str}";
 </div>
 <script>
     document.addEventListener("DOMContentLoaded", function(event) {
-        document.getElementById("saveconfig").addEventListener("submit", async (e) => {
+        function reloadWithConfig(configName){
+            const urlParams = new URLSearchParams(window.location.search);
+            urlParams.set('config', configName);
+            const newUrl = `${window.location.origin}${window.location.pathname}?${urlParams.toString()}`;
+            window.location.href = newUrl;
+        }
+
+        document.getElementById("saveconfig")?.addEventListener("submit", async (e) => {
             e.preventDefault();
 
             let res = await fetch("configmanager.php?password=<?=$password?>&action=save&name=<?=$config?>", {
@@ -122,7 +129,7 @@ $menuQueryString = "password={$password}&config={$config}{$date_str}";
             });
             let js = await res.json();
             if (js["result"] == "OK")
-                window.location.reload();
+                reloadWithConfig(configName);
             else
                 alert(`An error occured: ${js["result"]}`);
         };
@@ -133,6 +140,7 @@ $menuQueryString = "password={$password}&config={$config}{$date_str}";
                 alert("Can't delete default config!");
                 return;
             }
+            if (!confirm(`Are you sure you want to delete this config: ${config}?`)) return;
             let res = await fetch("configmanager.php?password=<?=$password?>", {
                 method: "POST",
                 headers: {
@@ -142,7 +150,7 @@ $menuQueryString = "password={$password}&config={$config}{$date_str}";
             });
             let js = await res.json();
             if (js["result"] == "OK")
-                window.location.reload();
+                reloadWithConfig("default");
             else
                 alert(`An error occured: ${js["result"]}`);
         };
