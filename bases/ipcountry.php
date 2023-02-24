@@ -37,8 +37,18 @@ function getip(){
 
 	if (!isset($ipfound))
 		$ipfound='Unknown';
-	if ($ipfound==='::1'||$ipfound==='127.0.0.1') $ipfound='2001:0db8:0000:0000:0000:ff00:0042:8329'; //for debugging
+	if ($ipfound==='::1'|| !is_public_ip($ipfound))
+        $ipfound='109.124.224.100'; //for debugging
 	return $ipfound;
+}
+
+function is_public_ip($ip) : bool
+{
+    return filter_var(
+        $ip,
+        FILTER_VALIDATE_IP,
+        FILTER_FLAG_IPV4 | FILTER_FLAG_IPV6 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
+    ) === $ip;
 }
 
 function getcountry($ip=null){

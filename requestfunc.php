@@ -26,7 +26,15 @@ function get_abs_from_rel($url, $add_query_string = false)
 {
     $domain = $_SERVER['HTTP_HOST'];
     $prefix = get_prefix();
-    $fullpath = $prefix . $domain . '/' . $url;
+    $script_path = array_filter(explode("/", $_SERVER['SCRIPT_NAME']), 'strlen');
+    array_pop($script_path);
+
+    $fullpath = $prefix . $domain . '/';
+    if (count($script_path) > 0) {
+        $fullpath .= implode('/', $script_path);
+        $fullpath .= '/';
+    }
+    $fullpath .= $url;
     if (substr($url, -4) !== '.php') $fullpath = $fullpath . '/';
     if ($add_query_string === true) {
         $fullpath = add_querystring($fullpath);

@@ -22,6 +22,7 @@ function fill_table(string $table, array $header, array $data): string
                     $itemPart = "<TD>" . (empty($itemPart) ? 'no' : $itemPart) . "</TD>";
                     break;
                 default:
+                    if (is_array($itemPart)) $itemPart = implode(',',$itemPart);
                     $itemPart = "<TD>{$itemPart}</TD>";
                     break;
             }

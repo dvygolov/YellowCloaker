@@ -683,7 +683,7 @@ require_once __DIR__ . '/initialization.php';
                                                                                     Use the Built-in ThankYou Page
                                                                                     <img src="img/info.ico"
                                                                                          title="First try this method! Only if smth doesn't work well - then use your own!"/>
-                                                                                </label
+                                                                                </label>
                                                                             </div>
                                                                         </div>
                                                                     </div>

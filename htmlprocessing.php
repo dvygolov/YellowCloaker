@@ -73,7 +73,6 @@ function load_landing($url)
 {
     global $black_land_log_conversions_on_button_click, $black_land_use_custom_thankyou_page;
     global $replace_landing, $replace_landing_address;
-    global $images_lazy_load;
 
     $fullpath = get_abs_from_rel($url);
     $fpwqs = get_abs_from_rel($url, true);
