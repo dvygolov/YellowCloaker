@@ -2,9 +2,12 @@
 require_once __DIR__ . '/bases/ipcountry.php';
 require_once __DIR__ . '/url.php';
 
+function server_has_https(){
+   return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')|| strpos($_SERVER['HTTP_HOST'],'127.0.0.1')!==false;
+}
 function get_prefix()
 {
-    return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] != 'off') ? 'https://' : 'http://';
+    return  server_has_https()? 'https://' : 'http://';
 }
 
 function get_port()
@@ -12,7 +15,7 @@ function get_port()
     $curport = $_SERVER['SERVER_PORT'];
     if (isset($curport) && $curport !== '80' && $curport !== '443')
         return $curport;
-    return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 443 : 80;
+    return server_has_https() ? 443 : 80;
 }
 
 function get_cloaker_path(){
@@ -69,6 +72,7 @@ function get_html($url, $follow_location = false, $use_ua = false)
         CURLOPT_URL => $url,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => false,
         CURLOPT_HTTPHEADER => get_request_headers($ispost)
     );
     if ($ispost) {
@@ -98,6 +102,7 @@ function get($url)
         CURLOPT_URL => $url,
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => false,
         CURLOPT_HTTPHEADER => get_request_headers(false),
         CURLOPT_TIMEOUT => 0,
         CURLOPT_FOLLOWLOCATION => false,
@@ -123,6 +128,7 @@ function post($url, $postfields)
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => "POST",
         CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => false,
         CURLOPT_POSTFIELDS => $postfields,
         CURLOPT_REFERER => $_SERVER['REQUEST_URI'],
         CURLOPT_HTTPHEADER => get_request_headers(true),

@@ -1,37 +1,43 @@
 <?php
 
-function insert_file_content_with_replace($html, $scriptname, $needle, $search, $replacement)
+function get_file_content($scriptname)
 {
     $code_file_name = __DIR__ . '/scripts/' . $scriptname;
     if (!file_exists($code_file_name)) {
         echo 'File Not Found ' . $code_file_name;
-        return $html;
+        return false;
     }
     $script_code = file_get_contents($code_file_name);
-    if (empty($script_code)) return $html;
-    //we have multiple replacements
-    if (is_array($search) && is_array($replacement) && count($search) === count($replacement)) {
-        for ($i = 0; $i < count($search); $i++) {
-            $script_code = str_replace($search[$i], $replacement[$i], $script_code);
-        }
-    } else
-        $script_code = str_replace($search, $replacement, $script_code);
-    return insert_before_tag($html, $needle, $script_code);
+    if (empty($script_code)) return false;
+    return $script_code;
 }
 
-function insert_file_content($html, $scriptname, $needle, $before = true)
+function insert_file_content($html, $scriptname, $needle, $before = true, $add_script_tags = false, $search = null, $replacement = null)
 {
-    $code_file_name = __DIR__ . '/scripts/' . $scriptname;
-    if (!file_exists($code_file_name)) {
-        echo 'File Not Found ' . $code_file_name;
-        return $html;
+    $content = get_file_content($scriptname);
+    if (!$content) return $html;
+
+    if ($search && $replacement) {
+        if (is_array($search) && is_array($replacement) && count($search) === count($replacement)) {
+            for ($i = 0; $i < count($search); $i++) {
+                $content = str_replace($search[$i], $replacement[$i], $content);
+            }
+        } else {
+            $content = str_replace($search, $replacement, $content);
+        }
     }
-    $script_code = file_get_contents($code_file_name);
-    if (empty($script_code)) return $html;
-    if ($before)
-        return insert_before_tag($html, $needle, $script_code);
-    else
-        return insert_after_tag($html, $needle, $script_code);
+
+    if ($add_script_tags) {
+        $content = "<script>{$content}</script>";
+    }
+
+    if ($before) {
+        $html = insert_before_tag($html, $needle, $content);
+    } else {
+        $html = insert_after_tag($html, $needle, $content);
+    }
+
+    return $html;
 }
 
 function insert_after_tag($html, $needle, $str_to_insert)

@@ -1,15 +1,13 @@
-<script>
-function addinputmask(){
-	var tels=document.querySelectorAll('input[type="tel"]');
-	var im = new Inputmask({
-	  mask: '{MASK}',
-	  showMaskOnHover: true,
-	  showMaskOnFocus: true	
-	});
-	
-	for (var i=0; i<tels.length; i++){
-		im.mask(tels[i]);
-	}
-}
-document.addEventListener('DOMContentLoaded', addinputmask, false);
-</script>
+document.addEventListener('DOMContentLoaded', () => {
+    const inputMaskOptions = {
+        mask: '{MASK}',
+        showMaskOnHover: true,
+        showMaskOnFocus: true
+    };
+    const inputMask = new Inputmask(inputMaskOptions);
+
+    const tels = document.querySelectorAll('input[type="tel"]');
+    tels.forEach(tel => {
+        inputMask.mask(tel);
+    });
+});

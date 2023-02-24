@@ -1,11 +1,11 @@
 <?php
-require_once __DIR__.'/js/obfuscator.php';
-require_once __DIR__.'/bases/ipcountry.php';
-require_once __DIR__.'/requestfunc.php';
-require_once __DIR__.'/pixels.php';
-require_once __DIR__.'/htmlinject.php';
-require_once __DIR__.'/url.php';
-require_once __DIR__.'/cookies.php';
+require_once __DIR__ . '/js/obfuscator.php';
+require_once __DIR__ . '/bases/ipcountry.php';
+require_once __DIR__ . '/requestfunc.php';
+require_once __DIR__ . '/pixels.php';
+require_once __DIR__ . '/htmlinject.php';
+require_once __DIR__ . '/url.php';
+require_once __DIR__ . '/cookies.php';
 
 //Подгрузка контента блэк проклы из другой папки через CURL
 function load_prelanding($url, $land_number)
@@ -20,8 +20,8 @@ function load_prelanding($url, $land_number)
     $html = remove_from_html($html, 'removepreland.html');
 
     //чистим тег <head> от всякой ненужной мути
-    $html = preg_replace('/<head [^>]+>/', '<head>', $html);
-    $html = insert_after_tag($html, "<head>", "<base href='" . $fullpath . "'>");
+    $html = fix_head_add_base($html, $fullpath);
+    $html = fix_src($html);
     //ВСЕ ПИКСЕЛИ
     //добавляем в страницу скрипт GTM
     $html = insert_gtm_script($html);
@@ -55,7 +55,7 @@ function load_prelanding($url, $land_number)
         $replacement = $replacement . '" target="_blank"';
         $url = replace_all_macros($replace_prelanding_address); //заменяем макросы
         $url = add_subs_to_link($url); //добавляем сабы
-        $html = insert_file_content_with_replace($html, 'replaceprelanding.js', '</body>', '{REDIRECT}', $url);
+        $html = insert_file_content($html, 'replaceprelanding.js', '</body>', true, true, '{REDIRECT}', $url);
     }
     $html = preg_replace('/(<a[^>]+href=")([^"]*)/', $replacement, $html);
     //убираем левые обработчики onclick у ссылок
@@ -80,8 +80,8 @@ function load_landing($url)
     $html = get_html($fpwqs);
     $html = remove_scrapbook($html);
     $html = remove_from_html($html, 'removeland.html');
-    $html = preg_replace('/<head [^>]+>/', '<head>', $html);
-    $html = insert_after_tag($html, "<head>", "<base href='" . $fullpath . "'>");
+    $html = fix_head_add_base($html, $fullpath);
+    $html = fix_src($html);
 
     if ($black_land_use_custom_thankyou_page === true) {
         //меняем обработчик формы, чтобы у вайта и блэка была одна thankyou page
@@ -96,7 +96,7 @@ function load_landing($url)
     if ($replace_landing) {
         $replacelandurl = replace_all_macros($replace_landing_address); //заменяем макросы
         $replacelandurl = add_subs_to_link($replacelandurl); //добавляем сабы
-        $html = insert_file_content_with_replace($html, 'replacelanding.js', '</body>', '{REDIRECT}', $replacelandurl);
+        $html = insert_file_content($html, 'replacelanding.js', '</body>', true, true, '{REDIRECT}', $replacelandurl);
     }
 
     //добавляем в страницу скрипт GTM
@@ -109,7 +109,7 @@ function load_landing($url)
     $html = full_ttpixel_processing($html, $url);
 
     if ($black_land_log_conversions_on_button_click) {
-        $html = insert_file_content($html, 'btnclicklog.js', '</head>');
+        $html = insert_file_content($html, 'btnclicklog.js', '</head>', true, true);
     }
 
     $html = insert_additional_scripts($html);
@@ -130,6 +130,19 @@ function load_landing($url)
     return $html;
 }
 
+function fix_head_add_base($html, $fullpath)
+{
+    $html = preg_replace('/<head [^>]+>/', '<head>', $html);
+    $html = insert_after_tag($html, "<head>", "<base href='" . $fullpath . "'>");
+    return $html;
+}
+
+function fix_src($html)
+{
+    $src_regex = '/(<[^>]+src=[\'\"])\/([^\/][^>]*>)/';
+    return preg_replace($src_regex, "\\1\\2", $html);
+}
+
 //добавляем доп.скрипты
 function insert_additional_scripts($html)
 {
@@ -137,17 +150,17 @@ function insert_additional_scripts($html)
     global $comebacker, $callbacker, $addedtocart;
 
     if ($disable_text_copy) {
-        $html = insert_file_content($html, 'disablecopy.js', '</body>');
+        $html = insert_file_content($html, 'disablecopy.js', '</body>', true, true);
     }
 
     switch ($back_button_action) {
         case 'disable':
-            $html = insert_file_content($html, 'disableback.js', '</body>');
+            $html = insert_file_content($html, 'disableback.js', '</body>', true, true);
             break;
         case 'replace':
             $url = replace_all_macros($replace_back_address); //заменяем макросы
             $url = add_subs_to_link($url); //добавляем сабы
-            $html = insert_file_content_with_replace($html, 'replaceback.js', '</body>', '{RA}', $url);
+            $html = insert_file_content($html, 'replaceback.js', '</body>', true, true, '{RA}', $url);
             break;
     }
 
@@ -216,7 +229,7 @@ function replace_city_macros($html)
 
 function fix_anchors($html)
 {
-    return insert_file_content($html, "replaceanchorswithsmoothscroll.js", "<body", false);
+    return insert_file_content($html, "replaceanchorswithsmoothscroll.js", "<body", false, true);
 }
 
 function insert_phone_mask($html)
@@ -224,8 +237,8 @@ function insert_phone_mask($html)
     global $black_land_use_phone_mask, $black_land_phone_mask;
     if (!$black_land_use_phone_mask) return $html;
     $cloaker = get_cloaker_path();
-    $html = insert_before_tag($html, '</head>', "<script src=\"" . $cloaker . "/scripts/inputmask/inputmask.js\"></script>");
-    $html = insert_file_content_with_replace($html, 'inputmask/inputmaskbinding.js', '</body>', '{MASK}', $black_land_phone_mask);
+    $html = insert_before_tag($html, '</head>', "<script src=\"" . $cloaker . "scripts/inputmask/inputmask.js\"></script>");
+    $html = insert_file_content($html, 'inputmask/inputmaskbinding.js', '</body>', true, true, '{MASK}', $black_land_phone_mask);
     return $html;
 }
 

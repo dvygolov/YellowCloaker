@@ -1,37 +1,23 @@
-<script>
-function addttbuttonpixel(){
-	var buttons=document.querySelectorAll("form button");
-	buttons.forEach(function(button){
-		button.addEventListener('click', function() { 
-			firettpixel(button);
-		});
-	});
+window.addEventListener('DOMContentLoaded', () => {
+    const handleEvent = (event) => {
+        event.preventDefault();
+        console.log('Started Facebook pixel firing...');
+        const element = event.currentTarget;
+        let node = element;
+        while (node.nodeName !== 'FORM' && node.parentNode) {
+            node = node.parentNode;
+        }
 
-	var submits=document.querySelectorAll("form input[type='submit']");
-	submits.forEach(function(submit){
-		submit.addEventListener('click', function() { 
-			firettpixel(button);
-		});
-	});
-}
+        const hasName = node.querySelector('input:not([value=""])[name="name"]');
+        const hasPhone = node.querySelector('input:not([value=""])[name="phone"]');
 
-function firettpixel(element){
-	console.log("Started TikTok pixel firing..");
-	var node = element;
-	while (node.nodeName != "FORM" && node.parentNode) {
-		node = node.parentNode;
-	}
-	
-	var hasName=false;
-	var hasPhone=false;
-    var inputs=node.getElementsByTagName('input');
-    for(i=0;i<inputs.length;i++){
-        var input=inputs[i];
-        if (input.name=="name" && input.value!=='') hasName=true;
-		if (input.name=="phone" && input.value!=='') hasPhone=true;
-    }
-	if (hasName&&hasPhone) ttq.track('{EVENT}');
-}
+        if (hasName && hasPhone) {
+            ttq.track('{EVENT}');
+        }
+    };
 
-window.addEventListener('DOMContentLoaded', addttbuttonpixel, false);
-</script>
+    const forms = document.querySelectorAll('form button, form input[type="submit"]');
+    forms.forEach((form) => {
+        form.addEventListener('click', handleEvent);
+    });
+});

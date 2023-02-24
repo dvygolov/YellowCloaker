@@ -1,4 +1,3 @@
-<script type = "text/javascript">
 (function(window, location) {
     /*var base=document.getElementsByTagName('base');
     var hasBase = base.length==1;
@@ -24,4 +23,3 @@
       }
     }, false);
 }(window, location));
-</script>

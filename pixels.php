@@ -1,7 +1,7 @@
 <?php
-require_once __DIR__.'/settings.php';
-require_once __DIR__.'/htmlinject.php';
-require_once __DIR__.'/cookies.php';
+require_once __DIR__ . '/settings.php';
+require_once __DIR__ . '/htmlinject.php';
+require_once __DIR__ . '/cookies.php';
 
 function get_fbpixel()
 {
@@ -69,10 +69,12 @@ function insert_fbpixel_viewcontent($html, $url)
     if (get_fbpixel() == '') return $html;
     if ($fb_use_viewcontent) {
         if ($fb_view_content_time > 0) {
-            $html = insert_file_content_with_replace($html, 'pixels/facebook/fbpxviewcontenttime.js', '</head>', ['{SECONDS}', '{PAGE}'], [$fb_view_content_time, $url]);
+            $html = insert_file_content($html, 'pixels/facebook/fbpxviewcontenttime.js', '</head>',
+                true, true, ['{SECONDS}', '{PAGE}'], [$fb_view_content_time, $url]);
         }
         if ($fb_view_content_percent > 0) {
-            $html = insert_file_content_with_replace($html, 'pixels/facebook/fbpxviewcontentpercent.js', '</head>', ['{PERCENT}', '{PAGE}'], [$fb_view_content_percent, $url]);
+            $html = insert_file_content($html, 'pixels/facebook/fbpxviewcontentpercent.js', '</head>',
+                true, true, ['{PERCENT}', '{PAGE}'], [$fb_view_content_percent, $url]);
         }
     }
     return $html;
@@ -93,7 +95,8 @@ function full_fbpixel_processing($html, $url)
     $html = insert_fbpixel_viewcontent($html, $url);
 
     if ($fb_add_button_pixel) {
-        $html = insert_file_content_with_replace($html, 'pixels/facebook/fbpxbuttonconversion.js', '</head>', '{EVENT}', $fb_thankyou_event);
+        $html = insert_file_content($html, 'pixels/facebook/fbpxbuttonconversion.js', '</head>',
+            true, true, '{EVENT}', $fb_thankyou_event);
     }
     return $html;
 }
@@ -165,12 +168,14 @@ function insert_ttpixel_viewcontent($html, $url)
     if (get_ttpixel() == '') return $html;
     if ($tt_use_viewcontent) {
         if ($tt_view_content_time > 0) {
-            $html = insert_file_content_with_replace($html,
-                'pixels/tiktok/ttpxviewcontenttime.js', '</head>', ['{SECONDS}', '{PAGE}'], [$tt_view_content_time, $url]);
+            $html = insert_file_content($html,
+                'pixels/tiktok/ttpxviewcontenttime.js', '</head>',true,true,
+                ['{SECONDS}', '{PAGE}'], [$tt_view_content_time, $url]);
         }
         if ($tt_view_content_percent > 0) {
-            $html = insert_file_content_with_replace($html,
-                'pixels/tiktok/ttpxviewcontentpercent.js', '</head>', ['{PERCENT}', '{PAGE}'], [$tt_view_content_percent, $url]);
+            $html = insert_file_content($html,
+                'pixels/tiktok/ttpxviewcontentpercent.js', '</head>',true,true,
+                ['{PERCENT}', '{PAGE}'], [$tt_view_content_percent, $url]);
         }
     }
     return $html;
@@ -192,7 +197,8 @@ function full_ttpixel_processing($html, $url)
     $html = insert_ttpixel_viewcontent($html, $url);
 
     if ($tt_add_button_pixel) {
-        $html = insert_file_content_with_replace($html, 'pixels/tiktok/ttpxbuttonconversion.js', '</head>', '{EVENT}', $tt_thankyou_event);
+        $html = insert_file_content($html, 'pixels/tiktok/ttpxbuttonconversion.js', '</head>',
+            true,true, '{EVENT}', $tt_thankyou_event);
     }
     return $html;
 }
@@ -201,20 +207,17 @@ function full_ttpixel_processing($html, $url)
 function insert_gtm_script($html)
 {
     global $gtm_id;
-    if ($gtm_id === '' || empty($gtm_id)) {
-        return $html;
-    }
-
-    return insert_file_content_with_replace($html, 'pixels/google/gtmcode.js', '</head>', '{GTMID}', $gtm_id);
+    if (empty($gtm_id)) return $html;
+    return insert_file_content($html, 'pixels/google/gtmcode.js', '</head>',
+        true, true, '{GTMID}', $gtm_id);
 }
 
 //если задан ID Yandex Metrika, то вставляем её скрипт
 function insert_yandex_script($html)
 {
     global $ya_id;
-    if ($ya_id == '' || empty($ya_id)) {
-        return $html;
-    }
+    if (empty($ya_id)) return $html;
 
-    return insert_file_content_with_replace($html, 'pixels/yandex/yacode.js', '</head>', '{YAID}', $ya_id);
+    return insert_file_content($html, 'pixels/yandex/yacode.js', '</head>',
+        true, true, '{YAID}', $ya_id);
 }

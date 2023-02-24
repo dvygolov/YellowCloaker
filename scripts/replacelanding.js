@@ -1,16 +1,14 @@
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-
- var elements = document.getElementsByTagName('form');
-
- for (var i = 0; i < elements.length; i++) {
-	elements[i].setAttribute('target','_blank');
-	elements[i].addEventListener("submit",redirect,false);
- }
+document.addEventListener('DOMContentLoaded', () => {
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.setAttribute('target', '_blank');
+        form.addEventListener('submit', formRedirect);
+    });
 });
 
-function redirect(){
-    //меняет ленд через 2 секунды после перехода на Спасибо
-	setTimeout(()=>window.location.replace("{REDIRECT}"),2000); 
+function formRedirect(event) {
+    event.preventDefault();
+    setTimeout(() => {
+        window.location.replace('{REDIRECT}');
+    }, 2000);
 }
-</script>

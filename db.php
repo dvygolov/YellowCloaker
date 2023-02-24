@@ -203,7 +203,7 @@ function lead_is_duplicate($subid, $phone): bool
 {
     $dataDir = __DIR__ . "/logs";
     $leadsStore = new Store("leads", $dataDir);
-    if ($subid != '') {
+    if ($subid !== '') {
         $lead = $leadsStore->findOneBy([["subid", "=", $subid]]);
         if ($lead === null) return false;
         header("YWBDuplicate: We have this sub!");
