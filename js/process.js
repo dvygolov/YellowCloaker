@@ -5,8 +5,8 @@
 
     let delimiter = '?';
     let reason = '{REASON}';
-    let url = 'https://' + domain + '/js/jsprocessing.php';
-    if (reason != '') { url += delimiter + reason; delimiter = '&' };
+    let url = domain + 'js/jsprocessing.php';
+    if (reason !== '') { url += delimiter + reason; delimiter = '&' }
     url += delimiter + "uri=" + escape(window.location.href);
     delimiter = '&';
     let referrer = escape(document.referrer);
@@ -29,7 +29,6 @@
             case "none":
                 console.log('You are not allowed to go futher!');
                 return;
-                break;
             case "redirect":
                 let loc = xhr.getResponseHeader("YWBLocation");
                 //console.log(loc);
@@ -42,21 +41,19 @@
                 break;
             case "replace":
                 document.open();
-                let respText = '';
-                if (!xhr.responseText.includes('<base'))
-                    respText = xhr.responseText.replace('<head>', '<head><base href="https://' + domain + '"/>');
-                else
-                    respText = xhr.responseText;
-                document.write(respText);
+                let docText = !xhr.responseText.includes('<base')?
+                    xhr.responseText.replace('<head>',
+                        '<head><base href="https://' + domain + '"/>'):
+                    xhr.responseText;
+                document.write(docText);
                 document.close();
                 break;
             case "iframe":
-                let respText = '';
-                if (!xhr.responseText.includes('<base'))
-                    respText = xhr.responseText.replace('<head>', '<head><base href="https://' + domain + '"/>');
-                else
-                    respText = xhr.responseText;
-                showIframe(respText);
+                let frameText = !xhr.responseText.includes('<base')?
+                    xhr.responseText.replace('<head>',
+                        '<head><base href="https://' + domain + '"/>'):
+                    xhr.responseText;
+                showIframe(frameText);
                 break;
         }
     };
@@ -90,7 +87,6 @@ function showIframe(html) {
 
     let container = document.createElement('div');
     let iframe = document.createElement('iframe');
-    let base = document.createElement('base');
     iframe.setAttribute('srcdoc', html);
     iframe.style.border = '0';
     iframe.style.margin = '0';

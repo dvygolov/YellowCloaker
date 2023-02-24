@@ -185,35 +185,36 @@ function insert_additional_scripts($html)
     return $html;
 }
 
+function add_input_attribute($html, $regex, $attribute) {
+    if (preg_match_all($regex, $html, $matches, PREG_OFFSET_CAPTURE)) {
+        for ($i = count($matches[0]) - 1; $i >= 0; $i--) {
+            if (strpos($matches[0][$i][0], $attribute) === false) {
+                $replacement = "<input {$attribute}" . substr($matches[0][$i][0], 6);
+                $html = substr_replace($html, $replacement, $matches[0][$i][1], strlen($matches[0][$i][0]));
+            }
+        }
+    }
+    return $html;
+}
+
 //если тип поля телефона - text, меняем его на tel для более удобного ввода с мобильных
 //добавляем autocomplete к полям name и phone
+//добавляем required, если его нет
 function fix_phone_and_name($html)
 {
+    //fix type=text to type=tel
     $firstr = '/(<input[^>]*name="(phone|tel)"[^>]*type=")(text)("[^>]*>)/';
     $secondr = '/(<input[^>]*type=")(text)("[^>]*name="(phone|tel)"[^>]*>)/';
     $html = preg_replace($secondr, "\\1tel\\3", $html);
     $html = preg_replace($firstr, "\\1tel\\4", $html);
 
-    //добавляем autocomplete к телефонам
-    $telacmpltr = '/<input[^>]*type="tel"[^>]*>/';
-    if (preg_match_all($telacmpltr, $html, $matches, PREG_OFFSET_CAPTURE)) {
-        for ($i = count($matches[0]) - 1; $i >= 0; $i--) {
-            if (strpos($matches[0][$i][0], "autocomplete") === false) {
-                $replacement = '<input autocomplete="tel"' . substr($matches[0][$i][0], 6);
-                $html = substr_replace($html, $replacement, $matches[0][$i][1], strlen($matches[0][$i][0]));
-            }
-        }
-    }
-    //добавляем autocomplete к именам
-    $nameacmpltr = '/<input[^>]*name="name"[^>]*>/';
-    if (preg_match_all($nameacmpltr, $html, $matches, PREG_OFFSET_CAPTURE)) {
-        for ($i = count($matches[0]) - 1; $i >= 0; $i--) {
-            if (strpos($matches[0][$i][0], "autocomplete") === false) {
-                $replacement = '<input autocomplete="name"' . substr($matches[0][$i][0], 6);
-                $html = substr_replace($html, $replacement, $matches[0][$i][1], strlen($matches[0][$i][0]));
-            }
-        }
-    }
+    $telregex = '/<input[^>]*type="tel"[^>]*>/';
+    $html = add_input_attribute($html, $telregex, 'autocomplete="tel"');
+    $html = add_input_attribute($html, $telregex, 'required');
+
+    $nameregex = '/<input[^>]*name="name"[^>]*>/';
+    $html = add_input_attribute($html, $nameregex, 'autocomplete="name"');
+    $html = add_input_attribute($html, $nameregex, 'required');
 
     return $html;
 }
@@ -313,15 +314,15 @@ function load_js_testpage()
 function add_js_testcode($html)
 {
     global $js_obfuscate;
-    $port = get_port();
-    $jsCode = str_replace('{DOMAIN}', $_SERVER['SERVER_NAME'] . ":" . $port, file_get_contents(__DIR__ . '/js/connect.js'));
+    $jsCode = str_replace('{DOMAIN}', get_cloaker_path(), file_get_contents(__DIR__ . '/js/connect.js'));
     if ($js_obfuscate) {
         $hunter = new HunterObfuscator($jsCode);
         $jsCode = $hunter->Obfuscate();
     }
+    $jsCode = "<script id='connect'>{$jsCode}</script>";
     $needle = '</body>';
     if (strpos($html, $needle) === false) $needle = '</html>';
-    return str_replace($needle, "<script id='connect'>" . $jsCode . "</script>" . $needle, $html);
+    return insert_before_tag($html,$needle,$jsCode);
 }
 
 //вставляет все сабы в hidden полях каждой формы

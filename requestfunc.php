@@ -2,33 +2,23 @@
 require_once __DIR__ . '/bases/ipcountry.php';
 require_once __DIR__ . '/url.php';
 
-function server_has_https(){
-   return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')|| strpos($_SERVER['HTTP_HOST'],'127.0.0.1')!==false;
-}
-function get_prefix()
+function get_cloaker_path()
 {
-    return  server_has_https()? 'https://' : 'http://';
-}
-
-function get_port()
-{
-    $curport = $_SERVER['SERVER_PORT'];
-    if (isset($curport) && $curport !== '80' && $curport !== '443')
-        return $curport;
-    return server_has_https() ? 443 : 80;
-}
-
-function get_cloaker_path(){
     $domain = $_SERVER['HTTP_HOST'];
-    $prefix = get_prefix();
-    $fullpath = $prefix . $domain. '/';
-    $script_path = array_filter(explode("/", $_SERVER['SCRIPT_NAME']), 'strlen');
+    $server_has_https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false;
+    $prefix = $server_has_https ? 'https://' : 'http://';;
+    $fullpath = $prefix . $domain . '/';
+    $script_path = array_values(array_filter(explode("/", $_SERVER['SCRIPT_NAME']), 'strlen'));
     array_pop($script_path);
 
     if (count($script_path) > 0) {
-        $fullpath .= implode('/', $script_path);
-        $fullpath .= '/';
+        if ($script_path[count($script_path) - 1] === 'js') //Dirty hack for js-connections
+            array_pop($script_path);
+        if (count($script_path) > 0)
+            $fullpath .= implode('/', $script_path);
     }
+    if ($fullpath[strlen($fullpath) - 1] !== '/')
+        $fullpath .= '/';
     return $fullpath;
 }
 

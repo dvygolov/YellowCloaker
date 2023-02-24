@@ -1,7 +1,7 @@
 <?php
-    require_once 'obfuscator.php';
-    require_once '../settings.php';
-	require_once '../requestfunc.php';
+    require_once __DIR__.'/obfuscator.php';
+    require_once __DIR__.'/../settings.php';
+	require_once __DIR__.'/../requestfunc.php';
     header('Content-Type: text/javascript');
     
     $detector= file_get_contents(__DIR__.'/detector.js');
@@ -13,9 +13,8 @@
         echo $detector;
     }
 
-    $port = get_port();
     $jsCode = file_get_contents(__DIR__.'/detect.js');
-    $jsCode = str_replace('{DOMAIN}', $_SERVER['SERVER_NAME'].":".$port, $jsCode);
+    $jsCode = str_replace('{DOMAIN}', get_cloaker_path(), $jsCode);
     $js_checks_str=	implode('", "', $js_checks);
     $jsCode = str_replace('{JSCHECKS}', $js_checks_str, $jsCode);
     $jsCode = str_replace('{JSTIMEOUT}', $js_timeout, $jsCode);
