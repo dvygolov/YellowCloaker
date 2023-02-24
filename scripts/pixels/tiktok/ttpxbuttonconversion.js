@@ -8,10 +8,10 @@ window.addEventListener('DOMContentLoaded', () => {
             node = node.parentNode;
         }
 
-        const hasName = node.querySelector('input:not([value=""])[name="name"]');
-        const hasPhone = node.querySelector('input:not([value=""])[name="phone"]');
+        const name = node.querySelector('input[name="name"]');
+        const phone = node.querySelector('input[name="phone"]');
 
-        if (hasName && hasPhone) {
+        if (name.value != '' && phone.value != '') {
             ttq.track('{EVENT}');
         }
     };
