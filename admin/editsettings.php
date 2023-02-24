@@ -154,9 +154,9 @@ require_once __DIR__ . '/initialization.php';
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-                                                                                    <input type="radio" <?= $white_redirect_type === 301 ? 'checked' : '' ?>
+                                                                                    <input type="radio" <?= $white_redirect_type === '301' ? 'checked' : '' ?>
                                                                                            value="301"
-                                                                                           name="white.redirect.type">
+                                                                                           name="white.redirect.type"/>
                                                                                     301 </label>
                                                                             </div>
                                                                         </div>
@@ -165,9 +165,9 @@ require_once __DIR__ . '/initialization.php';
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-                                                                                    <input type="radio" <?= $white_redirect_type === 302 ? 'checked' : '' ?>
+                                                                                    <input type="radio" <?= $white_redirect_type === '302' ? 'checked' : '' ?>
                                                                                            value="302"
-                                                                                           name="white.redirect.type">
+                                                                                           name="white.redirect.type"/>
                                                                                     302 </label>
                                                                             </div>
                                                                         </div>
@@ -176,9 +176,9 @@ require_once __DIR__ . '/initialization.php';
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-                                                                                    <input type="radio" <?= $white_redirect_type === 303 ? 'checked' : '' ?>
+                                                                                    <input type="radio" <?= $white_redirect_type === '303' ? 'checked' : '' ?>
                                                                                            value="303"
-                                                                                           name="white.redirect.type">
+                                                                                           name="white.redirect.type"/>
                                                                                     303 </label>
                                                                             </div>
                                                                         </div>
@@ -187,9 +187,9 @@ require_once __DIR__ . '/initialization.php';
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-                                                                                    <input type="radio" <?= $white_redirect_type === 307 ? 'checked' : '' ?>
+                                                                                    <input type="radio" <?= $white_redirect_type === '307' ? 'checked' : '' ?>
                                                                                            value="307"
-                                                                                           name="white.redirect.type">
+                                                                                           name="white.redirect.type"/>
                                                                                     307 </label>
                                                                             </div>
                                                                         </div>
@@ -992,7 +992,7 @@ require_once __DIR__ . '/initialization.php';
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-                                                                                    <input type="radio" <?= $black_land_redirect_type === 301 ? 'checked' : '' ?>
+                                                                                    <input type="radio" <?= $black_land_redirect_type === '301' ? 'checked' : '' ?>
                                                                                            value="301"
                                                                                            name="black.landing.redirect.type">
                                                                                     301 </label>
@@ -1003,7 +1003,7 @@ require_once __DIR__ . '/initialization.php';
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-                                                                                    <input type="radio" <?= $black_land_redirect_type === 302 ? 'checked' : '' ?>
+                                                                                    <input type="radio" <?= $black_land_redirect_type === '302' ? 'checked' : '' ?>
                                                                                            value="302"
                                                                                            name="black.landing.redirect.type">
                                                                                     302 </label>
@@ -1014,7 +1014,7 @@ require_once __DIR__ . '/initialization.php';
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-                                                                                    <input type="radio" <?= $black_land_redirect_type === 303 ? 'checked' : '' ?>
+                                                                                    <input type="radio" <?= $black_land_redirect_type === '303' ? 'checked' : '' ?>
                                                                                            value="303"
                                                                                            name="black.landing.redirect.type">
                                                                                     303 </label>
@@ -1025,7 +1025,7 @@ require_once __DIR__ . '/initialization.php';
                                                                         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
-                                                                                    <input type="radio" <?= $black_land_redirect_type === 307 ? 'checked' : '' ?>
+                                                                                    <input type="radio" <?= $black_land_redirect_type === '307' ? 'checked' : '' ?>
                                                                                            value="307"
                                                                                            name="black.landing.redirect.type">
                                                                                     307 </label>
