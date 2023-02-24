@@ -42,10 +42,10 @@ function load_prelanding($url, $land_number)
     //добавляем в формы id пикселя фб
     $html = insert_fbpixel_id($html);
 
-    $domain = get_domain_with_prefix();
+    $cloaker = get_cloaker_path();
     $querystr = $_SERVER['QUERY_STRING'];
     //замена всех ссылок на прокле на универсальную ссылку ленда landing.php
-    $replacement = "\\1" . $domain . '/landing.php?l=' . $land_number . (!empty($querystr) ? '&' . $querystr : '');
+    $replacement = "\\1" . $cloaker . 'landing.php?l=' . $land_number . (!empty($querystr) ? '&' . $querystr : '');
 
     //убираем target=_blank если был изначально на прокле
     $html = preg_replace('/(<a[^>]+)(target="_blank")/i', "\\1", $html);
@@ -216,15 +216,15 @@ function replace_city_macros($html)
 
 function fix_anchors($html)
 {
-    return insert_file_content($html, "replaceanchorswithsmoothscroll.js", "<body>", false);
+    return insert_file_content($html, "replaceanchorswithsmoothscroll.js", "<body", false);
 }
 
 function insert_phone_mask($html)
 {
     global $black_land_use_phone_mask, $black_land_phone_mask;
     if (!$black_land_use_phone_mask) return $html;
-    $domain = get_domain_with_prefix();
-    $html = insert_before_tag($html, '</head>', "<script src=\"" . $domain . "/scripts/inputmask/inputmask.js\"></script>");
+    $cloaker = get_cloaker_path();
+    $html = insert_before_tag($html, '</head>', "<script src=\"" . $cloaker . "/scripts/inputmask/inputmask.js\"></script>");
     $html = insert_file_content_with_replace($html, 'inputmask/inputmaskbinding.js', '</body>', '{MASK}', $black_land_phone_mask);
     return $html;
 }

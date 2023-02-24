@@ -15,25 +15,23 @@ function get_port()
     return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 443 : 80;
 }
 
-function get_domain_with_prefix()
-{
+function get_cloaker_path(){
     $domain = $_SERVER['HTTP_HOST'];
     $prefix = get_prefix();
-    return $prefix . $domain;
-}
-
-function get_abs_from_rel($url, $add_query_string = false)
-{
-    $domain = $_SERVER['HTTP_HOST'];
-    $prefix = get_prefix();
+    $fullpath = $prefix . $domain. '/';
     $script_path = array_filter(explode("/", $_SERVER['SCRIPT_NAME']), 'strlen');
     array_pop($script_path);
 
-    $fullpath = $prefix . $domain . '/';
     if (count($script_path) > 0) {
         $fullpath .= implode('/', $script_path);
         $fullpath .= '/';
     }
+    return $fullpath;
+}
+
+function get_abs_from_rel($url, $add_query_string = false)
+{
+    $fullpath = get_cloaker_path();
     $fullpath .= $url;
     if (substr($url, -4) !== '.php') $fullpath = $fullpath . '/';
     if ($add_query_string === true) {

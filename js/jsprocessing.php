@@ -37,7 +37,7 @@ if ($check_result === 1 || $tds_mode === 'full') {
 } else if ($check_result === 0 || $tds_mode === 'off') { //Обычный юзверь или отключена фильтрация
 
     if ($black_jsconnect_action === 'redirect') { //если в настройках JS-подключения у нас редирект
-        $url = get_domain_with_prefix();
+        $url = get_cloaker_path();
         $from = rtrim(strtok($_GET['uri'], '?'), '/');
         //если у нас одинаковый адрес, откуда мы вызываем скрипт и наш собственный
         //значит у нас просто включена JS-проверка и нам не нужно опять редиректить
