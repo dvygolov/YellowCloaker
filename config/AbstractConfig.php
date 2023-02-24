@@ -50,6 +50,13 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
         $this->namespace = $namespace;
     }
 
+    public function deleteNamespace(string $namespace){
+        if ($namespace === 'default') return;
+        unset($this->data[$namespace]);
+        $this->namespace = "default";
+    }
+
+
     /**
      * Override this method in your own subclass to provide an array of default
      * options and values

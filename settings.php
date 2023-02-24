@@ -154,6 +154,7 @@ function del_config($name)
 {
     $conf = Config::load(__DIR__ . '/settings.json');
     $conf->deleteNamespace($name);
+    $conf->toFile(__DIR__ . '/settings.json', new Json());
 }
 
 /**
