@@ -4,18 +4,18 @@ use Noodlehaus\Config;
 use Noodlehaus\Exception\EmptyDirectoryException;
 use Noodlehaus\Writer\Json;
 
-require_once __DIR__.'/config/ConfigInterface.php';
-require_once __DIR__.'/config/AbstractConfig.php';
-require_once __DIR__.'/config/Config.php';
-require_once __DIR__.'/config/Parser/ParserInterface.php';
-require_once __DIR__.'/config/Parser/Json.php';
-require_once __DIR__.'/config/Writer/AbstractWriter.php';
-require_once __DIR__.'/config/Writer/WriterInterface.php';
-require_once __DIR__.'/config/Writer/Json.php';
-require_once __DIR__.'/config/ErrorException.php';
-require_once __DIR__.'/config/Exception.php';
-require_once __DIR__.'/config/Exception/ParseException.php';
-require_once __DIR__.'/config/Exception/FileNotFoundException.php';
+require_once __DIR__ . '/config/ConfigInterface.php';
+require_once __DIR__ . '/config/AbstractConfig.php';
+require_once __DIR__ . '/config/Config.php';
+require_once __DIR__ . '/config/Parser/ParserInterface.php';
+require_once __DIR__ . '/config/Parser/Json.php';
+require_once __DIR__ . '/config/Writer/AbstractWriter.php';
+require_once __DIR__ . '/config/Writer/WriterInterface.php';
+require_once __DIR__ . '/config/Writer/Json.php';
+require_once __DIR__ . '/config/ErrorException.php';
+require_once __DIR__ . '/config/Exception.php';
+require_once __DIR__ . '/config/Exception/ParseException.php';
+require_once __DIR__ . '/config/Exception/FileNotFoundException.php';
 
 $conf = Config::load(__DIR__ . '/settings.json');
 
@@ -142,7 +142,7 @@ function get_config_name_by_domain($domain): string
     foreach ($conf as $c => $v) {
         $conf->setNamespace($c);
         $domains = $conf->get("domains");
-        if (in_array($domain, $domains)) return $c;
+        if (in_array($domain, $domains)) return $c; //TODO: make pattern matching for subdomains
     }
     return "default";
 }
@@ -153,33 +153,40 @@ function get_config_name_by_domain($domain): string
 function del_config($name)
 {
     $conf = Config::load(__DIR__ . '/settings.json');
-    $conf->deleteNamespace($name);
-    $conf->toFile(__DIR__ . '/settings.json', new Json());
+    if ($conf->deleteNamespace($name)) {
+        $conf->toFile(__DIR__ . '/settings.json', new Json());
+        return true;
+    }
+    return false;
 }
 
-/**
- * @throws EmptyDirectoryException
- */
 function add_config($name)
 {
-    $conf1 = Config::load(__DIR__ . '/settings.json');
-    $conf1->setNamespace("default");
-    $conf2 = Config::load(__DIR__ . '/settings.json');
-    $conf2->setNamespace($name);
+    $conf = Config::load(__DIR__ . '/settings.json');
+    if ($conf->addNamespace($name)) {
+        $conf->toFile(__DIR__ . '/settings.json', new Json());
+        return true;
+    }
+    return false;
 }
 
 function save_config($name)
 {
-    $conf = Config::load(__DIR__ . '/settings.json');
-    $conf->setNamespace($name);
-    foreach ($_POST as $key => $value) {
-        $confkey = str_replace('_', '.', $key);
-        if (is_string($value) && is_array($conf[$confkey])) {
-            $value = $value === '' ? [] : explode(',', $value);
-        } else if ($value === 'false' || $value === 'true') {
-            $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+    try {
+        $conf = Config::load(__DIR__ . '/settings.json');
+        $conf->setNamespace($name);
+        foreach ($_POST as $key => $value) {
+            $confkey = str_replace('_', '.', $key);
+            if (is_string($value) && is_array($conf[$confkey])) {
+                $value = $value === '' ? [] : explode(',', $value);
+            } else if ($value === 'false' || $value === 'true') {
+                $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
+            }
+            $conf[$confkey] = $value;
         }
-        $conf[$confkey] = $value;
+        $conf->toFile(__DIR__ . '/settings.json', new Json());
+        return true;
+    } catch (Exception $e) {
+        return false;
     }
-    $conf->toFile(__DIR__ . '/settings.json', new Json());
 }
