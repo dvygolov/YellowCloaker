@@ -118,10 +118,7 @@ $menuQueryString = "password={$password}&config={$config}{$date_str}";
 
         document.getElementById("addconfig").onclick = async () => {
             let configName = prompt("Enter new config name:");
-            if (configName === '' || configName == null) {
-                alert('Config name not entered!');
-                return;
-            }
+            if (configName === '' || configName == null) return;
             let res = await fetch("configmanager.php?password=<?=$password?>", {
                 method: "POST",
                 headers: {

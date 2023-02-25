@@ -1090,12 +1090,12 @@ require_once __DIR__ . '/initialization.php';
                                                 </div>
                                                 <br>
                                                 <hr>
-                                                <h4>#3 Настройка метрик и пикселей</h4>
+                                                <h4>#3 Metrics and pixels settings</h4>
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Идентификатор
-                                                                Google Tag Manager: </label>
+                                                            <label class="login2 pull-left pull-left-pro">
+                                                                Google Tag Manager ID: </label>
                                                         </div>
                                                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                             <div class="input-group custom-go-button">
@@ -1108,8 +1108,8 @@ require_once __DIR__ . '/initialization.php';
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Идентификатор
-                                                                Яндекс.Метрики: </label>
+                                                            <label class="login2 pull-left pull-left-pro">
+                                                                Yandex.Metrika ID:</label>
                                                         </div>
                                                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                             <div class="input-group custom-go-button">
@@ -1120,7 +1120,7 @@ require_once __DIR__ . '/initialization.php';
                                                     </div>
                                                 </div>
 
-                                                <h5>#3.1 Настройка пикселя Facebook</h5>
+                                                <h5>#3.1 Facebook Pixel Settings</h5>
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -1152,7 +1152,7 @@ require_once __DIR__ . '/initialization.php';
                                                                             <label>
                                                                                 <input type="radio" <?= $fb_use_pageview === false ? 'checked' : '' ?>
                                                                                        value="false"
-                                                                                       name="pixels.fb.pageview"> Нет
+                                                                                       name="pixels.fb.pageview"> No
                                                                             </label>
                                                                         </div>
                                                                     </div>
@@ -1163,8 +1163,8 @@ require_once __DIR__ . '/initialization.php';
                                                                             <label>
                                                                                 <input type="radio" <?= $fb_use_pageview === true ? 'checked' : '' ?>
                                                                                        value="true"
-                                                                                       name="pixels.fb.pageview"> Да,
-                                                                                добавлять </label>
+                                                                                       name="pixels.fb.pageview"> Yes,
+                                                                                add </label>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -1203,7 +1203,7 @@ require_once __DIR__ . '/initialization.php';
                                                                                        value="true"
                                                                                        name="pixels.fb.viewcontent.use"
                                                                                        onclick="(document.getElementById('b_8-2').style.display='block')">
-                                                                                Да, добавлять </label>
+                                                                                Yes, add </label>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -1269,7 +1269,7 @@ require_once __DIR__ . '/initialization.php';
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <h5>#3.2 Настройка пикселя TikTok</h5>
+                                                <h5>#3.2 TikTok pixel settings</h5>
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -1301,7 +1301,7 @@ require_once __DIR__ . '/initialization.php';
                                                                             <label>
                                                                                 <input type="radio" <?= $tt_use_pageview === false ? 'checked' : '' ?>
                                                                                        value="false"
-                                                                                       name="pixels.tt.pageview"> Нет
+                                                                                       name="pixels.tt.pageview"> No
                                                                             </label>
                                                                         </div>
                                                                     </div>
@@ -1312,8 +1312,8 @@ require_once __DIR__ . '/initialization.php';
                                                                             <label>
                                                                                 <input type="radio" <?= $tt_use_pageview === true ? 'checked' : '' ?>
                                                                                        value="true"
-                                                                                       name="pixels.tt.pageview"> Да,
-                                                                                добавлять </label>
+                                                                                       name="pixels.tt.pageview"> Yes,
+                                                                                add </label>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -1352,7 +1352,7 @@ require_once __DIR__ . '/initialization.php';
                                                                                        value="true"
                                                                                        name="pixels.tt.viewcontent.use"
                                                                                        onclick="(document.getElementById('tt_8-2').style.display='block')">
-                                                                                Да, добавлять </label>
+                                                                                Yes, add </label>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -1482,7 +1482,7 @@ require_once __DIR__ . '/initialization.php';
                                                                             <label>
                                                                                 <input type="radio" <?= $save_user_flow === false ? 'checked' : '' ?>
                                                                                        value="false"
-                                                                                       name="tds.saveuserflow"> Нет
+                                                                                       name="tds.saveuserflow"> No
                                                                             </label>
                                                                         </div>
                                                                     </div>
@@ -1493,7 +1493,7 @@ require_once __DIR__ . '/initialization.php';
                                                                             <label>
                                                                                 <input type="radio" <?= $save_user_flow === true ? 'checked' : '' ?>
                                                                                        value="true"
-                                                                                       name="tds.saveuserflow"> Да,
+                                                                                       name="tds.saveuserflow"> Yes,
                                                                                 посылать </label>
                                                                         </div>
                                                                     </div>
@@ -1526,7 +1526,8 @@ require_once __DIR__ . '/initialization.php';
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Allowed countries:
+                                                            <label class="login2 pull-left pull-left-pro">Allowed
+                                                                countries:
                                                                 <small>(WW or empty for whole world)</small></label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
@@ -1717,9 +1718,10 @@ require_once __DIR__ . '/initialization.php';
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
                                                             <label class="login2 pull-left pull-left-pro">
-                                                                If any of these words (comma-separated without spaces) will be found
+                                                                If any of these words (comma-separated without spaces)
+                                                                will be found
                                                                 in Referer the user will be sent to safe page.
-                                                                </label>
+                                                            </label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                                                             <div class="input-group custom-go-button">
@@ -1735,7 +1737,8 @@ require_once __DIR__ . '/initialization.php';
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">If VPN/Tor detected,
+                                                            <label class="login2 pull-left pull-left-pro">If VPN/Tor
+                                                                detected,
                                                                 send them to safe page?</label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
@@ -1773,8 +1776,7 @@ require_once __DIR__ . '/initialization.php';
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Что делать с
-                                                                кнопкой Назад?</label>
+                                                            <label class="login2 pull-left pull-left-pro">Back button actions:</label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                             <div class="bt-df-checkbox pull-left">
@@ -1787,7 +1789,7 @@ require_once __DIR__ . '/initialization.php';
                                                                                        value="off"
                                                                                        name="scripts.back.action"
                                                                                        onclick="(document.getElementById('b_9').style.display='none')">
-                                                                                Оставить по умолчанию </label>
+                                                                                Leave it as it is</label>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -1799,7 +1801,7 @@ require_once __DIR__ . '/initialization.php';
                                                                                        value="disable"
                                                                                        name="scripts.back.action"
                                                                                        onclick="(document.getElementById('b_9').style.display='none')">
-                                                                                Отключить (перестает нажиматься)</label>
+                                                                                Disable (user won't be able to go back)</label>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -1811,7 +1813,7 @@ require_once __DIR__ . '/initialization.php';
                                                                                        value="replace"
                                                                                        name="scripts.back.action"
                                                                                        onclick="(document.getElementById('b_9').style.display='block')">
-                                                                                Повесить на нее редирект на URL</label>
+                                                                                Make a redirect</label>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -1824,8 +1826,7 @@ require_once __DIR__ . '/initialization.php';
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Куда
-                                                                    направлять при нажатии Назад?</label>
+                                                                <label class="login2 pull-left pull-left-pro">Back button redirect URL:</label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                                                                 <div class="input-group custom-go-button">
@@ -1842,7 +1843,8 @@ require_once __DIR__ . '/initialization.php';
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                                                             <label class="login2 pull-left pull-left-pro">
-                                                                Disable: text selection, page saving (Ctrl+S) and context menu?
+                                                                Disable: text selection, page saving (Ctrl+S) and
+                                                                context menu?
                                                             </label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
@@ -1878,9 +1880,9 @@ require_once __DIR__ . '/initialization.php';
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Открывать
-                                                                ссылки на ленд в новом окне с подменой в старом окне
-                                                                проклы на URL указанный ниже?</label>
+                                                            <label class="login2 pull-left pull-left-pro">
+                                                                Should we open landing in a new tab and
+                                                                redirect prelanding page to another URL?</label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                             <div class="bt-df-checkbox pull-left">
@@ -1905,7 +1907,7 @@ require_once __DIR__ . '/initialization.php';
                                                                                        value="true"
                                                                                        name="scripts.prelandingreplace.use"
                                                                                        onclick="(document.getElementById('b_10').style.display='block')">
-                                                                                Да, открывать </label>
+                                                                                Yes</label>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -1918,8 +1920,8 @@ require_once __DIR__ . '/initialization.php';
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">URL
-                                                                    который откроется в старом окне:</label>
+                                                                <label class="login2 pull-left pull-left-pro">
+                                                                    Prelanding redirect URL:</label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                                                                 <div class="input-group custom-go-button">
@@ -1938,9 +1940,10 @@ require_once __DIR__ . '/initialization.php';
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Открывать
-                                                                страницу Спасибо ленда в новом окне с подменой в старом
-                                                                окне ленда на URL указанный ниже?</label>
+                                                            <label class="login2 pull-left pull-left-pro">
+                                                                Should we open Thankyou page in a new tab and redirect
+                                                                landing page to another URL:
+                                                                </label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                             <div class="bt-df-checkbox pull-left">
@@ -1965,7 +1968,7 @@ require_once __DIR__ . '/initialization.php';
                                                                                        value="true"
                                                                                        name="scripts.landingreplace.use"
                                                                                        onclick="(document.getElementById('b_1010').style.display='block')">
-                                                                                Да, открывать </label>
+                                                                                Yes</label>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -1978,8 +1981,8 @@ require_once __DIR__ . '/initialization.php';
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">URL
-                                                                    который откроется в старом окне:</label>
+                                                                <label class="login2 pull-left pull-left-pro">
+                                                                    Landing redirect URL:</label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                                                                 <div class="input-group custom-go-button">
@@ -1998,7 +2001,7 @@ require_once __DIR__ . '/initialization.php';
                                                         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                                                             <label class="login2 pull-left pull-left-pro">
                                                                 Should we use phone masks for form inputs?
-                                                                </label>
+                                                            </label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                             <div class="bt-df-checkbox pull-left">
@@ -2102,7 +2105,7 @@ require_once __DIR__ . '/initialization.php';
                                                                             <label>
                                                                                 <input type="radio" <?= $callbacker === false ? 'checked' : '' ?>
                                                                                        value="false"
-                                                                                       name="scripts.callbacker"> Нет
+                                                                                       name="scripts.callbacker">No
                                                                             </label>
                                                                         </div>
                                                                     </div>
@@ -2114,7 +2117,7 @@ require_once __DIR__ . '/initialization.php';
                                                                                 <input type="radio" <?= $callbacker === true ? 'checked' : '' ?>
                                                                                        value="true"
                                                                                        name="scripts.callbacker">
-                                                                                Да</label>
+                                                                                Yes</label>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -2138,7 +2141,7 @@ require_once __DIR__ . '/initialization.php';
                                                                             <label>
                                                                                 <input type="radio" <?= $addedtocart === false ? 'checked' : '' ?>
                                                                                        value="false"
-                                                                                       name="scripts.addedtocart"> Нет
+                                                                                       name="scripts.addedtocart"> No
                                                                             </label>
                                                                         </div>
                                                                     </div>
@@ -2150,7 +2153,7 @@ require_once __DIR__ . '/initialization.php';
                                                                                 <input type="radio" <?= $addedtocart === true ? 'checked' : '' ?>
                                                                                        value="true"
                                                                                        name="scripts.addedtocart">
-                                                                                Да</label>
+                                                                                Yes</label>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -2185,7 +2188,8 @@ require_once __DIR__ . '/initialization.php';
                                                                             <label>
                                                                                 <input type="radio" <?= $images_lazy_load === true ? 'checked' : '' ?>
                                                                                        value="true"
-                                                                                       name="scripts.imageslazyload"> Да</label>
+                                                                                       name="scripts.imageslazyload">
+                                                                                Yes</label>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -2255,9 +2259,11 @@ require_once __DIR__ . '/initialization.php';
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Пароль от
-                                                                админ-панели: <br><small>добавлять как:
-                                                                    /admin?password=xxxxx</small></label>
+                                                            <label class="login2 pull-left pull-left-pro">
+                                                                <img src="img/info.ico"
+                                                                     title="Add it to url like: /admin?password=xxxxx"/>
+                                                                Admin-panel password:
+                                                            </label>
                                                         </div>
                                                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                             <div class="input-group custom-go-button">
@@ -2271,8 +2277,9 @@ require_once __DIR__ . '/initialization.php';
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Часовой пояс
-                                                                для отображения статы</label>
+                                                            <label class="login2 pull-left pull-left-pro">
+                                                                Time zone to show statistics:
+                                                            </label>
                                                         </div>
                                                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                             <div class="input-group custom-go-button">
@@ -2405,8 +2412,8 @@ require_once __DIR__ . '/initialization.php';
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-5 col-md-12 col-sm-12 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Настойка
-                                                                S2S-постбеков:</label>
+                                                            <label class="login2 pull-left pull-left-pro">
+                                                                S2S-postbacks settings:</label>
                                                             <br/>
                                                         </div>
                                                     </div>
@@ -2418,7 +2425,7 @@ require_once __DIR__ . '/initialization.php';
                                                         <div class="form-group-inner s2s">
                                                             <div class="row">
                                                                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                                                                    <label class="login2 pull-left pull-left-pro">Адрес:</label>
+                                                                    <label class="login2 pull-left pull-left-pro">Address:</label>
                                                                     <br/><br/>
                                                                     <p>Внутри адреса постбэка можно использовать
                                                                         следующие макросы:
@@ -2439,8 +2446,9 @@ require_once __DIR__ . '/initialization.php';
                                                             </div>
                                                             <div class="row">
                                                                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                                                                    <label class="login2 pull-left pull-left-pro">Метод
-                                                                        отправки постбэка:</label>
+                                                                    <label class="login2 pull-left pull-left-pro">
+                                                                        S2S-Postback send method:
+                                                                    </label>
                                                                 </div>
                                                                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                                                                     <div class="input-group">
@@ -2458,8 +2466,9 @@ require_once __DIR__ . '/initialization.php';
                                                             </div>
                                                             <div class="row">
                                                                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                                                                    <label class="login2 pull-left pull-left-pro">События,
-                                                                        при которых будет отправлен постбэк:</label>
+                                                                    <label class="login2 pull-left pull-left-pro">
+                                                                        Events for which S2S-postback will be sent:
+                                                                    </label>
                                                                 </div>
                                                                 <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
                                                                     <br/>
@@ -2495,7 +2504,8 @@ require_once __DIR__ . '/initialization.php';
                                                                 <div class="col-lg-9">
                                                                     <div class="login-horizental cancel-wp pull-left">
                                                                         <button class="btn btn-sm btn-primary"
-                                                                                type="submit"><strong>Save settings</strong></button>
+                                                                                type="submit"><strong>Save
+                                                                                settings</strong></button>
                                                                     </div>
                                                                 </div>
                                                             </div>
