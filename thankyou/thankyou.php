@@ -46,10 +46,8 @@ if (empty($_GET['nopixel'])) {
     $html = insert_ttpixel_script($html, $tt_thankyou_event);
 }
 
-$search = '{NAME}';
-$html = str_replace($search, get_cookie('name'), $html);
-$search = '{PHONE}';
-$html = str_replace($search, get_cookie('phone'), $html);
+$html = str_replace('{NAME}', get_cookie('name'), $html);
+$html = str_replace('{PHONE}', get_cookie('phone'), $html);
 
 //добавляем на стр Спасибо допродажи
 if ($thankyou_upsell === true) {
@@ -111,13 +109,9 @@ if ($ispost) {
     }
 }
 
-$needle = '</form>';
 $str_to_insert = '<input type="hidden" name="name" value="' . get_cookie('name') . '"/>';
-$html = insert_before_tag($html, $needle, $str_to_insert);
-$str_to_insert = '<input type="hidden" name="phone" value="' . get_cookie('phone') . '"/>';
-$html = insert_before_tag($html, $needle, $str_to_insert);
-$str_to_insert = '<input type="hidden" name="subid" value="' . get_subid() . '"/>';
-$html = insert_before_tag($html, $needle, $str_to_insert);
-$str_to_insert = '<input type="hidden" name="language" value="' . $black_land_thankyou_page_language . '"/>';
-$html = insert_before_tag($html, $needle, $str_to_insert);
+$str_to_insert .= '<input type="hidden" name="phone" value="' . get_cookie('phone') . '"/>';
+$str_to_insert .= '<input type="hidden" name="subid" value="' . get_subid() . '"/>';
+$str_to_insert .= '<input type="hidden" name="language" value="' . $black_land_thankyou_page_language . '"/>';
+$html = insert_before_tag($html, '</form>', $str_to_insert);
 echo $html;
