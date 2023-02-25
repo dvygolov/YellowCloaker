@@ -25,7 +25,7 @@
                                             <a class="nav-link">
                                                 <i class="icon nalika-settings icon-wrap"></i>
                                                 <span>Current Config:&nbsp;</span>
-                                                <select style="color:black;">
+                                                <select style="color:black;" onchange="selectConfig(this.value)">
                                                     <?= get_config_menu() ?>
                                                 </select>
                                             </a>
@@ -54,6 +54,7 @@
         let p = new URLSearchParams(window.location.search);
         p.set("config", configName);
         url.search = p.toString();
+        console.log(url.href);
         window.location.href = url.href;
     }
 </script>
@@ -100,9 +101,7 @@ function get_config_menu()
     $allConfigNames = get_all_config_names();
     foreach ($allConfigNames as $configName) {
         $confSelected = $configName === $curConfig ? " selected" : "";
-        $options .= <<<EOF
-            <option onclick="selectConfig('{$configName}')" {$confSelected}>{$configName}</option>
-            EOF;
+        $options .= "<option {$confSelected}>{$configName}</option>";
     }
     return $options;
 }
