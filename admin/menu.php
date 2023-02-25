@@ -5,7 +5,7 @@ $menuQueryString = "password={$password}&config={$config}{$date_str}";
 <div class="left-sidebar-pro">
     <nav id="sidebar" class="">
         <div class="sidebar-header">
-            <a href="/admin/index.php?<?= $menuQueryString ?>">
+            <a href="index.php?<?= $menuQueryString ?>">
                 <img class="main-logo" src="img/logo/logo.png" alt=""/>
             </a>
             <strong>
@@ -28,56 +28,62 @@ $menuQueryString = "password={$password}&config={$config}{$date_str}";
                         <a class="has-arrow"
                            href="index.php?<?= $menuQueryString ?>"
                            aria-expanded="false">
-                            <i class="icon nalika-bar-chart icon-wrap"></i>
+                            <i class="icon nalika-home icon-wrap"></i>
                             <span class="mini-click-non">Traffic</span>
                         </a>
                         <ul class="submenu-angle" aria-expanded="false">
                             <li>
                                 <a title="Statistics"
                                    href="statistics.php?<?= $menuQueryString ?>">
+                                    <i class="icon nalika-analytics icon-wrap"></i>
                                     <span class="mini-sub-pro">Statistics</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a title="Allowed"
-                                   href="index.php?<?= $menuQueryString ?>">
-                                    <span class="mini-sub-pro">Allowed</span>
                                 </a>
                             </li>
                             <li>
                                 <a title="Leads"
                                    href="index.php?filter=leads&<?= $menuQueryString ?>">
+                                    <i class="icon nalika-price-tag icon-wrap"></i>
                                     <span class="mini-sub-pro">Leads</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a title="Allowed"
+                                   href="index.php?<?= $menuQueryString ?>">
+                                    <i class="icon nalika-happiness icon-wrap"></i>
+                                    <span class="mini-sub-pro">Allowed</span>
                                 </a>
                             </li>
                             <li>
                                 <a title="Blocked"
                                    href="index.php?filter=blocked&<?= $menuQueryString ?>">
+                                    <i class="icon nalika-warning-sign icon-wrap"></i>
                                     <span class="mini-sub-pro">Blocked</span>
                                 </a>
                             </li>
                             <li>
                                 <a title="Bottom button" href="#bottom">
+                                    <i class="icon nalika-down-arrow icon-wrap"></i>
                                     <span class="mini-sub-pro">Go to bottom</span>
                                 </a>
                             </li>
                         </ul>
                     </li>
                     <li class="active">
-                        <a class="has-arrow"
-                           href="editsettings.php?<?= $menuQueryString ?>"
+                        <a href="editsettings.php?<?= $menuQueryString ?>"
                            aria-expanded="false">
-                            <i class="icon nalika-table icon-wrap"></i>
+                            <i class="icon nalika-settings icon-wrap"></i>
                             <span class="mini-click-non">Configuration</span>
                         </a>
                         <ul class="submenu-angle" aria-expanded="false">
                             <li>
                                 <a id="addconfig" title="Add configuration">
+                                    <i class="icon nalika-new-file icon-wrap"></i>
                                     <span class="mini-sub-pro">Add Config</span>
                                 </a>
                             </li>
                             <li>
                                 <a id="delconfig" title="Delete configuration">
+                                    <i class="icon nalika-delete-button icon-wrap"></i>
                                     <span class="mini-sub-pro">Delete Config</span>
                                 </a>
                             </li>
@@ -88,7 +94,7 @@ $menuQueryString = "password={$password}&config={$config}{$date_str}";
     </nav>
 </div>
 <script>
-    document.addEventListener("DOMContentLoaded", function(event) {
+    document.addEventListener("DOMContentLoaded", function() {
         function reloadWithConfig(configName){
             const urlParams = new URLSearchParams(window.location.search);
             urlParams.set('config', configName);
@@ -107,7 +113,7 @@ $menuQueryString = "password={$password}&config={$config}{$date_str}";
                 body: new URLSearchParams(new FormData(document.getElementById("saveconfig")).entries()).toString()
             });
             let js = await res.json();
-            if (js["result"] == "OK")
+            if (js["result"] === "OK")
                 alert("Settings saved!")
             else
                 alert(`An error occured: ${js["result"]}`);
@@ -116,7 +122,7 @@ $menuQueryString = "password={$password}&config={$config}{$date_str}";
 
         document.getElementById("addconfig").onclick = async () => {
             let configName = prompt("Enter new config name:");
-            if (configName == '' || configName == null) {
+            if (configName === '' || configName == null) {
                 alert('Config name not entered!');
                 return;
             }
@@ -128,7 +134,7 @@ $menuQueryString = "password={$password}&config={$config}{$date_str}";
                 body: `action=add&name=${configName}`
             });
             let js = await res.json();
-            if (js["result"] == "OK")
+            if (js["result"] === "OK")
                 reloadWithConfig(configName);
             else
                 alert(`An error occured: ${js["result"]}`);
@@ -136,7 +142,7 @@ $menuQueryString = "password={$password}&config={$config}{$date_str}";
 
         document.getElementById("delconfig").onclick = async () => {
             let config = "<?=$config?>";
-            if (config == 'default') {
+            if (config === 'default') {
                 alert("Can't delete default config!");
                 return;
             }
@@ -149,7 +155,7 @@ $menuQueryString = "password={$password}&config={$config}{$date_str}";
                 body: `action=del&name=${config}`
             });
             let js = await res.json();
-            if (js["result"] == "OK")
+            if (js["result"] === "OK")
                 reloadWithConfig("default");
             else
                 alert(`An error occured: ${js["result"]}`);
