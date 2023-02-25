@@ -19,7 +19,7 @@ require_once __DIR__ . '/config/Exception/FileNotFoundException.php';
 
 $conf = Config::load(__DIR__ . '/settings.json');
 
-$cur_config = $_GET['config'] ?? get_config_name_by_domain($_SERVER['SERVER_NAME']);
+$cur_config = $_GET['config'] ?? get_config_name_by_domain($_SERVER['HTTP_HOST']);
 $conf->setNamespace($cur_config);
 $domain_names = $conf->get('domains');
 $white_action = $conf->get('white.action', 'folder');
@@ -138,6 +138,8 @@ function get_all_config_names(): array
  */
 function get_config_name_by_domain($domain): string
 {
+    if (strpos($domain,":")!==false)
+        $domain = explode(":",$domain)[0];
     $conf = Config::load(__DIR__ . '/settings.json');
     foreach ($conf as $c => $v) {
         $conf->setNamespace($c);

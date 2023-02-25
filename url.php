@@ -16,7 +16,7 @@ function replace_all_macros($url)
     $tmp_url = str_replace('{landing}', $landing, $tmp_url);
     $tmp_url = str_replace('{prelanding}', $prelanding, $tmp_url);
     $tmp_url = str_replace('{subid}', $subid, $tmp_url);
-    $tmp_url = str_replace('{domain}', $_SERVER['SERVER_NAME'], $tmp_url);
+    $tmp_url = str_replace('{domain}', $_SERVER['HTTP_HOST'], $tmp_url);
     return $tmp_url;
 }
 

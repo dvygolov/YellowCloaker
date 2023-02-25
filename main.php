@@ -31,7 +31,7 @@ function white($use_js_checks)
     }
 
     if ($white_use_domain_specific) { //если у нас под каждый домен свой вайт
-        $curdomain = $_SERVER['SERVER_NAME'];
+        $curdomain = $_SERVER['HTTP_HOST'];
         foreach ($white_domain_specific as $wds) {
             if ($wds['name'] == $curdomain) {
                 $wtd_arr = explode(":", $wds['action'], 2);

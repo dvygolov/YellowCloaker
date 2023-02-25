@@ -2261,7 +2261,7 @@ require_once __DIR__ . '/initialization.php';
                                                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
                                                             <label class="login2 pull-left pull-left-pro">
                                                                 <img src="img/info.ico"
-                                                                     title="Add it to url like: /admin?password=xxxxx"/>
+                                                                     title="Add it to url like: /admin/?password=xxxxx"/>
                                                                 Admin-panel password:
                                                             </label>
                                                         </div>
