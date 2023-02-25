@@ -14,17 +14,13 @@ $menuQueryString = "password={$password}&config={$config}{$date_str}";
         </div>
         <div class="nalika-profile">
             <div class="profile-dtl">
-                <a href="https://t.me/yellow_web">
-                    <img src="img/notification/4.jpg" alt=""/>
-                </a>
-                <?php include "version.php" ?>
+                <?php include 'version.php'?>
             </div>
         </div>
         <div class="left-custom-menu-adp-wrap comment-scrollbar">
             <nav class="sidebar-nav left-sidebar-menu-pro">
                 <ul class="metismenu" id="menu1">
                     <li class="active">
-
                         <a class="has-arrow"
                            href="index.php?<?= $menuQueryString ?>"
                            aria-expanded="false">

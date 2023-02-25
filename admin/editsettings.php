@@ -27,7 +27,7 @@ require_once __DIR__ . '/initialization.php';
                                                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
                                                             <label class="login2 pull-left pull-left-pro">
                                                                 <img src="img/info.ico"
-                                                                     title="Enter all of your domains WITHOUT HTTP, comma-separated, WITHOUT SPACES!"/>
+                                                                     title="Enter all of your domains (or IP-addresses) WITHOUT HTTP, comma-separated, WITHOUT SPACES! You can use *.xxx.com to match ALL subdomains."/>
                                                                 Domains list for this config:
                                                             </label>
                                                         </div>

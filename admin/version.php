@@ -1,8 +1,12 @@
-<h2>
-    <a href="https://yellowweb.top/donate" target="_blank">
-        Version: 24.02.23
+<h4>
+    <a href="#"
+       onclick="navigator.clipboard.writeText('TKeNEVndhPSKXuYmpEwF4fVtWUvfCnWmra');alert('USDT address copied!');">
+        Ver. 25.02.23
         <br/>
-        PHP Version: <?=phpversion()?>
-        <br/> Please, donate!
+        PHP: <?= phpversion() ?>
+        <br/>
+        Click to copy<br/>
+        my USDT TRC20<br/>
+        and Donate!
     </a>
-</h2>
+</h4>

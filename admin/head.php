@@ -24,5 +24,8 @@
     <!-- style CSS
 		============================================ -->
     <link rel="stylesheet" href="css/style.css"/>
+    <link rel="stylesheet" href="https://uicdn.toast.com/grid/latest/tui-grid.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
     <?php include "scripts.php" ?>
 </head>

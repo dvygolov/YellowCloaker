@@ -7,28 +7,29 @@ require_once __DIR__ . '/../abtests/Calculator/Variation.php';
 use BenTools\SplitTestAnalyzer\SplitTestAnalyzer;
 use BenTools\SplitTestAnalyzer\Variation;
 
-
 //Open the table tag
-$tableOutput = "<TABLE class='table w-auto table-striped'>";
-
-//Print the table header
-$tableOutput .= "<thead class='thead-dark'>";
-$tableOutput .= "<TR>";
-$tableOutput .= "<TH scope='col'>Date</TH>";
-$tableOutput .= "<TH scope='col'>Clicks</TH>";
-$tableOutput .= "<TH scope='col'>Unique</TH>";
-$tableOutput .= "<TH scope='col'>Conversions</TH>";
-$tableOutput .= "<TH scope='col'>Purchase</TH>";
-$tableOutput .= "<TH scope='col'>Hold</TH>";
-$tableOutput .= "<TH scope='col'>Reject</TH>";
-$tableOutput .= "<TH scope='col'>Trash</TH>";
-$tableOutput .= "<TH scope='col'>CR% all</TH>";
-$tableOutput .= "<TH scope='col'>CR% sales</TH>";
-$tableOutput .= "<TH scope='col'>App% (w/o trash)</TH>";
-$tableOutput .= "<TH scope='col'>App% (total)</TH>";
-$tableOutput .= "<TH scope='col'>EPuC</TH>";
-$tableOutput .= "<TH scope='col'>Revenue</TH>";
-$tableOutput .= "</TR></thead><tbody>";
+$tableOutput = <<<EOF
+<TABLE class='table w-auto table-striped' id="maintable">
+    <thead class='thead-dark'>
+        <TR>
+        <TH scope='col'>Date</TH>
+        <TH scope='col'>Clicks</TH>
+        <TH scope='col'>Unique</TH>
+        <TH scope='col'>Conversions</TH>
+        <TH scope='col'>Purchase</TH>
+        <TH scope='col'>Hold</TH>
+        <TH scope='col'>Reject</TH>
+        <TH scope='col'>Trash</TH>
+        <TH scope='col'>CR% all</TH>
+        <TH scope='col'>CR% sales</TH>
+        <TH scope='col'>App% (w/o trash)</TH>
+        <TH scope='col'>App% (total)</TH>
+        <TH scope='col'>EPuC</TH>
+        <TH scope='col'>Revenue</TH>
+        </TR>
+    </thead>
+    <tbody>
+EOF;
 
 $lpctr_array = array();
 $lpdest_array = array();
@@ -405,5 +406,81 @@ foreach ($subs_array as $sub_key => $sub_values) {
     ?>
     <a id="bottom"></a>
 </div>
+<!--<script>-->
+<!--    const Grid = tui.Grid;-->
+<!--    const instance = new Grid({-->
+<!--        el: document.getElementById('maintable'),-->
+<!--        columns: [-->
+<!--            {-->
+<!--                header: 'Date',-->
+<!--                name: 'name'-->
+<!--            },-->
+<!--            {-->
+<!--                header: 'Clicks',-->
+<!--                name: 'artist'-->
+<!--            },-->
+<!--            {-->
+<!--                header: 'Unique',-->
+<!--                name: 'release'-->
+<!--            },-->
+<!--            {-->
+<!--                header: 'Conv.',-->
+<!--                name: 'genre'-->
+<!--            }-->
+<!--            {-->
+<!--                header: 'Purchase',-->
+<!--                name: 'release'-->
+<!--            },-->
+<!--            {-->
+<!--                header: 'Hold',-->
+<!--                name: 'release'-->
+<!--            },-->
+<!--            {-->
+<!--                header: 'Reject',-->
+<!--                name: 'release'-->
+<!--            },-->
+<!--            {-->
+<!--                header: 'Trash',-->
+<!--                name: 'release'-->
+<!--            },-->
+<!--            {-->
+<!--                header: 'CR%',-->
+<!--                name: 'release'-->
+<!--            },-->
+<!--            {-->
+<!--                header: 'CRS%',-->
+<!--                name: 'release'-->
+<!--            },-->
+<!--            {-->
+<!--                header: 'App%',-->
+<!--                name: 'release'-->
+<!--            },-->
+<!--            {-->
+<!--                header: 'App%',-->
+<!--                name: 'release'-->
+<!--            },-->
+<!--            {-->
+<!--                header: 'EPuC',-->
+<!--                name: 'release'-->
+<!--            },-->
+<!--            {-->
+<!--                header: 'Revenue',-->
+<!--                name: 'release'-->
+<!--            }-->
+<!--        ],-->
+<!--        data: [-->
+<!--            {-->
+<!--                name: 'Beautiful Lies',-->
+<!--                artist: 'Birdy',-->
+<!--                release: '2016.03.26',-->
+<!--                genre: 'Pop'-->
+<!--            }-->
+<!--        ]-->
+<!--    });-->
+<!---->
+<!--    instance.resetData(newData); // Call API of instance's public method-->
+<!---->
+<!--    Grid.applyTheme('striped'); // Call API of static method-->
+<!--</script>-->
 </body>
 </html>
