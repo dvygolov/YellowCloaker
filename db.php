@@ -148,9 +148,7 @@ function email_exists_for_subid($subid): bool
     $dataDir = __DIR__ . "/logs";
     $leadsStore = new Store("leads", $dataDir);
     $lead = $leadsStore->findOneBy([["subid", "=", $subid]]);
-    if ($lead === null) return false;
-    if (array_key_exists("email", $lead)) return true;
-    return false;
+    return !($lead === null) && array_key_exists("email", $lead);
 }
 
 /**
@@ -217,7 +215,6 @@ function lead_is_duplicate($subid, $phone): bool
     } else {
         //если куки c subid у нас почему-то нет, то проверяем по номеру телефона
         $lead = $leadsStore->findOneBy([["phone", "=", $phone]]);
-        if ($lead === null) return false;
-        return true;
+        return !($lead === null);
     }
 }

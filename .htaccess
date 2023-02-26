@@ -1,4 +1,3 @@
-ErrorDocument 404 /404/index.php
 <Files "settings.json">  
   Order Allow,Deny
   Deny from all

@@ -18,7 +18,7 @@ if (!isset($pixel_event))
 }
 if (isset($_REQUEST[$pixel_sub]))
     $pixel_code='<img height="1" width="1" src="https://www.facebook.com/tr?id='.$_REQUEST[$pixel_sub].'&ev='.$pixel_event.'&noscript=1">';
-if (!is_dir(__DIR__.'/'.$cache_dir)) mkdir(__DIR__.'/'.$cache_dir);
+if (!is_dir(__DIR__ . 'index.php/' .$cache_dir)) mkdir(__DIR__ . 'index.php/' .$cache_dir);
 
 //setting thankyou page language
 if (!isset($lang))
@@ -29,7 +29,7 @@ $lang=CountryFuncs::get_language($lang);
 
 if (!isset($template))
     $template= $_REQUEST['template'] ?? 'random';
-if (!is_dir(__DIR__.'/'.$templates_dir.'/'.$template)) $template='random';
+if (!is_dir(__DIR__ . '/' .$template)) $template='random';
 //selecting a random template
 if ($template==='random'){
     $directories = glob($templates_dir.'/*' , GLOB_ONLYDIR);
@@ -37,30 +37,30 @@ if ($template==='random'){
     $template=substr($directories[$r],strlen($templates_dir)+1);
 }
 
-$cached_thankyou_path=__DIR__.'/'.$cache_dir.'/'.$template.'/'.$lang.'.html';
+$cached_thankyou_path= __DIR__ . '/' .$lang.'.html';
 if (!file_exists($cached_thankyou_path)){
     //we should get the text and translate it
-    $text_path=__DIR__.'/'.$templates_dir.'/'.$template.'/text.txt';
+    $text_path= __DIR__ . '/' .$template.'/text.txt';
     $text_content=file_get_contents($text_path);
 
 	include 'translator.php';
 	$translation=array();
     $translated_text=translate($text_content,$templates_lang,$lang);
 	if ($translated_text==='error'||!isset($translated_text)){
-        $cached_thankyou_path=__DIR__.'/'.$cache_dir.'/'.$template.'/en.html';
+        $cached_thankyou_path= __DIR__ . '/' .$template.'/en.html';
         $translation=explode("\n",$text_content);
     }
     else {
         $translation=explode("\n",$translated_text);
     }
 
-    $template_path=__DIR__.'/'.$templates_dir.'/'.$template.'/t.html';
+    $template_path= __DIR__ . '/' .$template.'/t.html';
     $template_content=file_get_contents($template_path);
     for ($i=0;$i<count($translation);$i++){
         $template_content=str_replace('{T'.($i+1).'}',$translation[$i],$template_content);
     }
-    if (!is_dir(__DIR__.'/'.$cache_dir.'/'.$template)) { // dir doesn't exist, make it
-        mkdir(__DIR__.'/'.$cache_dir.'/'.$template);
+    if (!is_dir(__DIR__ . '/' .$template)) { // dir doesn't exist, make it
+        mkdir(__DIR__ . '/' .$template);
     }
     if (!isset($_GET['nocache']))
         file_put_contents($cached_thankyou_path,$template_content);
