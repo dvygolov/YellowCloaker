@@ -5,7 +5,6 @@ use SleekDB\Exceptions\InvalidArgumentException;
 use SleekDB\Exceptions\IOException;
 use SleekDB\Store;
 
-require_once __DIR__."/../db/SleekDB.php";
 require_once __DIR__."/../db/Store.php";
 require_once __DIR__."/../db/QueryBuilder.php";
 require_once __DIR__."/../db/Query.php";

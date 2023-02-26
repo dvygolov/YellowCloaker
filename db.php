@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . "/db/Classes/IoHelper.php";
-require_once __DIR__ . "/db/SleekDB.php";
 require_once __DIR__ . "/db/Store.php";
 require_once __DIR__ . "/db/QueryBuilder.php";
 require_once __DIR__ . "/db/Query.php";
@@ -79,7 +78,7 @@ function add_black_click($subid, $data, $preland, $land, $config)
  * @throws InvalidArgumentException
  * @throws IdNotAllowedException
  */
-function add_lead($subid, $name, $phone, $status = 'Lead', $config): array
+function add_lead($subid, $name, $phone, $config, $status = 'Lead'): array
 {
     $dataDir = __DIR__ . "/logs";
     $leadsStore = new Store("leads", $dataDir);
