@@ -120,4 +120,3 @@ function post($url,$postfields){
     curl_close($curl);
     return ["html"=>$content,"info"=>$info,"error"=>$error];
 }
-?>
