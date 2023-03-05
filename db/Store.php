@@ -18,7 +18,7 @@ foreach (glob(__DIR__ . '/Classes/*.php') as $traits) {
     require_once $traits;
 }
 foreach (glob(__DIR__ . '/*.php') as $class) {
-    if (strpos($class, 'SleekDB.php') !== false || strpos($class, 'Store.php') !== false) {
+    if (strpos($class, 'Store.php') !== false) {
         continue;
     }
     require_once $class;

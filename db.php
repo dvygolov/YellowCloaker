@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . "/db/Classes/IoHelper.php";
-require_once __DIR__ . "/db/SleekDB.php";
 require_once __DIR__ . "/db/Store.php";
 require_once __DIR__ . "/db/QueryBuilder.php";
 require_once __DIR__ . "/db/Query.php";
@@ -79,7 +78,7 @@ function add_black_click($subid, $data, $preland, $land, $config)
  * @throws InvalidArgumentException
  * @throws IdNotAllowedException
  */
-function add_lead($subid, $name, $phone, $status = 'Lead', $config): array
+function add_lead($subid, $name, $phone, $config, $status = 'Lead'): array
 {
     $dataDir = __DIR__ . "/logs";
     $leadsStore = new Store("leads", $dataDir);
@@ -148,9 +147,7 @@ function email_exists_for_subid($subid): bool
     $dataDir = __DIR__ . "/logs";
     $leadsStore = new Store("leads", $dataDir);
     $lead = $leadsStore->findOneBy([["subid", "=", $subid]]);
-    if ($lead === null) return false;
-    if (array_key_exists("email", $lead)) return true;
-    return false;
+    return !($lead === null) && array_key_exists("email", $lead);
 }
 
 /**
@@ -217,7 +214,6 @@ function lead_is_duplicate($subid, $phone): bool
     } else {
         //если куки c subid у нас почему-то нет, то проверяем по номеру телефона
         $lead = $leadsStore->findOneBy([["phone", "=", $phone]]);
-        if ($lead === null) return false;
-        return true;
+        return !($lead === null);
     }
 }

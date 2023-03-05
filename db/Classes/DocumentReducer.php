@@ -8,7 +8,6 @@ use Closure;
 use SleekDB\Exceptions\InvalidArgumentException;
 use SleekDB\Exceptions\IOException;
 use SleekDB\QueryBuilder;
-use SleekDB\SleekDB;
 
 /**
  * Class DocumentReducer
@@ -74,8 +73,7 @@ class DocumentReducer
         $joinQuery = ($join['joinFunction'])($doc); // QueryBuilder or result of fetch
         $propertyName = $join['propertyName'];
 
-        // TODO remove SleekDB check in version 3.0
-        if($joinQuery instanceof QueryBuilder || $joinQuery instanceof SleekDB){
+        if($joinQuery instanceof QueryBuilder){
           $joinResult = $joinQuery->getQuery()->fetch();
         } else if(is_array($joinQuery)){
           // user already fetched the query in the join query function

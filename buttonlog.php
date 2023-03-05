@@ -11,9 +11,9 @@ require_once __DIR__ . '/settings.php';
 require_once __DIR__ . '/logging.php';
 
 $subid = get_subid();
-$name = $_POST['name']??null;
-$phone = $_POST['phone']??null;
-if (empty($name)||empty($phone)) {
+$name = $_POST['name'] ?? null;
+$phone = $_POST['phone'] ?? null;
+if (empty($name) || empty($phone)) {
     http_response_code(500);
     die("Name or Phone not set!");
 }
