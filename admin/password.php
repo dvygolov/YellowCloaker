@@ -1,5 +1,5 @@
 <?php
-require_once '../settings.php';
+require_once __DIR__.'/../settings.php';
 
 function check_password(){
     global $log_password;
