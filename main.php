@@ -133,7 +133,10 @@ function black($clkrdetect)
                     echo load_landing($landing);
                     break;
                 case 'redirect':
-                    redirect($landing,$black_land_redirect_type,true);
+                    $fullpath = add_querystring($landing);
+                    $fullpath = replace_all_macros($fullpath);
+                    $fullpath = replace_subs_in_link($fullpath);
+                    redirect($fullpath,$black_land_redirect_type,false);
                     break;
             }
             break;

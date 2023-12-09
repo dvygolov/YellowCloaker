@@ -30,7 +30,7 @@ switch ($black_land_action){
         $fullpath = select_item_by_index($black_land_redirect_urls,$l,false);
         $fullpath = add_querystring($fullpath);
         $fullpath = replace_all_macros($fullpath);
-        $fullpath = add_subs_to_link($fullpath);
+        $fullpath = replace_subs_in_link($fullpath);
         redirect($fullpath,$black_land_redirect_type,false);
         break;
 }
