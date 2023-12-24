@@ -1,15 +1,11 @@
 <?php
+require_once __DIR__ . '/debug.php';
+require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/htmlprocessing.php';
 require_once __DIR__ . '/cookies.php';
 require_once __DIR__ . '/redirect.php';
 require_once __DIR__ . '/pixels.php';
 require_once __DIR__ . '/abtest.php';
-
-//Включение отладочной информации
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-//Конец включения отладочной информации
 
 function white($use_js_checks)
 {
@@ -24,9 +20,7 @@ function white($use_js_checks)
     $error_codes = $white_error_codes;
 
     //грязный хак для прокидывания реферера через куки
-    if ($use_js_checks &&
-        isset($_SERVER['HTTP_REFERER']) &&
-        !empty($_SERVER['HTTP_REFERER'])) {
+    if ($use_js_checks && !empty($_SERVER['HTTP_REFERER'])) {
         ywbsetcookie("referer", $_SERVER['HTTP_REFERER']);
     }
 
@@ -88,7 +82,7 @@ function white($use_js_checks)
                 break;
             case 'redirect':
                 $cururl = select_item($redirect_urls, $save_user_flow, 'white', false);
-                redirect($cururl[0], $white_redirect_type, false);
+                redirect($cururl[0], $white_redirect_type);
                 break;
         }
     }
@@ -119,32 +113,33 @@ function black($clkrdetect)
         $isfolderland = true;
     }
 
+    $db = new Db();
     switch ($black_preland_action) {
         case 'none':
-            $res = select_landing($save_user_flow, $landings, $isfolderland);
+            $res = select_item($landings, $save_user_flow, 'landing', $isfolderland);
             $landing = $res[0];
-            add_black_click($cursubid, $clkrdetect, '', $landing, $cur_config);
+            $db->add_black_click($cursubid, $clkrdetect, '', $landing, $cur_config);
 
             switch ($black_land_action) {
                 case 'folder':
                     echo load_landing($landing);
                     break;
                 case 'redirect':
-                    redirect($landing, $black_land_redirect_type, true);
+                    redirect($landing,$black_land_redirect_type,false);
                     break;
             }
             break;
         case 'folder': //если мы используем локальные проклы
             $prelandings = $black_preland_folder_names;
             if (empty($prelandings)) break;
-            $res = select_prelanding($save_user_flow, $prelandings);
+            $res = select_item($prelandings, $save_user_flow, 'prelanding', true);
             $prelanding = $res[0];
-            $res = select_landing($save_user_flow, $landings, $isfolderland);
+            $res = select_item($landings, $save_user_flow, 'landing', $isfolderland);
             $landing = $res[0];
             $t = $res[1];
 
             echo load_prelanding($prelanding, $t);
-            add_black_click($cursubid, $clkrdetect, $prelanding, $landing, $cur_config);
+            $db->add_black_click($cursubid, $clkrdetect, $prelanding, $landing, $cur_config);
             break;
     }
 }

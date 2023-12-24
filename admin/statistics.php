@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/initialization.php';
-require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../abtests/Calculator/SplitTestAnalyzer.php';
 require_once __DIR__ . '/../abtests/Calculator/Variation.php';
 
@@ -61,6 +61,7 @@ $total_revenue = 0;
 $noprelanding = $black_preland_action === 'none';
 
 $date = $enddate;
+$db = new Db();
 while ($date >= $startdate) {
 
     $ts = $date->getTimestamp();
@@ -69,9 +70,9 @@ while ($date >= $startdate) {
     $curend = date_create("@$ts");
     $curend->setTime(23, 59, 59);
     $formatteddate = $date->format('d.m.y');
-    $day_traf = get_black_clicks($curstart->getTimestamp(), $curend->getTimestamp(), $config);
-    $day_ctr = get_lpctr($curstart->getTimestamp(), $curend->getTimestamp(), $config);
-    $day_leads = get_leads($curstart->getTimestamp(), $curend->getTimestamp(), $config);
+    $day_traf = $db->get_black_clicks($curstart->getTimestamp(), $curend->getTimestamp(), $config);
+    $day_ctr = $db->get_lpctr($curstart->getTimestamp(), $curend->getTimestamp(), $config);
+    $day_leads = $db->get_leads($curstart->getTimestamp(), $curend->getTimestamp(), $config);
 
     $leads_count = ($day_leads === array()) ? 0 : count($day_leads);
     $total_leads += $leads_count;
@@ -407,81 +408,5 @@ foreach ($subs_array as $sub_key => $sub_values) {
     ?>
     <a id="bottom"></a>
 </div>
-<!--<script>-->
-<!--    const Grid = tui.Grid;-->
-<!--    const instance = new Grid({-->
-<!--        el: document.getElementById('maintable'),-->
-<!--        columns: [-->
-<!--            {-->
-<!--                header: 'Date',-->
-<!--                name: 'name'-->
-<!--            },-->
-<!--            {-->
-<!--                header: 'Clicks',-->
-<!--                name: 'artist'-->
-<!--            },-->
-<!--            {-->
-<!--                header: 'Unique',-->
-<!--                name: 'release'-->
-<!--            },-->
-<!--            {-->
-<!--                header: 'Conv.',-->
-<!--                name: 'genre'-->
-<!--            }-->
-<!--            {-->
-<!--                header: 'Purchase',-->
-<!--                name: 'release'-->
-<!--            },-->
-<!--            {-->
-<!--                header: 'Hold',-->
-<!--                name: 'release'-->
-<!--            },-->
-<!--            {-->
-<!--                header: 'Reject',-->
-<!--                name: 'release'-->
-<!--            },-->
-<!--            {-->
-<!--                header: 'Trash',-->
-<!--                name: 'release'-->
-<!--            },-->
-<!--            {-->
-<!--                header: 'CR%',-->
-<!--                name: 'release'-->
-<!--            },-->
-<!--            {-->
-<!--                header: 'CRS%',-->
-<!--                name: 'release'-->
-<!--            },-->
-<!--            {-->
-<!--                header: 'App%',-->
-<!--                name: 'release'-->
-<!--            },-->
-<!--            {-->
-<!--                header: 'App%',-->
-<!--                name: 'release'-->
-<!--            },-->
-<!--            {-->
-<!--                header: 'EPuC',-->
-<!--                name: 'release'-->
-<!--            },-->
-<!--            {-->
-<!--                header: 'Revenue',-->
-<!--                name: 'release'-->
-<!--            }-->
-<!--        ],-->
-<!--        data: [-->
-<!--            {-->
-<!--                name: 'Beautiful Lies',-->
-<!--                artist: 'Birdy',-->
-<!--                release: '2016.03.26',-->
-<!--                genre: 'Pop'-->
-<!--            }-->
-<!--        ]-->
-<!--    });-->
-<!---->
-<!--    instance.resetData(newData); // Call API of instance's public method-->
-<!---->
-<!--    Grid.applyTheme('striped'); // Call API of static method-->
-<!--</script>-->
 </body>
 </html>

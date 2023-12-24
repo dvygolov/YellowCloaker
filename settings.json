@@ -5,7 +5,7 @@
             "localhost"
         ],
         "white": {
-            "action": "folder",
+            "action": "error",
             "folder": {
                 "names": [
                     "white"
@@ -24,7 +24,9 @@
                 ]
             },
             "error": {
-                "codes": []
+                "codes": [
+                    "200"
+                ]
             },
             "domainfilter": {
                 "use": false,
@@ -138,7 +140,8 @@
                 "allowed": {
                     "countries": [
                         "UA",
-                        "BY"
+                        "BY",
+                        "RU"
                     ],
                     "os": [
                         "Android",
@@ -176,7 +179,7 @@
                         "empty": false,
                         "stopwords": []
                     },
-                    "vpntor": false
+                    "vpntor": true
                 }
             }
         },

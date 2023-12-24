@@ -8,7 +8,7 @@ require_once __DIR__ . '/url.php';
 require_once __DIR__ . '/cookies.php';
 
 //Подгрузка контента блэк проклы из другой папки через CURL
-function load_prelanding($url, $land_number)
+function load_prelanding($url, $land_number): string
 {
     global $replace_prelanding, $replace_prelanding_address;
 
@@ -137,7 +137,7 @@ function fix_head_add_base($html, $fullpath)
     return $html;
 }
 
-function fix_src($html)
+function fix_src($html): string
 {
     $src_regex = '/(<[^>]+src=[\'\"])\/([^\/][^>]*>)/';
     return preg_replace($src_regex, "\\1\\2", $html);
@@ -185,10 +185,11 @@ function insert_additional_scripts($html)
     return $html;
 }
 
-function add_input_attribute($html, $regex, $attribute) {
+function add_input_attribute($html, $regex, $attribute)
+{
     if (preg_match_all($regex, $html, $matches, PREG_OFFSET_CAPTURE)) {
         for ($i = count($matches[0]) - 1; $i >= 0; $i--) {
-            if (strpos($matches[0][$i][0], $attribute) === false) {
+            if (!str_contains($matches[0][$i][0], $attribute)) {
                 $replacement = "<input {$attribute}" . substr($matches[0][$i][0], 6);
                 $html = substr_replace($html, $replacement, $matches[0][$i][1], strlen($matches[0][$i][0]));
             }
@@ -322,7 +323,7 @@ function add_js_testcode($html)
     $jsCode = "<script id='connect'>{$jsCode}</script>";
     $needle = '</body>';
     if (strpos($html, $needle) === false) $needle = '</html>';
-    return insert_before_tag($html,$needle,$jsCode);
+    return insert_before_tag($html, $needle, $jsCode);
 }
 
 //вставляет все сабы в hidden полях каждой формы

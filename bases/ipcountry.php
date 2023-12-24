@@ -17,7 +17,7 @@ function getip(){
 	}
 
 	if(!isset($ipfound)){
-		if(isset($_SERVER['HTTP_X_FORWARDED_FOR']) && !empty($_SERVER['HTTP_X_FORWARDED_FOR'])){
+		if(!empty($_SERVER['HTTP_X_FORWARDED_FOR'])){
 			//echo 'Forward';
 			$ip=$_SERVER['HTTP_X_FORWARDED_FOR'];
 			$ip=explode(", ", $ip);
@@ -53,6 +53,7 @@ function is_public_ip($ip) : bool
 
 function getcountry($ip=null){
 	if (is_null($ip)) $ip=getip();
+	if ($ip==='Unknown') return 'Unknown';
 	$reader = new Reader(__DIR__.'/GeoLite2-Country.mmdb');
 	if ($ip==='::1'||$ip==='127.0.0.1') $ip='31.177.76.70'; //for debugging
 	try{

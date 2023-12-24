@@ -1,58 +1,31 @@
 <?php
-require __DIR__.'/bases/browser/DetectorInterface.php';
-require __DIR__.'/bases/browser/UserAgent.php';
-require __DIR__.'/bases/browser/Os.php';
-require __DIR__.'/bases/browser/OsDetector.php';
-require __DIR__.'/bases/browser/AcceptLanguage.php';
-require __DIR__.'/bases/browser/Language.php';
-require __DIR__.'/bases/browser/LanguageDetector.php';
-require __DIR__.'/bases/iputils.php';
-require __DIR__.'/bases/ipcountry.php';
+require_once __DIR__ . '/filtersettings.php';
+require_once __DIR__ . '/bases/browser/DetectorInterface.php';
+require_once __DIR__ . '/bases/browser/UserAgent.php';
+require_once __DIR__ . '/bases/browser/Os.php';
+require_once __DIR__ . '/bases/browser/OsDetector.php';
+require_once __DIR__ . '/bases/browser/AcceptLanguage.php';
+require_once __DIR__ . '/bases/browser/Language.php';
+require_once __DIR__ . '/bases/browser/LanguageDetector.php';
+require_once __DIR__ . '/bases/iputils.php';
+require_once __DIR__ . '/bases/ipcountry.php';
 
 use Sinergi\BrowserDetector\Os;
 use Sinergi\BrowserDetector\Language;
 
 class Cloaker
 {
-    var $os_white;
-    var $country_white;
-    var $lang_white;
-    var $tokens_black;
-    var $url_should_contain;
-    var $ua_black;
-    var $ip_black_filename;
-    var $ip_black_cidr;
-    var $block_without_referer;
-    var $referer_stopwords;
-    var $block_vpnandtor;
-    var $isp_black;
-    var $result = [];
+    var FilterSettings $s;
+    var array $block_reason = [];
+    var array $click_params = [];
 
-    public function __construct($os_white, $country_white, $lang_white, $ip_black_filename, $ip_black_cidr, $tokens_black, $url_should_contain, $ua_black, $isp_black, $block_without_referer, $referer_stopwords, $block_vpnandtor)
+    public function __construct(FilterSettings $s)
     {
-        $this->os_white = $os_white;
-        $this->country_white = $country_white;
-        $this->lang_white = $lang_white;
-        $this->ip_black_filename = $ip_black_filename;
-        $this->ip_black_cidr = $ip_black_cidr;
-        $this->tokens_black = $tokens_black;
-        $this->url_should_contain = $url_should_contain;
-        $this->ua_black = $ua_black;
-        $this->isp_black = $isp_black;
-        $this->block_without_referer = $block_without_referer;
-        $this->referer_stopwords = $referer_stopwords;
-        $this->block_vpnandtor = $block_vpnandtor;
-        $this->detect();
-    }
-
-    public function detect()
-    {
-        $a['os'] = 'Unknown';
-        $a['country'] = 'Unknown';
-        $a['language'] = 'Unknown';
-        if (isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])) {
+        $this->s = $s;
+        $a = [];
+        if (!empty($_SERVER['HTTP_REFERER'])) {
             $a['referer'] = $_SERVER['HTTP_REFERER'];
-        } else if (isset($_COOKIE['referer']) && !empty($_COOKIE['referer'])) {
+        } else if (!empty($_COOKIE['referer'])) {
             $a['referer'] = $_COOKIE['referer'];
         } else {
             $a['referer'] = '';
@@ -63,14 +36,81 @@ class Cloaker
         $os = new Os();
         $a['os'] = $os->getName();
         $a['ip'] = getip();
-        $a['ua'] = $_SERVER['HTTP_USER_AGENT'] ?? 'Not Found!';
+        $a['ua'] = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
         $a['country'] = getcountry($a['ip']);
         $a['isp'] = getisp($a['ip']);
-        $this->detect = $a;
+        $this->click_params = $a;
     }
 
-    private function blackbox($ip)
+    public function is_bad_click(): bool
     {
+        $this->block_reason = [];
+
+        if ($this->has_bad_ua($this->click_params['ua'])) {
+            $this->block_reason[] = 'ua';
+            return true;
+        }
+
+        if ($this->has_bad_os($this->click_params['os'])) {
+            $this->block_reason[] = 'os';
+            return true;
+        }
+
+        if ($this->has_bad_language($this->click_params['lang'])) {
+            $buf = strtoupper($this->click_params['lang']);
+            $this->block_reason[] = 'language:' . $buf;
+            return true;
+        }
+
+        if ($this->has_no_referer($this->click_params['referer'])) {
+            $this->block_reason[] = 'noreferer';
+            return true;
+        }
+
+        if ($this->has_bad_referer($this->click_params['referer'], $stop)) {
+            $this->block_reason[] = 'refstop:' . $stop;
+            return true;
+        }
+
+        if ($this->has_bad_tokens_in_url($_SERVER['REQUEST_URI'], $token)) {
+            $this->block_reason[] = 'token:' . $token;
+            return true;
+        }
+
+        if ($this->does_not_have_in_url($_SERVER['REQUEST_URI'], $should)) {
+            $this->block_reason[] = 'url:' . $should;
+            return true;
+        }
+
+        if ($this->has_bad_isp($this->click_params['isp'])) {
+            $this->block_reason[] = 'isp';
+            return true;
+        }
+
+        if ($this->has_bad_country($this->click_params['country'])) {
+            $this->block_reason[] = 'country';
+            return true;
+        }
+
+        if ($this->is_proxy_or_vpn($this->click_params['ip'])) {
+            $this->block_reason[] = 'vnp&tor';
+            return true;
+        }
+
+        if ($this->is_bot_by_mainbase($this->click_params['ip'])) {
+            $this->block_reason[] = 'ipbase';
+            return true;
+        } else if ($this->is_bot_by_custombase($this->click_params['ip'])) {
+            $this->block_reason[] = 'ipblack';
+            return true;
+        }
+
+        return false;
+    }
+
+    private function is_proxy_or_vpn($ip): bool
+    {
+        if (!$this->s->block_vpnandtor) return false;
         $url = 'https://blackbox.ipinfo.app/lookup/';
         $res = file_get_contents($url . $ip);
 
@@ -81,126 +121,99 @@ class Cloaker
         return $res === 'Y';
     }
 
-    public function check()
+    private function is_bot_by_mainbase($ip): bool
     {
-        $result = 0;
-
-        $current_ip = $this->detect['ip'];
-        $cidr = file(__DIR__ . "/bases/bots.txt", FILE_IGNORE_NEW_LINES);
-        $checked = IpUtils::checkIp($current_ip, $cidr);
-
-        if ($checked === true) {
-            $result = 1;
-            $this->result[] = 'ipbase';
-        }
-
-        if (!$checked &&
-            !empty($this->ip_black_filename) &&
-            file_exists(__DIR__ . "/bases/" . $this->ip_black_filename) === true) {
-            $ip_black_checker = false;
-            $custom_base_path = __DIR__ . "/bases/" . $this->ip_black_filename;
-            if ($this->ip_black_cidr) {
-                $cbf = file($custom_base_path, FILE_IGNORE_NEW_LINES);
-                $ip_black_checker = IpUtils::checkIp($current_ip, $cbf);
-            } else {
-                if (strpos(file_get_contents($custom_base_path), $current_ip) !== false) {
-                    $ip_black_checker = true;
-                }
-            }
-
-            if ($ip_black_checker === true) {
-                $result = 1;
-                $this->result[] = 'ipblack';
-            }
-        }
-
-        if ($this->block_vpnandtor) {
-            if ($this->blackbox($current_ip) === true) {
-                $result = 1;
-                $this->result[] = 'vnp&tor';
-            }
-        }
-
-        if ($this->ua_black != []) {
-            $ua = $this->detect['ua'];
-            foreach ($this->ua_black as $ua_black_single) {
-                if (!empty(stristr($ua, $ua_black_single))) {
-                    $result = 1;
-                    $this->result[] = 'ua';
-                }
-            }
-        }
-
-        $os_white_checker = in_array($this->detect['os'], $this->os_white);
-        if (!empty($this->os_white) && $os_white_checker === false) {
-            $result = 1;
-            $this->result[] = 'os';
-        }
-
-        $country_white_checker = in_array($this->detect['country'], $this->country_white);
-        if ($this->country_white != [] &&
-            in_array('WW', $this->country_white) === false &&
-            $country_white_checker === false) {
-            $result = 1;
-            $this->result[] = 'country';
-        }
-
-        $lang_white_checker = in_array($this->detect['lang'], $this->lang_white);
-        if ($this->lang_white !== [] &&
-            in_array('any', $this->lang_white) === false &&
-            $lang_white_checker === false) {
-            $result = 1;
-            $buf = strtoupper($this->detect['lang']);
-            $this->result[] = 'language:' . $buf;
-        }
-
-        if ($this->block_without_referer === true && $this->detect['referer'] === '') {
-            $result = 1;
-            $this->result[] = 'referer';
-        }
-
-        if ($this->referer_stopwords !== [] && $this->detect['referer'] !== '') {
-            foreach ($this->referer_stopwords as $stop) {
-                if ($stop === '') continue;
-                if (stripos($this->detect['referer'], $stop) !== false) {
-                    $result = 1;
-                    $this->result[] = 'refstop:' . $stop;
-                    break;
-                }
-            }
-        }
-
-        if ($this->tokens_black !== []) {
-            foreach ($this->tokens_black as $token) {
-                if ($token === '') continue;
-                if (strpos($_SERVER['REQUEST_URI'], $token) !== false) {
-                    $result = 1;
-                    $this->result[] = 'token:' . $token;
-                    break;
-                }
-            }
-        }
-
-        if ($this->url_should_contain !== []) {
-            foreach ($this->url_should_contain as $should) {
-                if ($should === '') continue;
-                if (strpos($_SERVER['REQUEST_URI'], $should) === false) {
-                    $result = 1;
-                    $this->result[] = 'url:' . $should;
-                    break;
-                }
-            }
-        }
-
-        if (!empty($this->isp_black)) {
-            $isp = $this->detect['isp'];
-            foreach ($this->isp_black as $isp_black_single) {
-                if (!empty(stristr($isp, $isp_black_single))) {
-                    $result = 1;
-                    $this->result[] = 'isp';
-                }
-            }
-        }
-        return $result;
+        $base_full_path = __DIR__ . "/bases/bots.txt";
+        if (!file_exists($base_full_path)) return false;
+        $cidr = file($base_full_path, FILE_IGNORE_NEW_LINES);
+        return IpUtils::checkIp($ip, $cidr);
     }
+
+    private function is_bot_by_custombase($ip): bool
+    {
+        $base_file_name = $this->s->ip_black_filename;
+        if (empty($base_file_name)) return false;
+        $base_full_path = __DIR__ . "/bases/" . $this->s->ip_black_filename;
+        if (!file_exists($base_full_path)) return false;
+        if ($this->s->ip_black_cidr) {
+            $cbf = file($base_full_path, FILE_IGNORE_NEW_LINES);
+            return IpUtils::checkIp($ip, $cbf);
+        } else
+            return (strpos(file_get_contents($base_full_path), $ip) !== false);
+    }
+
+    private function has_bad_isp($isp): bool
+    {
+        if (empty($this->isp_black)) return false;
+        foreach ($this->isp_black as $isp_black_single)
+            if (!empty(stristr($isp, $isp_black_single))) return true;
+        return false;
+    }
+
+    private function has_bad_ua($ua): bool
+    {
+        if (count($this->s->ua_black) == 0) return false;
+        foreach ($this->s->ua_black as $ua_black_single)
+            if (!empty(stristr($ua, $ua_black_single))) return true;
+        return false;
+    }
+
+    private function has_bad_os($os): bool
+    {
+        if (empty($this->s->os_white)) return false;
+        return !in_array($os, $this->s->os_white);
+    }
+
+    private function has_bad_country($country): bool
+    {
+        if (empty($this->s->country_white)) return false;
+        if (in_array('WW', $this->s->country_white)) return false;
+        return !in_array($country, $this->s->country_white);
+    }
+
+    private function has_bad_language($lang): bool
+    {
+        if (empty($this->s->lang_white)) return false;
+        if (in_array('any', $this->s->lang_white)) return false;
+        return !in_array($lang, $this->s->lang_white);
+    }
+
+    private function has_no_referer($ref): bool
+    {
+        if (!$this->s->block_without_referer) return false;
+        return empty($ref);
+    }
+
+    private function has_bad_referer($ref, &$stop): bool
+    {
+        if (empty($this->s->referer_stopwords)) return false;
+        if (empty($ref)) return false;
+        foreach ($this->s->referer_stopwords as $stop) {
+            if (empty($stop)) continue;
+            if (stripos($ref, $stop) !== false)
+                return true;
+        }
+        return false;
+    }
+
+    private function has_bad_tokens_in_url($uri, &$token): bool
+    {
+        if (empty($this->s->tokens_black)) return false;
+        foreach ($this->s->tokens_black as $token) {
+            if (empty($token)) continue;
+            if (stripos($uri, $token) !== false) return true;
+        }
+        return false;
+    }
+
+    private function does_not_have_in_url($uri, &$should): bool
+    {
+        if (empty($this->s->url_should_contain)) return false;
+        foreach ($this->s->url_should_contain as $should) {
+            if (empty($should)) continue;
+            if (stripos($uri, $should) === false) return true;
+        }
+        return false;
+    }
+
 }

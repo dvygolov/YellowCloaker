@@ -1,16 +1,20 @@
 <?php
-require_once __DIR__.'/url.php';
+require_once __DIR__ . '/url.php';
 
-function redirect($url, $redirect_type = 302, $add_querystring = true)
+function redirect($url, $redirect_type = 302,
+                  $add_querystring = false, $replace_macros = false, $replace_subs = false): void
 {
-    if ($add_querystring === true) {
+    if ($add_querystring)
         $url = add_querystring($url);
-    }
+    if ($replace_macros)
+        $url = $replace_macros($url);
+    if ($replace_subs)
+        $url = $replace_subs($url);
+    header('X-Robots-Tag: noindex, nofollow');
     header('Location: ' . $url, true, $redirect_type);
 }
 
-function jsredirect($url)
+function jsredirect($url): void
 {
     echo "<script type='text/javascript'> window.location='$url';</script>";
-    return;
 }

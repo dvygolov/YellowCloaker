@@ -1,56 +1,71 @@
 <?php
 require_once __DIR__ . '/bases/ipcountry.php';
 
-function select_landing($save_user_flow, $landings, $isfolder = false)
-{
-    return select_item($landings, $save_user_flow, 'landing', $isfolder);
-}
-
-function select_prelanding($save_user_flow, $prelandings)
-{
-    return select_item($prelandings, $save_user_flow, 'prelanding', true);
-}
-
-function select_item($items, $save_user_flow = false, $itemtype = 'landing', $isfolder = true)
+function select_item(array $items, bool $save_user_flow = false, string $item_type = 'landing', bool $is_folder = true): array
 {
     $item = '';
-    if ($save_user_flow && isset($_COOKIE[$itemtype])) {
-        $item = $_COOKIE[$itemtype];
-        $t = array_search($item, $items);
-        if ($t === false) $item = '';
-        if ($isfolder && !is_dir(__DIR__ . '/' . $item)) $item = '';
+
+    if ($save_user_flow) {
+        $item = get_saved_item($item_type, $items, $is_folder);
     }
+
     if ($item === '') {
-        //A-B тестирование
-        $t = rand(0, count($items) - 1);
-        $item = $items[$t];
+        $item = get_random_item($items, $is_folder);
     }
-    //если у нас локальная прокла или ленд, то чекаем, есть ли папка под текущее ГЕО
-    //если есть, то берём её
-    if ($isfolder) {
-        $country = getcountry();
-        if (is_dir(__DIR__ . '/' . $item . $country))
-            $item .= $country;
-    }
-    ywbsetcookie($itemtype, $item, '/');
-    return array($item, $t);
+
+    ywbsetcookie($item_type, $item, '/');
+    return [$item, array_search($item, $items)];
 }
 
-function select_item_by_index($items, $index, $isfolder = true)
+function get_saved_item(string $item_type, array $items, bool $is_folder): string
 {
-    $item = '';
-    if ($index < count($items) && $index >= 0)
-        $item = $items[$index];
-    else {
-        $r = rand(0, count($items) - 1);
-        $items = $items[$r];
+    $item = get_cookie($item_type);
+
+    if (!in_array($item, $items, true) || ($is_folder && !is_folder_valid($item))) {
+        return '';
     }
-    //если у нас локальная прокла или ленд, то чекаем, есть ли папка под текущее ГЕО
-    //если есть, то берём её
-    if ($isfolder) {
-        $country = getcountry();
-        if (is_dir(__DIR__ . '/' . $item . $country))
-            $item .= $country;
+
+    return $item;
+}
+
+function is_folder_valid(string $item): bool
+{
+    return is_dir(__DIR__ . '/' . $item);
+}
+
+function get_random_item(array $items, bool $is_folder): string
+{
+    $random_index = rand(0, count($items) - 1);
+    $item = $items[$random_index];
+
+    if ($is_folder) {
+        $item = append_country_if_available($item);
     }
+
+    return $item;
+}
+
+function append_country_if_available(string $item): string
+{
+    $country = getcountry();
+    if (is_dir(__DIR__ . '/' . $item . $country)) {
+        $item .= $country;
+    }
+    return $item;
+}
+
+function select_item_by_index(array $items, int $index, bool $is_folder = true): string
+{
+    if (!isset($items[$index])) {
+        $random_index = rand(0, count($items) - 1);
+        $index = $random_index;
+    }
+
+    $item = $items[$index];
+
+    if ($is_folder) {
+        $item = append_country_if_available($item);
+    }
+
     return $item;
 }

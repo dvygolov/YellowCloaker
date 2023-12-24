@@ -1,19 +1,17 @@
 <?php
-//Включение отладочной информации
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-//Конец включения отладочной информации
-require_once __DIR__.'/../settings.php';
-require_once __DIR__.'/../core.php';
-require_once __DIR__.'/../db.php';
+require_once __DIR__ . '/../debug.php';
+require_once __DIR__ . '/../settings.php';
+require_once __DIR__ . '/../core.php';
+require_once __DIR__ . '/../db.php';
 
-$cloaker = new Cloaker($os_white,$country_white,$lang_white,
-    $ip_black_filename,$ip_black_cidr,$tokens_black,
-    $url_should_contain,$ua_black,$isp_black,$block_without_referer,
-    $referer_stopwords,$block_vpnandtor);
-$check_result = $cloaker->check();
+$fs = new FilterSettings(
+    $os_white, $country_white, $lang_white, $tokens_black,
+    $url_should_contain, $ua_black, $ip_black_filename,
+    $ip_black_cidr, $block_without_referer, $referer_stopwords,
+    $block_vpnandtor, $isp_black);
+$cloaker = new Cloaker($fs);
 //Добавляем, по какому из js-событий мы поймали бота
-$reason= $_GET['reason'] ?? 'js_tests';
-$cloaker->result[]=$reason;
-add_white_click($cloaker->detect, $cloaker->result, $cur_config);
+$reason = $_GET['reason'] ?? 'js_tests';
+$cloaker->block_reason[] = $reason;
+$db = new Db();
+$db->add_white_click($cloaker->click_params, $cloaker->block_reason, $cur_config);

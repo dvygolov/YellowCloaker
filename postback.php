@@ -1,10 +1,6 @@
 <?php
-//Включение отладочной информации
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-//Конец включения отладочной информации
 
+require_once __DIR__ . '/debug.php';
 require_once __DIR__ . '/settings.php';
 require_once __DIR__ . '/logging.php';
 require_once __DIR__ . '/db.php';

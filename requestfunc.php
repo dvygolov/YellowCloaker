@@ -2,11 +2,11 @@
 require_once __DIR__ . '/bases/ipcountry.php';
 require_once __DIR__ . '/url.php';
 
-function get_cloaker_path()
+function get_cloaker_path(): string
 {
     $domain = $_SERVER['HTTP_HOST'];
-    $server_has_https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false;
-    $prefix = $server_has_https ? 'https://' : 'http://';;
+    $server_has_https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || str_contains($_SERVER['HTTP_HOST'], '127.0.0.1');
+    $prefix = $server_has_https ? 'https://' : 'http://';
     $fullpath = $prefix . $domain . '/';
     $script_path = array_values(array_filter(explode("/", $_SERVER['SCRIPT_NAME']), 'strlen'));
     array_pop($script_path);
@@ -26,14 +26,14 @@ function get_abs_from_rel($url, $add_query_string = false)
 {
     $fullpath = get_cloaker_path();
     $fullpath .= $url;
-    if (substr($url, -4) !== '.php') $fullpath = $fullpath . '/';
+    if (!str_ends_with($url, '.php')) $fullpath = $fullpath . '/';
     if ($add_query_string === true) {
         $fullpath = add_querystring($fullpath);
     }
     return $fullpath;
 }
 
-function get_request_headers($ispost = false)
+function get_request_headers($ispost = false): array
 {
     $ip = getip();
     $headers = array(
@@ -53,7 +53,7 @@ function get_request_headers($ispost = false)
     return $headers;
 }
 
-function get_html($url, $follow_location = false, $use_ua = false)
+function get_html($url, $follow_location = false, $use_ua = false): bool|string
 {
     $ispost = ($_SERVER['REQUEST_METHOD'] === 'POST');
 
@@ -85,7 +85,7 @@ function get_html($url, $follow_location = false, $use_ua = false)
     return $html;
 }
 
-function get($url)
+function get($url): array
 {
     $curl = curl_init();
     $optArray = array(
@@ -107,7 +107,7 @@ function get($url)
     return ["html" => $content, "info" => $info, "error" => $error];
 }
 
-function post($url, $postfields)
+function post($url, $postfields): array
 {
     $curl = curl_init();
     curl_setopt_array($curl, array(
