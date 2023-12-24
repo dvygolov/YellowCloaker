@@ -39,32 +39,41 @@ function replace_content($content, $search, $replacement): string
     return $content;
 }
 
-function insert_after_tag($html, $needle, $str_to_insert): string
-{
-    $positions = find_tag_positions($html, $needle, true);
-    foreach ($positions as $pos) {
-        $html = substr_replace($html, $str_to_insert, $pos, 0);
-    }
-    return $html;
-}
 
-function insert_before_tag($html, $needle, $str_to_insert): string
-{
-    $positions = find_tag_positions($html, $needle, false);
-    foreach ($positions as $pos) {
-        $html = substr_replace($html, $str_to_insert, $pos, 0);
-    }
-    return $html;
-}
-
-function find_tag_positions($html, $needle, $after_tag): array
+function insert_after_tag($html, $needle, $str_to_insert)
 {
     $lastPos = 0;
     $positions = array();
     while (($lastPos = strpos($html, $needle, $lastPos)) !== false) {
-        $pos = $after_tag ? $lastPos + strlen($needle) + strpos(substr($html, $lastPos), '>') + 1 : $lastPos;
-        $positions[] = $pos;
-        $lastPos = $pos;
+        $positions[] = $lastPos;
+        $lastPos = $lastPos + strlen($needle);
     }
-    return array_reverse($positions);
+    $positions = array_reverse($positions);
+    foreach ($positions as $pos) {
+        $finalpos = $pos + strlen($needle);
+        //если у нас задан НЕ закрытый тег, то надо найти его конец
+        if (!str_contains($needle, '>')) {
+            while ($html[$finalpos] !== '>')
+                $finalpos++;
+            $finalpos++;
+        }
+        $html = substr_replace($html, $str_to_insert, $finalpos, 0);
+    }
+    return $html;
+}
+
+function insert_before_tag($html, $needle, $str_to_insert)
+{
+    $lastPos = 0;
+    $positions = array();
+    while (($lastPos = strpos($html, $needle, $lastPos)) !== false) {
+        $positions[] = $lastPos;
+        $lastPos = $lastPos + strlen($needle);
+    }
+    $positions = array_reverse($positions);
+
+    foreach ($positions as $pos) {
+        $html = substr_replace($html, $str_to_insert, $pos, 0);
+    }
+    return $html;
 }

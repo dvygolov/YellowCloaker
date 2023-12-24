@@ -93,7 +93,8 @@ if ($ispost) {
     }
 } else {
     $subid = get_subid();
-    if (empty($subid) || email_exists_for_subid($subid)) {
+    $db=new Db();
+    if (empty($subid) || $db->email_exists_for_subid($subid)) {
         $html = str_replace('{EMAIL}', '', $html);
     } else {
         $emailtemplatepath = __DIR__ . '/templates/email/' . $black_land_thankyou_page_language . 'fill.html';

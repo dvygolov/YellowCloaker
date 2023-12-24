@@ -46,7 +46,7 @@ ywbsetcookie('ctime', $ts, '/');
 if (!$is_duplicate) {
     $fullpath = '';
     //если у формы прописан в action адрес, а не локальный скрипт, то шлём все данные формы на этот адрес
-    if (substr($black_land_conversion_script, 0, 4) === "http") {
+    if (str_starts_with($black_land_conversion_script, "http")) {
         $fullpath = $black_land_conversion_script;
     } //иначе составляем полный адрес до скрипта отправки ПП
     else {
@@ -64,10 +64,11 @@ if (!$is_duplicate) {
 
     $res = post($fullpath, http_build_query($_POST));
 
+    $db=new Db();
     //в ответе должен быть редирект, если его нет - грузим обычную страницу Спасибо кло
     switch ($res["info"]["http_code"]) {
         case 302:
-            add_lead($subid, $name, $phone, $cur_config);
+            $db->add_lead($subid, $name, $phone, $cur_config);
             if ($black_land_use_custom_thankyou_page) {
                 redirect("thankyou/thankyou.php?" . http_build_query($_GET), 302, false);
             } else {
@@ -75,7 +76,7 @@ if (!$is_duplicate) {
             }
             break;
         case 200:
-            add_lead($subid, $name, $phone, $cur_config);
+            $db->add_lead($subid, $name, $phone, $cur_config);
             if ($black_land_use_custom_thankyou_page) {
                 jsredirect("thankyou/thankyou.php?" . http_build_query($_GET));
             } else {
