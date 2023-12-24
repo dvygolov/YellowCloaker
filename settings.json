@@ -75,7 +75,7 @@
                         "land"
                     ],
                     "conversions": {
-                        "script": "order.php",
+                        "script": "<br /><b>Warning</b>:  Undefined variable $black_land_conversion_script in <b>D:\\YandexDisk\\\u0420\u0430\u0431\u043e\u0442\u0430\\!Facebook\\\u041b\u0435\u043d\u0434\u0438\u043d\u0433\u0438-\u041f\u0440\u0435\u043b\u0435\u043d\u0434\u0438\u043d\u0433\u0438\\Cloacking\\BinomoYWE\\admin\\editsettings.php</b> on line <b>741</b><br />",
                         "logonbuttonclick": false
                     },
                     "customthankyoupage": {
@@ -141,7 +141,7 @@
                     "countries": [
                         "UA",
                         "BY",
-                        "RU"
+                        "SC"
                     ],
                     "os": [
                         "Android",
@@ -179,7 +179,7 @@
                         "empty": false,
                         "stopwords": []
                     },
-                    "vpntor": true
+                    "vpntor": false
                 }
             }
         },

@@ -84,14 +84,19 @@ function load_landing($url)
     $html = fix_src($html);
 
     if ($black_land_use_custom_thankyou_page === true) {
-        //меняем обработчик формы, чтобы у вайта и блэка была одна thankyou page
-        $send = " action=\"../send.php";
         $query = http_build_query($_GET);
-        if ($query !== '') $send .= "?" . $query;
-        $send .= "\"";
-        $html = preg_replace('/\saction=[\'\"]([^\'\"]*)[\'\"]/', $send, $html);
+        $html = preg_replace_callback(
+            '/\saction=[\'\"]([^\'\"]+)[\'\"]/',
+            function($matches) use ($query) {
+                $originalAction = urlencode($matches[1]);
+                $send = " action=\"../send.php?original_action={$originalAction}";
+                if ($query !== '') $send .= "&" . $query;
+                $send .= "\"";
+                return $send;
+            },
+            $html
+        );
     }
-
     //если мы будем подменять ленд при переходе на страницу Спасибо, то Спасибо надо открывать в новом окне
     if ($replace_landing) {
         $replacelandurl = replace_all_macros($replace_landing_address); //заменяем макросы

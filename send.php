@@ -32,63 +32,61 @@ if ($name === '' || $phone === '') {
     return;
 }
 
-$date = new DateTime();
-$ts = $date->getTimestamp();
-
 $is_duplicate = has_conversion_cookies($name, $phone);
 //устанавливаем пользователю в куки его имя и телефон, чтобы показать их на стр Спасибо
 //также ставим куки даты конверсии
 ywbsetcookie('name', $name, '/');
 ywbsetcookie('phone', $phone, '/');
-ywbsetcookie('ctime', $ts, '/');
+ywbsetcookie('ctime', (new DateTime())->getTimestamp(), '/');
 
 //шлём в ПП только если это не дубль
-if (!$is_duplicate) {
-    $fullpath = '';
-    //если у формы прописан в action адрес, а не локальный скрипт, то шлём все данные формы на этот адрес
-    if (str_starts_with($black_land_conversion_script, "http")) {
-        $fullpath = $black_land_conversion_script;
-    } //иначе составляем полный адрес до скрипта отправки ПП
-    else {
-        $url = get_cookie('landing') . '/' . $black_land_conversion_script;
-        $fullpath = get_abs_from_rel($url);
-    }
-
-    //на всякий случай, перед отправкой чекаем, установлен ли subid
-    $sub_rewrites = array_column($sub_ids, 'rewrite', 'name');
-    if (array_key_exists('subid', $sub_rewrites)) {
-        if (!isset($_POST[$sub_rewrites['subid']]) ||
-            $_POST[$sub_rewrites['subid']] !== $subid)
-            $_POST[$sub_rewrites['subid']] = $subid;
-    }
-
-    $res = post($fullpath, http_build_query($_POST));
-
-    $db=new Db();
-    //в ответе должен быть редирект, если его нет - грузим обычную страницу Спасибо кло
-    switch ($res["info"]["http_code"]) {
-        case 302:
-            $db->add_lead($subid, $name, $phone, $cur_config);
-            if ($black_land_use_custom_thankyou_page) {
-                redirect("thankyou/thankyou.php?" . http_build_query($_GET), 302, false);
-            } else {
-                redirect($res["info"]["redirect_url"]);
-            }
-            break;
-        case 200:
-            $db->add_lead($subid, $name, $phone, $cur_config);
-            if ($black_land_use_custom_thankyou_page) {
-                jsredirect("thankyou/thankyou.php?" . http_build_query($_GET));
-            } else {
-                echo $res["html"];
-            }
-            break;
-        default:
-            var_dump($res["error"]);
-            var_dump($res["info"]);
-            exit();
-            break;
-    }
-} else {
+if ($is_duplicate) {
     redirect('thankyou/thankyou.php?nopixel=1');
+    return;
+}
+
+$fullpath = '';
+$original_action = $_GET['original_action'];
+//если у формы прописан в action адрес, а не локальный скрипт, то шлём все данные формы на этот адрес
+if (str_starts_with($original_action, "http")) {
+    $fullpath = $original_action;
+} //иначе составляем полный адрес до скрипта отправки ПП
+else {
+    $url = get_cookie('landing') . '/' . $original_action;
+    $fullpath = get_abs_from_rel($url);
+}
+
+$post_data = http_build_query($_POST);
+$res = post($fullpath, $post_data);
+
+$db = new Db();
+//в ответе должен быть редирект, если его нет - грузим обычную страницу Спасибо кло
+switch ($res["info"]["http_code"]) {
+    case 302:
+        $db->add_lead($subid, $name, $phone, $cur_config);
+        if ($black_land_use_custom_thankyou_page) {
+            redirect("thankyou/thankyou.php?" . http_build_query($_GET));
+        } else {
+            redirect($res["info"]["redirect_url"]);
+        }
+        break;
+    case 200:
+        $db->add_lead($subid, $name, $phone, $cur_config);
+        if ($black_land_use_custom_thankyou_page) {
+            jsredirect("thankyou/thankyou.php?" . http_build_query($_GET));
+        } else {
+            echo $res["html"];
+        }
+        break;
+    default:
+        echo $fullpath."<br/>";
+        var_dump($res["html"]);
+        echo '<br/>';
+        var_dump($res["error"]);
+        echo '<br/>';
+        var_dump($res["info"]);
+        echo '<br/>';
+        var_dump($post_data);
+        exit();
+        break;
 }

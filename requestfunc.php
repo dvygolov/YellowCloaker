@@ -38,7 +38,7 @@ function get_request_headers($ispost = false): array
     $ip = getip();
     $headers = array(
         'X-YWBCLO-UIP: ' . $ip,
-        'X-FORWARDED-FOR: ' . $ip,
+        //'X-FORWARDED-FOR: ' . $ip,
         //'CF-CONNECTING-IP: '.$ip,
         'FORWARDED-FOR: ' . $ip,
         'X-COMING-FROM: ' . $ip,
@@ -107,6 +107,34 @@ function get($url): array
     return ["html" => $content, "info" => $info, "error" => $error];
 }
 
+function postc()
+{
+    $curl = curl_init();
+
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => 'https://127.0.0.1:63339/BinomoYWE/land/api.php',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => false,
+        CURLOPT_FOLLOWLOCATION => false,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_POSTFIELDS => 'sub1%3D6588882589f90=&subid%3D%257Bsubid%257D=&name%3DTest12ttt=&phone%3D%252B7%2528999%2529999-99-94=',
+        CURLOPT_HTTPHEADER => array(
+            'Content-Type: application/x-www-form-urlencoded'
+        ),
+    ));
+
+    $content = curl_exec($curl);
+    $info = curl_getinfo($curl);
+    $error = curl_error($curl);
+    curl_close($curl);
+    return ["html" => $content, "info" => $info, "error" => $error];
+}
+
 function post($url, $postfields): array
 {
     $curl = curl_init();
@@ -119,6 +147,7 @@ function post($url, $postfields): array
         CURLOPT_CUSTOMREQUEST => "POST",
         CURLOPT_SSL_VERIFYPEER => false,
         CURLOPT_SSL_VERIFYHOST => false,
+        CURLOPT_VERBOSE => true,
         CURLOPT_POSTFIELDS => $postfields,
         CURLOPT_REFERER => $_SERVER['REQUEST_URI'],
         CURLOPT_HTTPHEADER => get_request_headers(true),
