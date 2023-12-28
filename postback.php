@@ -42,10 +42,11 @@ switch ($status) {
         break;
 }
 add_postback_log($subid, $inner_status, $payout, $curLink);
-$res = update_lead($subid, $inner_status, $payout);
-process_s2s_posbacks($s2s_postbacks, $inner_status);
+$db = new Db();
+$updated = $db->update_lead($subid, $inner_status, $payout, $cur_config);
 
-if ($res) {
+if ($updated) {
+    process_s2s_posbacks($s2s_postbacks, $inner_status);
     http_response_code(200);
     echo "Postback for subid $subid with status $status and payout $payout accepted.";
 } else {
@@ -53,7 +54,7 @@ if ($res) {
     echo "Postback for subid $subid with status $status and payout $payout NOT accepted! Subid NOT FOUND.";
 }
 
-function process_s2s_posbacks(array $s2s_postbacks, string $inner_status)
+function process_s2s_posbacks(array $s2s_postbacks, string $inner_status): void
 {
     foreach ($s2s_postbacks as $s2s) {
         if (!in_array($inner_status, $s2s['events'])) continue;

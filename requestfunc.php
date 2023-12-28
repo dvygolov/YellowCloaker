@@ -53,38 +53,6 @@ function get_request_headers($ispost = false): array
     return $headers;
 }
 
-function get_html($url, $follow_location = false, $use_ua = false): bool|string
-{
-    $ispost = ($_SERVER['REQUEST_METHOD'] === 'POST');
-
-    $curl = curl_init();
-    $optArray = array(
-        CURLOPT_URL => $url,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_SSL_VERIFYHOST => false,
-        CURLOPT_HTTPHEADER => get_request_headers($ispost)
-    );
-    if ($ispost) {
-        $optArray[CURLOPT_POST] = 1;
-        $optArray[CURLOPT_POSTFIELDS] = $_POST;
-        $optArray[CURLOPT_FOLLOWLOCATION] = true;
-    }
-
-    if ($follow_location === true) {
-        $optArray[CURLOPT_FOLLOWLOCATION] = true;
-    }
-    if ($use_ua === true) {
-        $optArray[CURLOPT_USERAGENT] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML like Gecko) Chrome/84.0.4147.89 Safari/537.36';
-    }
-    curl_setopt_array($curl, $optArray);
-    $html = curl_exec($curl);
-    $info = curl_getinfo($curl);
-    $error = curl_error($curl);
-    curl_close($curl);
-    return $html;
-}
-
 function get($url): array
 {
     $curl = curl_init();
@@ -107,41 +75,13 @@ function get($url): array
     return ["html" => $content, "info" => $info, "error" => $error];
 }
 
-function postc()
-{
-    $curl = curl_init();
-
-    curl_setopt_array($curl, array(
-        CURLOPT_URL => 'https://127.0.0.1:63339/BinomoYWE/land/api.php',
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_SSL_VERIFYPEER => false,
-        CURLOPT_SSL_VERIFYHOST => false,
-        CURLOPT_FOLLOWLOCATION => false,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'POST',
-        CURLOPT_POSTFIELDS => 'sub1%3D6588882589f90=&subid%3D%257Bsubid%257D=&name%3DTest12ttt=&phone%3D%252B7%2528999%2529999-99-94=',
-        CURLOPT_HTTPHEADER => array(
-            'Content-Type: application/x-www-form-urlencoded'
-        ),
-    ));
-
-    $content = curl_exec($curl);
-    $info = curl_getinfo($curl);
-    $error = curl_error($curl);
-    curl_close($curl);
-    return ["html" => $content, "info" => $info, "error" => $error];
-}
-
 function post($url, $postfields): array
 {
     $curl = curl_init();
     curl_setopt_array($curl, array(
         CURLOPT_URL => $url,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_TIMEOUT => 0,
+        CURLOPT_TIMEOUT => 10,
         CURLOPT_FOLLOWLOCATION => false,
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => "POST",

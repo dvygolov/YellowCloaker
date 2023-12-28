@@ -4,7 +4,6 @@ require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/htmlprocessing.php';
 require_once __DIR__ . '/cookies.php';
 require_once __DIR__ . '/redirect.php';
-require_once __DIR__ . '/pixels.php';
 require_once __DIR__ . '/abtest.php';
 
 function white($use_js_checks)
@@ -26,6 +25,10 @@ function white($use_js_checks)
 
     if ($white_use_domain_specific) { //если у нас под каждый домен свой вайт
         $curdomain = $_SERVER['HTTP_HOST'];
+        if (str_ends_with($curdomain, ':' . $_SERVER['SERVER_PORT'])) {
+            $portLength = strlen(':' . $_SERVER['SERVER_PORT']);
+            $curdomain = substr($curdomain, 0, - $portLength);
+        }
         foreach ($white_domain_specific as $wds) {
             if ($wds['name'] == $curdomain) {
                 $wtd_arr = explode(":", $wds['action'], 2);
@@ -102,7 +105,6 @@ function black($clkrdetect)
     }
 
     $cursubid = set_subid();
-    set_facebook_cookies();
 
     $landings = [];
     $isfolderland = false;

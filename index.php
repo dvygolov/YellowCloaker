@@ -19,13 +19,11 @@ if ($tds_mode === 'full') {
     white(false);
 } else if ($tds_mode === 'off') {
     black($cloaker->click_params);
-}
-else if ($use_js_checks) {
+} else if ($use_js_checks) {
 //если используются js-проверки, то сначала используются они
 //проверка же обычная идёт далее в файле js/jsprocessing.php
     white(true);
-}
-else if ($cloaker->is_bad_click()) { //Обнаружили бота или модера
+} else if ($cloaker->is_bad_click()) { //Обнаружили бота или модера
     $db = new Db();
     $db->add_white_click($cloaker->click_params, $cloaker->block_reason, $cur_config);
     white(false);

@@ -82,15 +82,18 @@ class Db
         return $this->leads_store->insert($lead);
     }
 
-    public function update_lead($subid, $status, $payout, $config)
+    public function update_lead($subid, $status, $payout, $config): bool
     {
         $lead = $this->leads_store->findOneBy([["subid", "=", $subid]]);
         if ($lead === null) {
+            $click = $this->black_clicks_store->findOneBy([["subid", "=", $subid]]);
+            if ($click === null) return false;
             $lead = $this->add_lead($subid, '', '', $config);
         }
         $lead["status"] = $status;
         $lead["payout"] = $payout;
         $this->leads_store->update($lead);
+        return true;
     }
 
     public function email_exists_for_subid($subid)
@@ -133,7 +136,10 @@ class Db
 
     private function prepare_click_data($data, $reason, $config)
     {
-        parse_str($_SERVER['QUERY_STRING'], $queryarr);
+        $queryarr = [];
+        if (!empty($_SERVER['QUERY_STRING'])) {
+            parse_str($_SERVER['QUERY_STRING'], $queryarr);
+        }
         return [
             "time" => (new DateTime())->getTimestamp(),
             "ip" => $data['ip'],

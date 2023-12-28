@@ -241,7 +241,11 @@ require_once __DIR__ . '/initialization.php';
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Show
+                                                            <label class="login2 pull-left pull-left-pro">
+
+                                                                <img src="img/info.ico"
+                                                                     title="Allowed methods are: folder, redirect, curl,error"/>
+                                                            Show
                                                                 individual
                                                                 domain-specific safe page? </label>
                                                         </div>
@@ -665,53 +669,8 @@ require_once __DIR__ . '/initialization.php';
 
                                                     <div class="form-group-inner">
                                                         <div class="row">
-                                                            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">ThankYou
-                                                                    Page Settings</label>
-                                                            </div>
-                                                            <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                                                                <div class="bt-df-checkbox pull-left">
-
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-                                                                                    <input type="radio" <?= $black_land_use_custom_thankyou_page === true ? 'checked' : '' ?>
-                                                                                           value="true"
-                                                                                           name="black.landing.folder.customthankyoupage.use"
-                                                                                           onclick="(document.getElementById('ctpage').style.display = 'block'); (document.getElementById('pppage').style.display = 'none')">
-                                                                                    Use the Built-in ThankYou Page
-                                                                                    <img src="img/info.ico"
-                                                                                         title="First try this method! Only if smth doesn't work well - then use your own!"/>
-                                                                                </label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-                                                                                    <input type="radio" <?= $black_land_use_custom_thankyou_page === false ? 'checked' : '' ?>
-                                                                                           value="false"
-                                                                                           name="black.landing.folder.customthankyoupage.use"
-                                                                                           onclick="(document.getElementById('ctpage').style.display = 'none'); (document.getElementById('pppage').style.display = 'block')">
-                                                                                    Use the one from your landing(s)
-                                                                                    <img src="img/info.ico"
-                                                                                         title="You'll have to manually insert Facebook's/TikTok's or Google's pixels onto your thankyou page then"/>
-                                                                                </label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div id="ctpage" class="form-group-inner"
-                                                         style="display:<?= $black_land_use_custom_thankyou_page === true ? 'block' : 'none' ?>">
-                                                        <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Built-in
+                                                                <label class="login2 pull-left pull-left-pro">
                                                                     ThankYou Page language:</label>
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
@@ -724,28 +683,9 @@ require_once __DIR__ . '/initialization.php';
                                                             </div>
                                                         </div>
                                                         <div class="row">
-                                                            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">
-                                                                    <img src="img/info.ico" title=""/>
-                                                                    Relative path of the php-script that sends leads to
-                                                                    the affiliate network:
-                                                                    <img src="img/info.ico"
-                                                                         title="Usually this file is named order.php, confirm.php or smth like that. Open your landing's index.html and look at the form's action attribute. It is usually written there."/>
-                                                                </label>
-                                                            </div>
-                                                            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
-                                                                <div class="input-group custom-go-button">
-                                                                    <input type="text" class="form-control"
-                                                                           placeholder="order.php"
-                                                                           name="black.landing.folder.conversions.script"
-                                                                           value="<?= $black_land_conversion_script ?>">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                                                                 <label class="login2 pull-left pull-left-pro">
-                                                                    Use upsells on the built-in ThankYou Page?
+                                                                    Add upsells to the ThankYou Page?
                                                                 </label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
@@ -843,130 +783,15 @@ require_once __DIR__ . '/initialization.php';
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div id="pppage" class="form-group-inner"
-                                                         style="display:<?= $black_land_use_custom_thankyou_page === false ? 'block' : 'none' ?>">
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">
-                                                                    Should I count conversions using the Submit Order
-                                                                    button on the Landing Page?
-                                                                </label>
-                                                            </div>
-                                                            <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                                                                <div class="bt-df-checkbox pull-left">
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-                                                                                    <input type="radio" <?= $black_land_log_conversions_on_button_click === false ? 'checked' : '' ?>
-                                                                                           value="false"
-                                                                                           name="black.landing.folder.conversions.logonbuttonclick">
-                                                                                    No
-                                                                                    <img src="img/info.ico"
-                                                                                         title="If so, the cloaker will not be able to count conversions at all 🤷‍️"/>
-                                                                                </label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-                                                                                    <input type="radio" <?= $black_land_log_conversions_on_button_click === true ? 'checked' : '' ?>
-                                                                                           value="true"
-                                                                                           name="black.landing.folder.conversions.logonbuttonclick">
-                                                                                    Yes </label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">
-                                                                    How should we track Facebook's conversions?
-                                                                </label>
-                                                            </div>
-                                                            <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                                                                <div class="bt-df-checkbox pull-left">
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-                                                                                    <img src="img/info.ico"
-                                                                                         title="If you won't use the built-in ThankYou Page then you'll have to insert Facebook Pixel's Code inside your own thankyou page!"/>
-                                                                                    <input type="radio" <?= $fb_add_button_pixel === false ? 'checked' : '' ?>
-                                                                                           value="false"
-                                                                                           name="pixels.fb.conversion.fireonbutton">
-                                                                                    Using ThankYou Page
-                                                                                </label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-                                                                                    <input type="radio" <?= $fb_add_button_pixel === true ? 'checked' : '' ?>
-                                                                                           value="true"
-                                                                                           name="pixels.fb.conversion.fireonbutton">
-                                                                                    Using Submit Form Button on the
-                                                                                    landing
-                                                                                </label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Откуда
-                                                                    отстукивать в TikTok конверсию? </label>
-                                                            </div>
-                                                            <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                                                                <div class="bt-df-checkbox pull-left">
-
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-                                                                                    <input type="radio" <?= $tt_add_button_pixel === false ? 'checked' : '' ?>
-                                                                                           value="false"
-                                                                                           name="pixels.tt.conversion.fireonbutton">
-                                                                                    Со страницы спасибо <small>(если не
-                                                                                        используете кастомную Спасибо,
-                                                                                        впишите код
-                                                                                        пикселя!)</small></label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                            <div class="i-checks pull-left">
-                                                                                <label>
-                                                                                    <input type="radio" <?= $tt_add_button_pixel === true ? 'checked' : '' ?>
-                                                                                           value="true"
-                                                                                           name="pixels.tt.conversion.fireonbutton">
-                                                                                    С кнопки на ленде </label>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
                                                 </div>
                                                 <div id="b_landings_redirect"
                                                      style="display:<?= $black_land_action === 'redirect' ? 'block' : 'none' ?>;">
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Адреса для
-                                                                    редиректа: <small>(Можно НЕСКОЛЬКО через
-                                                                        запятую)</small> </label>
+                                                                <label class="login2 pull-left pull-left-pro">
+                                                                <img src="img/info.ico" title="If you need several redirects (split test) - separate them with commas without spaces"/> 
+                                                                Redirect url(s):</label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                                                                 <div class="input-group custom-go-button">
@@ -982,8 +807,7 @@ require_once __DIR__ . '/initialization.php';
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Выберите
-                                                                    код редиректа: </label>
+                                                                <label class="login2 pull-left pull-left-pro">Redirect type:</label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
@@ -1041,34 +865,30 @@ require_once __DIR__ . '/initialization.php';
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Действие при
-                                                                подключении кло через Javascript (для конструкторов)
-                                                                <small>Если в качестве блэка выбран редирект, то и с
-                                                                    конструктора ВСЕГДА будет редирект. Если же блэк
-                                                                    локальный, то возможны только: подмена,
-                                                                    iframe</small> </label>
+                                                            <label class="login2 pull-left pull-left-pro">When adding cloaker using js show Money page using: </label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                             <div class="bt-df-checkbox pull-left">
 
+                                                                <?php if($black_preland_action==='none' && $black_land_action==='redirect'){?>
                                                                 <div class="row">
                                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                         <div class="i-checks pull-left">
                                                                             <label>
-                                                                                <input type="radio" <?= $black_jsconnect_action === 'redirect' ? 'checked' : '' ?>
-                                                                                       value="redirect"
-                                                                                       name="black.jsconnect"> Редирект
+                                                                                <input type="radio" checked                                                                                        value="redirect"
+                                                                                       name="black.jsconnect"> Redirect
                                                                             </label>
                                                                         </div>
                                                                     </div>
                                                                 </div>
+                                                                <?php }else{?>
                                                                 <div class="row">
                                                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                                                         <div class="i-checks pull-left">
                                                                             <label>
                                                                                 <input type="radio" <?= $black_jsconnect_action === 'replace' ? 'checked' : '' ?>
                                                                                        value="replace"
-                                                                                       name="black.jsconnect"> Подмена
+                                                                                       name="black.jsconnect"> Content replace
                                                                             </label>
                                                                         </div>
                                                                     </div>
@@ -1084,6 +904,7 @@ require_once __DIR__ . '/initialization.php';
                                                                         </div>
                                                                     </div>
                                                                 </div>
+                                                                <?php }?>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1091,333 +912,6 @@ require_once __DIR__ . '/initialization.php';
                                                 <br>
                                                 <hr>
                                                 <h4>#3 Metrics and pixels settings</h4>
-                                                <div class="form-group-inner">
-                                                    <div class="row">
-                                                        <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">
-                                                                Google Tag Manager ID: </label>
-                                                        </div>
-                                                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                            <div class="input-group custom-go-button">
-                                                                <input type="text" class="form-control" placeholder=" "
-                                                                       name="pixels.gtm.id" value="<?= $gtm_id ?>">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group-inner">
-                                                    <div class="row">
-                                                        <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">
-                                                                Yandex.Metrika ID:</label>
-                                                        </div>
-                                                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                            <div class="input-group custom-go-button">
-                                                                <input type="text" class="form-control" placeholder=""
-                                                                       name="pixels.ya.id" value="<?= $ya_id ?>">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <h5>#3.1 Facebook Pixel Settings</h5>
-                                                <div class="form-group-inner">
-                                                    <div class="row">
-                                                        <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Имя параметра
-                                                                в котором лежит ID пикселя Facebook: </label>
-                                                        </div>
-                                                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                            <div class="input-group custom-go-button">
-                                                                <input type="text" class="form-control" placeholder="px"
-                                                                       name="pixels.fb.subname"
-                                                                       value="<?= $fbpixel_subname ?>">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="form-group-inner">
-                                                    <div class="row">
-                                                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Добавлять ли
-                                                                на проклы-ленды событие PageView? </label>
-                                                        </div>
-                                                        <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                                                            <div class="bt-df-checkbox pull-left">
-
-                                                                <div class="row">
-                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                        <div class="i-checks pull-left">
-                                                                            <label>
-                                                                                <input type="radio" <?= $fb_use_pageview === false ? 'checked' : '' ?>
-                                                                                       value="false"
-                                                                                       name="pixels.fb.pageview"> No
-                                                                            </label>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row">
-                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                        <div class="i-checks pull-left">
-                                                                            <label>
-                                                                                <input type="radio" <?= $fb_use_pageview === true ? 'checked' : '' ?>
-                                                                                       value="true"
-                                                                                       name="pixels.fb.pageview"> Yes,
-                                                                                add </label>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="form-group-inner">
-                                                    <div class="row">
-                                                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Добавлять
-                                                                событие ViewContent после просмотра страницы в течении
-                                                                указанного ниже времени? </label>
-                                                        </div>
-                                                        <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                                                            <div class="bt-df-checkbox pull-left">
-
-                                                                <div class="row">
-                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                        <div class="i-checks pull-left">
-                                                                            <label>
-                                                                                <input type="radio" <?= $fb_use_viewcontent === false ? 'checked' : '' ?>
-                                                                                       value="false"
-                                                                                       name="pixels.fb.viewcontent.use"
-                                                                                       onclick="(document.getElementById('b_8-2').style.display='none')">
-                                                                                No </label>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row">
-                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                        <div class="i-checks pull-left">
-                                                                            <label>
-                                                                                <input type="radio" <?= $fb_use_viewcontent === true ? 'checked' : '' ?>
-                                                                                       value="true"
-                                                                                       name="pixels.fb.viewcontent.use"
-                                                                                       onclick="(document.getElementById('b_8-2').style.display='block')">
-                                                                                Yes, add </label>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div id="b_8-2"
-                                                     style="display:<?= $fb_use_viewcontent === true ? 'block' : 'none' ?>;">
-                                                    <div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Время в
-                                                                    сек после которго отправляется
-                                                                    ViewContent:<br><small>если 0, то событие не будет
-                                                                        вызвано</small> </label>
-                                                            </div>
-                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                                <div class="input-group custom-go-button">
-                                                                    <input type="text" class="form-control"
-                                                                           placeholder="30"
-                                                                           name="pixels.fb.viewcontent.time"
-                                                                           value="<?= $fb_view_content_time ?>">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Процент
-                                                                    проскролливания страницы, до вызова события
-                                                                    ViewContent:<br><small>если 0, то событие не будет
-                                                                        вызвано</small> </label>
-                                                            </div>
-                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                                <div class="input-group custom-go-button">
-                                                                    <input type="text" class="form-control"
-                                                                           placeholder="75"
-                                                                           name="pixels.fb.viewcontent.percent"
-                                                                           value="<?= $fb_view_content_percent ?>">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group-inner">
-                                                    <div class="row">
-                                                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Какое событие
-                                                                будем использовать для конверсии в Facebook? <small>Например:
-                                                                    Lead или Purchase</small></label>
-                                                        </div>
-                                                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                            <div class="input-group custom-go-button">
-                                                                <input type="text" class="form-control"
-                                                                       placeholder="Lead"
-                                                                       name="pixels.fb.conversion.event"
-                                                                       value="<?= $fb_thankyou_event ?>">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <h5>#3.2 TikTok pixel settings</h5>
-                                                <div class="form-group-inner">
-                                                    <div class="row">
-                                                        <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Имя параметра
-                                                                в котором лежит ID пикселя TikTok: </label>
-                                                        </div>
-                                                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                            <div class="input-group custom-go-button">
-                                                                <input type="text" class="form-control"
-                                                                       placeholder="tpx" name="pixels.tt.subname"
-                                                                       value="<?= $ttpixel_subname ?>">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="form-group-inner">
-                                                    <div class="row">
-                                                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Добавлять ли
-                                                                на проклы-ленды событие PageView? </label>
-                                                        </div>
-                                                        <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                                                            <div class="bt-df-checkbox pull-left">
-
-                                                                <div class="row">
-                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                        <div class="i-checks pull-left">
-                                                                            <label>
-                                                                                <input type="radio" <?= $tt_use_pageview === false ? 'checked' : '' ?>
-                                                                                       value="false"
-                                                                                       name="pixels.tt.pageview"> No
-                                                                            </label>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row">
-                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                        <div class="i-checks pull-left">
-                                                                            <label>
-                                                                                <input type="radio" <?= $tt_use_pageview === true ? 'checked' : '' ?>
-                                                                                       value="true"
-                                                                                       name="pixels.tt.pageview"> Yes,
-                                                                                add </label>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="form-group-inner">
-                                                    <div class="row">
-                                                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Добавлять
-                                                                событие ViewContent после просмотра страницы в течении
-                                                                указанного ниже времени? </label>
-                                                        </div>
-                                                        <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                                                            <div class="bt-df-checkbox pull-left">
-
-                                                                <div class="row">
-                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                        <div class="i-checks pull-left">
-                                                                            <label>
-                                                                                <input type="radio" <?= $tt_use_viewcontent === false ? 'checked' : '' ?>
-                                                                                       value="false"
-                                                                                       name="pixels.tt.viewcontent.use"
-                                                                                       onclick="(document.getElementById('tt_8-2').style.display='none')">
-                                                                                No </label>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row">
-                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                        <div class="i-checks pull-left">
-                                                                            <label>
-                                                                                <input type="radio" <?= $tt_use_viewcontent === true ? 'checked' : '' ?>
-                                                                                       value="true"
-                                                                                       name="pixels.tt.viewcontent.use"
-                                                                                       onclick="(document.getElementById('tt_8-2').style.display='block')">
-                                                                                Yes, add </label>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div id="tt_8-2"
-                                                     style="display:<?= $tt_use_viewcontent === true ? 'block' : 'none' ?>;">
-                                                    <div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Время в
-                                                                    сек после которго отправляется
-                                                                    ViewContent:<br><small>если 0, то событие не будет
-                                                                        вызвано</small> </label>
-                                                            </div>
-                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                                <div class="input-group custom-go-button">
-                                                                    <input type="text" class="form-control"
-                                                                           placeholder="30"
-                                                                           name="pixels.tt.viewcontent.time"
-                                                                           value="<?= $tt_view_content_time ?>">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Процент
-                                                                    проскролливания страницы, до вызова события
-                                                                    ViewContent:<br><small>если 0, то событие не будет
-                                                                        вызвано</small> </label>
-                                                            </div>
-                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                                <div class="input-group custom-go-button">
-                                                                    <input type="text" class="form-control"
-                                                                           placeholder="75"
-                                                                           name="pixels.tt.viewcontent.percent"
-                                                                           value="<?= $tt_view_content_percent ?>">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group-inner">
-                                                    <div class="row">
-                                                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Какое событие
-                                                                будем использовать для конверсии в TikTok? <small>Например:
-                                                                    CompletePayment или AddPaymentInfo</small></label>
-                                                        </div>
-                                                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                            <div class="input-group custom-go-button">
-                                                                <input type="text" class="form-control"
-                                                                       placeholder="Lead"
-                                                                       name="pixels.tt.conversion.event"
-                                                                       value="<?= $tt_thankyou_event ?>">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
                                                 <br>
                                                 <hr>
                                                 <h4>#4 Traffic Distribution Settings</h4>
@@ -1469,9 +963,9 @@ require_once __DIR__ . '/initialization.php';
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                                                             <label class="login2 pull-left pull-left-pro">
-                                                                Посылать
-                                                                одного и того же юзера на одни и те же
-                                                                проклы-ленды?</label>
+                                                                                                                                                                                <img src="img/info.ico" title="If Yes then the user will always be shown the same content on every visit"/> 
+
+                                                                Save user flow:</label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                             <div class="bt-df-checkbox pull-left">
@@ -1493,8 +987,7 @@ require_once __DIR__ . '/initialization.php';
                                                                             <label>
                                                                                 <input type="radio" <?= $save_user_flow === true ? 'checked' : '' ?>
                                                                                        value="true"
-                                                                                       name="tds.saveuserflow"> Yes,
-                                                                                посылать </label>
+                                                                                       name="tds.saveuserflow"> Yes</label>
                                                                         </div>
                                                                     </div>
                                                                 </div>

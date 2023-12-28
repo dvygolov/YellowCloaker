@@ -2,45 +2,45 @@
 require_once __DIR__ . '/js/obfuscator.php';
 require_once __DIR__ . '/bases/ipcountry.php';
 require_once __DIR__ . '/requestfunc.php';
-require_once __DIR__ . '/pixels.php';
 require_once __DIR__ . '/htmlinject.php';
 require_once __DIR__ . '/url.php';
 require_once __DIR__ . '/cookies.php';
 
-//Подгрузка контента блэк проклы из другой папки через CURL
+function load_content_with_include($url): string
+{
+    ob_start();
+    // Check for each file and require/include the first one that exists
+    $fulldir = __DIR__ . '/' . $url;
+    if (file_exists($fulldir . '/index.php')) {
+        require $fulldir . '/index.php';
+    } elseif (file_exists($fulldir . '/index.html')) {
+        echo file_get_contents($fulldir . '/index.html');
+    } elseif (file_exists($fulldir . '/index.htm')) {
+        echo file_get_contents($fulldir . '/index.htm');
+    }
+
+    $html = ob_get_clean();
+    return $html;
+}
+
+//Подгрузка контента блэк проклы из другой папки
 function load_prelanding($url, $land_number): string
 {
     global $replace_prelanding, $replace_prelanding_address;
 
     $fullpath = get_abs_from_rel($url);
-    $fpwqs = get_abs_from_rel($url, true);
 
-    $html = get_html($fpwqs);
+    $html = load_content_with_include($url);
     $html = remove_scrapbook($html);
-    $html = remove_from_html($html, 'removepreland.html');
 
     //чистим тег <head> от всякой ненужной мути
     $html = fix_head_add_base($html, $fullpath);
     $html = fix_src($html);
-    //ВСЕ ПИКСЕЛИ
-    //добавляем в страницу скрипт GTM
-    $html = insert_gtm_script($html);
-    //добавляем в страницу скрипт Yandex Metrika
-    $html = insert_yandex_script($html);
-    //добавляем всё для пикселя Facebook
-    $html = insert_fbpixel_pageview($html);
-    $html = insert_fbpixel_viewcontent($html, $url);
-    //добавляем всё для пикселя TikTok
-    $html = insert_ttpixel_pageview($html);
-    $html = insert_ttpixel_viewcontent($html, $url);
 
-    $html = replace_city_macros($html);
+    $html = replace_macros($html);
     $html = fix_phone_and_name($html);
-    $html = insert_phone_mask($html);
     //добавляем во все формы сабы
     $html = insert_subs_into_forms($html);
-    //добавляем в формы id пикселя фб
-    $html = insert_fbpixel_id($html);
 
     $cloaker = get_cloaker_path();
     $querystr = $_SERVER['QUERY_STRING'];
@@ -58,28 +58,23 @@ function load_prelanding($url, $land_number): string
         $html = insert_file_content($html, 'replaceprelanding.js', '</body>', true, true, '{REDIRECT}', $url);
     }
     $html = preg_replace('/(<a[^>]+href=")([^"]*)/', $replacement, $html);
-    //убираем левые обработчики onclick у ссылок
-    $html = preg_replace('/(<a[^>]+)(onclick="[^"]+")/i', "\\1", $html);
-    $html = preg_replace("/(<a[^>]+)(onclick='[^']+')/i", "\\1", $html);
 
-    $html = insert_additional_scripts($html);
     $html = add_images_lazy_load($html);
 
     return $html;
 }
 
-//Подгрузка контента блэк ленда из другой папки через CURL
+
+//Подгрузка контента блэк ленда из другой папки
 function load_landing($url)
 {
-    global $black_land_log_conversions_on_button_click, $black_land_use_custom_thankyou_page;
+    global $black_land_use_custom_thankyou_page;
     global $replace_landing, $replace_landing_address;
 
     $fullpath = get_abs_from_rel($url);
-    $fpwqs = get_abs_from_rel($url, true);
 
-    $html = get_html($fpwqs);
+    $html = load_content_with_include($url);
     $html = remove_scrapbook($html);
-    $html = remove_from_html($html, 'removeland.html');
     $html = fix_head_add_base($html, $fullpath);
     $html = fix_src($html);
 
@@ -87,7 +82,7 @@ function load_landing($url)
         $query = http_build_query($_GET);
         $html = preg_replace_callback(
             '/\saction=[\'\"]([^\'\"]+)[\'\"]/',
-            function($matches) use ($query) {
+            function ($matches) use ($query) {
                 $originalAction = urlencode($matches[1]);
                 $send = " action=\"../send.php?original_action={$originalAction}";
                 if ($query !== '') $send .= "&" . $query;
@@ -104,31 +99,13 @@ function load_landing($url)
         $html = insert_file_content($html, 'replacelanding.js', '</body>', true, true, '{REDIRECT}', $replacelandurl);
     }
 
-    //добавляем в страницу скрипт GTM
-    $html = insert_gtm_script($html);
-    //добавляем в страницу скрипт Yandex Metrika
-    $html = insert_yandex_script($html);
-    //добавляем всё, связанное с пикселем фб
-    $html = full_fbpixel_processing($html, $url);
-    //добавляем всё по тиктоку
-    $html = full_ttpixel_processing($html, $url);
-
-    if ($black_land_log_conversions_on_button_click) {
-        $html = insert_file_content($html, 'btnclicklog.js', '</head>', true, true);
-    }
-
-    $html = insert_additional_scripts($html);
-
     //добавляем во все формы сабы
     $html = insert_subs_into_forms($html);
-    //добавляем в формы id пикселя фб
-    $html = insert_fbpixel_id($html);
 
     $html = fix_anchors($html);
-    $html = replace_city_macros($html);
+    $html = replace_macros($html);
     //заменяем поле с телефоном на более удобный тип - tel + добавляем autocomplete
     $html = fix_phone_and_name($html);
-    $html = insert_phone_mask($html);
 
     $html = add_images_lazy_load($html);
 
@@ -146,48 +123,6 @@ function fix_src($html): string
 {
     $src_regex = '/(<[^>]+src=[\'\"])\/([^\/][^>]*>)/';
     return preg_replace($src_regex, "\\1\\2", $html);
-}
-
-//добавляем доп.скрипты
-function insert_additional_scripts($html)
-{
-    global $disable_text_copy, $back_button_action, $replace_back_button, $replace_back_address, $add_tos;
-    global $comebacker, $callbacker, $addedtocart;
-
-    if ($disable_text_copy) {
-        $html = insert_file_content($html, 'disablecopy.js', '</body>', true, true);
-    }
-
-    switch ($back_button_action) {
-        case 'disable':
-            $html = insert_file_content($html, 'disableback.js', '</body>', true, true);
-            break;
-        case 'replace':
-            $url = replace_all_macros($replace_back_address); //заменяем макросы
-            $url = add_subs_to_link($url); //добавляем сабы
-            $html = insert_file_content($html, 'replaceback.js', '</body>', true, true, '{RA}', $url);
-            break;
-    }
-
-    if ($add_tos) {
-        $html = insert_file_content($html, 'tos.html', '</body>');
-    }
-
-    if ($callbacker) {
-        $html = insert_file_content($html, 'callbacker/head.html', '</head>');
-        $html = insert_file_content($html, 'callbacker/template.html', '</body>');
-    }
-
-    if ($comebacker) {
-        $html = insert_file_content($html, 'comebacker/head.html', '</head>');
-        $html = insert_file_content($html, 'comebacker/template.html', '</body>');
-    }
-
-    if ($addedtocart) {
-        $html = insert_file_content($html, 'addedtocart/head.html', '</head>');
-        $html = insert_file_content($html, 'addedtocart/template.html', '</body>');
-    }
-    return $html;
 }
 
 function add_input_attribute($html, $regex, $attribute)
@@ -225,28 +160,24 @@ function fix_phone_and_name($html)
     return $html;
 }
 
-function replace_city_macros($html)
+function replace_macros($html): string
 {
     $ip = getip();
-    $html = preg_replace_callback('/\{CITY,([^\}]+)\}/', function ($m) use ($ip) {
+    $subid = get_subid();
+    $html = preg_replace_callback('/\{city,([^\}]+)\}/', function ($m) use ($ip) {
         return getcity($ip, $m[1]);
     }, $html);
+    $html = preg_replace('/\{subid\}/',$subid,$html);
+    //TODO: create method for pixel handling
+//    $px = get_px();
+//    if (!empty($px))
+//        $html = preg_replace('/\{px\}',$px, $html);
     return $html;
 }
 
 function fix_anchors($html)
 {
     return insert_file_content($html, "replaceanchorswithsmoothscroll.js", "<body", false, true);
-}
-
-function insert_phone_mask($html)
-{
-    global $black_land_use_phone_mask, $black_land_phone_mask;
-    if (!$black_land_use_phone_mask) return $html;
-    $cloaker = get_cloaker_path();
-    $html = insert_before_tag($html, '</head>', "<script src=\"" . $cloaker . "scripts/inputmask/inputmask.js\"></script>");
-    $html = insert_file_content($html, 'inputmask/inputmaskbinding.js', '</body>', true, true, '{MASK}', $black_land_phone_mask);
-    return $html;
 }
 
 function add_images_lazy_load($html)
@@ -260,24 +191,10 @@ function add_images_lazy_load($html)
 //Подгрузка контента вайта ИЗ ПАПКИ
 function load_white_content($url, $add_js_check)
 {
-    global $fb_use_pageview;
-    $fullpath = get_abs_from_rel($url, true);
-
-    $html = get_html($fullpath);
+    $html = load_content_with_include($url);
     $baseurl = '/' . $url . '/';
     //переписываем все относительные src и href (не начинающиеся с http)
     $html = rewrite_relative_urls($html, $baseurl);
-    //добавляем в страницу скрипт GTM
-    $html = insert_gtm_script($html);
-    //добавляем в страницу скрипт Yandex Metrika
-    $html = insert_yandex_script($html);
-    //добавляем в страницу скрипт Facebook Pixel с событием PageView
-    if ($fb_use_pageview) {
-        $html = insert_fbpixel_script($html, 'PageView');
-    }
-
-    //если на вайте есть форма, то меняем её обработчик, чтобы у вайта и блэка была одна thankyou page
-    $html = preg_replace('/\saction=[\'\"]([^\'\"]+)[\'\"]/', " action=\"../worder.php?" . http_build_query($_GET) . "\"", $html);
 
     //добавляем в <head> пару доп. метатегов
     $html = str_replace('<head>', '<head><meta name="referrer" content="no-referrer"><meta name="robots" content="noindex, nofollow">', $html);
@@ -292,15 +209,13 @@ function load_white_content($url, $add_js_check)
 //когда подгружаем вайт методом CURL
 function load_white_curl($url, $add_js_check)
 {
-    $html = get_html($url, true, true);
+    $res = get($url);
+    $html = $res['html'];
     $html = rewrite_relative_urls($html, $url);
 
     //удаляем лишние палящие теги
     $html = preg_replace('/(<meta property=\"og:url\" [^>]+>)/', "", $html);
     $html = preg_replace('/(<link rel=\"canonical\" [^>]+>)/', "", $html);
-
-    //добавляем в страницу скрипт Facebook Pixel
-    $html = insert_fbpixel_script($html, 'PageView');
 
     //добавляем в <head> пару доп. метатегов
     $html = str_replace('<head>', '<head><meta name="referrer" content="no-referrer"><meta name="robots" content="noindex, nofollow">', $html);
@@ -327,7 +242,7 @@ function add_js_testcode($html)
     }
     $jsCode = "<script id='connect'>{$jsCode}</script>";
     $needle = '</body>';
-    if (strpos($html, $needle) === false) $needle = '</html>';
+    if (!str_contains($html, $needle)) $needle = '</html>';
     return insert_before_tag($html, $needle, $jsCode);
 }
 
@@ -369,33 +284,5 @@ function remove_scrapbook($html)
 {
     $modified = preg_replace('/data\-scrapbook\-source=[\'\"][^\'\"]+[\'\"]/', '', $html);
     $modified = preg_replace('/data\-scrapbook\-create=[\'\"][^\'\"]+[\'\"]/', '', $modified);
-    return $modified;
-}
-
-function remove_from_html($html, $filename)
-{
-    $remove_file_name = __DIR__ . '/scripts/' . $filename;
-    if (!file_exists($remove_file_name)) {
-        echo 'File Not Found ' . $remove_file_name;
-        return $html;
-    }
-    $modified = $html;
-    foreach (file($remove_file_name) as $line) {
-        $linetype = substr(trim($line), -3);
-        $l = trim($line);
-        switch ($linetype) {
-            case '.js':
-                $r = "/<script.*?" . $l . ".*?script>/";
-                $modified = preg_replace($r, '', $modified);
-                break;
-            case 'css':
-                $r = "/<link.*?rel=[\'\"]stylesheet.*?" . $l . "[^>]*>/";
-                $modified = preg_replace($r, '', $modified);
-                break;
-            default:
-                $modified = str_replace(trim($line), '', $modified);
-                break;
-        }
-    }
     return $modified;
 }

@@ -1,7 +1,6 @@
 <?php
 require_once __DIR__ . '/settings.php';
 require_once __DIR__ . '/cookies.php';
-require_once __DIR__ . '/pixels.php';
 
 //заменяем все макросы на реальные значения из куки
 function replace_all_macros($url)
@@ -23,9 +22,9 @@ function replace_all_macros($url)
 function add_querystring($url)
 {
     $delimiter = (strpos($url, '?') === false ? "?" : "&");
-    $querystr = $_SERVER['QUERY_STRING'];
-    if (!empty($querystr)) {
-        $url = $url . $delimiter . $querystr;
+
+    if (isset($_SERVER['QUERY_STRING']) && !empty($_SERVER['QUERY_STRING'])) {
+        $url = $url . $delimiter . $_SERVER['QUERY_STRING'];
     }
     return $url;
 }

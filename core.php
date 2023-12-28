@@ -21,6 +21,7 @@ class Cloaker
 
     public function __construct(FilterSettings $s)
     {
+        DebugMethods::start();
         $this->s = $s;
         $a = [];
         if (!empty($_SERVER['HTTP_REFERER'])) {
@@ -40,72 +41,78 @@ class Cloaker
         $a['country'] = getcountry($a['ip']);
         $a['isp'] = getisp($a['ip']);
         $this->click_params = $a;
+        DebugMethods::stop("YWBCoreConstruct");
     }
 
     public function is_bad_click(): bool
     {
-        $this->block_reason = [];
+        try {
+            DebugMethods::start();
+            $this->block_reason = [];
 
-        if ($this->has_bad_ua($this->click_params['ua'])) {
-            $this->block_reason[] = 'ua';
-            return true;
+            if ($this->has_bad_ua($this->click_params['ua'])) {
+                $this->block_reason[] = 'ua';
+                return true;
+            }
+
+            if ($this->has_bad_os($this->click_params['os'])) {
+                $this->block_reason[] = 'os';
+                return true;
+            }
+
+            if ($this->has_bad_language($this->click_params['lang'])) {
+                $buf = strtoupper($this->click_params['lang']);
+                $this->block_reason[] = 'language:' . $buf;
+                return true;
+            }
+
+            if ($this->has_no_referer($this->click_params['referer'])) {
+                $this->block_reason[] = 'noreferer';
+                return true;
+            }
+
+            if ($this->has_bad_referer($this->click_params['referer'], $stop)) {
+                $this->block_reason[] = 'refstop:' . $stop;
+                return true;
+            }
+
+            if ($this->has_bad_tokens_in_url($_SERVER['REQUEST_URI'], $token)) {
+                $this->block_reason[] = 'token:' . $token;
+                return true;
+            }
+
+            if ($this->does_not_have_in_url($_SERVER['REQUEST_URI'], $should)) {
+                $this->block_reason[] = 'url:' . $should;
+                return true;
+            }
+
+            if ($this->has_bad_isp($this->click_params['isp'])) {
+                $this->block_reason[] = 'isp';
+                return true;
+            }
+
+            if ($this->has_bad_country($this->click_params['country'])) {
+                $this->block_reason[] = 'country';
+                return true;
+            }
+
+            if ($this->is_proxy_or_vpn($this->click_params['ip'])) {
+                $this->block_reason[] = 'vnp&tor';
+                return true;
+            }
+
+            if ($this->is_bot_by_mainbase($this->click_params['ip'])) {
+                $this->block_reason[] = 'ipbase';
+                return true;
+            } else if ($this->is_bot_by_custombase($this->click_params['ip'])) {
+                $this->block_reason[] = 'ipblack';
+                return true;
+            }
+
+            return false;
+        } finally {
+            DebugMethods::stop("YWBCoreCheck");
         }
-
-        if ($this->has_bad_os($this->click_params['os'])) {
-            $this->block_reason[] = 'os';
-            return true;
-        }
-
-        if ($this->has_bad_language($this->click_params['lang'])) {
-            $buf = strtoupper($this->click_params['lang']);
-            $this->block_reason[] = 'language:' . $buf;
-            return true;
-        }
-
-        if ($this->has_no_referer($this->click_params['referer'])) {
-            $this->block_reason[] = 'noreferer';
-            return true;
-        }
-
-        if ($this->has_bad_referer($this->click_params['referer'], $stop)) {
-            $this->block_reason[] = 'refstop:' . $stop;
-            return true;
-        }
-
-        if ($this->has_bad_tokens_in_url($_SERVER['REQUEST_URI'], $token)) {
-            $this->block_reason[] = 'token:' . $token;
-            return true;
-        }
-
-        if ($this->does_not_have_in_url($_SERVER['REQUEST_URI'], $should)) {
-            $this->block_reason[] = 'url:' . $should;
-            return true;
-        }
-
-        if ($this->has_bad_isp($this->click_params['isp'])) {
-            $this->block_reason[] = 'isp';
-            return true;
-        }
-
-        if ($this->has_bad_country($this->click_params['country'])) {
-            $this->block_reason[] = 'country';
-            return true;
-        }
-
-        if ($this->is_proxy_or_vpn($this->click_params['ip'])) {
-            $this->block_reason[] = 'vnp&tor';
-            return true;
-        }
-
-        if ($this->is_bot_by_mainbase($this->click_params['ip'])) {
-            $this->block_reason[] = 'ipbase';
-            return true;
-        } else if ($this->is_bot_by_custombase($this->click_params['ip'])) {
-            $this->block_reason[] = 'ipblack';
-            return true;
-        }
-
-        return false;
     }
 
     private function is_proxy_or_vpn($ip): bool

@@ -5,7 +5,7 @@
             "localhost"
         ],
         "white": {
-            "action": "error",
+            "action": "redirect",
             "folder": {
                 "names": [
                     "white"
@@ -32,17 +32,17 @@
                 "use": false,
                 "domains": [
                     {
-                        "name": "lalala.xxx.com",
-                        "action": "site:white"
+                        "name": "127.0.0.1",
+                        "action": "folder:white"
                     },
                     {
-                        "name": "lamama.xxx.com",
-                        "action": "site:white"
+                        "name": "localhost",
+                        "action": "folder:white2"
                     }
                 ]
             },
             "jschecks": {
-                "enabled": false,
+                "enabled": true,
                 "events": [
                     "audiocontext",
                     "timezone"
@@ -56,7 +56,7 @@
         },
         "black": {
             "prelanding": {
-                "action": "none",
+                "action": "folder",
                 "folders": [
                     "preland"
                 ],
@@ -69,17 +69,12 @@
                 }
             },
             "landing": {
-                "action": "folder",
+                "action": "redirect",
                 "folder": {
                     "names": [
                         "land"
                     ],
-                    "conversions": {
-                        "script": "<br /><b>Warning</b>:  Undefined variable $black_land_conversion_script in <b>D:\\YandexDisk\\\u0420\u0430\u0431\u043e\u0442\u0430\\!Facebook\\\u041b\u0435\u043d\u0434\u0438\u043d\u0433\u0438-\u041f\u0440\u0435\u043b\u0435\u043d\u0434\u0438\u043d\u0433\u0438\\Cloacking\\BinomoYWE\\admin\\editsettings.php</b> on line <b>741</b><br />",
-                        "logonbuttonclick": false
-                    },
                     "customthankyoupage": {
-                        "use": true,
                         "language": "RU",
                         "upsell": {
                             "use": false,
@@ -94,44 +89,14 @@
                     "urls": [
                         "https://yandex.ru"
                     ],
-                    "type": "303"
+                    "type": "307"
                 }
             },
-            "jsconnect": "replace"
+            "jsconnect": "redirect"
         },
         "pixels": {
-            "ya": {
-                "id": ""
-            },
-            "gtm": {
-                "id": ""
-            },
-            "fb": {
-                "subname": "px",
-                "pageview": true,
-                "viewcontent": {
-                    "use": false,
-                    "time": "30",
-                    "percent": "75"
-                },
-                "conversion": {
-                    "event": "Lead",
-                    "fireonbutton": false
-                }
-            },
-            "tt": {
-                "subname": "tpx",
-                "pageview": true,
-                "viewcontent": {
-                    "use": true,
-                    "time": "30",
-                    "percent": "75"
-                },
-                "conversion": {
-                    "event": "Purchase",
-                    "fireonbutton": false
-                }
-            }
+            "subname": "px",
+            "code": ""
         },
         "tds": {
             "mode": "on",
@@ -141,7 +106,7 @@
                     "countries": [
                         "UA",
                         "BY",
-                        "SC"
+                        "RU"
                     ],
                     "os": [
                         "Android",

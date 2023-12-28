@@ -45,9 +45,9 @@ $black_land_action = $conf['black.landing.action'];
 $black_land_folder_names = $conf['black.landing.folder.names'];
 $black_land_redirect_urls = $conf['black.landing.redirect.urls'];
 $black_land_redirect_type = $conf['black.landing.redirect.type'];
+
 $black_land_log_conversions_on_button_click = $conf['black.landing.folder.conversions.logonbuttonclick'];
 $black_land_use_custom_thankyou_page = $conf['black.landing.folder.customthankyoupage.use'];
-if ($black_land_use_custom_thankyou_page) $black_land_log_conversions_on_button_click = false;
 $black_land_thankyou_page_language = $conf['black.landing.folder.customthankyoupage.language'];
 
 $thankyou_upsell = $conf['black.landing.folder.customthankyoupage.upsell.use'];
@@ -58,23 +58,6 @@ $thankyou_upsell_url = $conf['black.landing.folder.customthankyoupage.upsell.url
 
 $black_jsconnect_action = $conf['black.jsconnect'];
 
-$ya_id = $conf['pixels.ya.id'];
-$gtm_id = $conf['pixels.gtm.id'];
-$fbpixel_subname = $conf['pixels.fb.subname'];
-$fb_use_pageview = $conf['pixels.fb.pageview'];
-$fb_use_viewcontent = $conf['pixels.fb.viewcontent.use'];
-$fb_view_content_time = $conf['pixels.fb.viewcontent.time'];
-$fb_view_content_percent = $conf['pixels.fb.viewcontent.percent'];
-$fb_thankyou_event = $conf['pixels.fb.conversion.event'];
-$fb_add_button_pixel = $conf['pixels.fb.conversion.fireonbutton'];
-$ttpixel_subname = $conf['pixels.tt.subname'];
-$tt_use_pageview = $conf['pixels.tt.pageview'];
-$tt_use_viewcontent = $conf['pixels.tt.viewcontent.use'];
-$tt_view_content_time = $conf['pixels.tt.viewcontent.time'];
-$tt_view_content_percent = $conf['pixels.tt.viewcontent.percent'];
-$tt_thankyou_event = $conf['pixels.tt.conversion.event'];
-$tt_add_button_pixel = $conf['pixels.tt.conversion.fireonbutton'];
-
 $tds_mode = $conf['tds.mode'];
 $save_user_flow = $conf['tds.saveuserflow'];
 
@@ -82,7 +65,6 @@ $os_white = $conf['tds.filters.allowed.os'];
 $country_white = $conf['tds.filters.allowed.countries'];
 $url_should_contain = $conf['tds.filters.allowed.inurl'];
 $lang_white = $conf['tds.filters.allowed.languages'];
-
 $ip_black_filename = $conf->get('tds.filters.blocked.ips.filename', '');
 $ip_black_cidr = $conf->get('tds.filters.blocked.ips.cidrformat', false);
 $tokens_black = $conf['tds.filters.blocked.tokens'];
