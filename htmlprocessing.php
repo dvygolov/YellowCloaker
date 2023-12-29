@@ -167,11 +167,9 @@ function replace_macros($html): string
     $html = preg_replace_callback('/\{city,([^\}]+)\}/', function ($m) use ($ip) {
         return getcity($ip, $m[1]);
     }, $html);
-    $html = preg_replace('/\{subid\}/',$subid,$html);
-    //TODO: create method for pixel handling
-//    $px = get_px();
-//    if (!empty($px))
-//        $html = preg_replace('/\{px\}',$px, $html);
+    $html = preg_replace('/\{subid\}/', $subid, $html);
+    $px = get_px();
+    $html = preg_replace('/\{px\}/', $px, $html);
     return $html;
 }
 

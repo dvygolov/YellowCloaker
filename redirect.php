@@ -7,9 +7,9 @@ function redirect($url, $redirect_type = 302,
     if ($add_querystring)
         $url = add_querystring($url);
     if ($replace_macros)
-        $url = $replace_macros($url);
+        $url = replace_all_macros($url);
     if ($replace_subs)
-        $url = $replace_subs($url);
+        $url = replace_subs_in_link($url);
     header('X-Robots-Tag: noindex, nofollow');
     header('Location: ' . $url, true, $redirect_type);
 }

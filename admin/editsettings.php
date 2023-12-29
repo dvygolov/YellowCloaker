@@ -245,7 +245,7 @@ require_once __DIR__ . '/initialization.php';
 
                                                                 <img src="img/info.ico"
                                                                      title="Allowed methods are: folder, redirect, curl,error"/>
-                                                            Show
+                                                                Show
                                                                 individual
                                                                 domain-specific safe page? </label>
                                                         </div>
@@ -790,8 +790,9 @@ require_once __DIR__ . '/initialization.php';
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
                                                                 <label class="login2 pull-left pull-left-pro">
-                                                                <img src="img/info.ico" title="If you need several redirects (split test) - separate them with commas without spaces"/> 
-                                                                Redirect url(s):</label>
+                                                                    <img src="img/info.ico"
+                                                                         title="If you need several redirects (split test) - separate them with commas without spaces"/>
+                                                                    Redirect url(s):</label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                                                                 <div class="input-group custom-go-button">
@@ -807,7 +808,8 @@ require_once __DIR__ . '/initialization.php';
                                                     <div class="form-group-inner">
                                                         <div class="row">
                                                             <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Redirect type:</label>
+                                                                <label class="login2 pull-left pull-left-pro">Redirect
+                                                                    type:</label>
                                                             </div>
                                                             <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                                 <div class="bt-df-checkbox pull-left">
@@ -865,46 +867,51 @@ require_once __DIR__ . '/initialization.php';
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">When adding cloaker using js show Money page using: </label>
+                                                            <label class="login2 pull-left pull-left-pro">When adding
+                                                                cloaker using js show Money page using: </label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                             <div class="bt-df-checkbox pull-left">
 
-                                                                <?php if($black_preland_action==='none' && $black_land_action==='redirect'){?>
-                                                                <div class="row">
-                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                        <div class="i-checks pull-left">
-                                                                            <label>
-                                                                                <input type="radio" checked                                                                                        value="redirect"
-                                                                                       name="black.jsconnect"> Redirect
-                                                                            </label>
+                                                                <?php if ($black_preland_action === 'none' && $black_land_action === 'redirect') { ?>
+                                                                    <div class="row">
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                            <div class="i-checks pull-left">
+                                                                                <label>
+                                                                                    <input type="radio" checked
+                                                                                           value="redirect"
+                                                                                           name="black.jsconnect">
+                                                                                    Redirect
+                                                                                </label>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
-                                                                </div>
-                                                                <?php }else{?>
-                                                                <div class="row">
-                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                        <div class="i-checks pull-left">
-                                                                            <label>
-                                                                                <input type="radio" <?= $black_jsconnect_action === 'replace' ? 'checked' : '' ?>
-                                                                                       value="replace"
-                                                                                       name="black.jsconnect"> Content replace
-                                                                            </label>
+                                                                <?php } else { ?>
+                                                                    <div class="row">
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                            <div class="i-checks pull-left">
+                                                                                <label>
+                                                                                    <input type="radio" <?= $black_jsconnect_action === 'replace' ? 'checked' : '' ?>
+                                                                                           value="replace"
+                                                                                           name="black.jsconnect">
+                                                                                    Content replace
+                                                                                </label>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
-                                                                </div>
-                                                                <div class="row">
-                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                        <div class="i-checks pull-left">
-                                                                            <label>
-                                                                                <input type="radio" <?= $black_jsconnect_action === 'iframe' ? 'checked' : '' ?>
-                                                                                       value="iframe"
-                                                                                       name="black.jsconnect"> IFrame
-                                                                            </label>
+                                                                    <div class="row">
+                                                                        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                                                            <div class="i-checks pull-left">
+                                                                                <label>
+                                                                                    <input type="radio" <?= $black_jsconnect_action === 'iframe' ? 'checked' : '' ?>
+                                                                                           value="iframe"
+                                                                                           name="black.jsconnect">
+                                                                                    IFrame
+                                                                                </label>
+                                                                            </div>
                                                                         </div>
                                                                     </div>
-                                                                </div>
-                                                                <?php }?>
+                                                                <?php } ?>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -963,8 +970,8 @@ require_once __DIR__ . '/initialization.php';
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                                                             <label class="login2 pull-left pull-left-pro">
-                                                                                                                                                                                <img src="img/info.ico" title="If Yes then the user will always be shown the same content on every visit"/> 
-
+                                                                <img src="img/info.ico"
+                                                                     title="If Yes then the user will always be shown the same content on every visit"/>
                                                                 Save user flow:</label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
@@ -987,7 +994,8 @@ require_once __DIR__ . '/initialization.php';
                                                                             <label>
                                                                                 <input type="radio" <?= $save_user_flow === true ? 'checked' : '' ?>
                                                                                        value="true"
-                                                                                       name="tds.saveuserflow"> Yes</label>
+                                                                                       name="tds.saveuserflow">
+                                                                                Yes</label>
                                                                         </div>
                                                                     </div>
                                                                 </div>
@@ -1003,6 +1011,8 @@ require_once __DIR__ . '/initialization.php';
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
                                                             <label class="login2 pull-left pull-left-pro">
+                                                                <img src="img/info.ico"
+                                                                     title="If empty then all will be allowed"/>
                                                                 Allowed operating systems:</label>
                                                         </div>
                                                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
@@ -1019,9 +1029,11 @@ require_once __DIR__ . '/initialization.php';
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Allowed
-                                                                countries:
-                                                                <small>(WW or empty for whole world)</small></label>
+                                                            <label class="login2 pull-left pull-left-pro">
+                                                                <img src="img/info.ico"
+                                                                     title="WW or empty for whole world"/>
+                                                                Allowed countries:
+                                                            </label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                                                             <div class="input-group custom-go-button">
@@ -1036,9 +1048,11 @@ require_once __DIR__ . '/initialization.php';
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Список
-                                                                разрешённых языков: <small>(any или пустое значение для
-                                                                    всех языков)</small></label>
+                                                            <label class="login2 pull-left pull-left-pro">
+                                                                <img src="img/info.ico"
+                                                                     title="any or empty for all languages"/>
+                                                                Allowed browser languages:
+                                                                <small></small></label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                                                             <div class="input-group custom-go-button">
@@ -1053,9 +1067,12 @@ require_once __DIR__ . '/initialization.php';
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                                                            <label class="login2 pull-left pull-left-pro">Имя файла
-                                                                дополнительной базы с запрещёнными IP-адресами <small>файл
-                                                                    должен лежать в папке bases</small></label>
+                                                            <label class="login2 pull-left pull-left-pro">
+                                                                <img src="img/info.ico"
+                                                                     title="File must be in the bases folder"/>
+                                                                Filename of an additional base with disallowed IPs or IP
+                                                                ranges
+                                                            </label>
                                                         </div>
                                                         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
                                                             <div class="input-group custom-go-button">
@@ -1068,8 +1085,8 @@ require_once __DIR__ . '/initialization.php';
                                                     </div>
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Дополнительная
-                                                                база запрещённых IP в формате CIDR?</label>
+                                                            <label class="login2 pull-left pull-left-pro">
+                                                                Is this additional base in CIDR format?</label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                             <div class="bt-df-checkbox pull-left">
@@ -1104,10 +1121,9 @@ require_once __DIR__ . '/initialization.php';
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Слова через
-                                                                запятую, при наличии которых в адресе перехода (в
-                                                                ссылке, по которой перешли), юзер будет отправлен на
-                                                                whitepage</label>
+                                                            <label class="login2 pull-left pull-left-pro">
+                                                                Comma-separated list of disallowed words in the
+                                                                URL:</label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                                                             <div class="input-group custom-go-button">
@@ -1122,15 +1138,17 @@ require_once __DIR__ . '/initialization.php';
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Слова через
-                                                                запятую, которые обязательно должны быть в адресе. Если
-                                                                хотя бы чего-то нет - показывается вайт</label>
+                                                            <label class="login2 pull-left pull-left-pro">
+                                                                <img src="img/info.ico"
+                                                                     title="If only ONE word from this list is NOT found - the user will be shown the safe page"/>
+                                                                Comma-separated list of words that MUST be in the URL:
+                                                            </label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                                                             <div class="input-group custom-go-button">
                                                                 <input type="text" name="tds.filters.allowed.inurl"
                                                                        class="form-control" placeholder=""
-                                                                       value="<?= implode(',', $url_should_contain) ?>">
+                                                                       value="<?= implode(',', $url_should_contain) ?>"/>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1139,9 +1157,10 @@ require_once __DIR__ . '/initialization.php';
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Слова через
-                                                                запятую, при наличии которых в UserAgent, юзер будет
-                                                                отправлен на whitepage</label>
+                                                            <label class="login2 pull-left pull-left-pro">
+                                                                Comma-separated list of disallowed words in the
+                                                                UserAgent:
+                                                            </label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                                                             <div class="input-group custom-go-button">
@@ -1158,7 +1177,8 @@ require_once __DIR__ . '/initialization.php';
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
                                                             <label class="login2 pull-left pull-left-pro">
-                                                                Blocking by ISP, for example: facebook,google</label>
+                                                                Comma-separated list of disallowed words in the
+                                                                ISP:</label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                                                             <div class="input-group custom-go-button">
@@ -1211,9 +1231,7 @@ require_once __DIR__ . '/initialization.php';
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
                                                             <label class="login2 pull-left pull-left-pro">
-                                                                If any of these words (comma-separated without spaces)
-                                                                will be found
-                                                                in Referer the user will be sent to safe page.
+                                                                Comma-separated list of disallowed words in Referer:
                                                             </label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
@@ -1230,9 +1248,10 @@ require_once __DIR__ . '/initialization.php';
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">If VPN/Tor
-                                                                detected,
-                                                                send them to safe page?</label>
+                                                            <label class="login2 pull-left pull-left-pro">
+                                                                <img src="img/info.ico"
+                                                                     title="This check uses 3rd party service Blackbox, so it takes half a second to perform the check"/>
+                                                                Block proxy, VPN/Tor connections?</label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                             <div class="bt-df-checkbox pull-left">
@@ -1266,110 +1285,6 @@ require_once __DIR__ . '/initialization.php';
                                                 <br>
                                                 <hr>
                                                 <h4>#6 Additional scripts settings</h4>
-                                                <div class="form-group-inner">
-                                                    <div class="row">
-                                                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Back button actions:</label>
-                                                        </div>
-                                                        <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                                                            <div class="bt-df-checkbox pull-left">
-
-                                                                <div class="row">
-                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                        <div class="i-checks pull-left">
-                                                                            <label>
-                                                                                <input type="radio" <?= $back_button_action === 'off' ? 'checked' : '' ?>
-                                                                                       value="off"
-                                                                                       name="scripts.back.action"
-                                                                                       onclick="(document.getElementById('b_9').style.display='none')">
-                                                                                Leave it as it is</label>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row">
-                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                        <div class="i-checks pull-left">
-                                                                            <label>
-                                                                                <input type="radio" <?= $back_button_action === 'disable' ? 'checked' : '' ?>
-                                                                                       value="disable"
-                                                                                       name="scripts.back.action"
-                                                                                       onclick="(document.getElementById('b_9').style.display='none')">
-                                                                                Disable (user won't be able to go back)</label>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row">
-                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                        <div class="i-checks pull-left">
-                                                                            <label>
-                                                                                <input type="radio" <?= $back_button_action === 'replace' ? 'checked' : '' ?>
-                                                                                       value="replace"
-                                                                                       name="scripts.back.action"
-                                                                                       onclick="(document.getElementById('b_9').style.display='block')">
-                                                                                Make a redirect</label>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div id="b_9"
-                                                     style="display:<?= $back_button_action === 'replace' ? 'block' : 'none' ?>;">
-                                                    <div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">Back button redirect URL:</label>
-                                                            </div>
-                                                            <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
-                                                                <div class="input-group custom-go-button">
-                                                                    <input type="text" name="scripts.back.value"
-                                                                           class="form-control"
-                                                                           placeholder="http://ya.ru?pixel={px}&subid={subid}&prelanding={prelanding}"
-                                                                           value="<?= $replace_back_address ?>">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group-inner">
-                                                    <div class="row">
-                                                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">
-                                                                Disable: text selection, page saving (Ctrl+S) and
-                                                                context menu?
-                                                            </label>
-                                                        </div>
-                                                        <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                                                            <div class="bt-df-checkbox pull-left">
-
-                                                                <div class="row">
-                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                        <div class="i-checks pull-left">
-                                                                            <label>
-                                                                                <input type="radio" <?= $disable_text_copy === false ? 'checked' : '' ?>
-                                                                                       value="false"
-                                                                                       name="scripts.disabletextcopy">
-                                                                                No </label>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row">
-                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                        <div class="i-checks pull-left">
-                                                                            <label>
-                                                                                <input type="radio" <?= $disable_text_copy === true ? 'checked' : '' ?>
-                                                                                       value="true"
-                                                                                       name="scripts.disabletextcopy">
-                                                                                Yes, disable</label>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
@@ -1436,7 +1351,7 @@ require_once __DIR__ . '/initialization.php';
                                                             <label class="login2 pull-left pull-left-pro">
                                                                 Should we open Thankyou page in a new tab and redirect
                                                                 landing page to another URL:
-                                                                </label>
+                                                            </label>
                                                         </div>
                                                         <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                                                             <div class="bt-df-checkbox pull-left">
@@ -1483,172 +1398,6 @@ require_once __DIR__ . '/initialization.php';
                                                                            class="form-control"
                                                                            placeholder="http://ya.ru?pixel={px}&subid={subid}&prelanding={prelanding}"
                                                                            value="<?= $replace_landing_address ?>">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="form-group-inner">
-                                                    <div class="row">
-                                                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">
-                                                                Should we use phone masks for form inputs?
-                                                            </label>
-                                                        </div>
-                                                        <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                                                            <div class="bt-df-checkbox pull-left">
-
-                                                                <div class="row">
-                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                        <div class="i-checks pull-left">
-                                                                            <label>
-                                                                                <input type="radio" <?= $black_land_use_phone_mask === false ? 'checked' : '' ?>
-                                                                                       value="false"
-                                                                                       name="scripts.phonemask.use"
-                                                                                       onclick="(document.getElementById('b_11').style.display='none')">
-                                                                                No </label>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row">
-                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                        <div class="i-checks pull-left">
-                                                                            <label>
-                                                                                <input type="radio" <?= $black_land_use_phone_mask === true ? 'checked' : '' ?>
-                                                                                       value="true"
-                                                                                       name="scripts.phonemask.use"
-                                                                                       onclick="(document.getElementById('b_11').style.display='block')">
-                                                                                Yes, add mask </label>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div id="b_11"
-                                                     style="display:<?= $black_land_use_phone_mask === true ? 'block' : 'none' ?>;">
-                                                    <div class="form-group-inner">
-                                                        <div class="row">
-                                                            <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                <label class="login2 pull-left pull-left-pro">
-                                                                    Enter phone mask:</label>
-                                                            </div>
-                                                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                                                                <div class="input-group custom-go-button">
-                                                                    <input type="text" name="scripts.phonemask.mask"
-                                                                           class="form-control"
-                                                                           placeholder="+421 999 999 999"
-                                                                           value="<?= $black_land_phone_mask ?>">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group-inner">
-                                                    <div class="row">
-                                                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">
-                                                                Enable Comebacker script?</label>
-                                                        </div>
-                                                        <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                                                            <div class="bt-df-checkbox pull-left">
-
-                                                                <div class="row">
-                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                        <div class="i-checks pull-left">
-                                                                            <label>
-                                                                                <input type="radio" <?= $comebacker === false ? 'checked' : '' ?>
-                                                                                       value="false"
-                                                                                       name="scripts.comebacker"> No
-                                                                            </label>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row">
-                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                        <div class="i-checks pull-left">
-                                                                            <label>
-                                                                                <input type="radio" <?= $comebacker === true ? 'checked' : '' ?>
-                                                                                       value="true"
-                                                                                       name="scripts.comebacker">
-                                                                                Yes</label>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group-inner">
-                                                    <div class="row">
-                                                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">
-                                                                Enable Callbacker script?
-                                                            </label>
-                                                        </div>
-                                                        <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                                                            <div class="bt-df-checkbox pull-left">
-
-                                                                <div class="row">
-                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                        <div class="i-checks pull-left">
-                                                                            <label>
-                                                                                <input type="radio" <?= $callbacker === false ? 'checked' : '' ?>
-                                                                                       value="false"
-                                                                                       name="scripts.callbacker">No
-                                                                            </label>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row">
-                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                        <div class="i-checks pull-left">
-                                                                            <label>
-                                                                                <input type="radio" <?= $callbacker === true ? 'checked' : '' ?>
-                                                                                       value="true"
-                                                                                       name="scripts.callbacker">
-                                                                                Yes</label>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group-inner">
-                                                    <div class="row">
-                                                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Включить
-                                                                скрипт, показывающий всплывающие сообщения о том, что
-                                                                кто-то приобрёл товар?</label>
-                                                        </div>
-                                                        <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                                                            <div class="bt-df-checkbox pull-left">
-
-                                                                <div class="row">
-                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                        <div class="i-checks pull-left">
-                                                                            <label>
-                                                                                <input type="radio" <?= $addedtocart === false ? 'checked' : '' ?>
-                                                                                       value="false"
-                                                                                       name="scripts.addedtocart"> No
-                                                                            </label>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row">
-                                                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                        <div class="i-checks pull-left">
-                                                                            <label>
-                                                                                <input type="radio" <?= $addedtocart === true ? 'checked' : '' ?>
-                                                                                       value="true"
-                                                                                       name="scripts.addedtocart">
-                                                                                Yes</label>
-                                                                        </div>
-                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1837,9 +1586,12 @@ require_once __DIR__ . '/initialization.php';
                                                 <div class="form-group-inner">
                                                     <div class="row">
                                                         <div class="col-lg-5 col-md-12 col-sm-12 col-xs-12">
-                                                            <label class="login2 pull-left pull-left-pro">Здесь
-                                                                необходимо прописать статусы лидов, в том виде, как их
-                                                                вам отправляет в постбэке ПП:</label>
+                                                            <label class="login2 pull-left pull-left-pro">
+                                                                <img src="img/info.ico"
+                                                                     title="Your postback will look smth like this: https://yourdomain.com/postback.php?subid={subid}&payout={payout}&status={status}"/>
+                                                                Here you need to write lead statuses in the format that
+                                                                you get them from Affiliate Network's postback:
+                                                            </label>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1918,12 +1670,11 @@ require_once __DIR__ . '/initialization.php';
                                                         <div class="form-group-inner s2s">
                                                             <div class="row">
                                                                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                                                                    <label class="login2 pull-left pull-left-pro">Address:</label>
+                                                                    <label class="login2 pull-left pull-left-pro">
+                                                                        <img src="img/info.ico"
+                                                                             title="Inside the S2S-postback address you can use the following macros: {subid}, {prelanding}, {landing}, {px}, {domain}, {status}"/>
+                                                                        Address:</label>
                                                                     <br/><br/>
-                                                                    <p>Внутри адреса постбэка можно использовать
-                                                                        следующие макросы:
-                                                                        {subid}, {prelanding}, {landing}, {px},
-                                                                        {domain}, {status}</p>
                                                                 </div>
                                                                 <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                                                                     <div class="input-group">

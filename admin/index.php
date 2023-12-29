@@ -1,4 +1,5 @@
 <?php
+global $startdate, $enddate, $config;
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/initialization.php';
 
@@ -6,17 +7,17 @@ $filter = $_GET['filter'] ?? '';
 
 $db = new Db();
 switch ($filter) {
-    case '':
-        $header = ["Subid", "IP", "Country", "ISP", "Time", "OS", "UA", "Subs", "Preland", "Land"];
-        $dataset = $db->get_black_clicks($startdate->getTimestamp(), $enddate->getTimestamp(), $config);
-        break;
     case 'leads':
-        $header = ["Subid", "Time", "Name", "Phone", "Email", "Status", "Preland", "Land", "Fbp", "Fbclid"];
+        $header = ["Subid", "Time", "Name", "Phone", "Email", "Status", "Preland", "Land"];
         $dataset = $db->get_leads($startdate->getTimestamp(), $enddate->getTimestamp(), $config);
         break;
     case 'blocked':
         $header = ["IP", "Country", "ISP", "Time", "Reason", "OS", "UA", "Subs"];
         $dataset = $db->get_white_clicks($startdate->getTimestamp(), $enddate->getTimestamp(), $config);
+        break;
+    default:
+        $header = ["Subid", "IP", "Country", "ISP", "Time", "OS", "UA", "Subs", "Preland", "Land"];
+        $dataset = $db->get_black_clicks($startdate->getTimestamp(), $enddate->getTimestamp(), $config);
         break;
 }
 require_once __DIR__ . '/tableformatter.php';

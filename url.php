@@ -5,11 +5,11 @@ require_once __DIR__ . '/cookies.php';
 //заменяем все макросы на реальные значения из куки
 function replace_all_macros($url)
 {
-    global $fbpixel_subname;
-    $px = get_fbpixel();
     $landing = get_cookie('landing');
     $prelanding = get_cookie('prelanding');
     $subid = get_subid();
+    $px = get_cookie('px');
+    //TODO:сделать вытаскивание пикселей
 
     $tmp_url = str_replace('{px}', $px, $url);
     $tmp_url = str_replace('{landing}', $landing, $tmp_url);

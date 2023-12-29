@@ -27,9 +27,10 @@ switch ($action) {
         return send_configmanager_result("Error: wrong action!");
         break;
 }
-function send_configmanager_result($msg)
+function send_configmanager_result($msg): int
 {
     $res = ["result" => $msg];
     header('Content-type: application/json');
     echo json_encode($res);
+    return http_response_code(200);
 }

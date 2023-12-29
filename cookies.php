@@ -10,13 +10,19 @@ function get_cookie($name): string
     if (session_status() !== PHP_SESSION_ACTIVE) {
         session_start(['read_and_close' => true]);
     }
-    return ($_COOKIE[$name] ?? ($_SESSION[$name] ?? ''));
+    return $_COOKIE[$name] ?? $_SESSION[$name] ?? '';
 }
 
 function get_subid(): string
 {
     $subid = get_cookie('subid');
     return $subid;
+}
+
+function get_px(): string
+{
+    $px = get_cookie('px');
+    return $px;
 }
 
 function set_subid(): string
@@ -31,6 +37,20 @@ function set_subid(): string
     $_SESSION['subid'] = $cursubid;
     session_write_close();
     return $cursubid;
+}
+
+function set_px(): void
+{
+    if (session_status() !== PHP_SESSION_ACTIVE) {
+        ini_set("session.cookie_secure", 1);
+        session_start();
+    }
+    //устанавливаем пользователю в куки уникальный subid, либо берём его из куки, если он уже есть
+    $curpx = $_GET['px']??'';
+    if (empty($curpx)) return;
+    ywbsetcookie('px', $curpx, '/');
+    $_SESSION['px'] = $curpx;
+    session_write_close();
 }
 
 //проверяем, если у пользователя установлена куки, что он уже конвертился, а также имя и телефон, то сверяем время

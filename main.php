@@ -105,6 +105,7 @@ function black($clkrdetect)
     }
 
     $cursubid = set_subid();
+    set_px();
 
     $landings = [];
     $isfolderland = false;
