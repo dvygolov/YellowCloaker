@@ -27,9 +27,7 @@ function get_abs_from_rel($url, $add_query_string = false)
     $fullpath = get_cloaker_path();
     $fullpath .= $url;
     if (!str_ends_with($url, '.php')) $fullpath = $fullpath . '/';
-    if ($add_query_string === true) {
-        $fullpath = add_querystring($fullpath);
-    }
+    if ($add_query_string) $fullpath = add_querystring($fullpath);
     return $fullpath;
 }
 
@@ -38,8 +36,8 @@ function get_request_headers($ispost = false): array
     $ip = getip();
     $headers = array(
         'X-YWBCLO-UIP: ' . $ip,
-        //'X-FORWARDED-FOR: ' . $ip,
-        //'CF-CONNECTING-IP: '.$ip,
+        'X-FORWARDED-FOR: ' . $ip,
+        'CF-CONNECTING-IP: '.$ip,
         'FORWARDED-FOR: ' . $ip,
         'X-COMING-FROM: ' . $ip,
         'COMING-FROM: ' . $ip,

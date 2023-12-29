@@ -125,7 +125,34 @@ class Cloaker
             return false;
         }
 
-        return $res === 'Y';
+        if ($res === 'Y') return true;
+
+        $ipintel = $this->is_bad_by_ipintel($ip);
+        return ($ipintel === null ? false : $ipintel);
+    }
+
+    private function is_bad_by_ipintel($ip): ?bool
+    {
+        $contactEmail = "support@" . $_SERVER['HTTP_HOST'];
+        $timeout = 5; //by default, wait no longer than 5 secs for a response
+        $banOnProbability = 0.99;
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
+
+        curl_setopt($ch, CURLOPT_URL, "http://check.getipintel.net/check.php?ip=$ip&contact=$contactEmail&flags=m");
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        if ($response > $banOnProbability) {
+            return true;
+        } else {
+            if ($response < 0 || strcmp($response, "") == 0) {
+                return null;
+            }
+            return false;
+        }
     }
 
     private function is_bot_by_mainbase($ip): bool
@@ -222,5 +249,4 @@ class Cloaker
         }
         return false;
     }
-
 }

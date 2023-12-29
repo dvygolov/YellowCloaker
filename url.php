@@ -21,10 +21,16 @@ function replace_all_macros($url)
 
 function add_querystring($url)
 {
-    $delimiter = (strpos($url, '?') === false ? "?" : "&");
+    $delimiter = (!str_contains($url, '?') ? "?" : "&");
 
-    if (isset($_SERVER['QUERY_STRING']) && !empty($_SERVER['QUERY_STRING'])) {
-        $url = $url . $delimiter . $_SERVER['QUERY_STRING'];
+    $qs = $_SERVER['QUERY_STRING'];
+    if (!empty($qs)) {
+        parse_str($qs, $qp);
+        if (isset($qp['l'])) { //we remove the landing number here
+            unset($qp['l']);
+        }
+        $qs = http_build_query($qp);
+        $url = $url . $delimiter . $qs;
     }
     return $url;
 }

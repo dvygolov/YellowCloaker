@@ -1,4 +1,5 @@
 <?php
+global $black_land_action, $black_land_folder_names, $black_land_redirect_urls, $black_land_redirect_type, $cur_config;
 require_once __DIR__ . '/debug.php';
 require_once __DIR__ . '/settings.php';
 require_once __DIR__ . '/htmlprocessing.php';

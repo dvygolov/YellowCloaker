@@ -26,8 +26,6 @@ function load_content_with_include($url): string
 //Подгрузка контента блэк проклы из другой папки
 function load_prelanding($url, $land_number): string
 {
-    global $replace_prelanding, $replace_prelanding_address;
-
     $fullpath = get_abs_from_rel($url);
 
     $html = load_content_with_include($url);
@@ -42,13 +40,23 @@ function load_prelanding($url, $land_number): string
     //добавляем во все формы сабы
     $html = insert_subs_into_forms($html);
 
+    //убираем target=_blank если был изначально на прокле
+    $html = preg_replace('/(<a[^>]+)(target="_blank")/i', "\\1", $html);
+
+    $html = replace_landing_link($html, $land_number);
+
+    $html = add_images_lazy_load($html);
+
+    return $html;
+}
+
+function replace_landing_link($html, $land_number): string
+{
+    global $replace_prelanding, $replace_prelanding_address;
     $cloaker = get_cloaker_path();
     $querystr = $_SERVER['QUERY_STRING'];
     //замена всех ссылок на прокле на универсальную ссылку ленда landing.php
-    $replacement = "\\1" . $cloaker . 'landing.php?l=' . $land_number . (!empty($querystr) ? '&' . $querystr : '');
-
-    //убираем target=_blank если был изначально на прокле
-    $html = preg_replace('/(<a[^>]+)(target="_blank")/i', "\\1", $html);
+    $replacement = $cloaker . 'landing.php?l=' . $land_number . (!empty($querystr) ? '&' . $querystr : '');
 
     //если мы будем подменять преленд при переходе на ленд, то ленд надо открывать в новом окне
     if ($replace_prelanding) {
@@ -57,10 +65,7 @@ function load_prelanding($url, $land_number): string
         $url = add_subs_to_link($url); //добавляем сабы
         $html = insert_file_content($html, 'replaceprelanding.js', '</body>', true, true, '{REDIRECT}', $url);
     }
-    $html = preg_replace('/(<a[^>]+href=")([^"]*)/', $replacement, $html);
-
-    $html = add_images_lazy_load($html);
-
+    $html = preg_replace('/\{offer\}/', $replacement, $html);
     return $html;
 }
 
