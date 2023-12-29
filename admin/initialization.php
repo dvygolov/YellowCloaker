@@ -24,5 +24,4 @@ if (isset($_GET['startdate']) && isset($_GET['enddate'])) {
     $date_str = "&startdate=$startstr&enddate=$endstr";
 }
 
-$password = $_REQUEST['password'];
 $config = $_REQUEST['config'] ?? "default";

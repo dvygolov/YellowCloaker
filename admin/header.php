@@ -37,6 +37,10 @@
                                                 <i class="icon nalika-refresh-button icon-wrap"></i>
                                                 <span>Refresh</span>
                                             </a>
+                                            <a class="nav-link" href="logout.php">
+                                                <i class="icon nalika-user icon-wrap"></i>
+                                                <span>Logout</span>
+                                            </a>
                                         </li>
                                     </ul>
                                 </div>

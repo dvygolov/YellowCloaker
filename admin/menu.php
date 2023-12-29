@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/initialization.php';
-$menuQueryString = "password={$password}&config={$config}{$date_str}";
+$menuQueryString = "config={$config}{$date_str}";
 ?>
 <div class="left-sidebar-pro">
     <nav id="sidebar" class="">
@@ -101,7 +101,7 @@ $menuQueryString = "password={$password}&config={$config}{$date_str}";
         document.getElementById("saveconfig")?.addEventListener("submit", async (e) => {
             e.preventDefault();
 
-            let res = await fetch("configmanager.php?password=<?=$password?>&action=save&name=<?=$config?>", {
+            let res = await fetch("configmanager.php?action=save&name=<?=$config?>", {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -119,7 +119,7 @@ $menuQueryString = "password={$password}&config={$config}{$date_str}";
         document.getElementById("addconfig").onclick = async () => {
             let configName = prompt("Enter new config name:");
             if (configName === '' || configName == null) return;
-            let res = await fetch("configmanager.php?password=<?=$password?>", {
+            let res = await fetch("configmanager.php", {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -140,7 +140,7 @@ $menuQueryString = "password={$password}&config={$config}{$date_str}";
                 return;
             }
             if (!confirm(`Are you sure you want to delete this config: ${config}?`)) return;
-            let res = await fetch("configmanager.php?password=<?=$password?>", {
+            let res = await fetch("configmanager.php", {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
