@@ -21,8 +21,7 @@ $menuQueryString = "config={$config}{$date_str}";
             <nav class="sidebar-nav left-sidebar-menu-pro">
                 <ul class="metismenu" id="menu1">
                     <li class="active">
-                        <a class="has-arrow"
-                           href="index.php?<?= $menuQueryString ?>"
+                        <a href="index.php?<?= $menuQueryString ?>"
                            aria-expanded="false">
                             <i class="icon nalika-home icon-wrap"></i>
                             <span class="mini-click-non">Traffic</span>
