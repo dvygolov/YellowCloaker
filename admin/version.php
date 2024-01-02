@@ -1,7 +1,7 @@
 <h5>
     <a href="#"
        onclick="navigator.clipboard.writeText('TKeNEVndhPSKXuYmpEwF4fVtWUvfCnWmra');alert('USDT address copied!');">
-        Ver. 25.02.23
+        Ver. 02.01.24
         <br/>
         PHP: <?= phpversion() ?>
         <br/>
