@@ -8,12 +8,17 @@ $filter = $_GET['filter'] ?? '';
 $db = new Db();
 switch ($filter) {
     case 'leads':
-        $header = ["Subid", "Time", "Name", "Phone", "Email", "Status", "Preland", "Land"];
+        $header = ["Subid", "Time", "Name", "Phone", "Status", "Preland", "Land"];
         $dataset = $db->get_leads($startdate->getTimestamp(), $enddate->getTimestamp(), $config);
         break;
     case 'blocked':
         $header = ["IP", "Country", "ISP", "Time", "Reason", "OS", "UA", "Subs"];
         $dataset = $db->get_white_clicks($startdate->getTimestamp(), $enddate->getTimestamp(), $config);
+        break;
+    case 'single':
+        $header = ["Subid", "IP", "Country", "ISP", "Time", "OS", "UA", "Subs", "Preland", "Land"];
+        $click = $_GET['subid']??'';
+        $dataset = $db->get_single_click($click, $config);
         break;
     default:
         $header = ["Subid", "IP", "Country", "ISP", "Time", "OS", "UA", "Subs", "Preland", "Land"];

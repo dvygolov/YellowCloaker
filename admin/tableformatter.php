@@ -10,7 +10,7 @@ function fill_table(string $table, array $header, array $data): string
             $itemPart = $item[$h];
             switch ($h) {
                 case 'subid':
-                    $itemPart = "<TD><a href='#{$itemPart}'>{$itemPart}</a></TD>";
+                    $itemPart = "<TD><a href='index.php?filter=single&subid={$itemPart}'>{$itemPart}</a></TD>";
                     break;
                 case 'time':
                     $itemPart = "<TD>" . date('Y-m-d H:i:s', $itemPart) . "</TD>";

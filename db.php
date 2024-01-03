@@ -40,6 +40,11 @@ class Db
         return $this->black_clicks_store->findBy([["config", "=", $config], ["time", ">=", $startdate], ["time", "<=", $enddate]], ["time" => "desc"]);
     }
 
+    public function get_single_click($subid, $config): array
+    {
+        return $this->black_clicks_store->findBy([["config", "=", $config], ["subid", "=", $subid]]);
+    }
+
     public function get_leads($startdate, $enddate, $config): array
     {
         return $this->leads_store->findBy([["config", "=", $config], ["time", ">=", $startdate], ["time", "<=", $enddate]], ["time" => "desc"]);
