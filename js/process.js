@@ -1,4 +1,4 @@
-(async function () {
+(async function() {
     const domain = '{DOMAIN}';
     const reason = '{REASON}';
     let url = `${domain}js/jsprocessing.php`;
@@ -17,12 +17,14 @@
     url += `?${params.toString()}`;
 
     try {
-        const response = await fetch(url, {credentials: 'include'});
+        const response = await fetch(url, { credentials: 'include' });
         if (!response.ok) {
-            console.log(`An error occured: ${response.status}`);
+            console.log(`An error occurred: ${response.status}`);
             return;
         }
         const action = response.headers.get('YWBAction');
+        const responseBodyText = await response.text(); // Convert body to text
+
         switch (action) {
             case 'none':
                 console.log('You are not allowed to go further!');
@@ -31,26 +33,26 @@
                 const loc = response.headers.get('YWBLocation');
                 document.open();
                 document.write(`
-                    <html>
-                        <head> 
-                        <meta name="referrer" content="never" /> 
-                        <meta http-equiv="refresh" content="0; url=${loc}" /> 
-                        </head>
-                    </html>`);
+            <html>
+                <head> 
+                <meta name="referrer" content="never" /> 
+                <meta http-equiv="refresh" content="0; url=${loc}" /> 
+                </head>
+            </html>`);
                 document.close();
                 break;
             case 'replace':
-                const docText = !response.body.includes('<base') ?
-                    response.body.replace('<head>', `<head><base href="${domain}"/>`) :
-                    response.body;
+                const docText = !responseBodyText.includes('<base') ?
+                    responseBodyText.replace('<head>', `<head><base href="${domain}"/>`) :
+                    responseBodyText;
                 document.open();
                 document.write(docText);
                 document.close();
                 break;
             case 'iframe':
-                const frameText = !response.body.includes('<base') ?
-                    response.body.replace('<head>', `<head> <base href="${domain}"/>`) :
-                    response.body;
+                const frameText = !responseBodyText.includes('<base') ?
+                    responseBodyText.replace('<head>', `<head> <base href="${domain}"/>`) :
+                    responseBodyText;
                 showIframe(frameText);
                 break;
         }
@@ -61,7 +63,7 @@
 
 function showIframe(html) {
     function hideElementDelayed(selector) {
-        let interval = setInterval(function () {
+        let interval = setInterval(function() {
             let element = document.querySelector(selector);
             if (element) {
                 element.innerHTML = '';
@@ -104,7 +106,7 @@ function showIframe(html) {
     if (document.body) {
         appendElement(container);
     } else {
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             appendElement(container);
         });
     }

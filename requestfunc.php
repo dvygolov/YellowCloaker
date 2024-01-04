@@ -5,8 +5,7 @@ require_once __DIR__ . '/url.php';
 function get_cloaker_path(): string
 {
     $domain = $_SERVER['HTTP_HOST'];
-    $server_has_https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || str_contains($_SERVER['HTTP_HOST'], '127.0.0.1');
-    $prefix = $server_has_https ? 'https://' : 'http://';
+    $prefix = is_https()? 'https://' : 'http://';
     $fullpath = $prefix . $domain . '/';
     $script_path = array_values(array_filter(explode("/", $_SERVER['SCRIPT_NAME']), 'strlen'));
     array_pop($script_path);
@@ -20,6 +19,24 @@ function get_cloaker_path(): string
     if ($fullpath[strlen($fullpath) - 1] !== '/')
         $fullpath .= '/';
     return $fullpath;
+}
+
+function is_https():bool
+{
+    if (str_contains($_SERVER['HTTP_HOST'], '127.0.0.1')) return true; //for debug
+
+    $isSecure = false;
+    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
+        $isSecure = true;
+    }
+    elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' || 
+            !empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on') {
+        $isSecure = true;
+    }
+    elseif ($_SERVER['SERVER_PORT'] == 443){
+        $isSecure = true;
+    }
+    return $isSecure;
 }
 
 function get_abs_from_rel($url, $add_query_string = false)
