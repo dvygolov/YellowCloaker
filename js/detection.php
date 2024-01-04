@@ -2,6 +2,7 @@
     require_once __DIR__.'/obfuscator.php';
     require_once __DIR__.'/../settings.php';
 	require_once __DIR__.'/../requestfunc.php';
+	require_once __DIR__.'/../debug.php';
     header('Content-Type: text/javascript');
     
     $detector= file_get_contents(__DIR__.'/detector.js');
@@ -14,6 +15,11 @@
     }
 
     $jsCode = file_get_contents(__DIR__.'/detect.js');
+    if (DebugMethods::$on)
+        $jsCode = str_replace('{DEBUG}', 'true', $jsCode);
+    else
+        $jsCode = str_replace('{DEBUG}', 'false', $jsCode);
+    $jsCode = str_replace('{DOMAIN}', get_cloaker_path(), $jsCode);
     $jsCode = str_replace('{DOMAIN}', get_cloaker_path(), $jsCode);
     $js_checks_str=	implode('", "', $js_checks);
     $jsCode = str_replace('{JSCHECKS}', $js_checks_str, $jsCode);

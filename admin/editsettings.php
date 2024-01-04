@@ -1140,7 +1140,7 @@ require_once __DIR__ . '/initialization.php';
                                                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
                                                             <label class="login2 pull-left pull-left-pro">
                                                                 <img src="img/info.ico"
-                                                                     title="If only ONE word from this list is NOT found - the user will be shown the safe page"/>
+                                                                     title="If ALL of the words from this list are NOT found - the user will be shown the safe page"/>
                                                                 Comma-separated list of words that MUST be in the URL:
                                                             </label>
                                                         </div>

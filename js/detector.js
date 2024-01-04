@@ -1,199 +1,213 @@
-function log(text) {
-    console.log(text);
-}
 
-function arrayRemove(arr, item) {
-    for (let i = 0; i < arr.length; i++) {
-        if (arr[i] === item) {
-            arr.splice(i, 1);
-            i--;
-        }
-    }
-    return arr;
-}
+class BotDetector {
+  constructor(args) {
+    this.isBot = false;
+    this.reason = '';
+    this.tests = {};
+    this.timeout = args.timeout || 1000;
+    this.callback = args.callback || null;
+    this.notified = false;
+    this.tzStart = args.tzStart || 0;
+    this.tzEnd = args.tzEnd || 0;
+    this.debug = args.debug || false;
 
-function BotDetector(args) {
-    let self = this;
-    self.isBot = false;
-    self.reason = '';
-    self.tests = {};
-    self.timeout = args.timeout || 1000;
-    self.callback = args.callback || null;
-    self.notified = false;
-    self.tzStart = args.tzStart || 0;
-    self.tzEnd = args.tzEnd || 0;
+    this.maxDeviceEventsCount = 10;
+    this.motionCount = 0;
+    this.orientationCount = 0;
+    this.acceleration = null;
+    this.orientation = null;
+    this.acceldelta = 0.1;
+    this.orientdelta = 0.2;
+    this.acceldiff = 0;
+    this.orientdiff = 0;
+    this.acceldiffmax = 3;
+    this.orientdiffmax = 5;
 
-    self.maxDeviceEventsCount = 10;
-    self.motionCount = 0;
-    self.orientationCount = 0;
-    self.acceleration = null;
-    self.orientation = null;
-    self.acceldelta = 0.1;
-    self.orientdelta = 0.2;
-    self.acceldiff = 0;
-    self.orientdiff = 0;
-    self.acceldiffmax = 3;
-    self.orientdiffmax = 5;
-
-    Tests = {
-        KEYDOWN: 'keydown',
-        MOUSE: 'mousemove',
-        TOUCHSTART: 'touchstart',
-        SCROLL: 'scroll',
-        DEVICEMOTION: 'devicemotion',
-        DEVICEORIENTATION: 'deviceorientation',
-        TIMEZONE: 'timezone',
-        AUDIOCONTEXT: 'audiocontext'
+    this.selectedTests = args.tests || [];
+    this.Tests = {
+      KEYDOWN: 'keydown',
+      MOUSE: 'mousemove',
+      TOUCHSTART: 'touchstart',
+      SCROLL: 'scroll',
+      DEVICEMOTION: 'devicemotion',
+      DEVICEORIENTATION: 'deviceorientation',
+      TIMEZONE: 'timezone',
+      AUDIOCONTEXT: 'audiocontext'
     };
 
-    let selectedTests = args.tests || [];
-    log('Listening for:' + selectedTests.join());
+    this.initializeTests();
+  }
 
-    if (selectedTests.includes(Tests.TIMEZONE)) {
-        log('Min allowed tz: ' + self.tzStart);
-        log('Max allowed tz: ' + self.tzEnd);
-        let curZone = -(new Date().getTimezoneOffset() / 60);
-        log('Current tz: ' + curZone);
-        if (curZone < self.tzStart || curZone > self.tzEnd) {
-            self.reason = 'timezone:' + curZone;
-            self.isBot = true;
-            self.callback(self);
-            return;
-        }
-        selectedTests = arrayRemove(selectedTests, Tests.TIMEZONE);
+  log(text) {
+    if (this.debug) {
+      console.log(text);
+    }
+  }
+
+  arrayRemove(arr, item) {
+    return arr.filter(el => el !== item);
+  }
+
+  initializeTests() {
+    this.log('Listening for: ' + this.selectedTests.join());
+
+    if (this.selectedTests.includes(this.Tests.TIMEZONE)) {
+      this.checkTimeZone();
     }
 
-    if (selectedTests.includes(Tests.AUDIOCONTEXT)) {
-        try {
-            window.AudioContext = window.AudioContext || window.webkitAudioContext;
-            context = new AudioContext();
-            log('Audio engine found!');
-            selectedTests = arrayRemove(selectedTests, Tests.AUDIOCONTEXT);
-        } catch (e) {
-            self.reason = 'audiocontext';
-            self.isBot = true;
-            self.callback(self);
-            return;
-        }
+    if (this.selectedTests.includes(this.Tests.AUDIOCONTEXT)) {
+      this.checkAudioContext();
     }
 
-    if (selectedTests.length === 0) //if previous two tests passed and there are no others
-    {
-        log('No interactive tests, all ok, exiting...');
-        self.callback(self);
+    this.log('Tests count:' + this.selectedTests.length);
+    if (this.selectedTests.length === 0) {
+      this.log('No interactive tests, all ok, exiting...');
+      this.callback(this);
+      return;
     }
 
-    selectedTests.forEach(st => {
-        switch (st) {
-            case Tests.MOUSE:
-            case Tests.KEYDOWN:
-            case Tests.SCROLL:
-            case Tests.TOUCHSTART:
-                self.tests[st] = function () {
-                    let e = function (evt) {
-                        log(st + evt.target);
-                        self.tests[st] = true;
-                        self.update();
-                    };
-                    window.addEventListener(st, e, {
-                        once: true
-                    });
-                };
-                break;
-            case Tests.DEVICEORIENTATION:
-                self.tests[st] = function () {
-                    let e = function (et) {
-                        log(st + ': Alpha:' + et.alpha + ' Beta:' + et.beta + ' Gamma:' + et.gamma);
-                        self.orientationCount++;
-                        if (self.orientation !== null) {
-                            if (Math.abs(et.alpha - self.orientation.alpha) > self.orientdelta ||
-                                Math.abs(et.beta - self.orientation.beta) > self.orientdelta ||
-                                Math.abs(et.gamma - self.orientation.gamma) > self.orientdelta) {
-                                self.orientdiff++;
-                                log('Orientation Diff found!' + self.orientdiff);
-                            }
-                        }
-                        self.orientation = et;
-                        if (self.orientdiff >= self.orientdiffmax) {
-                            log('MAX orientation Diff!');
-                            window.removeEventListener(st, e);
-                            self.tests[st] = true;
-                            self.update();
-                        }
-                        if (self.orientationCount >= self.maxDeviceEventsCount)
-                            window.removeEventListener(st, e);
-                    };
-                    if (window.DeviceOrientationEvent)
-                        window.addEventListener(st, e);
-                    else
-                        console.log("No Orientation Detected!");
-                };
-                break;
-            case Tests.DEVICEMOTION:
-                self.tests[st] = function () {
-                    let e = function (et) {
-                        log(st + ': X:' + et.acceleration.x + ' Y:' + et.acceleration.y + ' Z:' + et.acceleration.z);
-                        self.motionCount++;
-                        if (self.acceleration !== null) {
-                            if (Math.abs(et.acceleration.x - self.acceleration.x) > self.acceldelta ||
-                                Math.abs(et.acceleration.y - self.acceleration.y) > self.acceldelta ||
-                                Math.abs(et.acceleration.z - self.acceleration.z) > self.acceldelta) {
-                                self.acceldiff++;
-                                log('Acceleration Diff found!' + self.acceldiff);
-                            }
-                        }
-                        self.acceleration = et.acceleration;
-                        if (self.acceldiff >= self.acceldiffmax) {
-                            log('MAX acceleration Diff!');
-                            window.removeEventListener(st, e);
-                            self.tests[st] = true;
-                            self.update();
-                        }
-                        if (self.motionCount >= self.maxDeviceEventsCount * 2)
-                            window.removeEventListener(st, e);
-                    };
-                    if (window.DeviceMotionEvent)
-                        window.addEventListener(st, e);
-                    else
-                        log("No Motion Detected!");
-                };
-                break;
-        }
-    });
-}
+    this.selectedTests.forEach(test => this.setupTest(test));
+  }
 
-BotDetector.prototype.update = function () {
-    let self = this;
+  checkTimeZone() {
+    this.log('Min allowed tz: ' + this.tzStart);
+    this.log('Max allowed tz: ' + this.tzEnd);
+    let curZone = -(new Date().getTimezoneOffset() / 60);
+    this.log('Current tz: ' + curZone);
+    if (curZone < this.tzStart || curZone > this.tzEnd) {
+      this.reason = 'timezone:' + curZone;
+      this.isBot = true;
+      this.callback(this);
+      return;
+    }
+    this.selectedTests = this.arrayRemove(this.selectedTests, this.Tests.TIMEZONE);
+  }
+
+  checkAudioContext() {
+    try {
+      window.AudioContext = window.AudioContext || window.webkitAudioContext;
+      let context = new AudioContext();
+      this.log('Audio engine found!');
+      this.selectedTests = this.arrayRemove(this.selectedTests, this.Tests.AUDIOCONTEXT);
+    } catch (e) {
+      this.reason = 'audiocontext';
+      this.isBot = true;
+      this.callback(this);
+      return;
+    }
+  }
+
+  setupTest(test) {
+    switch (test) {
+      case this.Tests.MOUSE:
+      case this.Tests.KEYDOWN:
+      case this.Tests.SCROLL:
+      case this.Tests.TOUCHSTART:
+        this.tests[test] = () => {
+          const eventListener = (evt) => {
+            this.log(`${test} ${evt.target}`);
+            this.tests[test] = true;
+            this.update();
+          };
+          window.addEventListener(test, eventListener, { once: true });
+        };
+        break;
+      case this.Tests.DEVICEORIENTATION:
+        this.tests[test] = () => {
+          const eventListener = (et) => {
+            this.log(`${test}: Alpha:${et.alpha} Beta:${et.beta} Gamma:${et.gamma}`);
+            this.orientationCount++;
+            if (this.orientation !== null) {
+              if (Math.abs(et.alpha - this.orientation.alpha) > this.orientdelta ||
+                Math.abs(et.beta - this.orientation.beta) > this.orientdelta ||
+                Math.abs(et.gamma - this.orientation.gamma) > this.orientdelta) {
+                this.orientdiff++;
+                this.log('Orientation Diff found!' + this.orientdiff);
+              }
+            }
+            this.orientation = et;
+            if (this.orientdiff >= this.orientdiffmax) {
+              this.log('MAX orientation Diff!');
+              window.removeEventListener(test, eventListener);
+              this.tests[test] = true;
+              this.update();
+            }
+            if (this.orientationCount >= this.maxDeviceEventsCount)
+              window.removeEventListener(test, eventListener);
+          };
+          if (window.DeviceOrientationEvent)
+            window.addEventListener(test, eventListener);
+          else
+            this.log("No Orientation Detected!");
+        };
+        break;
+      case this.Tests.DEVICEMOTION:
+        this.tests[test] = () => {
+          const eventListener = (et) => {
+            this.log(`${test}: X:${et.acceleration.x} Y:${et.acceleration.y} Z:${et.acceleration.z}`);
+            this.motionCount++;
+            if (this.acceleration !== null) {
+              if (Math.abs(et.acceleration.x - this.acceleration.x) > this.acceldelta ||
+                Math.abs(et.acceleration.y - this.acceleration.y) > this.acceldelta ||
+                Math.abs(et.acceleration.z - this.acceleration.z) > this.acceldelta) {
+                this.acceldiff++;
+                this.log('Acceleration Diff found!' + this.acceldiff);
+              }
+            }
+            this.acceleration = et.acceleration;
+            if (this.acceldiff >= this.acceldiffmax) {
+              this.log('MAX acceleration Diff!');
+              window.removeEventListener(test, eventListener);
+              this.tests[test] = true;
+              this.update();
+            }
+            if (this.motionCount >= this.maxDeviceEventsCount * 2)
+              window.removeEventListener(test, eventListener);
+          };
+          if (window.DeviceMotionEvent)
+            window.addEventListener(test, eventListener);
+          else
+            this.log("No Motion Detected!");
+        };
+        break;
+    }
+  }
+
+  update() {
     let count = 0;
     let passReason = '';
-    for (let t in self.tests) {
-        if (self.tests.hasOwnProperty(t) && self.tests[t] === true) {
-            passReason += t + ';';
-            count++;
-        }
+    for (let t in this.tests) {
+      if (this.tests.hasOwnProperty(t) && this.tests[t] === true) {
+        passReason += t + ';';
+        count++;
+      }
     }
-    if (passReason != '')
-        self.reason = passReason;
-    self.isBot = count == 0;
-    if (self.notified === false) {
-        self.callback(self);
-        self.notified = true;
+    if (passReason !== '') {
+      this.reason = passReason;
     }
-};
+    this.isBot = count === 0;
+    if (!this.notified) {
+      this.callback(this);
+      this.notified = true;
+    }
+  }
 
-BotDetector.prototype.monitor = function () {
-    let self = this;
-    if (self.isBot)
-        return;
-    for (let i in self.tests) {
-        if (self.tests.hasOwnProperty(i)) {
-            self.tests[i].call();
-        }
+  monitor() {
+    if (this.isBot) return;
+
+    for (let i in this.tests) {
+      if (this.tests.hasOwnProperty(i)) {
+        this.log("Calling test " + this.tests[i]);
+        this.tests[i].call(this);
+      }
     }
-    if (Object.keys(self.tests).length > 0)
-        setTimeout(function () {
-            log('Tests timeout!');
-            self.reason = 'timeout';
-            self.update();
-        }, self.timeout);
-};
+
+    if (Object.keys(this.tests).length > 0) {
+      setTimeout(() => {
+        this.log('Tests timeout!');
+        this.reason = 'timeout';
+        this.update();
+      }, this.timeout);
+    }
+  }
+}

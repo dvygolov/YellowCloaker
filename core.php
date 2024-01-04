@@ -62,7 +62,7 @@ class Cloaker
 
             if ($this->has_bad_language($this->click_params['lang'])) {
                 $buf = strtoupper($this->click_params['lang']);
-                $this->block_reason[] = 'language:' . $buf;
+                $this->block_reason[] = 'lang:' . $buf;
                 return true;
             }
 
@@ -72,17 +72,17 @@ class Cloaker
             }
 
             if ($this->has_bad_referer($this->click_params['referer'], $stop)) {
-                $this->block_reason[] = 'refstop:' . $stop;
+                $this->block_reason[] = 'badref:' . $stop;
                 return true;
             }
 
             if ($this->has_bad_tokens_in_url($_SERVER['REQUEST_URI'], $token)) {
-                $this->block_reason[] = 'token:' . $token;
+                $this->block_reason[] = 'badurl:' . $token;
                 return true;
             }
 
-            if ($this->does_not_have_in_url($_SERVER['REQUEST_URI'], $should)) {
-                $this->block_reason[] = 'url:' . $should;
+            if ($this->does_not_have_in_url($_SERVER['REQUEST_URI'])) {
+                $this->block_reason[] = 'notinurl';
                 return true;
             }
 
@@ -105,7 +105,7 @@ class Cloaker
                 $this->block_reason[] = 'ipbase';
                 return true;
             } else if ($this->is_bot_by_custombase($this->click_params['ip'])) {
-                $this->block_reason[] = 'ipblack';
+                $this->block_reason[] = 'custbase';
                 return true;
             }
 
@@ -240,13 +240,13 @@ class Cloaker
         return false;
     }
 
-    private function does_not_have_in_url($uri, &$should): bool
+    private function does_not_have_in_url($uri): bool
     {
         if (empty($this->s->url_should_contain)) return false;
         foreach ($this->s->url_should_contain as $should) {
             if (empty($should)) continue;
-            if (stripos($uri, $should) === false) return true;
+            if (stripos($uri, $should) !== false) return false;
         }
-        return false;
+        return true;
     }
 }
