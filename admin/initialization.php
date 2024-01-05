@@ -1,10 +1,12 @@
 <?php
 require_once __DIR__ . '/../debug.php';
-
 require_once __DIR__ . '/../settings.php';
 require_once __DIR__ . '/password.php';
 
-check_password();
+if (!check_password(false)) {
+    header('Location: login.php');
+    exit;
+}
 
 date_default_timezone_set($stats_timezone);
 $dtz = new DateTimeZone($stats_timezone);
