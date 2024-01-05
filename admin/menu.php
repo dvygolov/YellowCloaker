@@ -20,48 +20,33 @@ $menuQueryString = "config={$config}{$date_str}";
         <div class="left-custom-menu-adp-wrap comment-scrollbar">
             <nav class="sidebar-nav left-sidebar-menu-pro">
                 <ul class="metismenu" id="menu1">
-                    <li class="active">
-                        <a href="index.php?<?= $menuQueryString ?>"
-                           aria-expanded="false">
-                            <i class="icon nalika-home icon-wrap"></i>
-                            <span class="mini-click-non">Traffic</span>
+                    <li>
+                        <a title="Statistics"
+                           href="statistics.php?<?= $menuQueryString ?>">
+                            <i class="icon nalika-analytics icon-wrap"></i>
+                            <span class="mini-click-non">Statistics</span>
                         </a>
-                        <ul class="submenu-angle" aria-expanded="false">
-                            <li>
-                                <a title="Statistics"
-                                   href="statistics.php?<?= $menuQueryString ?>">
-                                    <i class="icon nalika-analytics icon-wrap"></i>
-                                    <span class="mini-sub-pro">Statistics</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a title="Leads"
-                                   href="index.php?filter=leads&<?= $menuQueryString ?>">
-                                    <i class="icon nalika-price-tag icon-wrap"></i>
-                                    <span class="mini-sub-pro">Leads</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a title="Allowed"
-                                   href="index.php?<?= $menuQueryString ?>">
-                                    <i class="icon nalika-happiness icon-wrap"></i>
-                                    <span class="mini-sub-pro">Allowed</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a title="Blocked"
-                                   href="index.php?filter=blocked&<?= $menuQueryString ?>">
-                                    <i class="icon nalika-warning-sign icon-wrap"></i>
-                                    <span class="mini-sub-pro">Blocked</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a title="Bottom button" href="#bottom">
-                                    <i class="icon nalika-down-arrow icon-wrap"></i>
-                                    <span class="mini-sub-pro">Go to bottom</span>
-                                </a>
-                            </li>
-                        </ul>
+                    </li>
+                    <li>
+                        <a title="Leads"
+                           href="index.php?filter=leads&<?= $menuQueryString ?>">
+                            <i class="icon nalika-price-tag icon-wrap"></i>
+                            <span class="mini-click-non">Leads</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a title="Allowed"
+                           href="index.php?<?= $menuQueryString ?>">
+                            <i class="icon nalika-happiness icon-wrap"></i>
+                            <span class="mini-click-non">Allowed</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a title="Blocked"
+                           href="index.php?filter=blocked&<?= $menuQueryString ?>">
+                            <i class="icon nalika-warning-sign icon-wrap"></i>
+                            <span class="mini-click-non">Blocked</span>
+                        </a>
                     </li>
                     <li class="active">
                         <a href="editsettings.php?<?= $menuQueryString ?>"
