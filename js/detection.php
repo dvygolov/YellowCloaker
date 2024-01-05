@@ -20,7 +20,6 @@
     else
         $jsCode = str_replace('{DEBUG}', 'false', $jsCode);
     $jsCode = str_replace('{DOMAIN}', get_cloaker_path(), $jsCode);
-    $jsCode = str_replace('{DOMAIN}', get_cloaker_path(), $jsCode);
     $js_checks_str=	implode('", "', $js_checks);
     $jsCode = str_replace('{JSCHECKS}', $js_checks_str, $jsCode);
     $jsCode = str_replace('{JSTIMEOUT}', $js_timeout, $jsCode);

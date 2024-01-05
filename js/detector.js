@@ -197,7 +197,6 @@ class BotDetector {
 
     for (let i in this.tests) {
       if (this.tests.hasOwnProperty(i)) {
-        this.log("Calling test " + this.tests[i]);
         this.tests[i].call(this);
       }
     }

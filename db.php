@@ -93,7 +93,9 @@ class Db
         if ($lead === null) {
             $click = $this->black_clicks_store->findOneBy([["subid", "=", $subid]]);
             if ($click === null) return false;
-            $lead = $this->add_lead($subid, $click['preland']??'', $click['land']??'', $config);
+            $lead = $this->add_lead($subid, '','', $config);
+            $lead['preland'] = $click['preland']??'unknown';
+            $lead['land'] = $click['land']??'unknown';
         }
         $lead["status"] = $status;
         $lead["payout"] = $payout;
