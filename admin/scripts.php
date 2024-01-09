@@ -6,4 +6,4 @@
 <script src="js/metisMenu/metisMenu.min.js"></script>
 <script src="js/metisMenu/metisMenu-active.js"></script>
 <script src="js/main.js"></script>
-<script src="https://uicdn.toast.com/grid/latest/tui-grid.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>

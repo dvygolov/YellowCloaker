@@ -4,6 +4,8 @@ require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/initialization.php';
 
 $filter = $_GET['filter'] ?? '';
+$orderby = $_GET['orderby'] ?? '';
+$sortby = $_GET['sortby'] ?? '';
 
 $db = new Db();
 switch ($filter) {
@@ -13,11 +15,11 @@ switch ($filter) {
         break;
     case 'blocked':
         $header = ["IP", "Country", "ISP", "Time", "Reason", "OS", "UA", "Subs"];
-        $dataset = $db->get_white_clicks($startdate->getTimestamp(), $enddate->getTimestamp(), $config);
+        $dataset = $db->get_white_clicks($startdate->getTimestamp(), $enddate->getTimestamp(), $orderby, $sortby, $config);
         break;
     case 'single':
         $header = ["Subid", "IP", "Country", "ISP", "Time", "OS", "UA", "Subs", "Preland", "Land"];
-        $click = $_GET['subid']??'';
+        $click = $_GET['subid'] ?? '';
         $dataset = $db->get_single_click($click, $config);
         break;
     default:
@@ -33,13 +35,18 @@ $tableOutput = close_table($tableOutput);
 <!doctype html>
 <html lang="en">
 <?php include "head.php" ?>
+
 <body>
-<?php include "menu.php" ?>
-<div class="all-content-wrapper">
-    <?php include "header.php" ?>
-    <a id="top"></a>
-    <?= $tableOutput ?? '' ?>
-    <a id="bottom"></a>
-</div>
+    <?php include "menu.php" ?>
+    <div class="all-content-wrapper">
+        <?php include "header.php" ?>
+        <a id="top"></a>
+        <?= $tableOutput ?? '' ?>
+        <a id="bottom"></a>
+    </div>
+    <script>
+        let table = new DataTable('#clicks');
+    </script>
 </body>
+
 </html>

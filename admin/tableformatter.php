@@ -1,4 +1,5 @@
 <?php
+
 function fill_table(string $table, array $header, array $data): string
 {
     $countLines = 0;
@@ -22,7 +23,9 @@ function fill_table(string $table, array $header, array $data): string
                     $itemPart = "<TD>" . (empty($itemPart) ? 'no' : $itemPart) . "</TD>";
                     break;
                 default:
-                    if (is_array($itemPart)) $itemPart = implode(',', $itemPart);
+                    if (is_array($itemPart)) {
+                        $itemPart = implode(',', $itemPart);
+                    }
                     $itemPart = "<TD>{$itemPart}</TD>";
                     break;
             }
@@ -35,11 +38,11 @@ function fill_table(string $table, array $header, array $data): string
 
 function create_table($header): string
 {
-    $table = "<TABLE class='table w-auto table-striped'>";
+    $table = "<TABLE class='table w-auto table-striped' id='clicks'>";
     //TODO: fix the subs width
-//    $table .= "<colgroup>";
-//    $table .= str_repeat("<col span=\"1\" style=\"width: 15px; word-spacing: normal\">", count($header) + 1);
-//    $table .= "</colgroup>";
+    //    $table .= "<colgroup>";
+    //    $table .= str_repeat("<col span=\"1\" style=\"width: 15px; word-spacing: normal\">", count($header) + 1);
+    //    $table .= "</colgroup>";
     $table .= "<thead class='thead-dark'>";
     $table .= "<TR>";
     $table .= "<TH scope='col'>Row</TH>";

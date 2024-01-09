@@ -30,9 +30,11 @@ class Db
         $this->lpctr_store = new Store("lpctr", $this->data_dir);
     }
 
-    public function get_white_clicks($startdate, $enddate, $config): array
+    public function get_white_clicks($startdate, $enddate, $orderby, $sortby, $config): array
     {
-        return $this->white_clicks_store->findBy([["config", "=", $config], ["time", ">=", $startdate], ["time", "<=", $enddate]], ["time" => "desc"]);
+        if (empty($orderby)) $orderby='time';
+        if (empty($sortby)) $sortby = 'desc';
+        return $this->white_clicks_store->findBy([["config", "=", $config], ["time", ">=", $startdate], ["time", "<=", $enddate]], [$orderby => $sortby]);
     }
 
     public function get_black_clicks($startdate, $enddate, $config): array
