@@ -5,12 +5,12 @@ function get_columns(string $filter): string
     switch($filter){
     case 'blocked':
         $columns = [
-            ["title"=>"IP","field"=>"ip"],
-            ["title"=>"Country","field"=>"country", "headerFilter"=>"input"], 
+            ["title"=>"IP","field"=>"ip","width"=>"150"],
+            ["title"=>"Country","field"=>"country", "headerFilter"=>"input", "width"=>"50"], 
             ["title"=>"ISP","field"=>"isp", "headerFilter"=>"input"], 
             ["title"=>"Time","field"=>"time"], 
-            ["title"=>"Reason","field"=>"reason", "formatter"=>"plaintext"], 
-            ["title"=>"OS","field"=>"os", "headerFilter"=>"input"], 
+            ["title"=>"Reason","field"=>"reason", "formatter"=>"plaintext", "width"=>"80"], 
+            ["title"=>"OS","field"=>"os", "headerFilter"=>"input","width"=>"100"], 
             ["title"=>"UA","field"=>"ua", "formatter"=>"textarea"], 
             ["title"=>"Subs","field"=>"subs"]
         ];
