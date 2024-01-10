@@ -4,9 +4,6 @@ require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/initialization.php';
 
 $filter = $_GET['filter'] ?? '';
-$orderby = $_GET['orderby'] ?? '';
-$sortby = $_GET['sortby'] ?? '';
-
 $db = new Db();
 switch ($filter) {
     case 'leads':
@@ -15,7 +12,7 @@ switch ($filter) {
         break;
     case 'blocked':
         $header = ["IP", "Country", "ISP", "Time", "Reason", "OS", "UA", "Subs"];
-        $dataset = $db->get_white_clicks($startdate->getTimestamp(), $enddate->getTimestamp(), $orderby, $sortby, $config);
+        $dataset = $db->get_white_clicks($startdate->getTimestamp(), $enddate->getTimestamp(), $config);
         break;
     case 'single':
         $header = ["Subid", "IP", "Country", "ISP", "Time", "OS", "UA", "Subs", "Preland", "Land"];
@@ -27,10 +24,6 @@ switch ($filter) {
         $dataset = $db->get_black_clicks($startdate->getTimestamp(), $enddate->getTimestamp(), $config);
         break;
 }
-require_once __DIR__ . '/tableformatter.php';
-$tableOutput = create_table($header);
-$tableOutput = fill_table($tableOutput, $header, $dataset);
-$tableOutput = close_table($tableOutput);
 ?>
 <!doctype html>
 <html lang="en">
@@ -40,12 +33,44 @@ $tableOutput = close_table($tableOutput);
     <?php include "menu.php" ?>
     <div class="all-content-wrapper">
         <?php include "header.php" ?>
-        <a id="top"></a>
-        <?= $tableOutput ?? '' ?>
-        <a id="bottom"></a>
+        <div id="clicks"></div>
     </div>
     <script>
-        let table = new DataTable('#clicks');
+        let tableData = <?= json_encode($dataset) ?>;
+        let table = new Tabulator('#clicks', {
+            layout: "fitColumns",
+            pagination: "local",
+            paginationSize: 25,
+            paginationSizeSelector: [25, 50, 100, 200, 500],
+            paginationCounter: "rows",
+            height: "100%",
+            data: tableData,
+            autoColumns: true,
+            autoColumnsDefinitions: {
+                _id: {
+                    title: "#",
+                    formatter: "rownum"
+                },
+                config: {
+                    visible: false
+                },
+                fbp: {
+                    visible: false
+                },
+                fbclid: {
+                    visible: false
+                },
+                reason: {
+                    visible: window.location.href.includes("filter=blocked")
+                },
+                subid: {
+                    formatter: "link",
+                    formatterParams: {
+                        urlPrefix: "index.php?filter=single&subid="
+                    }
+                }
+            },
+        });
     </script>
 </body>
 

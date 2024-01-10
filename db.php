@@ -1,4 +1,5 @@
 <?php
+
 require_once __DIR__ . "/db/Classes/IoHelper.php";
 require_once __DIR__ . "/db/Store.php";
 require_once __DIR__ . "/db/QueryBuilder.php";
@@ -30,31 +31,63 @@ class Db
         $this->lpctr_store = new Store("lpctr", $this->data_dir);
     }
 
-    public function get_white_clicks($startdate, $enddate, $orderby, $sortby, $config): array
+    public function get_white_clicks($startdate, $enddate, $config): array
     {
-        if (empty($orderby)) $orderby='time';
-        if (empty($sortby)) $sortby = 'desc';
-        return $this->white_clicks_store->findBy([["config", "=", $config], ["time", ">=", $startdate], ["time", "<=", $enddate]], [$orderby => $sortby]);
+        return $this->white_clicks_store->findBy(
+            [
+                ["config", "=", $config],
+                ["time", ">=", $startdate],
+                ["time", "<=", $enddate]
+            ],
+            ["time" => "desc"]
+        );
     }
 
     public function get_black_clicks($startdate, $enddate, $config): array
     {
-        return $this->black_clicks_store->findBy([["config", "=", $config], ["time", ">=", $startdate], ["time", "<=", $enddate]], ["time" => "desc"]);
+        return $this->black_clicks_store->findBy(
+            [
+                ["config", "=", $config],
+                ["time", ">=", $startdate],
+                ["time", "<=", $enddate]
+            ],
+            ["time" => "desc"]
+        );
     }
 
     public function get_single_click($subid, $config): array
     {
-        return $this->black_clicks_store->findBy([["config", "=", $config], ["subid", "=", $subid]]);
+        if (empty($subid)) {
+            return [];
+        }
+        return $this->black_clicks_store->findBy(
+            [
+                ["config", "=", $config],
+                ["subid", "=", $subid]
+            ]
+        );
     }
 
     public function get_leads($startdate, $enddate, $config): array
     {
-        return $this->leads_store->findBy([["config", "=", $config], ["time", ">=", $startdate], ["time", "<=", $enddate]], ["time" => "desc"]);
+        return $this->leads_store->findBy(
+            [
+                ["config", "=", $config],
+                ["time", ">=", $startdate], ["time", "<=", $enddate]
+            ],
+            ["time" => "desc"]
+        );
     }
 
     public function get_lpctr($startdate, $enddate, $config): array
     {
-        return $this->lpctr_store->findBy([["config", "=", $config], ["time", ">=", $startdate], ["time", "<=", $enddate]], ["time" => "desc"]);
+        return $this->lpctr_store->findBy(
+            [
+                ["config", "=", $config],
+                ["time", ">=", $startdate], ["time", "<=", $enddate]
+            ],
+            ["time" => "desc"]
+        );
     }
 
     public function add_white_click($data, $reason, $config)
@@ -94,10 +127,12 @@ class Db
         $lead = $this->leads_store->findOneBy([["subid", "=", $subid]]);
         if ($lead === null) {
             $click = $this->black_clicks_store->findOneBy([["subid", "=", $subid]]);
-            if ($click === null) return false;
-            $lead = $this->add_lead($subid, '','', $config);
-            $lead['preland'] = $click['preland']??'unknown';
-            $lead['land'] = $click['land']??'unknown';
+            if ($click === null) {
+                return false;
+            }
+            $lead = $this->add_lead($subid, '', '', $config);
+            $lead['preland'] = $click['preland'] ?? 'unknown';
+            $lead['land'] = $click['land'] ?? 'unknown';
         }
         $lead["status"] = $status;
         $lead["payout"] = $payout;
@@ -114,7 +149,9 @@ class Db
     public function add_email($subid, $email)
     {
         $lead = $this->leads_store->findOneBy([["subid", "=", $subid]]);
-        if ($lead === null) return;
+        if ($lead === null) {
+            return;
+        }
         $lead["email"] = $email;
         $this->leads_store->update($lead);
     }
@@ -134,7 +171,9 @@ class Db
     {
         if ($subid !== '') {
             $lead = $this->leads_store->findOneBy([["subid", "=", $subid]]);
-            if ($lead === null) return false;
+            if ($lead === null) {
+                return false;
+            }
             header("YWBDuplicate: We have this sub!");
             return $lead["phone"] === $phone;
         } else {
