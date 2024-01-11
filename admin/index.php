@@ -1,8 +1,9 @@
 <?php
-global $startdate, $enddate, $config;
+global $startdate, $enddate, $config, $stats_timezone;
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/initialization.php';
 require_once __DIR__ . '/tablecolumns.php';
+require_once __DIR__ . '/../settings.php';
 
 $filter = $_GET['filter'] ?? '';
 $db = new Db();
@@ -34,7 +35,7 @@ switch ($filter) {
     </div>
     <script>
         let tableData = <?= json_encode($dataset) ?>;
-        let tableColumns = <?=get_columns($filter) ?>;
+        let tableColumns = <?= get_columns($filter, $stats_timezone) ?>;
         let table = new Tabulator('#clicks', {
             layout: "fitColumns",
             columns: tableColumns,
