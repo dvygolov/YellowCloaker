@@ -1,7 +1,7 @@
 .tabulator {
   position: relative;
   border: 1px solid #333;
-  background-color: #222;
+  background-color: #152036;
   font-size: 14px;
   text-align: left;
   overflow: hidden;
@@ -31,7 +31,7 @@
   box-sizing: border-box;
   width: 100%;
   border-bottom: 1px solid #999;
-  background-color: #333;
+  background-color: #152036;
   color: #fff;
   font-weight: bold;
   white-space: nowrap;
@@ -476,8 +476,8 @@
 
 .tabulator .tabulator-footer {
   border-top: 1px solid #999;
-  background-color: #333;
-  color: #333;
+  background-color: #152036;
+  color: #152036;
   font-weight: bold;
   white-space: nowrap;
   user-select: none;
@@ -538,7 +538,7 @@
 .tabulator .tabulator-footer .tabulator-paginator {
   flex: 1;
   text-align: right;
-  color: #333;
+  color: #152036;
   font-family: inherit;
   font-weight: inherit;
   font-size: inherit;
@@ -1408,7 +1408,7 @@ body.tabulator-print-fullscreen-hide > *:not(.tabulator-print-fullscreen) {
 }
 
 .tabulator .tabulator-header .tabulator-col {
-  background-color: #333;
+  background-color: #152036;
 }
 
 .tabulator

@@ -28,6 +28,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
     <!--Data tables-->
-    <link href="css/tabulator_midnight.css" rel="stylesheet">
+    <link href="css/tabulator_midnight.css?v=<?= filemtime('css/tabulator_midnight.css') ?>" rel="stylesheet">
     <?php include "scripts.php" ?>
 </head>
