@@ -1403,10 +1403,6 @@ body.tabulator-print-fullscreen-hide > *:not(.tabulator-print-fullscreen) {
   background: #fff;
 }
 
-.tabulator {
-  background-color: #222;
-}
-
 .tabulator .tabulator-header .tabulator-col {
   background-color: #152036;
 }
