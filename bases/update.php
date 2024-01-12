@@ -97,11 +97,11 @@ if (!$passOk) {
 }
 $configPath = __DIR__ . "/update.json";
 if (!file_exists($configPath)) {
-    return send_update_result("Error: update.json not found!");
+    return send_update_result("Error: 'bases/update.json' not found!");
 }
 $config = json_decode(file_get_contents($configPath), true);
 if (empty($config["licenseKey"])) {
-    return send_update_result("Error: licenseKey not set, edit update.json!");
+    return send_update_result("Error: licenseKey not set, edit 'bases/update.json'!");
 }
 
 $editionIds = ['GeoLite2-ASN', 'GeoLite2-City', 'GeoLite2-Country'];
