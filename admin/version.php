@@ -3,5 +3,16 @@
  <br />
  PHP: <?= phpversion() ?>
  <br />
- Base: <?= file_get_contents(__DIR__ . "/../bases/maxmind.txt") ?>
+ Base: <?= get_bases_version() ?>
 </h5>
+
+<?php
+function get_bases_version(): string
+{
+ $updateFile = __DIR__ . "/../bases/update.txt";
+ if (!file_exists($updateFile)) {
+  return "Unknown";
+ }
+ return file_get_contents($updateFile);
+}
+?>
