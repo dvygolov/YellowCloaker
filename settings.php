@@ -115,18 +115,42 @@ function get_all_config_names(): array
 }
 
 /**
+ * Checks if the given domain matches a pattern in the domains array.
+ * Supports wildcard patterns like '*.domain.com'.
+ *
+ * @param string $domain The domain to check.
+ * @param array $domains The array of domain patterns.
+ * @return bool True if there is a match, false otherwise.
+ */
+function isDomainMatch($domain, $domains) {
+    foreach ($domains as $pattern) {
+        $pattern = preg_quote($pattern, '/');
+        $pattern = str_replace('\*', '.*', $pattern); // Replace wildcard with regex equivalent
+        if (preg_match("/^$pattern$/i", $domain)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
  * @throws EmptyDirectoryException
  */
 function get_config_name_by_domain($domain): string
 {
-    if (strpos($domain,":")!==false)
-        $domain = explode(":",$domain)[0];
+    if (strpos($domain, ":") !== false)
+        $domain = explode(":", $domain)[0];
+
     $conf = Config::load(__DIR__ . '/settings.json');
+
     foreach ($conf as $c => $v) {
         $conf->setNamespace($c);
         $domains = $conf->get("domains");
-        if (in_array($domain, $domains)) return $c; //TODO: make pattern matching for subdomains
+        if (isDomainMatch($domain, $domains)) {
+            return $c;
+        }
     }
+
     return "default";
 }
 
