@@ -3,7 +3,7 @@
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <div class="logo-pro">
                 <a href="index.php">
-                    <img class="main-logo" src="img/logo/logo.png" alt=""/>
+                    <img class="main-logo" src="img/logo.png" alt="" />
                 </a>
             </div>
         </div>
@@ -66,13 +66,13 @@
     flatpickr("#litepicker", {
         dateFomat: "DD.MM.YY",
         mode: "range",
-        onClose: function (selectedDates, dateStr, instance) {
+        onClose: function(selectedDates, dateStr, instance) {
             update_datepicker_dates(selectedDates);
         }
     });
 
     function update_datepicker_dates(selectedDates) {
-        function formatDate(date){
+        function formatDate(date) {
             const day = String(date.getDate()).padStart(2, '0');
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const year = String(date.getFullYear()).slice(-2);
@@ -92,10 +92,11 @@ function get_calend_date()
     global $startdate;
     $calendsd = $_GET['startdate'] ?? '';
     $calended = $_GET['enddate'] ?? '';
-    if ($calendsd !== '' && $calended !== '')
+    if ($calendsd !== '' && $calended !== '') {
         return $calendsd === $calended ? $calendsd : "{$calendsd} - {$calended}";
-    else
+    } else {
         return $startdate->format('d.m.y');
+    }
 }
 
 function get_config_menu()

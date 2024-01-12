@@ -6,51 +6,46 @@ $menuQueryString = "config={$config}{$date_str}";
     <nav id="sidebar" class="">
         <div class="sidebar-header">
             <a href="index.php?<?= $menuQueryString ?>">
-                <img class="main-logo" src="img/logo/logo.png" alt=""/>
+                <img class="main-logo" src="img/logo.png" alt="" />
             </a>
             <strong>
-                <img src="img/favicon.png" alt="" style="width:50px"/>
+                <img src="img/favicon.png" alt="" style="width:50px" />
             </strong>
         </div>
         <div class="nalika-profile">
             <div class="profile-dtl">
-                <?php include 'version.php'?>
+                <?php include 'version.php' ?>
             </div>
         </div>
         <div class="left-custom-menu-adp-wrap comment-scrollbar">
             <nav class="sidebar-nav left-sidebar-menu-pro">
                 <ul class="metismenu" id="menu1">
                     <li>
-                        <a title="Statistics"
-                           href="statistics.php?<?= $menuQueryString ?>">
+                        <a title="Statistics" href="statistics.php?<?= $menuQueryString ?>">
                             <i class="icon nalika-analytics icon-wrap"></i>
                             <span class="mini-click-non">Statistics</span>
                         </a>
                     </li>
                     <li>
-                        <a title="Leads"
-                           href="index.php?filter=leads&<?= $menuQueryString ?>">
+                        <a title="Leads" href="index.php?filter=leads&<?= $menuQueryString ?>">
                             <i class="icon nalika-price-tag icon-wrap"></i>
                             <span class="mini-click-non">Leads</span>
                         </a>
                     </li>
                     <li>
-                        <a title="Allowed"
-                           href="index.php?<?= $menuQueryString ?>">
+                        <a title="Allowed" href="index.php?<?= $menuQueryString ?>">
                             <i class="icon nalika-happiness icon-wrap"></i>
                             <span class="mini-click-non">Allowed</span>
                         </a>
                     </li>
                     <li>
-                        <a title="Blocked"
-                           href="index.php?filter=blocked&<?= $menuQueryString ?>">
+                        <a title="Blocked" href="index.php?filter=blocked&<?= $menuQueryString ?>">
                             <i class="icon nalika-warning-sign icon-wrap"></i>
                             <span class="mini-click-non">Blocked</span>
                         </a>
                     </li>
                     <li class="active">
-                        <a href="editsettings.php?<?= $menuQueryString ?>"
-                           aria-expanded="false">
+                        <a href="editsettings.php?<?= $menuQueryString ?>" aria-expanded="false">
                             <i class="icon nalika-settings icon-wrap"></i>
                             <span class="mini-click-non">Configuration</span>
                         </a>
@@ -75,7 +70,7 @@ $menuQueryString = "config={$config}{$date_str}";
 </div>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        function reloadWithConfig(configName){
+        function reloadWithConfig(configName) {
             const urlParams = new URLSearchParams(window.location.search);
             urlParams.set('config', configName);
             const newUrl = `${window.location.origin}${window.location.pathname}?${urlParams.toString()}`;
@@ -85,7 +80,7 @@ $menuQueryString = "config={$config}{$date_str}";
         document.getElementById("saveconfig")?.addEventListener("submit", async (e) => {
             e.preventDefault();
 
-            let res = await fetch("configmanager.php?action=save&name=<?=$config?>", {
+            let res = await fetch("configmanager.php?action=save&name=<?= $config ?>", {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -118,7 +113,7 @@ $menuQueryString = "config={$config}{$date_str}";
         };
 
         document.getElementById("delconfig").onclick = async () => {
-            let config = "<?=$config?>";
+            let config = "<?= $config ?>";
             if (config === 'default') {
                 alert("Can't delete default config!");
                 return;
