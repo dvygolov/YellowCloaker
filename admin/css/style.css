@@ -68,7 +68,7 @@ h5,
 h6 {
   margin: 0 0 10px;
   font-weight: 700;
-  color: white;
+  color: white !important;
 }
 a {
   transition: all 0.3s ease 0s;
