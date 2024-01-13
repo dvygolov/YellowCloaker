@@ -107,4 +107,4 @@ if (empty($config["licenseKey"])) {
 $editionIds = ['GeoLite2-ASN', 'GeoLite2-City', 'GeoLite2-Country'];
 
 $result = downloadAndExtractMaxMindDB($config["licenseKey"], __DIR__, $editionIds);
-return send_update_result("Geobases updated!");
+return send_update_result("OK");

@@ -195,12 +195,6 @@ body {
 .profile-dtl {
   text-align: center;
 }
-.profile-dtl img {
-  width: 75px;
-  height: 75px;
-  border-radius: 50%;
-  border: 2px solid #152036;
-}
 .profile-dtl h2 {
   font-size: 16px;
   color: #fff;

@@ -19,7 +19,7 @@
     <!-- metisMenu CSS
 		============================================ -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/metismenu/dist/metisMenu.min.css">
-    <link rel="stylesheet" href="css/metisMenu/metisMenu-vertical.css" />
+    <link rel="stylesheet" href="css/metisMenu-vertical.css" />
     <!-- style CSS
 		============================================ -->
     <link rel="stylesheet" href="css/style.css?v=<?= filemtime('css/style.css') ?>" />
