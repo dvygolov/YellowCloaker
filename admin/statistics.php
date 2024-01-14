@@ -393,20 +393,20 @@ foreach ($subs_array as $sub_key => $sub_values) {
 <!doctype html>
 <html lang="en">
 <?php include "head.php" ?>
+
 <body>
-<?php include "menu.php" ?>
-<div class="all-content-wrapper">
-    <?php include "header.php" ?>
-    <a id="top"></a>
-    <?= $tableOutput ?>
-    <?= ($noprelanding ? '' : $lpctrTableOutput) ?>
-    <?= $landcrTableOutput ?>
-    <?php
-    foreach ($subs_tables as $subTableOutput) {
-        echo $subTableOutput;
-    }
-    ?>
-    <a id="bottom"></a>
-</div>
+    <?php include "menu.php" ?>
+    <div class="all-content-wrapper">
+        <?php include "header.php" ?>
+        <?= $tableOutput ?>
+        <?= ($noprelanding ? '' : $lpctrTableOutput) ?>
+        <?= $landcrTableOutput ?>
+        <?php
+        foreach ($subs_tables as $subTableOutput) {
+            echo $subTableOutput;
+        }
+        ?>
+    </div>
 </body>
+
 </html>
