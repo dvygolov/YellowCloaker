@@ -4,7 +4,7 @@ require_once __DIR__ . '/../settings.php';
 require_once __DIR__ . '/password.php';
 
 if (!check_password(false)) {
-    header('Location: login.php');
+    header('Location: /admin/login.php');
     exit;
 }
 
