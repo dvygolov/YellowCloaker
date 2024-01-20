@@ -2493,7 +2493,7 @@ ul.tab-review-design li.active a {
   margin-bottom: 15px;
 }
 .form-group-inner label {
-  font-size: 14px;
+  font-size: 16px;
   color: #303030;
 }
 .form-group-inner input[type="email"],
@@ -3832,7 +3832,7 @@ ul.h-list li:hover a {
   margin-bottom: 15px;
 }
 .form-group-inner label {
-  font-size: 14px;
+  font-size: 16px;
   color: #fff;
 }
 .form-group-inner input[type="email"],

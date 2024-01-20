@@ -64,6 +64,16 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
         return true;
     }
 
+    public function duplicateNamespace(string $namespace, string $dupnamespace)
+    {
+        if (empty($namespace) || empty($dupnamespace) ||
+            !array_key_exists($namespace, $this->data)
+        ) return false;
+
+        $this->data[$dupnamespace] = $this->data[$namespace];
+        $this->namespace = $dupnamespace;
+        return true;
+    }
     public function deleteNamespace(string $namespace)
     {
         if ($namespace === 'default') return false;

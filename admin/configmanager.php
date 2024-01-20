@@ -7,12 +7,18 @@ if (!$passOk)
 
 $action = $_REQUEST['action'];
 $config = $_REQUEST['name'];
+$dupconfig = $_REQUEST['dupname']??'';
 switch ($action) {
     case 'add':
         if (add_config($config))
             return send_configmanager_result("OK");
         else
             return send_configmanager_result("Error adding new config!");
+    case 'dup':
+        if (duplicate_config($config,$dupconfig ))
+            return send_configmanager_result("OK");
+        else
+            return send_configmanager_result("Error duplicating config!");
     case 'del':
         if (del_config($config))
             return send_configmanager_result("OK");

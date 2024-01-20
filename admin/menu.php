@@ -51,13 +51,19 @@ $menuQueryString = "config={$config}{$date_str}";
                         </a>
                         <ul class="submenu-angle" aria-expanded="false">
                             <li>
-                                <a id="addconfig" title="Add configuration">
+                                <a id="addconfig" title="Add config">
                                     <i class="bi bi-patch-plus"></i>
                                     <span class="mini-sub-pro">Add Config</span>
                                 </a>
                             </li>
                             <li>
-                                <a id="delconfig" title="Delete configuration">
+                                <a id="dupconfig" title="Duplicate config">
+                                    <i class="bi bi-patch-plus-fill"></i>
+                                    <span class="mini-sub-pro">Duplicate Config</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a id="delconfig" title="Delete config">
                                     <i class="bi bi-patch-minus"></i>
                                     <span class="mini-sub-pro">Delete Config</span>
                                 </a>
@@ -109,6 +115,24 @@ $menuQueryString = "config={$config}{$date_str}";
             let js = await res.json();
             if (js["result"] === "OK")
                 reloadWithConfig(configName);
+            else
+                alert(`An error occured: ${js["result"]}`);
+        };
+
+        document.getElementById("dupconfig").onclick = async () => {
+            let curConfigName = "<?= $config ?>";
+            let newConfigName = prompt("Enter new config name:");
+            if (newConfigName === '' || newConfigName == null) return;
+            let res = await fetch("configmanager.php", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `action=dup&name=${curConfigName}&dupname=${newConfigName}`
+            });
+            let js = await res.json();
+            if (js["result"] === "OK")
+                reloadWithConfig(newConfigName);
             else
                 alert(`An error occured: ${js["result"]}`);
         };

@@ -165,6 +165,15 @@ function add_config($name)
     return false;
 }
 
+function duplicate_config($name, $dupname)
+{
+    $conf = Config::load(__DIR__ . '/settings.json');
+    if ($conf->duplicateNamespace($name,$dupname)) {
+        $conf->toFile(__DIR__ . '/settings.json', new Json());
+        return true;
+    }
+    return false;
+}
 function save_config($name)
 {
     try {
