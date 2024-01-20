@@ -23,22 +23,22 @@
                                     <ul class="nav navbar-nav mai-top-nav header-right-menu">
                                         <li class="nav-item">
                                             <a class="nav-link">
-                                                <i class="icon nalika-settings icon-wrap"></i>
+                                                <i class="bi bi-gear"></i>
                                                 <span>Current Config:&nbsp;</span>
                                                 <select style="color:black;" onchange="selectConfig(this.value)">
                                                     <?= get_config_menu() ?>
                                                 </select>
                                             </a>
                                             <a class="nav-link" href="#" id='litepicker'>
-                                                <i class="icon nalika-table icon-wrap"></i>
+                                                <i class="bi bi-calendar"></i>
                                                 <span>Date:&nbsp;&nbsp;<?= get_calend_date() ?></span>
                                             </a>
                                             <a class="nav-link" href="" onclick="location.reload()">
-                                                <i class="icon nalika-refresh-button icon-wrap"></i>
+                                                <i class="bi bi-arrow-clockwise"></i>
                                                 <span>Refresh</span>
                                             </a>
                                             <a class="nav-link" href="logout.php">
-                                                <i class="icon nalika-user icon-wrap"></i>
+                                                <i class="bi bi-door-closed"></i>
                                                 <span>Logout</span>
                                             </a>
                                         </li>

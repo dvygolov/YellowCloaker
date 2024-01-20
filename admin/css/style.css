@@ -122,15 +122,6 @@ body {
 .mt-b-30 {
   margin-bottom: 30px;
 }
-@font-face {
-  font-family: "nalika";
-  src:
-    url("../fonts/nalika.ttf?nukgc0") format("truetype"),
-    url("../fonts/nalika.woff?nukgc0") format("woff"),
-    url("../fonts/nalika.svg?nukgc0#nalika") format("svg");
-  font-weight: normal;
-  font-style: normal;
-}
 
 /*----------------------------------------*/
 /*  8. Menu collapse Area
