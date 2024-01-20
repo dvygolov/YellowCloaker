@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34511.84
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{13B669BE-BB05-4DDF-9536-439F39A36129}") = "YellowCloaker", "YellowCloaker.phpproj", "{21CE54A4-EFC5-4616-BD3F-2449B944D7B6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{21CE54A4-EFC5-4616-BD3F-2449B944D7B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21CE54A4-EFC5-4616-BD3F-2449B944D7B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21CE54A4-EFC5-4616-BD3F-2449B944D7B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21CE54A4-EFC5-4616-BD3F-2449B944D7B6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {19FBCCB4-9DE0-4087-A3DB-EEECC5E95960}
+	EndGlobalSection
+EndGlobal

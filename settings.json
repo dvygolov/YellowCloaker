@@ -92,7 +92,7 @@
                     "type": "307"
                 }
             },
-            "jsconnect": "redirect"
+            "jsconnect": "replace"
         },
         "pixels": {
             "subname": "px",
@@ -105,8 +105,7 @@
                 "allowed": {
                     "countries": [
                         "UA",
-                        "BY",
-                        "RU"
+                        "BY"
                     ],
                     "os": [
                         "Android",

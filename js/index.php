@@ -3,6 +3,7 @@
 //следующий код: <script src="https://ваш.домен/js/index.php"></script>
 //в случае прохождения пользователем проверки, будет совершено действие, которое
 //вы указали для js-подключения: редирект, подмена или показ iframe
+global $use_js_checks, $js_obfuscate;
 require_once __DIR__.'/obfuscator.php';
 require_once __DIR__.'/../settings.php';
 require_once __DIR__.'/../requestfunc.php';

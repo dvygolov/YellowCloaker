@@ -1,5 +1,5 @@
 <?php
-include __DIR__."/password.php";
+require_once __DIR__."/password.php";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     if (check_password()) {
@@ -48,7 +48,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
     <div id="main">
     <div id="title">Yellow Cloaker Login</div>
-    <form id="login-form" method="post" action="login.php">
+    <form id="login-form" method="post" action="./login.php">
         <label for="password">Admin Password</label><br>
         <input type="password" id="password" name="password"><br>
         <button type="submit">Login</button>

@@ -570,86 +570,6 @@ require_once __DIR__ . '/initialization.php';
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                            <div class="row">
-                                                                <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                                                                    <label class="login2 pull-left pull-left-pro">
-                                                                        Add upsells to the ThankYou Page?
-                                                                    </label>
-                                                                </div>
-                                                                <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                                                                    <div class="bt-df-checkbox pull-left">
-
-                                                                        <div class="row">
-                                                                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                                <div class="i-checks pull-left">
-                                                                                    <label>
-                                                                                        <input type="radio" <?= $thankyou_upsell === true ? 'checked' : '' ?> value="true" name="black.landing.folder.customthankyoupage.upsell.use" onclick="document.getElementById('thankupsell').style.display = 'block'">
-                                                                                        Yes</label>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="row">
-                                                                            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                                                                <div class="i-checks pull-left">
-                                                                                    <label>
-                                                                                        <input type="radio" <?= $thankyou_upsell === false ? 'checked' : '' ?> value="false" name="black.landing.folder.customthankyoupage.upsell.use" onclick="document.getElementById('thankupsell').style.display = 'none'">No</label>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div id="thankupsell" class="form-group-inner" style="display:<?= $thankyou_upsell === true ? 'block' : 'none' ?>">
-                                                            <div class="row">
-                                                                <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                    <label class="login2 pull-left pull-left-pro">
-                                                                        Upsell's Title:
-                                                                    </label>
-                                                                </div>
-                                                                <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
-                                                                    <div class="input-group custom-go-button">
-                                                                        <input type="text" class="form-control" placeholder="This is a header" name="black.landing.folder.customthankyoupage.upsell.header" value="<?= $thankyou_upsell_header ?>">
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="row">
-                                                                <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                    <label class="login2 pull-left pull-left-pro">
-                                                                        Upsell's text:
-                                                                    </label>
-                                                                </div>
-                                                                <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
-                                                                    <div class="input-group custom-go-button">
-                                                                        <input type="text" class="form-control" placeholder="This is a text" name="black.landing.folder.customthankyoupage.upsell.text" value="<?= $thankyou_upsell_text ?>">
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="row">
-                                                                <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                    <label class="login2 pull-left pull-left-pro">
-                                                                        Upsell's landing url:
-                                                                    </label>
-                                                                </div>
-                                                                <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
-                                                                    <div class="input-group custom-go-button">
-                                                                        <input type="text" class="form-control" placeholder="https://google.com" name="black.landing.folder.customthankyoupage.upsell.url" value="<?= $thankyou_upsell_url ?>">
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="row">
-                                                                <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                                                    <label class="login2 pull-left pull-left-pro">
-                                                                        <img src="img/info.ico" title="This folder should be created inside 'thankyou/upsell'" />
-                                                                        Folder name for upsell images:
-                                                                    </label>
-                                                                </div>
-                                                                <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
-                                                                    <div class="input-group custom-go-button">
-                                                                        <input type="text" class="form-control" placeholder="img" name="black.landing.folder.customthankyoupage.upsell.imgdir" value="<?= $thankyou_upsell_imgdir ?>">
-                                                                    </div>
-                                                                </div>
-                                                            </div>
                                                         </div>
                                                     </div>
                                                     <div id="b_landings_redirect" style="display:<?= $black_land_action === 'redirect' ? 'block' : 'none' ?>;">
@@ -785,7 +705,7 @@ require_once __DIR__ . '/initialization.php';
                                                                             <div class="i-checks pull-left">
                                                                                 <label>
                                                                                     <input type="radio" <?= $tds_mode === 'on' ? 'checked' : '' ?> value="on" name="tds.mode">
-                                                                                    Usual </label>
+                                                                                    Standard </label>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -1276,7 +1196,7 @@ require_once __DIR__ . '/initialization.php';
                                                             </div>
                                                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                                                                 <div class="input-group custom-go-button">
-                                                                    <input type="password" name="statistics.password" class="form-control" placeholder="12345" value="<?= $log_password ?>">
+                                                                    <input type="password" name="statistics.password" class="form-control" placeholder="12345" value="<?= $admin_password ?>">
                                                                 </div>
                                                             </div>
                                                         </div>

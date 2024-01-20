@@ -4,7 +4,7 @@ require_once __DIR__ . '/../logging.php';
 
 function check_password($die = true): bool
 {
-    global $log_password;
+    global $admin_password;
 
     if (session_status() !== PHP_SESSION_ACTIVE) {
         session_start();
@@ -12,7 +12,7 @@ function check_password($die = true): bool
     if (!empty($_SESSION['loggedin']) && $_SESSION['loggedin'] === true)
         return true;
 
-    if (empty($log_password)) return true;
+    if (empty($admin_password)) return true;
 
     if (!isset($_REQUEST['password'])) {
         $msg = "No password found!";
@@ -26,7 +26,7 @@ function check_password($die = true): bool
         if ($die) die($msg);
         else return false;
     }
-    if ($_REQUEST['password'] !== $log_password) {
+    if ($_REQUEST['password'] !== $admin_password) {
         $msg = "Incorrect password!";
         add_log("login", $msg, true);
         if ($die) die($msg);

@@ -16,8 +16,7 @@ function get_cloaker_path(): string
         if (count($script_path) > 0)
             $fullpath .= implode('/', $script_path);
     }
-    if ($fullpath[strlen($fullpath) - 1] !== '/')
-        $fullpath .= '/';
+    if (!str_ends_with($fullpath,'/')) $fullpath .= '/';
     return $fullpath;
 }
 

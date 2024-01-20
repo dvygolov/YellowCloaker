@@ -45,44 +45,6 @@ if (empty($_GET['nopixel'])) {
 $html = str_replace('{NAME}', get_cookie('name'), $html);
 $html = str_replace('{PHONE}', get_cookie('phone'), $html);
 
-//добавляем на стр Спасибо допродажи
-if ($thankyou_upsell === true) {
-    //вставляем все нужные стили и скрипты
-    $scripts_html = file_get_contents(__DIR__ . '/upsell/upsell.js');
-    $css_html = file_get_contents(__DIR__ . '/upsell/upsell.css');
-    $html = insert_after_tag($html, '<head', $scripts_html);
-    $html = insert_after_tag($html, '<head', $css_html);
-
-    //вставляем все картинки в витрину, заполняем заголовок и текст
-    $dir = __DIR__ . '/upsell/' . $thankyou_upsell_imgdir;
-    if (is_dir($dir)) {
-        $upsell_template = file_get_contents(__DIR__ . '/upsell/upsell.template.html');
-        $upsell_template = str_replace('{HEADER}', $thankyou_upsell_header, $upsell_template);
-        $upsell_template = str_replace('{TEXT}', $thankyou_upsell_text, $upsell_template);
-        $upsell_template = str_replace('{URL}', $thankyou_upsell_url, $upsell_template);
-
-        $istart = '{ITEMSTART}';
-        $istartpos = strpos($upsell_template, $istart);
-        $istartlen = strlen($istart);
-        $iend = '{ITEMEND}';
-        $iendpos = strpos($upsell_template, $iend);
-        $iendlen = strlen($iend);
-
-        $item_template = trim(substr($upsell_template, $istartpos + $istartlen, $iendpos - ($istartpos + $istartlen)));
-        $images = glob("{$dir}/*.{jpg,jpeg,png}", GLOB_BRACE);
-        $all_images_html = '';
-        foreach ($images as $image) {
-            $all_images_html .= str_replace('{URL}', $thankyou_upsell_url,
-                str_replace('{IMG}', 'upsell/' . $thankyou_upsell_imgdir . '/' . mb_basename($image), $item_template));
-        }
-        $upsell_template = substr_replace($upsell_template, $all_images_html, $istartpos, $iendpos + $iendlen - $istartpos);
-
-        $html = str_replace('{UPSELL}', $upsell_template, $html);
-    } else
-        $html = str_replace('{UPSELL}', '', $html);
-} else {
-    $html = str_replace('{UPSELL}', '', $html);
-}
 //вставляем форму сбора мыла или сообщение об успешном сборе мыла
 if ($ispost) {
     $emailtemplatepath = __DIR__ . '/templates/email/' . $black_land_thankyou_page_language . 'save.html';

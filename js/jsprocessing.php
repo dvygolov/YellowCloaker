@@ -1,16 +1,26 @@
 <?php
 
-require_once __DIR__.'/../debug.php';
-require_once __DIR__.'/../core.php';
-require_once __DIR__.'/../settings.php';
-require_once __DIR__.'/../db.php';
-require_once __DIR__.'/../main.php';
+global $tds_mode, $black_jsconnect_action;
+require_once __DIR__ . '/../debug.php';
+require_once __DIR__ . '/../core.php';
+require_once __DIR__ . '/../settings.php';
+require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../main.php';
 
 $fs = new FilterSettings(
-    $os_white, $country_white, $lang_white, $tokens_black,
-    $url_should_contain, $ua_black, $ip_black_filename,
-    $ip_black_cidr, $block_without_referer, $referer_stopwords,
-    $block_vpnandtor, $isp_black);
+$os_white,
+$country_white,
+$lang_white,
+$tokens_black,
+$url_should_contain,
+$ua_black,
+$ip_black_filename,
+$ip_black_cidr,
+$block_without_referer,
+$referer_stopwords,
+$block_vpnandtor,
+$isp_black
+);
 $cloaker = new Cloaker($fs);
 //Проверяем зашедшего пользователя
 $is_bad_click = $cloaker->is_bad_click();
@@ -35,7 +45,7 @@ if ($is_bad_click === true || $tds_mode === 'full') {
 } else if ($is_bad_click === false || $tds_mode === 'off') { //Обычный юзверь или отключена фильтрация
 
     if ($black_jsconnect_action === 'redirect') { //если в настройках JS-подключения у нас редирект
-        $url = get_cloaker_path();
+        $url = rtrim(get_cloaker_path(), '/');
         $from = rtrim(strtok($_GET['uri'], '?'), '/');
         //если у нас одинаковый адрес, откуда мы вызываем скрипт и наш собственный
         //значит у нас просто включена JS-проверка и нам не нужно опять редиректить
@@ -55,7 +65,7 @@ if ($is_bad_click === true || $tds_mode === 'full') {
     if (!headers_sent()) {
         //если в настройках кло для блэка стоит редирект, то для js xhr запроса надо его модифицировать
         $all_headers = implode(',', headers_list());
-        if (strpos($all_headers, "Location") !== false) {
+        if (str_contains($all_headers, "Location")) {
             header_remove("Location"); //удаляем редирект
             $matches = [];
             preg_match("/Location: ([^ ]+)/", $all_headers, $matches);

@@ -46,17 +46,13 @@ $black_land_folder_names = $conf['black.landing.folder.names'];
 $black_land_redirect_urls = $conf['black.landing.redirect.urls'];
 $black_land_redirect_type = $conf['black.landing.redirect.type'];
 
-$black_land_log_conversions_on_button_click = $conf['black.landing.folder.conversions.logonbuttonclick'];
 $black_land_use_custom_thankyou_page = $conf['black.landing.folder.customthankyoupage.use'];
 $black_land_thankyou_page_language = $conf['black.landing.folder.customthankyoupage.language'];
-
-$thankyou_upsell = $conf['black.landing.folder.customthankyoupage.upsell.use'];
-$thankyou_upsell_imgdir = $conf['black.landing.folder.customthankyoupage.upsell.imgdir'];
-$thankyou_upsell_header = $conf['black.landing.folder.customthankyoupage.upsell.header'];
-$thankyou_upsell_text = $conf['black.landing.folder.customthankyoupage.upsell.text'];
-$thankyou_upsell_url = $conf['black.landing.folder.customthankyoupage.upsell.url'];
-
 $black_jsconnect_action = $conf['black.jsconnect'];
+if ($black_preland_action==='none'&&$black_land_action==='redirect')
+    $black_jsconnect_action = 'redirect';
+else if ($black_jsconnect_action==='redirect')
+    $black_jsconnect_action = 'replace';
 
 $tds_mode = $conf['tds.mode'];
 $save_user_flow = $conf['tds.saveuserflow'];
@@ -74,23 +70,15 @@ $block_without_referer = $conf['tds.filters.blocked.referer.empty'];
 $referer_stopwords = $conf['tds.filters.blocked.referer.stopwords'];
 $block_vpnandtor = $conf['tds.filters.blocked.vpntor'];
 
-$back_button_action = $conf['scripts.back.action'];
-$replace_back_address = $conf['scripts.back.value'];
-$disable_text_copy = $conf['scripts.disabletextcopy'];
 $replace_prelanding = $conf['scripts.prelandingreplace.use'];
 $replace_prelanding_address = $conf['scripts.prelandingreplace.url'];
 $replace_landing = $conf['scripts.landingreplace.use'];
 $replace_landing_address = $conf['scripts.landingreplace.url'];
-$black_land_use_phone_mask = $conf['scripts.phonemask.use'];
-$black_land_phone_mask = $conf['scripts.phonemask.mask'];
-$comebacker = $conf['scripts.comebacker'];
-$callbacker = $conf['scripts.callbacker'];
-$addedtocart = $conf['scripts.addedtocart'];
 $images_lazy_load = $conf['scripts.imageslazyload'];
 
 $sub_ids = $conf['subids'];
 
-$log_password = strval($conf['statistics.password']);
+$admin_password = strval($conf['statistics.password']);
 $stats_timezone = $conf->get('statistics.timezone', 'Europe/Moscow');
 $stats_sub_names = $conf['statistics.subnames'];
 
