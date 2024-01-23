@@ -64,6 +64,7 @@
 
 .sidebar-nav .metismenu a:hover,
 .sidebar-nav .metismenu a:focus,
+.sidebar-nav .metismenu a.metisselected,
 .sidebar-nav .metismenu a:active {
     color: #f8f9fa;
     text-decoration: none;

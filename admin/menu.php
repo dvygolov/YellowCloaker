@@ -21,31 +21,35 @@ $menuQueryString = "config={$config}{$date_str}";
             <nav class="sidebar-nav left-sidebar-menu-pro">
                 <ul class="metismenu" id="menu1">
                     <li>
-                        <a title="Statistics" href="./statistics.php?<?= $menuQueryString ?>">
+                        <a title="Statistics" href="./statistics.php?<?= $menuQueryString ?>"
+                           class="<?=str_contains($_SERVER['REQUEST_URI'],"statistics.php")?"metisselected":""?>">
                             <i class="bi bi-bar-chart-fill"></i>
                             <span class="mini-click-non">Statistics</span>
                         </a>
                     </li>
                     <li>
-                        <a title="Leads" href="./index.php?filter=leads&<?= $menuQueryString ?>">
+                        <a title="Leads" href="./index.php?filter=leads&<?= $menuQueryString ?>"
+                           class="<?=str_contains($_SERVER['REQUEST_URI'],"index.php?filter=leads")?"metisselected":""?>">
                             <i class="bi bi-tag-fill"></i>
                             <span class="mini-click-non">Leads</span>
                         </a>
                     </li>
                     <li>
-                        <a title="Allowed" href="./index.php?<?= $menuQueryString ?>">
+                        <a title="Allowed" href="./index.php?filter=allowed&<?= $menuQueryString ?>"
+                           class="<?=str_contains($_SERVER['REQUEST_URI'],"index.php?filter=allowed")?"metisselected":""?>">
                             <i class="bi bi-emoji-smile-fill"></i>
                             <span class="mini-click-non">Allowed</span>
                         </a>
                     </li>
                     <li>
-                        <a title="Blocked" href="./index.php?filter=blocked&<?= $menuQueryString ?>">
+                        <a title="Blocked" href="./index.php?filter=blocked&<?= $menuQueryString ?>"
+                           class="<?=str_contains($_SERVER['REQUEST_URI'],"index.php?filter=blocked")?"metisselected":""?>">
                             <i class="bi bi-ban"></i>
                             <span class="mini-click-non">Blocked</span>
                         </a>
                     </li>
                     <li class="active">
-                        <a href="./editsettings.php?<?= $menuQueryString ?>" aria-expanded="false">
+                        <a href="./editsettings.php?<?= $menuQueryString ?>" class="<?=str_contains($_SERVER['REQUEST_URI'],"editsettings.php")?"metisselected":""?>" aria-expanded="false">
                             <i class="bi bi-gear"></i>
                             <span class="mini-click-non">Configuration</span>
                         </a>
