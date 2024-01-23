@@ -3,42 +3,30 @@ require_once __DIR__.'/geoip2.phar';
 use GeoIp2\Database\Reader;
 
 function getip(){
-	if (!isset($ipfound)){
-        if (isset($_SERVER['HTTP_CF_CONNECTING_IP']))
-			//echo 'Cloud';
-            $ipfound = $_SERVER['HTTP_CF_CONNECTING_IP'];
+    //Will return Cloudflare's connecting ip only if we are behind the cloud
+    if (isset($_SERVER['HTTP_CF_CONNECTING_IP']) &&
+        str_contains(strtolower(getisp($_SERVER['REMOTE_ADDR'])),"cloudflare"))
+        return $_SERVER['HTTP_CF_CONNECTING_IP'];
+
+    $ipfound = 'Unknown';
+
+    if(isset($_SERVER['REMOTE_ADDR'])){
+        $ipfound = $_SERVER['REMOTE_ADDR'];
+    }
+    else if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+        $ipfound = $_SERVER['HTTP_CLIENT_IP'];
+    }
+    else if(!empty($_SERVER['HTTP_X_FORWARDED_FOR'])){
+        $ip=$_SERVER['HTTP_X_FORWARDED_FOR'];
+        $ip=explode(", ", $ip);
+        if(count($ip)<=1){$ip=explode(",", $ip[0]);}
+        if(!empty($ip[0])){
+            $ipfound=$ip[0];
+        }
     }
 
-	if (!isset($ipfound)){
-		if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-			//echo 'Client';
-			$ipfound = $_SERVER['HTTP_CLIENT_IP'];
-		}
-	}
-
-	if(!isset($ipfound)){
-		if(!empty($_SERVER['HTTP_X_FORWARDED_FOR'])){
-			//echo 'Forward';
-			$ip=$_SERVER['HTTP_X_FORWARDED_FOR'];
-			$ip=explode(", ", $ip);
-			if(count($ip)<=1){$ip=explode(",", $ip[0]);}
-			if(!empty($ip[0])){
-				$ipfound=$ip[0];
-			}
-		}
-	}
-
-	if(!isset($ipfound)){
-		if(isset($_SERVER['REMOTE_ADDR'])){
-			//echo 'Remote';
-			$ipfound=$_SERVER['REMOTE_ADDR'];
-		}
-	}
-
-	if (!isset($ipfound))
-		$ipfound='Unknown';
 	if ($ipfound==='::1'|| !is_public_ip($ipfound))
-        $ipfound='109.124.224.100'; //for debugging
+        return '109.124.224.100'; //for debugging
 	return $ipfound;
 }
 
