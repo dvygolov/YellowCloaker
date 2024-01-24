@@ -10,7 +10,7 @@ require_once __DIR__ . '/initialization.php';
     <div class="all-content-wrapper">
         <?php include "header.php" ?>
 
-        <form id="saveconfig" style="padding:25px;background-color:#1D2A48;">
+        <form id="saveconfig" style="padding:35px;background-color:#1D2A48;">
             <h4>#0 Domains</h4>
             <div class="form-group-inner">
                 <div class="row">
@@ -41,7 +41,7 @@ require_once __DIR__ . '/initialization.php';
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $white_action === 'folder' ? 'checked' : '' ?> value="folder" name="white.action" onclick="(document.getElementById('b_2').style.display='block'); (document.getElementById('b_3').style.display='none'); (document.getElementById('b_4').style.display='none'); (document.getElementById('b_5').style.display='none')">
+                                            <input type="radio" <?= $white_action === 'folder' ? 'checked' : '' ?> value="folder" name="white.action" onclick="(document.getElementById('b_2').style.display = 'block'); (document.getElementById('b_3').style.display = 'none'); (document.getElementById('b_4').style.display = 'none'); (document.getElementById('b_5').style.display = 'none')">
                                             Local safe page from folder</label>
                                     </div>
                                 </div>
@@ -50,7 +50,7 @@ require_once __DIR__ . '/initialization.php';
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $white_action === 'redirect' ? 'checked' : '' ?> value="redirect" name="white.action" onclick="(document.getElementById('b_2').style.display='none'); (document.getElementById('b_3').style.display='block'); (document.getElementById('b_4').style.display='none'); (document.getElementById('b_5').style.display='none')">
+                                            <input type="radio" <?= $white_action === 'redirect' ? 'checked' : '' ?> value="redirect" name="white.action" onclick="(document.getElementById('b_2').style.display = 'none'); (document.getElementById('b_3').style.display = 'block'); (document.getElementById('b_4').style.display = 'none'); (document.getElementById('b_5').style.display = 'none')">
                                             Redirect </label>
                                     </div>
                                 </div>
@@ -59,7 +59,7 @@ require_once __DIR__ . '/initialization.php';
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $white_action === 'curl' ? 'checked' : '' ?> value="curl" name="white.action" onclick="(document.getElementById('b_2').style.display='none'); (document.getElementById('b_3').style.display='none'); (document.getElementById('b_4').style.display='block'); (document.getElementById('b_5').style.display='none')">
+                                            <input type="radio" <?= $white_action === 'curl' ? 'checked' : '' ?> value="curl" name="white.action" onclick="(document.getElementById('b_2').style.display = 'none'); (document.getElementById('b_3').style.display = 'none'); (document.getElementById('b_4').style.display = 'block'); (document.getElementById('b_5').style.display = 'none')">
                                             Load a website using CURL
                                         </label>
                                     </div>
@@ -69,7 +69,7 @@ require_once __DIR__ . '/initialization.php';
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $white_action === 'error' ? 'checked' : '' ?> value="error" name="white.action" onclick="(document.getElementById('b_2').style.display='none'); (document.getElementById('b_3').style.display='none'); (document.getElementById('b_4').style.display='none'); (document.getElementById('b_5').style.display='block')">
+                                            <input type="radio" <?= $white_action === 'error' ? 'checked' : '' ?> value="error" name="white.action" onclick="(document.getElementById('b_2').style.display = 'none'); (document.getElementById('b_3').style.display = 'none'); (document.getElementById('b_4').style.display = 'none'); (document.getElementById('b_5').style.display = 'block')">
                                             Return HTTP-code <small>(for example,
                                                 404 for NotFound or 200 for
                                                 OK)</small>
@@ -208,7 +208,7 @@ require_once __DIR__ . '/initialization.php';
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $white_use_domain_specific === false ? 'checked' : '' ?> value="false" name="white.domainfilter.use" onclick="(document.getElementById('b_6').style.display='none')">
+                                            <input type="radio" <?= $white_use_domain_specific === false ? 'checked' : '' ?> value="false" name="white.domainfilter.use" onclick="(document.getElementById('b_6').style.display = 'none')">
                                             No </label>
                                     </div>
                                 </div>
@@ -217,7 +217,7 @@ require_once __DIR__ . '/initialization.php';
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $white_use_domain_specific === true ? 'checked' : '' ?> value="true" name="white.domainfilter.use" onclick="(document.getElementById('b_6').style.display='block')">
+                                            <input type="radio" <?= $white_use_domain_specific === true ? 'checked' : '' ?> value="true" name="white.domainfilter.use" onclick="(document.getElementById('b_6').style.display = 'block')">
                                             Yes</label>
                                     </div>
                                 </div>
@@ -378,7 +378,7 @@ require_once __DIR__ . '/initialization.php';
                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                         <div class="i-checks pull-left">
                                             <label>
-                                                <input id="tzcheck" type="checkbox" name="white.jschecks.events[]" value="timezone" <?= in_array('timezone', $js_checks) ? 'checked' : '' ?> onchange="(document.getElementById('jscheckstz').style.display = this.checked?'block':'none')">
+                                                <input id="tzcheck" type="checkbox" name="white.jschecks.events[]" value="timezone" <?= in_array('timezone', $js_checks) ? 'checked' : '' ?> onchange="(document.getElementById('jscheckstz').style.display = this.checked ? 'block' : 'none')">
                                                 Time Zone </label>
                                         </div>
                                     </div>
@@ -459,7 +459,7 @@ require_once __DIR__ . '/initialization.php';
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $black_preland_action === 'none' ? 'checked' : '' ?> value="none" name="black.prelanding.action" onclick="(document.getElementById('b_8').style.display='none')">
+                                            <input type="radio" <?= $black_preland_action === 'none' ? 'checked' : '' ?> value="none" name="black.prelanding.action" onclick="(document.getElementById('b_8').style.display = 'none')">
                                             Don't use prelanding</label>
                                     </div>
                                 </div>
@@ -468,7 +468,7 @@ require_once __DIR__ . '/initialization.php';
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $black_preland_action === 'folder' ? 'checked' : '' ?> value="folder" name="black.prelanding.action" onclick="(document.getElementById('b_8').style.display='block')">
+                                            <input type="radio" <?= $black_preland_action === 'folder' ? 'checked' : '' ?> value="folder" name="black.prelanding.action" onclick="(document.getElementById('b_8').style.display = 'block')">
                                             Local prelanding from folder</label>
                                     </div>
                                 </div>
@@ -511,7 +511,7 @@ require_once __DIR__ . '/initialization.php';
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $black_land_action === 'folder' ? 'checked' : '' ?> value="folder" name="black.landing.action" onclick="(document.getElementById('b_landings_redirect').style.display='none'); (document.getElementById('b_landings_folder').style.display='block')">
+                                            <input type="radio" <?= $black_land_action === 'folder' ? 'checked' : '' ?> value="folder" name="black.landing.action" onclick="(document.getElementById('b_landings_redirect').style.display = 'none'); (document.getElementById('b_landings_folder').style.display = 'block')">
                                             Local landing from folder</label>
                                     </div>
                                 </div>
@@ -520,7 +520,7 @@ require_once __DIR__ . '/initialization.php';
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $black_land_action === 'redirect' ? 'checked' : '' ?> value="redirect" name="black.landing.action" onclick="(document.getElementById('b_landings_redirect').style.display='block'); (document.getElementById('b_landings_folder').style.display='none')">
+                                            <input type="radio" <?= $black_land_action === 'redirect' ? 'checked' : '' ?> value="redirect" name="black.landing.action" onclick="(document.getElementById('b_landings_redirect').style.display = 'block'); (document.getElementById('b_landings_folder').style.display = 'none')">
                                             Redirect </label>
                                     </div>
                                 </div>
@@ -757,6 +757,102 @@ require_once __DIR__ . '/initialization.php';
             <hr>
             <h4>#5 Cloaker filters</h4>
             <div class="form-group-inner">
+
+                    <div id="builder"></div>
+                    <script>
+    var rules_basic = {
+        condition: 'AND',
+        rules: [{
+            id: 'price',
+            operator: 'less',
+            value: 10.25
+        }, {
+            condition: 'OR',
+            rules: [{
+                id: 'category',
+                operator: 'equal',
+                value: 2
+            }, {
+                id: 'category',
+                operator: 'equal',
+                value: 1
+            }]
+        }]
+    };
+
+    $('#builder').queryBuilder({
+
+        filters: [
+            {
+                id: 'os',
+                label: 'OS',
+                type: 'string',
+                operators: ['in', 'not_in']
+            },
+            {
+                id: 'country',
+                label: 'Country',
+                type: 'string',
+                operators: ['in', 'not_in']
+            },
+            {
+                id: 'language',
+                label: 'Language',
+                type: 'string',
+                operators: ['in', 'not_in']
+            },
+            {
+                id: 'url',
+                label: 'URL',
+                type: 'string',
+                operators: ['should contain', 'should not contain']
+            },
+            {
+                id: 'useragent',
+                label: 'UserAgent',
+                type: 'string',
+                operators: ['should contain', 'should not contain']
+            },
+            {
+                id: 'isp',
+                label: 'ISP',
+                type: 'string',
+                operators: ['should contain', 'should not contain']
+            },
+            {
+                id: 'referer',
+                label: 'Referer',
+                type: 'string',
+                operators: ['should contain', 'should not contain']
+            },
+            {
+                id: 'emptyreferer',
+                label: 'Empty Referer',
+                type: 'integer',
+                input: 'radio',
+                values: {
+                    0: 'Allow',
+                    1: 'Block'
+                },
+                operators: ['equal']
+            },
+            {
+                id: 'vpntor',
+                label: 'VPN&Tor',
+                type: 'integer',
+                input: 'radio',
+                values: {
+                    0: 'Allow',
+                    1: 'Block'
+                },
+                operators: ['equal']
+            }
+            ],
+
+        rules: rules_basic
+    });
+
+</script>
                 <div class="row">
                     <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
                         <label class="login2 pull-left pull-left-pro">
@@ -1007,7 +1103,7 @@ require_once __DIR__ . '/initialization.php';
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $replace_prelanding === false ? 'checked' : '' ?> value="false" name="scripts.prelandingreplace.use" onclick="(document.getElementById('b_10').style.display='none')">
+                                            <input type="radio" <?= $replace_prelanding === false ? 'checked' : '' ?> value="false" name="scripts.prelandingreplace.use" onclick="(document.getElementById('b_10').style.display = 'none')">
                                             No </label>
                                     </div>
                                 </div>
@@ -1016,7 +1112,7 @@ require_once __DIR__ . '/initialization.php';
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $replace_prelanding === true ? 'checked' : '' ?> value="true" name="scripts.prelandingreplace.use" onclick="(document.getElementById('b_10').style.display='block')">
+                                            <input type="radio" <?= $replace_prelanding === true ? 'checked' : '' ?> value="true" name="scripts.prelandingreplace.use" onclick="(document.getElementById('b_10').style.display = 'block')">
                                             Yes</label>
                                     </div>
                                 </div>
@@ -1057,7 +1153,7 @@ require_once __DIR__ . '/initialization.php';
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $replace_landing === false ? 'checked' : '' ?> value="false" name="scripts.landingreplace.use" onclick="(document.getElementById('b_1010').style.display='none')">
+                                            <input type="radio" <?= $replace_landing === false ? 'checked' : '' ?> value="false" name="scripts.landingreplace.use" onclick="(document.getElementById('b_1010').style.display = 'none')">
                                             No </label>
                                     </div>
                                 </div>
@@ -1066,7 +1162,7 @@ require_once __DIR__ . '/initialization.php';
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $replace_landing === true ? 'checked' : '' ?> value="true" name="scripts.landingreplace.use" onclick="(document.getElementById('b_1010').style.display='block')">
+                                            <input type="radio" <?= $replace_landing === true ? 'checked' : '' ?> value="true" name="scripts.landingreplace.use" onclick="(document.getElementById('b_1010').style.display = 'block')">
                                             Yes</label>
                                     </div>
                                 </div>
@@ -1405,41 +1501,41 @@ require_once __DIR__ . '/initialization.php';
     <!--cloneData-->
     <script src="js/cloneData.js"></script>
     <script>
-        $('#add-domain-item').cloneData({
-            mainContainerId: 'white_domainspecific',
-            cloneContainer: 'white',
-            removeButtonClass: 'remove-domain-item',
-            maxLimit: 5,
-            minLimit: 1,
-            removeConfirm: false
-        });
+    $('#add-domain-item').cloneData({
+        mainContainerId: 'white_domainspecific',
+        cloneContainer: 'white',
+        removeButtonClass: 'remove-domain-item',
+        maxLimit: 5,
+        minLimit: 1,
+        removeConfirm: false
+    });
 
-        $('#add-sub-item').cloneData({
-            mainContainerId: 'subs_container',
-            cloneContainer: 'subs',
-            removeButtonClass: 'remove-sub-item',
-            maxLimit: 10,
-            minLimit: 1,
-            removeConfirm: false
-        });
+    $('#add-sub-item').cloneData({
+        mainContainerId: 'subs_container',
+        cloneContainer: 'subs',
+        removeButtonClass: 'remove-sub-item',
+        maxLimit: 10,
+        minLimit: 1,
+        removeConfirm: false
+    });
 
-        $('#add-stats-sub-item').cloneData({
-            mainContainerId: 'stats_subs_container',
-            cloneContainer: 'stats_subs',
-            removeButtonClass: 'remove-stats-sub-item',
-            maxLimit: 10,
-            minLimit: 1,
-            removeConfirm: false
-        });
+    $('#add-stats-sub-item').cloneData({
+        mainContainerId: 'stats_subs_container',
+        cloneContainer: 'stats_subs',
+        removeButtonClass: 'remove-stats-sub-item',
+        maxLimit: 10,
+        minLimit: 1,
+        removeConfirm: false
+    });
 
-        $('#add-s2s-item').cloneData({
-            mainContainerId: 's2s_container',
-            cloneContainer: 's2s',
-            removeButtonClass: 'remove-s2s-item',
-            maxLimit: 5,
-            minLimit: 1,
-            removeConfirm: false
-        });
+    $('#add-s2s-item').cloneData({
+        mainContainerId: 's2s_container',
+        cloneContainer: 's2s',
+        removeButtonClass: 'remove-s2s-item',
+        maxLimit: 5,
+        minLimit: 1,
+        removeConfirm: false
+    });
     </script>
 </body>
 
