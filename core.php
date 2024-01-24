@@ -15,11 +15,11 @@ use Sinergi\BrowserDetector\Language;
 
 class Cloaker
 {
-    var FilterSettings $s;
+    var $s;
     var array $block_reason = [];
     var array $click_params = [];
 
-    public function __construct(FilterSettings $s)
+    public function __construct($s)
     {
         DebugMethods::start();
         $this->s = $s;

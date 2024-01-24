@@ -1,27 +1,13 @@
 <?php
 
-global $tds_mode, $black_jsconnect_action;
+global $filters, $tds_mode, $black_jsconnect_action;
 require_once __DIR__ . '/../debug.php';
 require_once __DIR__ . '/../core.php';
 require_once __DIR__ . '/../settings.php';
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../main.php';
 
-$fs = new FilterSettings(
-$os_white,
-$country_white,
-$lang_white,
-$tokens_black,
-$url_should_contain,
-$ua_black,
-$ip_black_filename,
-$ip_black_cidr,
-$block_without_referer,
-$referer_stopwords,
-$block_vpnandtor,
-$isp_black
-);
-$cloaker = new Cloaker($fs);
+$cloaker = new Cloaker($filters);
 //Проверяем зашедшего пользователя
 $is_bad_click = $cloaker->is_bad_click();
 
