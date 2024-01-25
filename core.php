@@ -42,8 +42,62 @@ class Cloaker
         return $a;
     }
 
+    private function match_all_filters(bool $all, array $filters):bool
+    {
+        for($i=0;$i<count($filters);$i++){
+            if (!empty($filters[$i]['condition']))
+                $fRes = $this->match_all_filters($filters[$i]['condition']==='AND',$filters[$i]['rules']);
+            else
+                $fRes = $this->match_filter($filters[$i]);
+            if ($all && !$fRes) return false;
+            if (!$all && $fRes) return true;
+        }
+        return true;
+    }
+    private function match_filter(array $filter):bool
+    {
+        $val = $filter['value'];
+
+        switch ($filter['id']){
+            case 'os':
+                $oses = explode(',',$val);
+                if ($filter['operator']==='in')
+                    return in_array($this->click_params['os'],$oses);
+                else 
+                    return !in_array($this->click_params['os'],$oses);
+            case 'country':
+                $countries = explode(',',$val);
+                if ($filter['operator']==='in')
+                    return in_array($this->click_params['country'],$countries);
+                else 
+                    return !in_array($this->click_params['country'],$countries);
+            case 'language':
+                $langs = explode(',',$val);
+                if ($filter['operator']==='in')
+                    return in_array($this->click_params['lang'],$langs);
+                else 
+                    return !in_array($this->click_params['lang'],$langs);
+            case 'useragent':
+                break;
+            case 'isp':
+                break;
+            case 'url':
+                break;
+            case 'referer':
+                break;
+            case 'vpntor':
+                break;
+            case 'ipbase':
+                break;
+        }
+    }
+
+
+
     public function is_bad_click(): bool
     {
+        return $this->match_all_filters($this->s['condition']==='AND', $this->s['rules']);
+
         try {
             DebugMethods::start();
             $this->block_reason = "";
@@ -108,7 +162,8 @@ class Cloaker
             }
 
             return false;
-        } finally {
+        }
+        finally {
             DebugMethods::stop("YWBCoreCheck");
         }
     }

@@ -128,6 +128,26 @@
                         "input": "text",
                         "operator": "not_contains",
                         "value": "facebook,google,yandex,amazon,azure,digitalocean,microsoft"
+                    },
+                    {
+                        "condition": "OR",
+                        "rules": [
+                            {
+                                "id": "url",
+                                "field": "url",
+                                "type": "string",
+                                "input": "text",
+                                "operator": "contains",
+                                "value": "new"
+                            },
+                            {
+                                "id": "referer",
+                                "field": "referer",
+                                "type": "string",
+                                "input": "text",
+                                "operator": "not_equal"
+                            }
+                        ]
                     }
                 ],
                 "valid": true

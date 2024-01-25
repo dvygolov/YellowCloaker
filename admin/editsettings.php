@@ -787,86 +787,12 @@ require_once __DIR__ . '/initialization.php';
             <hr />
             <h4>#5 Cloaker filters</h4>
             <div class="form-group-inner">
-
+                <p>
+                Here you define: which traffic will be ALLOWED to see the money pages.
+                </p>
                 <div class="row">
                     <div id="filtersbuilder"></div>
                 </div>
-                <script>
-                    var rules_basic = <?=json_encode($tds_filters)?>;
-
-                    $('#filtersbuilder').queryBuilder({
-
-                        filters: [
-                            {
-                                id: 'os',
-                                label: 'OS',
-                                type: 'string',
-                                operators: ['in', 'not_in']
-                            },
-                            {
-                                id: 'country',
-                                label: 'Country',
-                                type: 'string',
-                                operators: ['in', 'not_in']
-                            },
-                            {
-                                id: 'language',
-                                label: 'Language',
-                                type: 'string',
-                                operators: ['in', 'not_in']
-                            },
-                            {
-                                id: 'url',
-                                label: 'URL',
-                                type: 'string',
-                                operators: ['contains', 'not_contains'],
-                                size: 100
-                            },
-                            {
-                                id: 'useragent',
-                                label: 'UserAgent',
-                                type: 'string',
-                                operators: ['contains', 'not_contains'],
-                                size: 100
-                            },
-                            {
-                                id: 'isp',
-                                label: 'ISP',
-                                type: 'string',
-                                operators: ['contains', 'not_contains'],
-                                size: 100
-                            },
-                            {
-                                id: 'referer',
-                                label: 'Referer',
-                                type: 'string',
-                                operators: ['equal', 'contains', 'not_contains'],
-                                size:100
-                            },
-                            {
-                                id: 'vpntor',
-                                label: 'VPN&Tor',
-                                type: 'integer',
-                                input: 'radio',
-                                values: {
-                                    0: 'Detected',
-                                    1: 'NOT Detected'
-                                },
-                                operators: ['equal']
-                            },
-                            {
-                                id: 'ipbase',
-                                label: 'IP Base',
-                                type: 'string',
-                                operators: ['contains'],
-                                size:50
-                             }
-                        ],
-
-                        rules: rules_basic
-                    });
-
-                </script>
             </div>
             <hr />
             <h4>#6 Additional scripts settings</h4>
@@ -1351,6 +1277,85 @@ $i++
                 return false;
             });
         });
+    </script>
+    <script>
+        var rules_basic = <?=json_encode($tds_filters)?>;
+
+        $('#filtersbuilder').queryBuilder({
+
+            filters: [
+                {
+                    id: 'os',
+                    label: 'OS',
+                    type: 'string',
+                    operators: ['in', 'not_in']
+                },
+                {
+                    id: 'country',
+                    label: 'Country',
+                    type: 'string',
+                    operators: ['in', 'not_in']
+                },
+                {
+                    id: 'language',
+                    label: 'Language',
+                    type: 'string',
+                    operators: ['in', 'not_in']
+                },
+                {
+                    id: 'url',
+                    label: 'URL',
+                    type: 'string',
+                    operators: ['contains', 'not_contains'],
+                    size: 100
+                },
+                {
+                    id: 'useragent',
+                    label: 'UserAgent',
+                    type: 'string',
+                    operators: ['contains', 'not_contains'],
+                    size: 100
+                },
+                {
+                    id: 'isp',
+                    label: 'ISP',
+                    type: 'string',
+                    operators: ['contains', 'not_contains'],
+                    size: 100
+                },
+                {
+                    id: 'referer',
+                    label: 'Referer',
+                    type: 'string',
+                    operators: ['not_equal', 'contains', 'not_contains'],
+                    validation:{
+                        allow_empty_value:true
+                    },
+                    size:100
+                },
+                {
+                    id: 'vpntor',
+                    label: 'VPN&Tor',
+                    type: 'integer',
+                    input: 'radio',
+                    values: {
+                        0: 'Detected',
+                        1: 'NOT Detected'
+                    },
+                    operators: ['equal']
+                },
+                {
+                    id: 'ipbase',
+                    label: 'IP Base',
+                    type: 'string',
+                    operators: ['contains'],
+                    size:50
+                 }
+            ],
+
+            rules: rules_basic
+        });
+
     </script>
 </body>
 
