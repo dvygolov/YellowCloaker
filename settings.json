@@ -119,7 +119,7 @@
                         "type": "string",
                         "input": "text",
                         "operator": "not_contains",
-                        "value": "facebook,Facebot,curl,gce-spider,yandex.com/bots,OdklBot"
+                        "value": "facebook,facebot,curl,gce-spider,yandex.com,odklbot"
                     },
                     {
                         "id": "isp",

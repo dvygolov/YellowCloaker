@@ -1287,24 +1287,33 @@ $i++
                 {
                     id: 'os',
                     label: 'OS',
+                    input: 'text',
                     type: 'string',
-                    operators: ['in', 'not_in']
+                    operators: ['in', 'not_in'],
+                    placeholder: 'Android,iOS,Windows,OS X',
+                    size: 50
                 },
                 {
                     id: 'country',
                     label: 'Country',
+                    input: 'text',
                     type: 'string',
-                    operators: ['in', 'not_in']
+                    operators: ['in', 'not_in'],
+                    placeholder: 'RU,BY,UA'
+
                 },
                 {
                     id: 'language',
                     label: 'Language',
+                    input: 'text',
                     type: 'string',
-                    operators: ['in', 'not_in']
+                    operators: ['in', 'not_in'],
+                    placeholder: 'en,ru'
                 },
                 {
                     id: 'url',
                     label: 'URL',
+                    input: 'text',
                     type: 'string',
                     operators: ['contains', 'not_contains'],
                     size: 100
@@ -1312,20 +1321,25 @@ $i++
                 {
                     id: 'useragent',
                     label: 'UserAgent',
+                    input: 'text',
                     type: 'string',
                     operators: ['contains', 'not_contains'],
-                    size: 100
+                    size: 100,
+                    placeholder: 'facebook,facebot,curl,gce-spider,yandex.com,odklbot'
                 },
                 {
                     id: 'isp',
                     label: 'ISP',
+                    input: 'text',
                     type: 'string',
                     operators: ['contains', 'not_contains'],
-                    size: 100
+                    size: 100,
+                    placeholder:'facebook,google,yandex,amazon,azure,digitalocean,microsoft'
                 },
                 {
                     id: 'referer',
                     label: 'Referer',
+                    input: 'text',
                     type: 'string',
                     operators: ['not_equal', 'contains', 'not_contains'],
                     validation:{
