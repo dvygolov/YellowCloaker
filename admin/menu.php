@@ -88,24 +88,6 @@ $menuQueryString = "config={$config}{$date_str}";
             window.location.href = newUrl;
         }
 
-        document.getElementById("saveconfig")?.addEventListener("submit", async (e) => {
-            e.preventDefault();
-
-            let res = await fetch("configmanager.php?action=save&name=<?= $config ?>", {
-                method: "POST",
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: new URLSearchParams(new FormData(document.getElementById("saveconfig")).entries()).toString()
-            });
-            let js = await res.json();
-            if (js["result"] === "OK")
-                alert("Settings saved!")
-            else
-                alert(`An error occured: ${js["result"]}`);
-            return false;
-        });
-
         document.getElementById("addconfig").onclick = async () => {
             let configName = prompt("Enter new config name:");
             if (configName === '' || configName == null) return;

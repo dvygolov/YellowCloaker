@@ -6,7 +6,7 @@ require_once __DIR__ . '/settings.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/main.php';
 
-$cloaker = new Cloaker($filters);
+$cloaker = new Cloaker($tds_filters);
 
 //если включен full_cloak_on, то шлём всех на white page, полностью набрасываем плащ)
 if ($tds_mode === 'full') {

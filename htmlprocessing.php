@@ -9,14 +9,17 @@ require_once __DIR__ . '/cookies.php';
 function load_content_with_include($url): string
 {
     ob_start();
-    // Check for each file and require/include the first one that exists
     $fulldir = __DIR__ . '/' . $url;
-    if (file_exists($fulldir . '/index.php')) {
+    if (str_ends_with($fulldir,".php")||str_ends_with($fulldir,".html")){
+        require $fulldir;
+    }
+    // Check for each file and require/include the first one that exists
+    else if (file_exists($fulldir . '/index.php')) {
         require $fulldir . '/index.php';
     } elseif (file_exists($fulldir . '/index.html')) {
-        echo file_get_contents($fulldir . '/index.html');
+        require $fulldir . '/index.html';
     } elseif (file_exists($fulldir . '/index.htm')) {
-        echo file_get_contents($fulldir . '/index.htm');
+        require $fulldir . '/index.htm';
     }
 
     $html = ob_get_clean();
@@ -231,7 +234,7 @@ function load_white_curl($url, $add_js_check)
 
 function load_js_testpage()
 {
-    $test_page = file_get_contents(__DIR__ . '/js/testpage.html');
+    $test_page = load_content_with_include('js/testpage.html');
     return add_js_testcode($test_page);
 }
 

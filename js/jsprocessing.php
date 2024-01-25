@@ -7,7 +7,7 @@ require_once __DIR__ . '/../settings.php';
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../main.php';
 
-$cloaker = new Cloaker($filters);
+$cloaker = new Cloaker($tds_filters);
 //Проверяем зашедшего пользователя
 $is_bad_click = $cloaker->is_bad_click();
 

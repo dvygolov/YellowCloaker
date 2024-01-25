@@ -783,48 +783,18 @@ require_once __DIR__ . '/initialization.php';
                     </div>
                 </div>
             </div>
-
             <br />
             <hr />
             <h4>#5 Cloaker filters</h4>
             <div class="form-group-inner">
 
                 <div class="row">
-                    <div id="builder"></div>
+                    <div id="filtersbuilder"></div>
                 </div>
                 <script>
-                    var rules_basic = {
-                        condition: 'AND',
-                        rules: [
-                            {
-                                id: 'os',
-                                operator: 'in',
-                                value: 'Android,iOS,Windows,OS X'
-                            },
-                            {
-                                id: 'country',
-                                operator: 'in',
-                                value: 'RU,BY'
-                            },
-                            {
-                                id: 'country',
-                                operator: 'in',
-                                value: 'RU,BY'
-                            },
-                            {
-                                id: 'useragent',
-                                operator: 'not_contains',
-                                value: 'facebook,Facebot,curl,gce-spider,yandex.com/bots,OdklBot'
-                            },
-                            {
-                                id: 'isp',
-                                operator: 'not_contains',
-                                value: 'facebook,google,yandex,amazon,azure,digitalocean,microsoft'
-                            },
-                            ]
-                    };
+                    var rules_basic = <?=json_encode($tds_filters)?>;
 
-                    $('#builder').queryBuilder({
+                    $('#filtersbuilder').queryBuilder({
 
                         filters: [
                             {
@@ -849,36 +819,29 @@ require_once __DIR__ . '/initialization.php';
                                 id: 'url',
                                 label: 'URL',
                                 type: 'string',
-                                operators: ['contains', 'not_contains']
+                                operators: ['contains', 'not_contains'],
+                                size: 100
                             },
                             {
                                 id: 'useragent',
                                 label: 'UserAgent',
                                 type: 'string',
-                                operators: ['contains', 'not_contains']
+                                operators: ['contains', 'not_contains'],
+                                size: 100
                             },
                             {
                                 id: 'isp',
                                 label: 'ISP',
                                 type: 'string',
-                                operators: ['contains', 'not_contains']
+                                operators: ['contains', 'not_contains'],
+                                size: 100
                             },
                             {
                                 id: 'referer',
                                 label: 'Referer',
                                 type: 'string',
-                                operators: ['contains', 'not_contains']
-                            },
-                            {
-                                id: 'emptyreferer',
-                                label: 'Empty Referer',
-                                type: 'integer',
-                                input: 'radio',
-                                values: {
-                                    0: 'Allow',
-                                    1: 'Block'
-                                },
-                                operators: ['equal']
+                                operators: ['equal', 'contains', 'not_contains'],
+                                size:100
                             },
                             {
                                 id: 'vpntor',
@@ -886,17 +849,25 @@ require_once __DIR__ . '/initialization.php';
                                 type: 'integer',
                                 input: 'radio',
                                 values: {
-                                    0: 'Allow',
-                                    1: 'Block'
+                                    0: 'Detected',
+                                    1: 'NOT Detected'
                                 },
                                 operators: ['equal']
-                            }
+                            },
+                            {
+                                id: 'ipbase',
+                                label: 'IP Base',
+                                type: 'string',
+                                operators: ['contains'],
+                                size:50
+                             }
                         ],
 
                         rules: rules_basic
                     });
 
                 </script>
+            </div>
             <hr />
             <h4>#6 Additional scripts settings</h4>
             <div class="form-group-inner">
@@ -1347,6 +1318,38 @@ $i++
             maxLimit: 5,
             minLimit: 1,
             removeConfirm: false
+        });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.getElementById("saveconfig")?.addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                let rules = $('#filtersbuilder').queryBuilder('getRules');
+                let formData = new FormData(document.getElementById("saveconfig"));
+                let filteredFormData = new FormData();
+
+                for (let [key, value] of formData.entries()) {
+                    if (!key.startsWith("filtersbuilder")) {
+                        filteredFormData.append(key, value);
+                    }
+                }
+
+                filteredFormData.append("tds.filters", JSON.stringify(rules));
+                let res = await fetch("configmanager.php?action=save&name=<?= $config ?>", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams(filteredFormData.entries()).toString()
+                });
+                let js = await res.json();
+                if (js["result"] === "OK")
+                    alert("Settings saved!")
+                else
+                    alert(`An error occured: ${js["result"]}`);
+                return false;
+            });
         });
     </script>
 </body>

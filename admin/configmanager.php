@@ -31,7 +31,6 @@ switch ($action) {
             return send_configmanager_result("Error saving config!");
     default:
         return send_configmanager_result("Error: wrong action!");
-        break;
 }
 function send_configmanager_result($msg): int
 {

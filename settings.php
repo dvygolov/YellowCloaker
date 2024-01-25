@@ -55,6 +55,7 @@ else if ($black_jsconnect_action==='redirect')
     $black_jsconnect_action = 'replace';
 
 $tds_mode = $conf['tds.mode'];
+$tds_filters = $conf['tds.filters'];
 $save_user_flow = $conf['tds.saveuserflow'];
 
 $filters = $conf['tds.filters'];
@@ -176,6 +177,7 @@ function duplicate_config($name, $dupname)
     }
     return false;
 }
+
 function save_config($name)
 {
     try {
@@ -184,7 +186,13 @@ function save_config($name)
         foreach ($_POST as $key => $value) {
             $confkey = str_replace('_', '.', $key);
             if (is_string($value) && is_array($conf[$confkey])) {
-                $value = $value === '' ? [] : explode(',', $value);
+                if (str_starts_with($value,'{') || str_starts_with($value,'[')){
+                    $value = json_decode($value,true);
+                }
+                else if ($value === '')
+                    $value =  [];
+                 else 
+                    $value= explode(',', $value);
             } else if ($value === 'false' || $value === 'true') {
                 $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
             }
