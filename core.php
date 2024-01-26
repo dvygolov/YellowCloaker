@@ -80,13 +80,20 @@ class Cloaker
             case 'referer':
                 return $this->operator($val, $filter['operator'], 'referer');
             case 'vpntor':
-                break;
+                $vpnDetected = $this->is_proxy_or_vpn($this->click_params['ip']);
+                if ($val === 0 && $vpnDetected) return true;
+                if ($val === 1 && !$vpnDetected) return true;
+                $this->block_reason = $filter['id'];
+                return false;
             case 'ipbase':
-                break;
+                $inBase = $this->is_ip_in_base($this->click_params['ip'],$val);
+                if ($filter['operator']==='contains' && $inBase) return true;
+                if ($filter['operator']==='not_contains' && !$inBase) return true;
+                $this->block_reason = $filter['id'];
+                return false;
         }
         return true;
     }
-
 
     public function is_bad_click(): bool
     {
@@ -138,28 +145,13 @@ class Cloaker
         }
     }
 
-    private function is_bot_by_mainbase($ip): bool
+    private function is_ip_in_base($ip, $baseFileName): bool
     {
-        $base_full_path = __DIR__ . "/bases/bots.txt";
+        $base_full_path = __DIR__ . "/bases/".$baseFileName;
         if (!file_exists($base_full_path))
             return false;
         $cidr = file($base_full_path, FILE_IGNORE_NEW_LINES);
         return IpUtils::checkIp($ip, $cidr);
-    }
-
-    private function is_bot_by_custombase($ip): bool
-    {
-        $base_file_name = $this->s->ip_black_filename;
-        if (empty($base_file_name))
-            return false;
-        $base_full_path = __DIR__ . "/bases/" . $this->s->ip_black_filename;
-        if (!file_exists($base_full_path))
-            return false;
-        if ($this->s->ip_black_cidr) {
-            $cbf = file($base_full_path, FILE_IGNORE_NEW_LINES);
-            return IpUtils::checkIp($ip, $cbf);
-        } else
-            return (strpos(file_get_contents($base_full_path), $ip) !== false);
     }
 
     private function operator(string $val, string $operator, string $param): bool
@@ -214,6 +206,7 @@ class Cloaker
         }
         return true;
     }
+
     private function in_arrayi($needle, $haystack)
     {
         return in_array(strtolower($needle), array_map('strtolower', $haystack));

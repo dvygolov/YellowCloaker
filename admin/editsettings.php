@@ -1362,8 +1362,9 @@ $i++
                     id: 'ipbase',
                     label: 'IP Base',
                     type: 'string',
-                    operators: ['contains'],
-                    size:50
+                    operators: ['contains','not_contains'],
+                    placeholder: 'path to base file(s) in bases folder: bots.txt',
+                    size:100
                  }
             ],
 
