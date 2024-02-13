@@ -20,6 +20,8 @@ $tableOutput = <<<EOF
         <TH scope='col'>Hold</TH>
         <TH scope='col'>Reject</TH>
         <TH scope='col'>Trash</TH>
+        <TH scope='col'>LP Clicks</TH>
+        <TH scope='col'>LP CTR</TH>
         <TH scope='col'>CR% all</TH>
         <TH scope='col'>CR% sales</TH>
         <TH scope='col'>App% (w/o trash)</TH>
@@ -57,6 +59,7 @@ $total_cr_sales = array();
 $total_app_wo_trash = array();
 $total_app = array();
 $total_revenue = 0;
+$total_lpclicks = 0;
 
 $noprelanding = $black_preland_action === 'none';
 
@@ -209,6 +212,11 @@ while ($date >= $startdate) {
     $tableOutput .= "<TD scope='col'>" . $hold_count . "</TD>";
     $tableOutput .= "<TD scope='col'>" . $reject_count . "</TD>";
     $tableOutput .= "<TD scope='col'>" . $trash_count . "</TD>";
+    $lpclicks = count($day_ctr);
+    $tableOutput .= "<TD scope='col'>" . $lpclicks . "</TD>";
+    $total_lpclicks += $lpclicks;
+    $lpctr = ($clicks===0?0:$lpclicks/$clicks*100);
+    $tableOutput .= "<TD scope='col'>" . number_format($lpctr,2,'.','') . "</TD>";
     $cr_all = $unique_clicks_count == 0 ? 0 : $leads_count / $unique_clicks_count * 100;
     $total_cr_all[] = $cr_all;
     $tableOutput .= "<TD scope='col'>" . number_format($cr_all, 2, '.', '') . "</TD>";
@@ -238,6 +246,9 @@ $tableOutput .= "<TD scope='col'>" . $total_purchases . "</TD>";
 $tableOutput .= "<TD scope='col'>" . $total_holds . "</TD>";
 $tableOutput .= "<TD scope='col'>" . $total_rejects . "</TD>";
 $tableOutput .= "<TD scope='col'>" . $total_trash . "</TD>";
+$tableOutput .= "<TD scope='col'>" . $total_lpclicks . "</TD>";
+$total_lpctr = ($total_lpclicks===0?0:$total_lpclicks/$total_clicks*100);
+$tableOutput .= "<TD scope='col'>" . number_format($total_lpctr, 2, '.', '') . "</TD>";
 $tcr_all = ($total_uniques === 0 ? 0 : $total_leads / $total_uniques * 100);
 $tableOutput .= "<TD scope='col'>" . number_format($tcr_all, 2, '.', '') . "</TD>";
 $tcr_sales = ($total_uniques === 0 ? 0 : $total_purchases / $total_uniques * 100);
