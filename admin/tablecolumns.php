@@ -1,6 +1,196 @@
 <?php
 
-function get_columns(string $filter, $timezone): string
+function get_stats_columns(array $columns, array $groupby, $timezone): string
+{
+    $columnSettings = [
+        'preland' => [
+            "title" => "Preland",
+            "field" => "preland",
+            "headerFilter" => "input",
+        ],
+        'land' => [
+            "title" => "Land",
+            "field" => "land",
+            "headerFilter" => "input",
+        ],
+        'country' => [
+            "title" => "Country",
+            "field" => "country",
+            "headerFilter" => "input",
+            "width" => "50",
+        ],
+        'isp' => [
+            "title" => "ISP",
+            "field" => "isp",
+            "headerFilter" => "input",
+        ],
+        'date' => [
+            "title" => "Date",
+            "field" => "date",
+            "formatter" => "date",
+            "sorter" => "date",
+            "sorterParams"=>[
+                "format"=>"yyyy-MM-dd",
+                "alignEmptyValues"=>"top",
+            ]
+        ],
+        'os' => [
+            "title" => "OS",
+            "field" => "os",
+            "headerFilter" => "input",
+            "width" => "100",
+        ],
+        'clicks' => [
+            "title" => "Clicks",
+            "field" => "clicks",
+            "bottomCalc"=>"sum"
+        ],
+        'uniques' => [
+            "title" => "Uniques",
+            "field" => "uniques",
+            "bottomCalc"=>"sum"
+        ],
+        'conversion' => [
+            "title" => "CV",
+            "field" => "conversion",
+            "width" => "60",
+            "bottomCalc"=>"sum"
+        ],
+        'purchase' => [
+            "title" => "P",
+            "field" => "purchase",
+            "width" => "50",
+            "bottomCalc"=>"sum"
+        ],
+        'hold' => [
+            "title" => "H",
+            "field" => "hold",
+            "width" => "50",
+            "bottomCalc"=>"sum"
+        ],
+        'reject' => [
+            "title" => "R",
+            "field" => "reject",
+            "width" => "50",
+            "bottomCalc"=>"sum"
+        ],
+        'trash' => [
+            "title" => "T",
+            "field" => "trash",
+            "width" => "50",
+            "bottomCalc"=>"sum"
+        ],
+        'lpclicks' => [
+            "title" => "LPClicks",
+            "field" => "lpclicks",
+            "width" => "50",
+            "bottomCalc"=>"sum"
+        ],
+        'lpctr' => [
+            "title" => "LPCTR",
+            "field" => "lpctr",
+            "formatter"=> "money",
+            "formatterParams"=>[ 
+                "decimal"=> ".", 
+                "thousand"=> ",",
+                "symbol"=> "%",   
+                "symbolAfter"=> true,   
+                "precision"=> 2,   
+            ],
+            "bottomCalc"=>"avg"
+        ],
+        'cra' => [
+            "title" => "CRa",
+            "field" => "cra",
+            "formatter"=> "money",
+            "formatterParams"=>[ 
+                "decimal"=> ".", 
+                "thousand"=> ",",
+                "symbol"=> "%",   
+                "symbolAfter"=> true,   
+                "precision"=> 2,   
+            ],
+            "bottomCalc"=>"avg"
+        ],
+        'crs' => [
+            "title" => "CRs",
+            "field" => "crs",
+            "formatter"=> "money",
+            "formatterParams"=>[ 
+                "decimal"=> ".", 
+                "thousand"=> ",",
+                "symbol"=> "%",   
+                "symbolAfter"=> true,   
+                "precision"=> 2,   
+            ],
+            "bottomCalc"=>"avg"
+        ],
+        'appt' => [
+            "title" => "App(t)",
+            "field" => "appt",
+            "formatter"=> "money",
+            "formatterParams"=>[ 
+                "decimal"=> ".", 
+                "thousand"=> ",",
+                "symbol"=> "%",   
+                "symbolAfter"=> true,   
+                "precision"=> 2,   
+            ],
+            "bottomCalc"=>"avg"
+        ],
+        'app' => [
+            "title" => "App",
+            "field" => "app",
+            "formatter"=> "money",
+            "formatterParams"=>[ 
+                "decimal"=> ".", 
+                "thousand"=> ",",
+                "symbol"=> "%",   
+                "symbolAfter"=> true,   
+                "precision"=> 2,   
+            ],
+            "bottomCalc"=>"avg"
+        ],
+        'epc' => [
+            "title" => "EPC",
+            "field" => "epc",
+            "width" => "50",
+            "formatter"=> "money",
+            "formatterParams"=>[ 
+                "decimal"=> ".", 
+                "thousand"=> ",",
+                "precision"=> 2,   
+            ],
+            "bottomCalc"=>"avg"
+        ],
+        'revenue' => [
+            "title" => "Rev.",
+            "field" => "revenue",
+            "width" => "50",
+            "formatter"=> "money",
+            "formatterParams"=>[ 
+                "decimal"=> ".", 
+                "thousand"=> ",",
+                "precision"=> 2,   
+            ],
+            "bottomCalc"=>"sum"
+        ],
+    ];
+
+    $tabulatorColumns = [];
+    $joined = array_merge($groupby, $columns);
+    foreach ($joined as $field) {
+        if (array_key_exists($field, $columnSettings)) {
+            $tabulatorColumns[] = $columnSettings[$field];
+        }
+        else{
+            $tabulatorColumns[] = ["title"=>$field,"field"=>$field];
+        }
+    }
+    return json_encode($tabulatorColumns);
+}
+
+function get_clicks_columns(string $filter, $timezone): string
 {
     $columns = [];
     switch ($filter) {
@@ -57,7 +247,7 @@ function get_columns(string $filter, $timezone): string
                 },
                 {
                     "title": "Subs",
-                    "field": "subs",
+                    "field": "params",
                     "headerSort":false,
                     "formatter": function(cell, formatterParams, onRendered) {
                         var data = cell.getValue();
@@ -119,7 +309,7 @@ JSON;
                 },
                 {
                     "title": "Subs",
-                    "field": "subs",
+                    "field": "params",
                     "headerSort":false,
                     "formatter": function(cell, formatterParams, onRendered) {
                         var data = cell.getValue();
@@ -254,7 +444,7 @@ JSON;
                 },
                 {
                     "title": "Subs",
-                    "field": "subs",
+                    "field": "params",
                     "headerSort":false,
                     "formatter": function(cell, formatterParams, onRendered) {
                         var data = cell.getValue();

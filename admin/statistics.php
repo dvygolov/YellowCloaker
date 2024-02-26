@@ -106,7 +106,7 @@ while ($date >= $startdate) {
         }
 
         //count all subs
-        $qs = $titem['subs'];
+        $qs = $titem['params'];
         if (empty($qs)) continue;
         foreach ($qs as $qkey => $qvalue) {
             if (array_key_exists($qkey, $subs_array)) {

@@ -3,7 +3,8 @@ require_once __DIR__ . '/bases/ipcountry.php';
 function add_log($subdir, $msg, $logIp = false)
 {
     $dir = __DIR__ . "/logs/$subdir";
-    if (!file_exists($dir)) mkdir($dir);
+    if (!file_exists($dir))
+        mkdir($dir, 0777, true);
     $date = date("d.m.y");
     $fileName = "$dir/$date.log";
     $file = fopen($fileName, 'a+');

@@ -16,7 +16,7 @@ switch ($filter) {
         break;
     case 'single':
         $click = $_GET['subid'] ?? '';
-        $dataset = $db->get_single_click($click, $config);
+        $dataset = $db->get_clicks_by_subid($click, $config);
         break;
     default:
         $dataset = $db->get_black_clicks($startdate->getTimestamp(), $enddate->getTimestamp(), $config);
@@ -35,7 +35,7 @@ switch ($filter) {
     </div>
     <script>
         let tableData = <?= json_encode($dataset) ?>;
-        let tableColumns = <?= get_columns($filter, $stats_timezone) ?>;
+        let tableColumns = <?= get_clicks_columns($filter, $stats_timezone) ?>;
         let table = new Tabulator('#clicks', {
             layout: "fitColumns",
             columns: tableColumns,

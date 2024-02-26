@@ -1,0 +1,46 @@
+{
+  "tables": [
+    {
+      "name": "Dates",
+      "columns": [
+        "clicks",
+        "uniques",
+        "conversion",
+        "purchase",
+        "hold",
+        "reject",
+        "trash",
+        "lpclicks",
+        "lpctr",
+        "cra",
+        "crs",
+        "appt",
+        "app",
+        "epc",
+        "revenue"
+      ],
+      "groupby": ["isp","date"]
+    },
+    {
+      "name": "Prelandings",
+      "columns": [
+        "clicks",
+        "uniques",
+        "conversion",
+        "purchase",
+        "hold",
+        "reject",
+        "trash",
+        "lpclicks",
+        "lpctr",
+        "cra",
+        "crs",
+        "appt",
+        "app",
+        "epc",
+        "revenue"
+      ],
+      "groupby": ["preland"]
+    }
+  ]
+}
