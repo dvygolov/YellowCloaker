@@ -57,14 +57,14 @@ class Db
     public function get_white_clicks($startdate, $enddate, $config): array
     {
         // Prepare SQL query to select blocked clicks within the date range
-        $query = "SELECT * FROM blocked WHERE time >= :startTimestamp AND time <= :endTimestamp AND config = :config";
+        $query = "SELECT * FROM blocked WHERE time BETWEEN :startDate AND :endDate AND config = :config";
 
         // Prepare statement
         $stmt = $this->db->prepare($query);
 
         // Bind parameters to the prepared statement
-        $stmt->bindValue(':startTimestamp', $startdate, SQLITE3_INTEGER);
-        $stmt->bindValue(':endTimestamp', $enddate, SQLITE3_INTEGER);
+        $stmt->bindValue(':startDate', $startdate, SQLITE3_INTEGER);
+        $stmt->bindValue(':endDate', $enddate, SQLITE3_INTEGER);
         $stmt->bindValue(':config', $config, SQLITE3_TEXT);
 
         // Execute the query and fetch the results
@@ -88,14 +88,14 @@ class Db
     public function get_black_clicks($startdate, $enddate, $config): array
     {
         // Prepare SQL query to select blocked clicks within the date range
-        $query = "SELECT id, time, ip, country, os, isp, ua, subid, preland, land, params FROM clicks WHERE time >= :startTimestamp AND time <= :endTimestamp AND config = :config";
+        $query = "SELECT id, time, ip, country, os, isp, ua, subid, preland, land, params FROM clicks WHERE time BETWEEN :startDate AND :endDate AND config = :config";
 
         // Prepare statement
         $stmt = $this->db->prepare($query);
 
         // Bind parameters to the prepared statement
-        $stmt->bindValue(':startTimestamp', $startdate, SQLITE3_INTEGER);
-        $stmt->bindValue(':endTimestamp', $enddate, SQLITE3_INTEGER);
+        $stmt->bindValue(':startDate', $startdate, SQLITE3_INTEGER);
+        $stmt->bindValue(':endDate', $enddate, SQLITE3_INTEGER);
         $stmt->bindValue(':config', $config, SQLITE3_TEXT);
 
         // Execute the query and fetch the results
@@ -147,14 +147,14 @@ class Db
     public function get_leads($startdate, $enddate, $config): array
     {
         // Prepare SQL query to select leads within the date range and configuration
-        $query = "SELECT * FROM clicks WHERE time >= :startTimestamp AND time <= :endTimestamp AND config = :config AND status IS NOT NULL";
+        $query = "SELECT * FROM clicks WHERE time BETWEEN :startDate AND :endDate AND config = :config AND status IS NOT NULL";
 
         // Prepare statement
         $stmt = $this->db->prepare($query);
 
         // Bind parameters to the prepared statement
-        $stmt->bindValue(':startTimestamp', $startdate, SQLITE3_INTEGER);
-        $stmt->bindValue(':endTimestamp', $enddate, SQLITE3_INTEGER);
+        $stmt->bindValue(':startDate', $startdate, SQLITE3_INTEGER);
+        $stmt->bindValue(':endDate', $enddate, SQLITE3_INTEGER);
         $stmt->bindValue(':config', $config, SQLITE3_TEXT);
 
         // Execute the query and fetch the results
@@ -175,7 +175,7 @@ class Db
     public function get_lpctr($startdate, $enddate, $config): array
     {
         // Prepare SQL query to select clicks where lpclick is true within the date range and specific configuration
-        $query = "SELECT * FROM clicks WHERE time >= :startdate AND time <= :enddate AND config = :config AND lpclick = 1";
+        $query = "SELECT * FROM clicks WHERE time BETWEEN :startdate AND :enddate AND config = :config AND lpclick = 1";
 
         // Prepare statement
         $stmt = $this->db->prepare($query);
@@ -200,9 +200,16 @@ class Db
         return $lpClicks;
     }
 
-    public function getStatisticsData($selectedFields, $groupByFields, $configName)
-    {
-        $baseQuery = "SELECT %s FROM clicks WHERE config = :configName";
+    public function getStatisticsData(
+    $selectedFields,
+    $groupByFields,
+    $configName,
+    $startDate,
+    $endDate,
+    $timezone
+    ) {
+        $baseQuery =
+        "SELECT %s FROM clicks WHERE config = :configName AND time BETWEEN :startDate AND :endDate";
         $selectParts = [];
         $groupByParts = [];
         $orderByParts = [];
@@ -214,7 +221,10 @@ class Db
                     $selectParts[] = "COUNT(*) AS clicks";
                     break;
                 case 'uniques':
-                    $selectParts[] = "COUNT(DISTINCT ip) AS uniques";
+                    $selectParts[] = "COUNT(DISTINCT subid) AS uniques";
+                    break;
+                case 'uniques_ratio':
+                    $selectParts[] = "(COUNT(DISTINCT subid)*1.0/COUNT(*) * 100.0) AS uniques_ratio";
                     break;
                 case 'conversion':
                     $selectParts[] = "COUNT(DISTINCT CASE WHEN status IS NOT NULL THEN id END) AS conversion";
@@ -251,6 +261,9 @@ class Db
                     break;
                 case 'epc':
                     $selectParts[] = "(SUM(payout) * 1.0 / COUNT(id)) AS epc";
+                    break;
+                case 'epuc':
+                    $selectParts[] = "(SUM(payout) * 1.0 / COUNT(DISTINCT(subid))) AS epc";
                     break;
                 case 'revenue':
                     $selectParts[] = "SUM(payout) AS revenue";
@@ -290,14 +303,94 @@ class Db
             die("Error preparing statement: $errorMessage");
         }
         $stmt->bindValue(':configName', $configName, SQLITE3_TEXT);
+        $stmt->bindValue(':startDate', $startDate, SQLITE3_INTEGER);
+        $stmt->bindValue(':endDate', $endDate, SQLITE3_INTEGER);
         $result = $stmt->execute();
 
-        // Fetch and return results
-        $statistics = [];
+        $treeData = [];
+        $currentGroups = [];
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $statistics[] = $row;
+            $newGroupIndex = $this->currentGroupChanged($currentGroups, $row, $groupByFields);
+            if ($newGroupIndex !== false) {
+                $this->countTotals($treeData,$newGroupIndex);
+                $currentGroups = $this->getCurrentGroup($row, $groupByFields);
+                $this->addNewGroup($treeData, $currentGroups, $newGroupIndex);
+            }
+
+            $this->unsetRowGroups($row, $groupByFields);
+            $this->addChildRow($treeData, count($currentGroups)-1, $row);
         }
-        return $statistics;
+
+        return $treeData;
+    }
+
+    private function countTotals(&$treeData, $level){
+        $children = &$treeData;
+        $i = 0;
+        while ($i < $level) {
+            $children = &$children[count($children) - 1]['_children']; // Update children by reference
+            $i++;
+        }
+    }
+
+    private function addChildRow(&$treeData, $level, $row)
+    {
+        $children = &$treeData;
+        $i = 0;
+        while ($i < $level) {
+            $children = &$children[count($children) - 1]['_children']; // Update children by reference
+            $i++;
+        }
+        $children[] = $row;
+    }
+
+    private function addNewGroup(&$treeData, $currentGroups, $newGroupIndex)
+    {
+        $children = &$treeData;
+        $i = 0;
+        //first we must find the last unchanged level
+        while ($i < $newGroupIndex) {
+            $children = &$children[count($children) - 1]['_children']; // Update children by reference
+            $i++;
+        }
+
+        //now add all the remaining new levels
+        while ($i < count($currentGroups) - 1) {
+            $treeItem = [];
+            $treeItem = ['group' => $currentGroups[$i], '_children' => []];
+            $children[] = $treeItem;
+            $children = &$children[count($children) - 1]['_children']; // Update children by reference
+            $i++;
+        }
+        return;
+    }
+
+    private function unsetRowGroups(&$row, $groupByFields)
+    {
+        $row['group'] = $row[$groupByFields[count($groupByFields) - 1]];
+        for ($i = 0; $i < count($groupByFields); $i++) {
+            unset($row[$groupByFields[$i]]);
+        }
+    }
+
+    private function getCurrentGroup($row, $groupByFields)
+    {
+        $curGroups = [];
+        for ($i = 0; $i < count($groupByFields); $i++) {
+            $curGroups[] = $row[$groupByFields[$i]];
+        }
+        return $curGroups;
+    }
+
+    private function currentGroupChanged($currentGroups, $row, $groupByFields)
+    {
+        if (count($currentGroups) === 0)
+            return 0;
+        for ($i = 0; $i < count($groupByFields) - 1; $i++) {
+            if ($currentGroups[$i] !== $row[$groupByFields[$i]])
+                return $i;
+        }
+        return false;
     }
 
     public function add_white_click($data, $reason, $config)

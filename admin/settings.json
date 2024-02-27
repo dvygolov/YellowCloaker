@@ -5,6 +5,7 @@
       "columns": [
         "clicks",
         "uniques",
+        "uniques_ratio",
         "conversion",
         "purchase",
         "hold",
@@ -19,7 +20,7 @@
         "epc",
         "revenue"
       ],
-      "groupby": ["isp","date"]
+      "groupby": ["date","os","country"]
     },
     {
       "name": "Prelandings",

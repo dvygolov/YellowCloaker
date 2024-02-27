@@ -27,7 +27,6 @@ function get_stats_columns(array $columns, array $groupby, $timezone): string
         'date' => [
             "title" => "Date",
             "field" => "date",
-            "formatter" => "date",
             "sorter" => "date",
             "sorterParams"=>[
                 "format"=>"yyyy-MM-dd",
@@ -49,6 +48,19 @@ function get_stats_columns(array $columns, array $groupby, $timezone): string
             "title" => "Uniques",
             "field" => "uniques",
             "bottomCalc"=>"sum"
+        ],
+        'uniques_ratio' => [
+            "title" => "U/C",
+            "field" => "uniques_ratio",
+            "formatter"=> "money",
+            "formatterParams"=>[ 
+                "decimal"=> ".", 
+                "thousand"=> ",",
+                "symbol"=> "%",   
+                "symbolAfter"=> true,   
+                "precision"=> 2,   
+            ],
+            "bottomCalc"=>"avg"
         ],
         'conversion' => [
             "title" => "CV",
@@ -178,8 +190,10 @@ function get_stats_columns(array $columns, array $groupby, $timezone): string
     ];
 
     $tabulatorColumns = [];
-    $joined = array_merge($groupby, $columns);
-    foreach ($joined as $field) {
+    if (count($groupby) > 0)
+        $tabulatorColumns[] = ["title" => "Group", "field" => "group"];
+
+    foreach ($columns as $field) {
         if (array_key_exists($field, $columnSettings)) {
             $tabulatorColumns[] = $columnSettings[$field];
         }
