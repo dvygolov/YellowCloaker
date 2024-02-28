@@ -42,16 +42,19 @@ function get_stats_columns(array $columns, array $groupby, $timezone): string
         'clicks' => [
             "title" => "Clicks",
             "field" => "clicks",
+            "width"=>"90",
             "bottomCalc"=>"sum"
         ],
         'uniques' => [
             "title" => "Uniques",
             "field" => "uniques",
+            "width"=>"90",
             "bottomCalc"=>"sum"
         ],
         'uniques_ratio' => [
             "title" => "U/C",
             "field" => "uniques_ratio",
+            "width"=>"90",
             "formatter"=> "money",
             "formatterParams"=>[ 
                 "decimal"=> ".", 
@@ -95,12 +98,13 @@ function get_stats_columns(array $columns, array $groupby, $timezone): string
         'lpclicks' => [
             "title" => "LPClicks",
             "field" => "lpclicks",
-            "width" => "50",
+            "width" => "70",
             "bottomCalc"=>"sum"
         ],
         'lpctr' => [
             "title" => "LPCTR",
             "field" => "lpctr",
+            "width"=>"90",
             "formatter"=> "money",
             "formatterParams"=>[ 
                 "decimal"=> ".", 
@@ -114,6 +118,7 @@ function get_stats_columns(array $columns, array $groupby, $timezone): string
         'cra' => [
             "title" => "CRa",
             "field" => "cra",
+            "width"=>"90",
             "formatter"=> "money",
             "formatterParams"=>[ 
                 "decimal"=> ".", 
@@ -127,6 +132,7 @@ function get_stats_columns(array $columns, array $groupby, $timezone): string
         'crs' => [
             "title" => "CRs",
             "field" => "crs",
+            "width"=>"90",
             "formatter"=> "money",
             "formatterParams"=>[ 
                 "decimal"=> ".", 
@@ -140,6 +146,7 @@ function get_stats_columns(array $columns, array $groupby, $timezone): string
         'appt' => [
             "title" => "App(t)",
             "field" => "appt",
+            "width"=>"90",
             "formatter"=> "money",
             "formatterParams"=>[ 
                 "decimal"=> ".", 
@@ -153,6 +160,7 @@ function get_stats_columns(array $columns, array $groupby, $timezone): string
         'app' => [
             "title" => "App",
             "field" => "app",
+            "width"=>"90",
             "formatter"=> "money",
             "formatterParams"=>[ 
                 "decimal"=> ".", 
@@ -166,7 +174,7 @@ function get_stats_columns(array $columns, array $groupby, $timezone): string
         'epc' => [
             "title" => "EPC",
             "field" => "epc",
-            "width" => "50",
+            "width"=>"90",
             "formatter"=> "money",
             "formatterParams"=>[ 
                 "decimal"=> ".", 
@@ -178,7 +186,7 @@ function get_stats_columns(array $columns, array $groupby, $timezone): string
         'revenue' => [
             "title" => "Rev.",
             "field" => "revenue",
-            "width" => "50",
+            "width" => "100",
             "formatter"=> "money",
             "formatterParams"=>[ 
                 "decimal"=> ".", 
@@ -191,7 +199,7 @@ function get_stats_columns(array $columns, array $groupby, $timezone): string
 
     $tabulatorColumns = [];
     if (count($groupby) > 0)
-        $tabulatorColumns[] = ["title" => "Group", "field" => "group"];
+        $tabulatorColumns[] = ["title" => "Group", "field" => "group", "bottomCalc"=>"Total:"];
 
     foreach ($columns as $field) {
         if (array_key_exists($field, $columnSettings)) {

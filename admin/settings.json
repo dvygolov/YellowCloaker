@@ -20,7 +20,7 @@
         "epc",
         "revenue"
       ],
-      "groupby": ["date","os","country"]
+      "groupby": ["date","z","os"]
     },
     {
       "name": "Prelandings",

@@ -1436,7 +1436,7 @@ body.tabulator-print-fullscreen-hide > *:not(.tabulator-print-fullscreen) {
 }
 
 .tabulator .tabulator-footer .tabulator-calcs-holder .tabulator-row {
-  background: #262626 !important;
+  background: #FFFFFF !important;
 }
 
 .tabulator .tabulator-footer .tabulator-paginator label {

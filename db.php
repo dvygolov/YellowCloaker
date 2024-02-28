@@ -27,7 +27,7 @@ class Db
                 params TEXT,
                 lpclick BOOLEAN,
                 status TEXT,
-                payout NUMERIC
+                payout NUMERIC DEFAULT 0
             );
             CREATE INDEX IF NOT EXISTS idx_config ON clicks (config);
             CREATE INDEX IF NOT EXISTS idx_subid ON clicks (subid);
@@ -254,10 +254,20 @@ class Db
                     $selectParts[] = "(COUNT(DISTINCT CASE WHEN status = 'Purchase' THEN id END) * 100.0 / COUNT(*)) AS crs";
                     break;
                 case 'appt':
-                    $selectParts[] = "(COUNT(DISTINCT CASE WHEN status = 'Purchase' THEN id END) * 100.0 / (COUNT(DISTINCT CASE WHEN status IS NOT NULL THEN id END) - COUNT(DISTINCT CASE WHEN status = 'Trash' THEN id END))) AS appt";
+                    $selectParts[] = "CASE
+                            WHEN COUNT(DISTINCT CASE WHEN status = 'Purchase' THEN id END) = 0
+                                 OR (COUNT(DISTINCT CASE WHEN status IS NOT NULL THEN id END) - COUNT(DISTINCT CASE WHEN status = 'Trash' THEN id END)) = 0
+                            THEN 0
+                            ELSE (COUNT(DISTINCT CASE WHEN status = 'Purchase' THEN id END) * 100.0 / (COUNT(DISTINCT CASE WHEN status IS NOT NULL THEN id END) - COUNT(DISTINCT CASE WHEN status = 'Trash' THEN id END)))
+                       END AS appt";
                     break;
                 case 'app':
-                    $selectParts[] = "(COUNT(DISTINCT CASE WHEN status = 'Purchase' THEN id END) * 100.0 / COUNT(DISTINCT CASE WHEN status IS NOT NULL THEN id END)) AS app";
+                    $selectParts[] = "CASE
+                            WHEN COUNT(DISTINCT CASE WHEN status = 'Purchase' THEN id END) = 0
+                                 OR COUNT(DISTINCT CASE WHEN status IS NOT NULL THEN id END) = 0
+                            THEN 0
+                            ELSE (COUNT(DISTINCT CASE WHEN status = 'Purchase' THEN id END) * 100.0 / COUNT(DISTINCT CASE WHEN status IS NOT NULL THEN id END))
+                       END AS app";
                     break;
                 case 'epc':
                     $selectParts[] = "(SUM(payout) * 1.0 / COUNT(id)) AS epc";
@@ -283,9 +293,10 @@ class Db
                 $orderByParts[] = $field;
             } else {
                 // JSON fields
-                $jsonExtract = "json_extract(params, '$." . $field . "') AS " . $field;
-                $groupByParts[] = $jsonExtract;
+                $jsonExtract = "COALESCE(json_extract(params, '$." . $field . "'), 'unknown') AS " . $field;
                 $selectParts[] = $jsonExtract;
+                $groupByParts[] = $field;
+                $orderByParts[] = $field;
             }
         }
 
@@ -312,24 +323,79 @@ class Db
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             $newGroupIndex = $this->currentGroupChanged($currentGroups, $row, $groupByFields);
             if ($newGroupIndex !== false) {
-                $this->countTotals($treeData,$newGroupIndex);
                 $currentGroups = $this->getCurrentGroup($row, $groupByFields);
+                $this->countTotals($treeData, $newGroupIndex, $selectedFields);
                 $this->addNewGroup($treeData, $currentGroups, $newGroupIndex);
             }
 
             $this->unsetRowGroups($row, $groupByFields);
-            $this->addChildRow($treeData, count($currentGroups)-1, $row);
+            $this->addChildRow($treeData, count($currentGroups) - 1, $row);
         }
 
         return $treeData;
     }
 
-    private function countTotals(&$treeData, $level){
+    private function countTotals(&$treeData, $level, $columns)
+    {
+        //if tree is empty do nothing
+        if (count($treeData) === 0)
+            return;
+
         $children = &$treeData;
+        //go to the required level
         $i = 0;
         while ($i < $level) {
-            $children = &$children[count($children) - 1]['_children']; // Update children by reference
+            $children = &$children[count($children) - 1]['_children'];
             $i++;
+        }
+
+        //if we have only one child - then just copy its info
+        if (count($children[count($children) - 1]['_children']) === 1) {
+            foreach ($columns as $clmn) {
+                $children[count($children) - 1][$clmn] = $children[count($children) - 1]['_children'][0][$clmn];
+            }
+            return;
+        }
+
+        //if we have many children - sum their values
+        $sumArray = [];
+        foreach ($children[count($children) - 1]['_children'] as $item) {
+            // Iterate over each key-value pair in the current array
+            foreach ($item as $key => $value) {
+                if (in_array($key, ['_children', 'group', 'uniques_ratio', 'lpctr', 'cra', 'crs', 'appt', 'app', 'epc', 'epuc']))
+                    continue;
+                if (!isset($sumArray[$key])) {
+                    $sumArray[$key] = 0;
+                }
+                $sumArray[$key] += $value;
+            }
+        }
+
+        if (in_array('uniques_ratio', $columns))
+            $sumArray['uniques_ratio'] =
+            $sumArray['clicks'] === 0 ? 0 : $sumArray['uniques'] * 1.0 / $sumArray['clicks'] * 100;
+        if (in_array('lpctr', $columns))
+            $sumArray['lpctr'] =
+            $sumArray['clicks'] === 0 ? 0 : $sumArray['lpclicks'] * 1.0 / $sumArray['clicks'] * 100.0;
+        if (in_array('cra', $columns))
+            $sumArray['cra'] =
+            $sumArray['clicks'] === 0 ? 0 : $sumArray['conversion'] * 1.0 / $sumArray['clicks'] * 100.0;
+        if (in_array('crs', $columns))
+            $sumArray['crs'] =
+            $sumArray['clicks'] === 0 ? 0 : $sumArray['purchase'] * 1.0 / $sumArray['clicks'] * 100.0;
+        if (in_array('appt', $columns))
+            $sumArray['appt'] = $sumArray['conversion'] - $sumArray['trash'] === 0 ? 0 :
+            $sumArray['purchase'] * 1.0 / ($sumArray['conversion'] - $sumArray['trash']) * 100.0;
+        if (in_array('app', $columns))
+            $sumArray['app'] =
+            $sumArray['conversion'] === 0 ? 0 : $sumArray['purchase'] * 1.0 / $sumArray['conversion'] * 100.0;
+        if (in_array('epc', $columns))
+            $sumArray['epc'] = $sumArray['clicks'] === 0 ? 0 : $sumArray['revenue'] * 1.0 / $sumArray['clicks'];
+        if (in_array('epuc', $columns))
+            $sumArray['epuc'] = $sumArray['uniques'] === 0 ? 0 : $sumArray['revenue'] * 1.0 / $sumArray['uniques'] * 100;
+
+        foreach ($columns as $clmn) {
+            $children[count($children) - 1][$clmn] = $sumArray[$clmn];
         }
     }
 

@@ -38,8 +38,8 @@ foreach ($sTables['tables'] as $tSettings) {
                 paginationCounter: "rows",
                 dataTree: true,
                 dataTreeBranchElement:false,
-                dataTreeStartExpanded:true,
-                dataTreeChildIndent: 25,
+                dataTreeStartExpanded:false,
+                dataTreeChildIndent: 35,
                 height: "100%",
                 data: t<?=$tName?>Data,
             });
