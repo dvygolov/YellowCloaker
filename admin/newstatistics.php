@@ -27,7 +27,7 @@ foreach ($sTables['tables'] as $tSettings) {
 
         <script>
             let t<?=$tName?>Data = <?= json_encode($dataset) ?>;
-            let t<?=$tName?>Columns = <?= get_stats_columns($tSettings['columns'], $tSettings['groupby'], $stats_timezone) ?>;
+            let t<?=$tName?>Columns = <?= get_stats_columns($tName, $tSettings['columns'], $tSettings['groupby'], $stats_timezone) ?>;
             let t<?=$tName?>Table = new Tabulator('#t<?= $tSettings['name'] ?>', {
                 layout: "fitColumns",
                 columns: t<?=$tName?>Columns,
@@ -44,6 +44,8 @@ foreach ($sTables['tables'] as $tSettings) {
                 data: t<?=$tName?>Data,
             });
         </script>
+        <br/>
+        <br/>
         <?php } ?>
 
     </div>

@@ -1,6 +1,6 @@
 <?php
 
-function get_stats_columns(array $columns, array $groupby, $timezone): string
+function get_stats_columns(string $tName, array $columns, array $groupby, $timezone): string
 {
     $columnSettings = [
         'preland' => [
@@ -199,7 +199,7 @@ function get_stats_columns(array $columns, array $groupby, $timezone): string
 
     $tabulatorColumns = [];
     if (count($groupby) > 0)
-        $tabulatorColumns[] = ["title" => "Group", "field" => "group", "bottomCalc"=>"Total:"];
+        $tabulatorColumns[] = ["title" => $tName, "field" => "group"];
 
     foreach ($columns as $field) {
         if (array_key_exists($field, $columnSettings)) {

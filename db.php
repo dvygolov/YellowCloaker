@@ -319,49 +319,67 @@ class Db
         $result = $stmt->execute();
 
         $treeData = [];
-        $currentGroups = [];
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $newGroupIndex = $this->currentGroupChanged($currentGroups, $row, $groupByFields);
-            if ($newGroupIndex !== false) {
-                $currentGroups = $this->getCurrentGroup($row, $groupByFields);
-                $this->countTotals($treeData, $newGroupIndex, $selectedFields);
-                $this->addNewGroup($treeData, $currentGroups, $newGroupIndex);
-            }
-
-            $this->unsetRowGroups($row, $groupByFields);
-            $this->addChildRow($treeData, count($currentGroups) - 1, $row);
+            $this->addRow($treeData, $row, $selectedFields, $groupByFields);
         }
 
+        //$this->countTotals($treeData, $newGroupIndex, $selectedFields, $groupByFields);
         return $treeData;
     }
 
-    private function countTotals(&$treeData, $level, $columns)
+    private function addRow(&$treeData, $row, $columns, $groupBy)
     {
-        //if tree is empty do nothing
-        if (count($treeData) === 0)
-            return;
-
         $children = &$treeData;
-        //go to the required level
         $i = 0;
-        while ($i < $level) {
+        while ($i < count($groupBy)) {
+            if (
+            count($children) === 0 ||
+            $children[count($children) - 1][$groupBy[$i]] !== $row[$groupBy[$i]]
+            ) {
+                if (count($children) !== 0) {
+                    //count totals for previous levels
+                    $j = $i;
+                    $totChildren = &$children;
+                    $totParents = [];
+                    while ($j < count($groupBy) - 1) {
+                        $parent = &$totChildren[count($totChildren) - 1];
+                        $totChildren = &$parent['_children'];
+                        $totParents[] = &$parent;
+                        $j++;
+                    }
+                    while ($j > $i) {
+                        $parent = array_pop($totParents);
+                        $totals = $this->countTotals($totChildren, $columns);
+                        $parent = array_merge($parent, $totals);
+                        $j--;
+                    }
+                }
+
+                $children[] = ['group' => $row[$groupBy[$i]], '_children' => []];
+                unset($row[$groupBy[$i]]);
+                if ($i === count($groupBy) - 1) {
+                    unset($children[count($children) - 1]['_children']);
+                    $children[count($children) - 1] = array_merge($children[count($children) - 1], $row);
+                }
+            }
             $children = &$children[count($children) - 1]['_children'];
             $i++;
         }
-
-        //if we have only one child - then just copy its info
-        if (count($children[count($children) - 1]['_children']) === 1) {
-            foreach ($columns as $clmn) {
-                $children[count($children) - 1][$clmn] = $children[count($children) - 1]['_children'][0][$clmn];
-            }
-            return;
+    }
+    private function countTotals(array $children, array $columns)
+    {
+        // If we have only one child row
+        if (count($children) === 1) {
+            // Filter the array to include only keys present in the $columns array
+            $filtered = array_intersect_key($children[0], array_flip($columns));
+            return $filtered;
         }
 
         //if we have many children - sum their values
         $sumArray = [];
-        foreach ($children[count($children) - 1]['_children'] as $item) {
+        foreach ($children as $child) {
             // Iterate over each key-value pair in the current array
-            foreach ($item as $key => $value) {
+            foreach ($child as $key => $value) {
                 if (in_array($key, ['_children', 'group', 'uniques_ratio', 'lpctr', 'cra', 'crs', 'appt', 'app', 'epc', 'epuc']))
                     continue;
                 if (!isset($sumArray[$key])) {
@@ -393,70 +411,7 @@ class Db
             $sumArray['epc'] = $sumArray['clicks'] === 0 ? 0 : $sumArray['revenue'] * 1.0 / $sumArray['clicks'];
         if (in_array('epuc', $columns))
             $sumArray['epuc'] = $sumArray['uniques'] === 0 ? 0 : $sumArray['revenue'] * 1.0 / $sumArray['uniques'] * 100;
-
-        foreach ($columns as $clmn) {
-            $children[count($children) - 1][$clmn] = $sumArray[$clmn];
-        }
-    }
-
-    private function addChildRow(&$treeData, $level, $row)
-    {
-        $children = &$treeData;
-        $i = 0;
-        while ($i < $level) {
-            $children = &$children[count($children) - 1]['_children']; // Update children by reference
-            $i++;
-        }
-        $children[] = $row;
-    }
-
-    private function addNewGroup(&$treeData, $currentGroups, $newGroupIndex)
-    {
-        $children = &$treeData;
-        $i = 0;
-        //first we must find the last unchanged level
-        while ($i < $newGroupIndex) {
-            $children = &$children[count($children) - 1]['_children']; // Update children by reference
-            $i++;
-        }
-
-        //now add all the remaining new levels
-        while ($i < count($currentGroups) - 1) {
-            $treeItem = [];
-            $treeItem = ['group' => $currentGroups[$i], '_children' => []];
-            $children[] = $treeItem;
-            $children = &$children[count($children) - 1]['_children']; // Update children by reference
-            $i++;
-        }
-        return;
-    }
-
-    private function unsetRowGroups(&$row, $groupByFields)
-    {
-        $row['group'] = $row[$groupByFields[count($groupByFields) - 1]];
-        for ($i = 0; $i < count($groupByFields); $i++) {
-            unset($row[$groupByFields[$i]]);
-        }
-    }
-
-    private function getCurrentGroup($row, $groupByFields)
-    {
-        $curGroups = [];
-        for ($i = 0; $i < count($groupByFields); $i++) {
-            $curGroups[] = $row[$groupByFields[$i]];
-        }
-        return $curGroups;
-    }
-
-    private function currentGroupChanged($currentGroups, $row, $groupByFields)
-    {
-        if (count($currentGroups) === 0)
-            return 0;
-        for ($i = 0; $i < count($groupByFields) - 1; $i++) {
-            if ($currentGroups[$i] !== $row[$groupByFields[$i]])
-                return $i;
-        }
-        return false;
+        return $sumArray;
     }
 
     public function add_white_click($data, $reason, $config)
