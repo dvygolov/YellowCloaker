@@ -702,10 +702,7 @@ require_once __DIR__ . '/initialization.php';
             </div>
             <br />
             <hr />
-            <h4>#3 Metrics and pixels settings</h4>
-            <br />
-            <hr />
-            <h4>#4 Traffic Distribution Settings</h4>
+            <h4>#3 Traffic Distribution Settings</h4>
             <div class="form-group-inner">
                 <div class="row">
                     <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
@@ -1123,11 +1120,8 @@ require_once __DIR__ . '/initialization.php';
                 </div>
 
                 <div id="s2s_container">
-                    <?php for (
-$i = 0;
-$i < count($s2s_postbacks);
-$i++
-) { ?>
+                    <?php 
+                    for ( $i = 0; $i < count($s2s_postbacks); $i++) { ?>
                     <div class="form-group-inner s2s">
                         <div class="row">
                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
@@ -1169,23 +1163,22 @@ $i++
                             </div>
                             <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
                                 <br />
-                                <br />
-                                <label class="form-check-input">
-                                    <input type="checkbox" class="form-check-input" name="postback.s2s[<?= $i ?>][events][]" value="Lead" <?= (in_array("Lead", $s2s_postbacks[$i]["events"]) ? ' checked' : '') ?> />Lead
-                                </label>&nbsp;&nbsp;
-                                <label class="form-check-input">
-                                    <input type="checkbox" class="form-check-input" name="postback.s2s[<?= $i ?>][events][]" value="Purchase" <?= (in_array("Purchase", $s2s_postbacks[$i]["events"]) ? ' checked' : '') ?> />Purchase
-                                </label>&nbsp;&nbsp;
-                                <label class="form-check-input">
-                                    <input type="checkbox" class="form-check-input" name="postback.s2s[<?= $i ?>][events][]" value="Reject" <?= (in_array("Reject", $s2s_postbacks[$i]["events"]) ? ' checked' : '') ?> />Reject
-                                </label>&nbsp;&nbsp;
-                                <label class="form-check-input">
-                                    <input type="checkbox" class="form-check-input" name="postback.s2s[<?= $i ?>][events][]" value="Trash" <?= (in_array("Trash", $s2s_postbacks[$i]["events"]) ? ' checked' : '') ?> />Trash
-                                </label>
+                                <br/>
+                                <?php
+                                $statuses = ['Lead','Purchase','Reject','Trash'];
+                                foreach ($statuses as $status)
+                                {?>
+                                    <div class="form-check form-switch">
+                                        <label for="<?=$status?><?=$i?>" class="form-check-label"><?=$status?></label>
+                                        <input id="<?=$status?><?=$i?>" type="checkbox" class="form-check-input" name="postback.s2s[<?= $i ?>][events][]" value="<?=$status?>" <?= (in_array($status, $s2s_postbacks[$i]["events"]) ? ' checked' : '') ?> />
+                                    </div>
+                                <?php
+                                }
+                                ?>
                             </div>
                         </div>
-                        <?php } ?>
                     </div>
+                    <?php } ?>
                 </div>
                 <a id="add-s2s-item" class="btn btn-sm btn-primary">Add</a>
                 <hr />
