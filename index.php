@@ -1,5 +1,5 @@
 <?php
-global $filters, $cur_config, $tds_mode, $use_js_checks;
+global $tds_filters, $cur_config, $tds_mode, $use_js_checks;
 require_once __DIR__ . '/debug.php';
 require_once __DIR__ . '/core.php';
 require_once __DIR__ . '/settings.php';

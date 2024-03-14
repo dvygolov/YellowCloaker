@@ -6,10 +6,10 @@ require_once __DIR__ . "/../admin/password.php";
 function downloadAndExtractMaxMindDB($licenseKey, $directory, $editionIds): string
 {
     $result = "";
-
     foreach ($editionIds as $editionId) {
         $result .= downloadMaxMindDB($licenseKey, $directory, $editionId) . "\n";
     }
+    save_update_version();
     return $result;
 }
 
@@ -44,8 +44,7 @@ function downloadMaxMindDB($licenseKey, $directory, $editionId): string
         if (!$folder->isDir()) {
             continue;
         }
-        save_update_version($folder);
-        $result .= "Folder: $folder\n";
+        $result .= "Folder: ".$folder->getPathname()."\n";
         $subPhar = new PharData($folder->getPathname());
         foreach ($subPhar as $file) {
             if (preg_match('/\.mmdb$/', $file->getFilename())) {
@@ -66,45 +65,37 @@ function downloadMaxMindDB($licenseKey, $directory, $editionId): string
     return $result;
 }
 
-function save_update_version($updatePath): void
+function save_update_version(): void
 {
-    // Regular expression to extract the date in YYYYMMDD format
-    preg_match("/\d{8}/", $updatePath, $matches);
-
-    if ($matches) {
-        $dateStr = $matches[0];
-        // Create DateTime object from the extracted date string
-        $dateObj = DateTime::createFromFormat('Ymd', $dateStr);
-        // Format the date as dd.MM.yy
-        $formattedDate = $dateObj->format('d.m.y');
-    } else {
-        $formattedDate = "No date found";
-    }
-
+    $dateObj = new DateTime();
+    $formattedDate = $dateObj->format('d.m.y');
     file_put_contents(__DIR__ . "/update.txt", $formattedDate);
 }
 
-function send_update_result($msg): int
+function send_update_result($msg): void
 {
     $res = ["result" => $msg];
     header('Content-type: application/json');
+    http_response_code(200);
     echo json_encode($res);
-    return http_response_code(200);
 }
+
 $passOk = check_password(false);
 if (!$passOk) {
-    return send_update_result("Error: password check not passed!");
+    send_update_result("Error: password check not passed!");
+    exit;
 }
 $configPath = __DIR__ . "/update.json";
 if (!file_exists($configPath)) {
-    return send_update_result("Error: 'bases/update.json' not found!");
+    send_update_result("Error: 'bases/update.json' not found!");
+    exit;
 }
 $config = json_decode(file_get_contents($configPath), true);
 if (empty($config["licenseKey"])) {
-    return send_update_result("Error: licenseKey not set, edit 'bases/update.json'!");
+    send_update_result("Error: licenseKey not set, edit 'bases/update.json'!");
+    exit;
 }
 
 $editionIds = ['GeoLite2-ASN', 'GeoLite2-City', 'GeoLite2-Country'];
-
 $result = downloadAndExtractMaxMindDB($config["licenseKey"], __DIR__, $editionIds);
-return send_update_result("OK");
+send_update_result("OK");

@@ -43,8 +43,10 @@ class Cloaker
         return $a;
     }
 
-    private function match_filters(bool $all, array $filters): bool
+    private function match_filters(bool $all, array|null $filters): bool
     {
+        if ($filters===null) 
+            return true;
         for ($i = 0; $i < count($filters); $i++) {
             $f = $filters[$i];
             if (!empty($f['condition'])) //this is a filter group

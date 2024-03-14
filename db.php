@@ -332,10 +332,12 @@ class Db
         $children = &$treeData;
         $i = 0;
         while ($i < count($groupBy)) {
-            if (
-            count($children) === 0 ||
-            $children[count($children) - 1][$groupBy[$i]] !== $row[$groupBy[$i]]
-            ) {
+            $curGroup = $groupBy[$i];
+            $lastChild = count($children)===0?null:$children[count($children) - 1];
+            //if row will be the first child or 
+            //if new row has group value that differs from the last child's group value
+            if ($lastChild===null || $lastChild['group'] !== $row[$curGroup]) {
+
                 if (count($children) !== 0) {
                     //count totals for previous levels
                     $j = $i;
@@ -355,14 +357,18 @@ class Db
                     }
                 }
 
-                $children[] = ['group' => $row[$groupBy[$i]], '_children' => []];
-                unset($row[$groupBy[$i]]);
+                $children[] = ['group' => $row[$curGroup], '_children' => []];
+                $lastChild = &$children[count($children) - 1];
+
+                unset($row[$curGroup]); //current group became a new level, we should remove it from row
+
+                //if we are at the last group by level - we need to add all the row data here
                 if ($i === count($groupBy) - 1) {
-                    unset($children[count($children) - 1]['_children']);
-                    $children[count($children) - 1] = array_merge($children[count($children) - 1], $row);
+                    unset($lastChild['_children']); //child-free node! it will have 'group' only
+                    $lastChild = array_merge($lastChild, $row);
                 }
             }
-            $children = &$children[count($children) - 1]['_children'];
+            $children = &$lastChild['_children'];
             $i++;
         }
     }

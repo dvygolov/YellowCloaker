@@ -1,7 +1,7 @@
 {
   "tables": [
     {
-      "name": "Dates",
+      "name": "Creo",
       "columns": [
         "clicks",
         "uniques",
@@ -20,28 +20,7 @@
         "epc",
         "revenue"
       ],
-      "groupby": ["date","z","os"]
-    },
-    {
-      "name": "Prelandings",
-      "columns": [
-        "clicks",
-        "uniques",
-        "conversion",
-        "purchase",
-        "hold",
-        "reject",
-        "trash",
-        "lpclicks",
-        "lpctr",
-        "cra",
-        "crs",
-        "appt",
-        "app",
-        "epc",
-        "revenue"
-      ],
-      "groupby": ["preland"]
+      "groupby": ["creo"]
     }
   ]
 }

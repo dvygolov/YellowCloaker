@@ -1005,48 +1005,6 @@ require_once __DIR__ . '/initialization.php';
                 </div>
             </div>
             <br />
-            <div class="form-group-inner">
-                <div class="row">
-                    <div class="col-lg-5 col-md-12 col-sm-12 col-xs-12">
-                        <label class="login2 pull-left pull-left-pro">Настройка
-                            отображения таблиц по субметкам в стате:</label>
-                        <br />
-                        <br />
-                        <p>Слева название метки, которую кло возьмёт из адреса
-                            перехода.</p>
-                        <p>Справа название НА АНГЛИЙСКОМ таблицы, в которой будут
-                            показаны все значения выбранной метки и их стата: клики,
-                            конверсии</p>
-                    </div>
-                </div>
-
-                <div id="stats_subs_container">
-                    <?php for ($i = 0; $i < count($stats_sub_names); $i++) { ?>
-                    <div class="form-group-inner stats_subs">
-                        <div class="row">
-                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="camp" value="<?= $stats_sub_names[$i]["name"] ?>" name="statistics.subnames[<?= $i ?>][name]" />
-                                </div>
-                            </div>
-                            <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
-                                <p>=></p>
-                            </div>
-                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                                <div class="input-group custom-go-button">
-                                    <input type="text" class="form-control" placeholder="Campaigns" value="<?= $stats_sub_names[$i]["value"] ?>" name="statistics.subnames[<?= $i ?>][value]" />
-                                </div>
-                            </div>
-                            <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
-                                <a href="javascript:void(0)" class="remove-stats-sub-item btn btn-sm btn-primary">Delete</a>
-                            </div>
-                        </div>
-                    </div>
-                    <?php } ?>
-                </div>
-                <a id="add-stats-sub-item" class="btn btn-sm btn-primary" href="javascript:;">Add</a>
-            </div>
-            <br />
             <hr />
             <h4>#9 Postbacks settings</h4>
             <div class="form-group-inner">

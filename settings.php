@@ -58,8 +58,6 @@ $tds_mode = $conf['tds.mode'];
 $tds_filters = $conf['tds.filters'];
 $save_user_flow = $conf['tds.saveuserflow'];
 
-$filters = $conf['tds.filters'];
-
 $replace_prelanding = $conf['scripts.prelandingreplace.use'];
 $replace_prelanding_address = $conf['scripts.prelandingreplace.url'];
 $replace_landing = $conf['scripts.landingreplace.use'];
@@ -70,7 +68,6 @@ $sub_ids = $conf['subids'];
 
 $admin_password = strval($conf['statistics.password']);
 $stats_timezone = $conf->get('statistics.timezone', 'Europe/Moscow');
-$stats_sub_names = $conf['statistics.subnames'];
 
 $s2s_postbacks = $conf['postback.s2s'];
 

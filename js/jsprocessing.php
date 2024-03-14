@@ -1,6 +1,6 @@
 <?php
 
-global $filters, $tds_mode, $black_jsconnect_action;
+global $tds_filters, $tds_mode, $black_jsconnect_action;
 require_once __DIR__ . '/../debug.php';
 require_once __DIR__ . '/../core.php';
 require_once __DIR__ . '/../settings.php';
