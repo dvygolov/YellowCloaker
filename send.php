@@ -63,7 +63,7 @@ $db = new Db();
 //в ответе должен быть редирект, если его нет - грузим обычную страницу Спасибо кло
 switch ($res["info"]["http_code"]) {
     case 302:
-        $db->add_lead($subid, $name, $phone, $cur_config);
+        $db->add_lead($subid, $name, $phone);
         if ($black_land_use_custom_thankyou_page) {
             redirect("thankyou/thankyou.php?" . http_build_query($_GET));
         } else {
@@ -71,7 +71,7 @@ switch ($res["info"]["http_code"]) {
         }
         break;
     case 200:
-        $db->add_lead($subid, $name, $phone, $cur_config);
+        $db->add_lead($subid, $name, $phone);
         if ($black_land_use_custom_thankyou_page) {
             jsredirect("thankyou/thankyou.php?" . http_build_query($_GET));
         } else {

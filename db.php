@@ -25,6 +25,7 @@ class Db
                 preland TEXT,
                 land TEXT,
                 params TEXT,
+                leaddata TEXT,
                 lpclick BOOLEAN,
                 status TEXT,
                 payout NUMERIC DEFAULT 0
@@ -70,6 +71,11 @@ class Db
         // Execute the query and fetch the results
         $result = $stmt->execute();
 
+        if ($result === false) {
+            $errorMessage = $this->db->lastErrorMsg();
+            add_log("errors", "Get Blocked Clicks: $startdate $enddate $config $errorMessage");
+            return [];
+        }
         // Initialize an array to hold the results
         $blockedClicks = [];
 
@@ -100,6 +106,12 @@ class Db
 
         // Execute the query and fetch the results
         $result = $stmt->execute();
+
+        if ($result === false) {
+            $errorMessage = $this->db->lastErrorMsg();
+            add_log("errors", "Get Black Clicks: $startdate $enddate $config $errorMessage");
+            return [];
+        }
 
         // Initialize an array to hold the results
         $clicks = [];
@@ -133,6 +145,12 @@ class Db
         // Execute the query
         $result = $stmt->execute();
 
+        if ($result === false) {
+            $errorMessage = $this->db->lastErrorMsg();
+            add_log("errors", "Get Clicks By Subid: $subid, $config $errorMessage");
+            return [];
+        }
+
         $clicks = [];
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
             if (!empty($row['params'])) {
@@ -159,6 +177,11 @@ class Db
 
         // Execute the query and fetch the results
         $result = $stmt->execute();
+        if ($result === false) {
+            $errorMessage = $this->db->lastErrorMsg();
+            add_log("errors", "Get Leads: $startdate, $enddate, $config $errorMessage");
+        }
+
 
         // Initialize an array to hold the results
         $leads = [];
@@ -170,34 +193,6 @@ class Db
 
         // Return the array of leads
         return $leads;
-    }
-
-    public function get_lpctr($startdate, $enddate, $config): array
-    {
-        // Prepare SQL query to select clicks where lpclick is true within the date range and specific configuration
-        $query = "SELECT * FROM clicks WHERE time BETWEEN :startdate AND :enddate AND config = :config AND lpclick = 1";
-
-        // Prepare statement
-        $stmt = $this->db->prepare($query);
-
-        // Bind parameters to the prepared statement
-        $stmt->bindValue(':startdate', $startdate, SQLITE3_INTEGER);
-        $stmt->bindValue(':enddate', $enddate, SQLITE3_INTEGER);
-        $stmt->bindValue(':config', $config, SQLITE3_TEXT);
-
-        // Execute the query and fetch the results
-        $result = $stmt->execute();
-
-        // Initialize an array to hold the results
-        $lpClicks = [];
-
-        // Fetch each row and add it to the array
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $lpClicks[] = $row;
-        }
-
-        // Return the array of clicks
-        return $lpClicks;
     }
 
     public function getStatisticsData(
@@ -311,12 +306,20 @@ class Db
         if ($stmt === false) {
             // Prepare failed, get and display the error message
             $errorMessage = $this->db->lastErrorMsg();
-            die("Error preparing statement: $errorMessage");
+            add_log("errors", "Error preparing statistics statement: $errorMessage");
+            return [];
         }
         $stmt->bindValue(':configName', $configName, SQLITE3_TEXT);
         $stmt->bindValue(':startDate', $startDate, SQLITE3_INTEGER);
         $stmt->bindValue(':endDate', $endDate, SQLITE3_INTEGER);
         $result = $stmt->execute();
+
+        if ($result === false) {
+            // Prepare failed, get and display the error message
+            $errorMessage = $this->db->lastErrorMsg();
+            add_log("errors", "Error executing statistics statement: $errorMessage");
+            return [];
+        }
 
         $treeData = [];
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
@@ -333,10 +336,10 @@ class Db
         $i = 0;
         while ($i < count($groupBy)) {
             $curGroup = $groupBy[$i];
-            $lastChild = count($children)===0?null:$children[count($children) - 1];
-            //if row will be the first child or 
+            $lastChild = count($children) === 0 ? null : $children[count($children) - 1];
+            //if row will be the first child or
             //if new row has group value that differs from the last child's group value
-            if ($lastChild===null || $lastChild['group'] !== $row[$curGroup]) {
+            if ($lastChild === null || $lastChild['group'] !== $row[$curGroup]) {
 
                 if (count($children) !== 0) {
                     //count totals for previous levels
@@ -425,10 +428,6 @@ class Db
         // Prepare click data
         $click = $this->prepare_click_data($data, $reason, $config);
 
-        // Convert the 'subs' array into a JSON string for the 'params' column
-        $click['params'] = json_encode($click['subs']);
-        unset($click['subs']); // Remove 'subs' as it's not a column in the 'blocked' table
-
         // Prepare SQL insert statement
         $query = "INSERT INTO blocked (time, ip, country, os, isp, ua, reason, params, config) VALUES (:time, :ip, :country, :os, :isp, :ua, :reason, :params, :config)";
 
@@ -439,8 +438,12 @@ class Db
             $stmt->bindValue(':' . $key, $value);
         }
 
-        if (!$stmt->execute()) {
-            add_log("errors", "Couldn't add white click: " . json_encode($click));
+        $result = $stmt->execute();
+        if ($result === false) {
+            // Prepare failed, get and display the error message
+            $errorMessage = $this->db->lastErrorMsg();
+            add_log("errors", "Couldn't add white click: $errorMessage:" . json_encode($click));
+            return [];
         }
     }
     public function add_black_click($subid, $data, $preland, $land, $config)
@@ -450,10 +453,6 @@ class Db
         $click['subid'] = $subid;
         $click['preland'] = empty($preland) ? 'unknown' : $preland;
         $click['land'] = empty($land) ? 'unknown' : $land;
-
-        // Convert the 'subs' array into a JSON string for the 'params' column, if needed
-        $click['params'] = json_encode($click['subs']);
-        unset($click['subs']); // Remove 'subs' since it's not a column in the 'clicks' table
 
         // Prepare the SQL INSERT statement for the 'clicks' table
         $query = "INSERT INTO clicks (config, time, ip, country, os, isp, ua, subid, preland, land, params, lpclick, status) VALUES (:config, :time, :ip, :country, :os, :isp, :ua, :subid, :preland, :land, :params, 0, NULL)";
@@ -470,83 +469,85 @@ class Db
         $stmt->bindValue(':lpclick', 0, SQLITE3_INTEGER); // lpclick set to false (0)
         $stmt->bindValue(':status', NULL, SQLITE3_NULL);
 
-        // Execute the INSERT operation
-        if (!$stmt->execute()) {
-            add_log("errors", "Couldn't add black click: " . json_encode($click));
+        $result = $stmt->execute();
+        if ($result === false) {
+            $errorMessage = $this->db->lastErrorMsg();
+            add_log("errors", "Couldn't add black click: $errorMessage:" . json_encode($click));
+            return [];
         }
     }
 
-    public function add_lead($subid, $name, $phone, $config, $status = 'Lead')
+    public function add_lead($subid, $name, $phone, $status = 'Lead')
     {
-        $lead = [
-        "subid" => $subid,
-        "time" => (new DateTime())->getTimestamp(),
-        "name" => $name,
-        "phone" => $phone,
-        "status" => $status ?: 'Lead',
-        "fbp" => get_cookie('_fbp'),
-        "fbclid" => get_cookie('fbclid') ?: get_cookie('_fbc'),
-        "preland" => get_cookie('prelanding') ?: 'unknown',
-        "land" => get_cookie('landing') ?: 'unknown',
-        "config" => $config
-        ];
-        return $this->leads_store->insert($lead);
+        $updateQuery = "UPDATE clicks SET status = :status, name = :name, phone = :phone WHERE id = (SELECT id FROM clicks WHERE subid = :subid ORDER BY time DESC LIMIT 1)";
+
+        $stmt = $this->db->prepare($updateQuery);
+        $stmt->bindValue(':subid', $subid, SQLITE3_TEXT);
+        $stmt->bindValue(':status', $status, SQLITE3_TEXT);
+        $stmt->bindValue(':name', $name, SQLITE3_TEXT);
+        $stmt->bindValue(':phone', $phone, SQLITE3_TEXT);
+
+        $result = $stmt->execute();
+        if ($result === false) {
+            $errorMessage = $this->db->lastErrorMsg();
+            add_log("errors", "Couldn't add lead: $errorMessage: $subid, $name, $phone, $status");
+        }
     }
 
-    public function update_lead($subid, $status, $payout, $config): bool
+    public function update_status($subid, $status, $payout): bool
     {
-        $lead = $this->leads_store->findOneBy([["subid", "=", $subid]]);
-        if ($lead === null) {
-            $click = $this->black_clicks_store->findOneBy([["subid", "=", $subid]]);
-            if ($click === null) {
-                return false;
-            }
-            $lead = $this->add_lead($subid, '', '', $config);
-            $lead['preland'] = $click['preland'] ?? 'unknown';
-            $lead['land'] = $click['land'] ?? 'unknown';
+        if (!$this->subid_exists($subid))
+            return false;
+
+        $updateQuery = "UPDATE clicks SET status = :status, payout = :payout WHERE id = (SELECT id FROM clicks WHERE subid = :subid ORDER BY time DESC LIMIT 1)";
+
+        $stmt = $this->db->prepare($updateQuery);
+        $stmt->bindValue(':subid', $subid, SQLITE3_TEXT);
+        $stmt->bindValue(':status', $status, SQLITE3_TEXT);
+        $stmt->bindValue(':payout', $payout, SQLITE3_FLOAT);
+
+        $result = $stmt->execute();
+        if ($result === false) {
+            $errorMessage = $this->db->lastErrorMsg();
+            add_log("errors", "Couldn't update status: $errorMessage: $subid, $status, $payout");
+            return false;
         }
-        $lead["status"] = $status;
-        $lead["payout"] = $payout;
-        $this->leads_store->update($lead);
         return true;
     }
 
-    public function email_exists_for_subid($subid)
-    {
-        $lead = $this->leads_store->findOneBy([["subid", "=", $subid]]);
-        return !($lead === null) && array_key_exists("email", $lead);
-    }
-
-    public function add_email($subid, $email)
-    {
-        $lead = $this->leads_store->findOneBy([["subid", "=", $subid]]);
-        if ($lead === null) {
-            return;
-        }
-        $lead["email"] = $email;
-        $this->leads_store->update($lead);
-    }
-
-    public function add_lpctr($subid)
+    public function add_lpctr($subid): bool
     {
         $updateQuery = "UPDATE clicks SET lpclick = 1 WHERE id = (SELECT id FROM clicks WHERE subid = :subid ORDER BY time DESC LIMIT 1)";
         $stmt = $this->db->prepare($updateQuery);
         $stmt->bindValue(':subid', $subid, SQLITE3_TEXT);
-        $stmt->execute();
+        $result = $stmt->execute();
+        if ($result === false) {
+            $errorMessage = $this->db->lastErrorMsg();
+            add_log("errors", "Couldn't update lpctr: $errorMessage: $subid");
+            return false;
+        }
+        return true;
     }
 
-    public function lead_is_duplicate($subid, $phone)
+    private function subid_exists($subid)
     {
-        if ($subid !== '') {
-            $lead = $this->leads_store->findOneBy([["subid", "=", $subid]]);
-            if ($lead === null) {
-                return false;
-            }
-            header("YWBDuplicate: We have this sub!");
-            return $lead["phone"] === $phone;
+        // Prepare SQL statement
+        $stmt = $db->prepare('SELECT COUNT(*) AS count FROM clicks WHERE subid = :subid');
+
+        // Bind parameter
+        $stmt->bindParam(':subid', $subid);
+
+        // Execute the statement
+        $result = $stmt->execute();
+
+        // Fetch the result
+        $row = $result->fetchArray(SQLITE3_ASSOC);
+
+        // Check if count is greater than 0
+        if ($row['count'] > 0) {
+            echo "Subid exists in the clicks table.";
         } else {
-            $lead = $this->leads_store->findOneBy([["phone", "=", $phone]]);
-            return !($lead === null);
+            echo "Subid does not exist in the clicks table.";
         }
     }
 
@@ -556,6 +557,7 @@ class Db
         if (!empty($_SERVER['QUERY_STRING'])) {
             parse_str($_SERVER['QUERY_STRING'], $queryarr);
         }
+
         return [
         "time" => (new DateTime())->getTimestamp(),
         "ip" => $data['ip'],
@@ -564,7 +566,7 @@ class Db
         "isp" => str_replace(',', ' ', $data['isp']),
         "ua" => str_replace(',', ' ', $data['ua']),
         "reason" => $reason,
-        "subs" => $queryarr,
+        "params" => json_encode($queryarr),
         "config" => $config
         ];
     }

@@ -43,7 +43,7 @@ switch ($status) {
 }
 add_postback_log($subid, $inner_status, $payout, $curLink);
 $db = new Db();
-$updated = $db->update_lead($subid, $inner_status, $payout, $cur_config);
+$updated = $db->update_status($subid, $inner_status, $payout);
 
 if ($updated) {
     process_s2s_posbacks($s2s_postbacks, $inner_status);
