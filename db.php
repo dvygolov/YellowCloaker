@@ -529,26 +529,20 @@ class Db
         return true;
     }
 
-    private function subid_exists($subid)
+    private function subid_exists($subid): bool
     {
-        // Prepare SQL statement
-        $stmt = $db->prepare('SELECT COUNT(*) AS count FROM clicks WHERE subid = :subid');
-
-        // Bind parameter
+        $stmt = $this->db->prepare('SELECT COUNT(*) AS count FROM clicks WHERE subid = :subid');
         $stmt->bindParam(':subid', $subid);
-
-        // Execute the statement
         $result = $stmt->execute();
 
-        // Fetch the result
-        $row = $result->fetchArray(SQLITE3_ASSOC);
-
-        // Check if count is greater than 0
-        if ($row['count'] > 0) {
-            echo "Subid exists in the clicks table.";
-        } else {
-            echo "Subid does not exist in the clicks table.";
+        if ($result === false) {
+            $errorMessage = $this->db->lastErrorMsg();
+            add_log("errors", "Couldn't check is subid exists: $errorMessage: $subid");
+            die("Couldn't check is subid exists: $errorMessage: $subid");
         }
+         
+        $row = $result->fetchArray(SQLITE3_ASSOC);
+        return ($row['count'] > 0);
     }
 
     private function prepare_click_data($data, $reason, $config)

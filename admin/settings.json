@@ -7,6 +7,19 @@
         "uniques",
         "uniques_ratio",
         "conversion",
+        "cra",
+        "crs",
+        "epc",
+        "revenue"
+      ],
+      "groupby": ["creo"]
+    },
+    {
+      "name": "Site",
+      "columns": [
+        "clicks",
+        "uniques",
+        "conversion",
         "purchase",
         "hold",
         "reject",
@@ -20,7 +33,7 @@
         "epc",
         "revenue"
       ],
-      "groupby": ["creo"]
+      "groupby": ["site"]
     }
   ]
 }

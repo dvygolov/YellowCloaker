@@ -179,7 +179,19 @@ function get_stats_columns(string $tName, array $columns, array $groupby, $timez
             "formatterParams"=>[ 
                 "decimal"=> ".", 
                 "thousand"=> ",",
-                "precision"=> 2,   
+                "precision"=> 5,   
+            ],
+            "bottomCalc"=>"avg"
+        ],
+        'epuc' => [
+            "title" => "EPuC",
+            "field" => "epuc",
+            "width"=>"90",
+            "formatter"=> "money",
+            "formatterParams"=>[ 
+                "decimal"=> ".", 
+                "thousand"=> ",",
+                "precision"=> 5,   
             ],
             "bottomCalc"=>"avg"
         ],

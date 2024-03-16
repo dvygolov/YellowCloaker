@@ -28,7 +28,8 @@ class DebugMethods
 
     public static function check_php():void
     {
-        if (version_compare(phpversion(), '8.2.0', '<'))
+        $ver=phpversion();
+        if (version_compare($ver, '8.2.0', '<'))
             die("PHP version should be 8.2 or higher! Change your PHP version and return.");
     }
 }

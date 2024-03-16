@@ -1,6 +1,9 @@
 <Project Sdk="Devsense.Php.Sdk">
   <PropertyGroup Label="Globals">
     <ProjectGuid>21ce54a4-efc5-4616-bd3f-2449b944d7b6</ProjectGuid>
+    <RootNamespace>YellowCloaker</RootNamespace>
+    <WebRoot />
+    <RuntimeVersion>8.3</RuntimeVersion>
   </PropertyGroup>
   <ItemGroup>
     <Content Remove="*.tmp" />
