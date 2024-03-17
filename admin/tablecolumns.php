@@ -56,12 +56,12 @@ function get_stats_columns(string $tName, array $columns, array $groupby, $timez
             "field" => "uniques_ratio",
             "width"=>"90",
             "formatter"=> "money",
-            "formatterParams"=>[ 
-                "decimal"=> ".", 
+            "formatterParams"=>[
+                "decimal"=> ".",
                 "thousand"=> ",",
-                "symbol"=> "%",   
-                "symbolAfter"=> true,   
-                "precision"=> 2,   
+                "symbol"=> "%",
+                "symbolAfter"=> true,
+                "precision"=> 2,
             ],
             "bottomCalc"=>"avg"
         ],
@@ -106,12 +106,12 @@ function get_stats_columns(string $tName, array $columns, array $groupby, $timez
             "field" => "lpctr",
             "width"=>"90",
             "formatter"=> "money",
-            "formatterParams"=>[ 
-                "decimal"=> ".", 
+            "formatterParams"=>[
+                "decimal"=> ".",
                 "thousand"=> ",",
-                "symbol"=> "%",   
-                "symbolAfter"=> true,   
-                "precision"=> 2,   
+                "symbol"=> "%",
+                "symbolAfter"=> true,
+                "precision"=> 2,
             ],
             "bottomCalc"=>"avg"
         ],
@@ -120,12 +120,12 @@ function get_stats_columns(string $tName, array $columns, array $groupby, $timez
             "field" => "cra",
             "width"=>"90",
             "formatter"=> "money",
-            "formatterParams"=>[ 
-                "decimal"=> ".", 
+            "formatterParams"=>[
+                "decimal"=> ".",
                 "thousand"=> ",",
-                "symbol"=> "%",   
-                "symbolAfter"=> true,   
-                "precision"=> 2,   
+                "symbol"=> "%",
+                "symbolAfter"=> true,
+                "precision"=> 2,
             ],
             "bottomCalc"=>"avg"
         ],
@@ -134,12 +134,12 @@ function get_stats_columns(string $tName, array $columns, array $groupby, $timez
             "field" => "crs",
             "width"=>"90",
             "formatter"=> "money",
-            "formatterParams"=>[ 
-                "decimal"=> ".", 
+            "formatterParams"=>[
+                "decimal"=> ".",
                 "thousand"=> ",",
-                "symbol"=> "%",   
-                "symbolAfter"=> true,   
-                "precision"=> 2,   
+                "symbol"=> "%",
+                "symbolAfter"=> true,
+                "precision"=> 2,
             ],
             "bottomCalc"=>"avg"
         ],
@@ -148,12 +148,12 @@ function get_stats_columns(string $tName, array $columns, array $groupby, $timez
             "field" => "appt",
             "width"=>"90",
             "formatter"=> "money",
-            "formatterParams"=>[ 
-                "decimal"=> ".", 
+            "formatterParams"=>[
+                "decimal"=> ".",
                 "thousand"=> ",",
-                "symbol"=> "%",   
-                "symbolAfter"=> true,   
-                "precision"=> 2,   
+                "symbol"=> "%",
+                "symbolAfter"=> true,
+                "precision"=> 2,
             ],
             "bottomCalc"=>"avg"
         ],
@@ -162,12 +162,12 @@ function get_stats_columns(string $tName, array $columns, array $groupby, $timez
             "field" => "app",
             "width"=>"90",
             "formatter"=> "money",
-            "formatterParams"=>[ 
-                "decimal"=> ".", 
+            "formatterParams"=>[
+                "decimal"=> ".",
                 "thousand"=> ",",
-                "symbol"=> "%",   
-                "symbolAfter"=> true,   
-                "precision"=> 2,   
+                "symbol"=> "%",
+                "symbolAfter"=> true,
+                "precision"=> 2,
             ],
             "bottomCalc"=>"avg"
         ],
@@ -176,10 +176,10 @@ function get_stats_columns(string $tName, array $columns, array $groupby, $timez
             "field" => "epc",
             "width"=>"90",
             "formatter"=> "money",
-            "formatterParams"=>[ 
-                "decimal"=> ".", 
+            "formatterParams"=>[
+                "decimal"=> ".",
                 "thousand"=> ",",
-                "precision"=> 5,   
+                "precision"=> 5,
             ],
             "bottomCalc"=>"avg"
         ],
@@ -188,10 +188,10 @@ function get_stats_columns(string $tName, array $columns, array $groupby, $timez
             "field" => "epuc",
             "width"=>"90",
             "formatter"=> "money",
-            "formatterParams"=>[ 
-                "decimal"=> ".", 
+            "formatterParams"=>[
+                "decimal"=> ".",
                 "thousand"=> ",",
-                "precision"=> 5,   
+                "precision"=> 5,
             ],
             "bottomCalc"=>"avg"
         ],
@@ -200,12 +200,15 @@ function get_stats_columns(string $tName, array $columns, array $groupby, $timez
             "field" => "revenue",
             "width" => "100",
             "formatter"=> "money",
-            "formatterParams"=>[ 
-                "decimal"=> ".", 
+            "formatterParams"=>[
+                "decimal"=> ".",
                 "thousand"=> ",",
-                "precision"=> 2,   
+                "precision"=> 2,
             ],
-            "bottomCalc"=>"sum"
+            "bottomCalc"=>"sum",
+            "bottomCalcParams"=>[
+                "precision" => 2,
+            ]
         ],
     ];
 

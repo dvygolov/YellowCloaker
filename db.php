@@ -110,8 +110,9 @@ class Db
         $result = $stmt->execute();
 
         if ($result === false) {
-            $errorMessage = $this->db->lastErrorMsg();
+            $errorMessage = $db->lastErrorMsg();
             add_log("errors", "Get Clicks By Subid: $subid, $config $errorMessage");
+            $db->close();
             return [];
         }
 
@@ -123,6 +124,7 @@ class Db
             $clicks[] = $row;
         }
 
+        $db->close();
         return $clicks;
     }
 
@@ -131,8 +133,10 @@ class Db
         // Prepare SQL query to select leads within the date range and configuration
         $query = "SELECT * FROM clicks WHERE time BETWEEN :startDate AND :endDate AND config = :config AND status IS NOT NULL";
 
+        $db = $this->open_db();
+
         // Prepare statement
-        $stmt = $this->db->prepare($query);
+        $stmt = $db->prepare($query);
 
         // Bind parameters to the prepared statement
         $stmt->bindValue(':startDate', $startdate, SQLITE3_INTEGER);
@@ -142,10 +146,11 @@ class Db
         // Execute the query and fetch the results
         $result = $stmt->execute();
         if ($result === false) {
-            $errorMessage = $this->db->lastErrorMsg();
+            $errorMessage = $db->lastErrorMsg();
             add_log("errors", "Get Leads: $startdate, $enddate, $config $errorMessage");
+            $db->close();
+            return [];
         }
-
 
         // Initialize an array to hold the results
         $leads = [];
@@ -155,7 +160,7 @@ class Db
             $leads[] = $row;
         }
 
-        // Return the array of leads
+        $db->close();
         return $leads;
     }
 
@@ -265,12 +270,14 @@ class Db
         $orderByClause = !empty($orderByParts) ? "ORDER BY " . implode(', ', $orderByParts) : '';
         $sqlQuery = sprintf($baseQuery, $selectClause) . " " . $groupByClause . " " . $orderByClause;
 
+        $db = $this->open_db(true);
         // Prepare and execute the query
-        $stmt = $this->db->prepare($sqlQuery);
+        $stmt = $db->prepare($sqlQuery);
         if ($stmt === false) {
             // Prepare failed, get and display the error message
-            $errorMessage = $this->db->lastErrorMsg();
+            $errorMessage = $db->lastErrorMsg();
             add_log("errors", "Error preparing statistics statement: $errorMessage");
+            $db->close();
             return [];
         }
         $stmt->bindValue(':configName', $configName, SQLITE3_TEXT);
@@ -280,8 +287,9 @@ class Db
 
         if ($result === false) {
             // Prepare failed, get and display the error message
-            $errorMessage = $this->db->lastErrorMsg();
+            $errorMessage = $db->lastErrorMsg();
             add_log("errors", "Error executing statistics statement: $errorMessage");
+            $db->close();
             return [];
         }
 
@@ -291,6 +299,7 @@ class Db
         }
 
         //$this->countTotals($treeData, $newGroupIndex, $selectedFields, $groupByFields);
+        $db->close();
         return $treeData;
     }
 
