@@ -4,64 +4,24 @@ require_once __DIR__ . "/logging.php";
 
 class Db
 {
-    private $dbPath;
-    private $db;
+    private $dbPath = __DIR__ . '/clicks.db';
+
     public function __construct()
     {
-        $this->dbPath = __DIR__ . '/clicks.db';
         if (!file_exists($this->dbPath)) {
-            $this->db = new SQLite3($this->dbPath);
-            $createTableSQL = "
-            CREATE TABLE IF NOT EXISTS clicks (
-                id INTEGER PRIMARY KEY,
-                config TEXT NOT NULL,
-                time INTEGER NOT NULL,
-                ip TEXT NOT NULL,
-                country TEXT NOT NULL,
-                os TEXT NOT NULL,
-                isp TEXT NOT NULL,
-                ua TEXT NOT NULL,
-                subid TEXT NOT NULL,
-                preland TEXT,
-                land TEXT,
-                params TEXT,
-                leaddata TEXT,
-                lpclick BOOLEAN,
-                status TEXT,
-                payout NUMERIC DEFAULT 0
-            );
-            CREATE INDEX IF NOT EXISTS idx_config ON clicks (config);
-            CREATE INDEX IF NOT EXISTS idx_subid ON clicks (subid);
-            CREATE INDEX IF NOT EXISTS idx_time ON clicks (time);
-            CREATE INDEX IF NOT EXISTS idx_date ON clicks (date(time, 'unixepoch'));
-
-            CREATE TABLE IF NOT EXISTS blocked (
-                id INTEGER PRIMARY KEY,
-                config TEXT NOT NULL,
-                time INTEGER,
-                ip TEXT NOT NULL,
-                country TEXT,
-                os TEXT,
-                isp TEXT,
-                ua TEXT,
-                params TEXT,
-                reason TEXT
-            );
-            CREATE INDEX IF NOT EXISTS idx_bconfig ON blocked (config);
-            CREATE INDEX IF NOT EXISTS idx_btime ON blocked (time);
-            ";
-            $this->db->exec($createTableSQL);
-        } else
-            $this->db = new SQLite3($this->dbPath);
+            $this->create_new_db();
+        }
     }
+
 
     public function get_white_clicks($startdate, $enddate, $config): array
     {
         // Prepare SQL query to select blocked clicks within the date range
         $query = "SELECT * FROM blocked WHERE time BETWEEN :startDate AND :endDate AND config = :config";
 
+        $db = $this->open_db(true);
         // Prepare statement
-        $stmt = $this->db->prepare($query);
+        $stmt = $db->prepare($query);
 
         // Bind parameters to the prepared statement
         $stmt->bindValue(':startDate', $startdate, SQLITE3_INTEGER);
@@ -72,7 +32,7 @@ class Db
         $result = $stmt->execute();
 
         if ($result === false) {
-            $errorMessage = $this->db->lastErrorMsg();
+            $errorMessage = $db->lastErrorMsg();
             add_log("errors", "Get Blocked Clicks: $startdate $enddate $config $errorMessage");
             return [];
         }
@@ -86,6 +46,7 @@ class Db
             }
             $blockedClicks[] = $row;
         }
+        $db->close();
 
         // Return the array of blocked clicks
         return $blockedClicks;
@@ -96,8 +57,9 @@ class Db
         // Prepare SQL query to select blocked clicks within the date range
         $query = "SELECT id, time, ip, country, os, isp, ua, subid, preland, land, params FROM clicks WHERE time BETWEEN :startDate AND :endDate AND config = :config";
 
+        $db = $this->open_db(true);
         // Prepare statement
-        $stmt = $this->db->prepare($query);
+        $stmt = $db->prepare($query);
 
         // Bind parameters to the prepared statement
         $stmt->bindValue(':startDate', $startdate, SQLITE3_INTEGER);
@@ -108,7 +70,7 @@ class Db
         $result = $stmt->execute();
 
         if ($result === false) {
-            $errorMessage = $this->db->lastErrorMsg();
+            $errorMessage = $db->lastErrorMsg();
             add_log("errors", "Get Black Clicks: $startdate $enddate $config $errorMessage");
             return [];
         }
@@ -124,6 +86,7 @@ class Db
             $clicks[] = $row;
         }
 
+        $db->close();
         // Return the array of blocked clicks
         return $clicks;
     }
@@ -135,8 +98,9 @@ class Db
         }
         $query = "SELECT * FROM clicks WHERE subid = :subid AND config = :config";
 
+        $db = $this->open_db(true);
         // Prepare statement
-        $stmt = $this->db->prepare($query);
+        $stmt = $db->prepare($query);
 
         // Bind parameters to the prepared statement
         $stmt->bindValue(':subid', $subid, SQLITE3_TEXT);
@@ -431,7 +395,8 @@ class Db
         // Prepare SQL insert statement
         $query = "INSERT INTO blocked (time, ip, country, os, isp, ua, reason, params, config) VALUES (:time, :ip, :country, :os, :isp, :ua, :reason, :params, :config)";
 
-        $stmt = $this->db->prepare($query);
+        $db = $this->open_db();
+        $stmt = $db->prepare($query);
 
         // Bind parameters
         foreach ($click as $key => $value) {
@@ -441,11 +406,12 @@ class Db
         $result = $stmt->execute();
         if ($result === false) {
             // Prepare failed, get and display the error message
-            $errorMessage = $this->db->lastErrorMsg();
+            $errorMessage = $db->lastErrorMsg();
             add_log("errors", "Couldn't add white click: $errorMessage:" . json_encode($click));
-            return [];
         }
+        $db->close();
     }
+
     public function add_black_click($subid, $data, $preland, $land, $config)
     {
         // Prepare click data with the provided data and configuration
@@ -457,7 +423,8 @@ class Db
         // Prepare the SQL INSERT statement for the 'clicks' table
         $query = "INSERT INTO clicks (config, time, ip, country, os, isp, ua, subid, preland, land, params, lpclick, status) VALUES (:config, :time, :ip, :country, :os, :isp, :ua, :subid, :preland, :land, :params, 0, NULL)";
 
-        $stmt = $this->db->prepare($query);
+        $db = $this->open_db();
+        $stmt = $db->prepare($query);
 
         // Bind parameters from the $click array to the prepared statement
         foreach ($click as $key => $value) {
@@ -471,17 +438,18 @@ class Db
 
         $result = $stmt->execute();
         if ($result === false) {
-            $errorMessage = $this->db->lastErrorMsg();
+            $errorMessage = $db->lastErrorMsg();
             add_log("errors", "Couldn't add black click: $errorMessage:" . json_encode($click));
-            return [];
         }
+        $db->close();
     }
 
     public function add_lead($subid, $name, $phone, $status = 'Lead')
     {
         $updateQuery = "UPDATE clicks SET status = :status, name = :name, phone = :phone WHERE id = (SELECT id FROM clicks WHERE subid = :subid ORDER BY time DESC LIMIT 1)";
 
-        $stmt = $this->db->prepare($updateQuery);
+        $db = $this->open_db();
+        $stmt = $db->prepare($updateQuery);
         $stmt->bindValue(':subid', $subid, SQLITE3_TEXT);
         $stmt->bindValue(':status', $status, SQLITE3_TEXT);
         $stmt->bindValue(':name', $name, SQLITE3_TEXT);
@@ -489,9 +457,10 @@ class Db
 
         $result = $stmt->execute();
         if ($result === false) {
-            $errorMessage = $this->db->lastErrorMsg();
+            $errorMessage = $db->lastErrorMsg();
             add_log("errors", "Couldn't add lead: $errorMessage: $subid, $name, $phone, $status");
         }
+        $db->close();
     }
 
     public function update_status($subid, $status, $payout): bool
@@ -501,47 +470,52 @@ class Db
 
         $updateQuery = "UPDATE clicks SET status = :status, payout = :payout WHERE id = (SELECT id FROM clicks WHERE subid = :subid ORDER BY time DESC LIMIT 1)";
 
-        $stmt = $this->db->prepare($updateQuery);
+        $db = $this->open_db();
+        $stmt = $db->prepare($updateQuery);
         $stmt->bindValue(':subid', $subid, SQLITE3_TEXT);
         $stmt->bindValue(':status', $status, SQLITE3_TEXT);
         $stmt->bindValue(':payout', $payout, SQLITE3_FLOAT);
 
         $result = $stmt->execute();
         if ($result === false) {
-            $errorMessage = $this->db->lastErrorMsg();
+            $errorMessage = $db->lastErrorMsg();
             add_log("errors", "Couldn't update status: $errorMessage: $subid, $status, $payout");
-            return false;
         }
-        return true;
+        $db->close();
+        return $result === false ? false : true;
     }
 
     public function add_lpctr($subid): bool
     {
         $updateQuery = "UPDATE clicks SET lpclick = 1 WHERE id = (SELECT id FROM clicks WHERE subid = :subid ORDER BY time DESC LIMIT 1)";
-        $stmt = $this->db->prepare($updateQuery);
+
+        $db = $this->open_db();
+        $stmt = $db->prepare($updateQuery);
         $stmt->bindValue(':subid', $subid, SQLITE3_TEXT);
         $result = $stmt->execute();
         if ($result === false) {
-            $errorMessage = $this->db->lastErrorMsg();
+            $errorMessage = $db->lastErrorMsg();
             add_log("errors", "Couldn't update lpctr: $errorMessage: $subid");
-            return false;
         }
-        return true;
+        $db->close();
+        return $result === false ? false : true;
     }
 
     private function subid_exists($subid): bool
     {
-        $stmt = $this->db->prepare('SELECT COUNT(*) AS count FROM clicks WHERE subid = :subid');
+        $db = $this->open_db(true);
+        $stmt = $db->prepare('SELECT COUNT(*) AS count FROM clicks WHERE subid = :subid');
         $stmt->bindParam(':subid', $subid);
         $result = $stmt->execute();
 
         if ($result === false) {
-            $errorMessage = $this->db->lastErrorMsg();
+            $errorMessage = $db->lastErrorMsg();
             add_log("errors", "Couldn't check is subid exists: $errorMessage: $subid");
             die("Couldn't check is subid exists: $errorMessage: $subid");
         }
-         
+
         $row = $result->fetchArray(SQLITE3_ASSOC);
+        $db->close();
         return ($row['count'] > 0);
     }
 
@@ -563,5 +537,59 @@ class Db
         "params" => json_encode($queryarr),
         "config" => $config
         ];
+    }
+
+    private function open_db(bool $readOnly = false): SQLite3
+    {
+        $db = new SQLite3($this->dbPath, $readOnly ? SQLITE3_OPEN_READONLY : SQLITE3_OPEN_READWRITE);
+        $db->busyTimeout(5000);
+        return $db;
+    }
+
+    private function create_new_db()
+    {
+        $createTableSQL = "
+            CREATE TABLE IF NOT EXISTS clicks (
+                id INTEGER PRIMARY KEY,
+                config TEXT NOT NULL,
+                time INTEGER NOT NULL,
+                ip TEXT NOT NULL,
+                country TEXT NOT NULL,
+                os TEXT NOT NULL,
+                isp TEXT NOT NULL,
+                ua TEXT NOT NULL,
+                subid TEXT NOT NULL,
+                preland TEXT,
+                land TEXT,
+                params TEXT,
+                leaddata TEXT,
+                lpclick BOOLEAN,
+                status TEXT,
+                payout NUMERIC DEFAULT 0
+            );
+            CREATE INDEX IF NOT EXISTS idx_config ON clicks (config);
+            CREATE INDEX IF NOT EXISTS idx_subid ON clicks (subid);
+            CREATE INDEX IF NOT EXISTS idx_time ON clicks (time);
+            CREATE INDEX IF NOT EXISTS idx_date ON clicks (date(time, 'unixepoch'));
+
+            CREATE TABLE IF NOT EXISTS blocked (
+                id INTEGER PRIMARY KEY,
+                config TEXT NOT NULL,
+                time INTEGER,
+                ip TEXT NOT NULL,
+                country TEXT,
+                os TEXT,
+                isp TEXT,
+                ua TEXT,
+                params TEXT,
+                reason TEXT
+            );
+            CREATE INDEX IF NOT EXISTS idx_bconfig ON blocked (config);
+            CREATE INDEX IF NOT EXISTS idx_btime ON blocked (time);
+            PRAGMA journal_mode = wal;
+            ";
+        $db = $this->open_db();
+        $db->exec($createTableSQL);
+        $db->close();
     }
 }
