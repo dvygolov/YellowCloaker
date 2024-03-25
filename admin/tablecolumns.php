@@ -1,5 +1,14 @@
 <?php
 
+function get_table_settings(): array
+{
+    try {
+        $tables = json_decode(file_get_contents(__DIR__ . '/settings.json'), true, 512, JSON_THROW_ON_ERROR);
+    } catch (JsonException $e) {
+        die($e->getMessage());
+    }
+    return $tables;
+}
 function get_stats_columns(string $tName, array $columns, array $groupby, $timezone): string
 {
     $columnSettings = [
@@ -239,7 +248,7 @@ function get_stats_columns(string $tName, array $columns, array $groupby, $timez
         ],
         'profit' => [
             "title" => "Profit",
-            "field" => "profit",
+            "field" => "revenue",
             "width" => "100",
             "formatter"=> "money",
             "formatterParams"=>[
@@ -251,20 +260,6 @@ function get_stats_columns(string $tName, array $columns, array $groupby, $timez
             "bottomCalcParams"=>[
                 "precision" => 2,
             ]
-        ],
-        'roi' => [
-            "title" => "ROI",
-            "field" => "roi",
-            "width"=>"90",
-            "formatter"=> "money",
-            "formatterParams"=>[
-                "decimal"=> ".",
-                "thousand"=> ",",
-                "symbol"=> "%",
-                "symbolAfter"=> true,
-                "precision"=> 2,
-            ],
-            "bottomCalc"=>"avg"
         ],
     ];
 

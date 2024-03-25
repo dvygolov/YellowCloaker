@@ -16,7 +16,7 @@ $db = new Db();
     <div class="all-content-wrapper">
         <?php include "header.php" ?>
         <?php
-$sTables = json_decode(file_get_contents(__DIR__ . '/settings.json'), true);
+$sTables = get_table_settings();
 foreach ($sTables['tables'] as $tSettings) {
     $dataset = $db->getStatisticsData(
         $tSettings['columns'], $tSettings['groupby'], $config, 

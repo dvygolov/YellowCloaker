@@ -1,6 +1,23 @@
 {
   "tables": [
     {
+      "name": "Date",
+      "columns": [
+        "clicks",
+        "uniques",
+        "uniques_ratio",
+        "conversion",
+        "cra",
+        "epc",
+        "cpc",
+        "revenue",
+        "costs",
+        "profit",
+        "roi"
+      ],
+      "groupby": ["date"]
+    },
+    {
       "name": "Creo",
       "columns": [
         "clicks",
@@ -8,15 +25,65 @@
         "uniques_ratio",
         "conversion",
         "cra",
-        "crs",
         "epc",
         "cpc",
-        "costs",
         "revenue",
+        "costs",
         "profit",
         "roi"
       ],
-      "groupby": ["creo"]
+      "groupby": ["c"]
+    },
+    {
+      "name": "Age",
+      "columns": [
+        "clicks",
+        "uniques",
+        "uniques_ratio",
+        "conversion",
+        "cra",
+        "epc",
+        "cpc",
+        "revenue",
+        "costs",
+        "profit",
+        "roi"
+      ],
+      "groupby": ["age"]
+    },
+    {
+      "name": "Feed",
+      "columns": [
+        "clicks",
+        "uniques",
+        "uniques_ratio",
+        "conversion",
+        "cra",
+        "epc",
+        "cpc",
+        "revenue",
+        "costs",
+        "profit",
+        "roi"
+      ],
+      "groupby": ["f"]
+    },
+    {
+      "name": "Zone",
+      "columns": [
+        "clicks",
+        "uniques",
+        "uniques_ratio",
+        "conversion",
+        "cra",
+        "epc",
+        "cpc",
+        "revenue",
+        "costs",
+        "profit",
+        "roi"
+      ],
+      "groupby": ["z"]
     }
   ]
 }
