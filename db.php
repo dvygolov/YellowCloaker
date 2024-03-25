@@ -233,11 +233,17 @@ class Db
                             ELSE (COUNT(DISTINCT CASE WHEN status = 'Purchase' THEN id END) * 100.0 / COUNT(DISTINCT CASE WHEN status IS NOT NULL THEN id END))
                        END AS app";
                     break;
+                case 'cpc':
+                    $selectParts[] = "(SUM(cost) * 1.0 / COUNT(id)) AS cpc";
+                    break;
+                case 'costs':
+                    $selectParts[] = "SUM(cost) AS costs";
+                    break;
                 case 'epc':
                     $selectParts[] = "(SUM(payout) * 1.0 / COUNT(id)) AS epc";
                     break;
                 case 'epuc':
-                    $selectParts[] = "(SUM(payout) * 1.0 / COUNT(DISTINCT(subid))) AS epc";
+                    $selectParts[] = "(SUM(payout) * 1.0 / COUNT(DISTINCT(subid))) AS epuc";
                     break;
                 case 'revenue':
                     $selectParts[] = "SUM(payout) AS revenue";
@@ -362,7 +368,21 @@ class Db
         foreach ($children as $child) {
             // Iterate over each key-value pair in the current array
             foreach ($child as $key => $value) {
-                if (in_array($key, ['_children', 'group', 'uniques_ratio', 'lpctr', 'cra', 'crs', 'appt', 'app', 'epc', 'epuc']))
+                if (
+                in_array($key, [
+                '_children',
+                'group',
+                'uniques_ratio',
+                'lpctr',
+                'cra',
+                'crs',
+                'appt',
+                'app',
+                'cpc',
+                'epc',
+                'epuc'
+                ])
+                )
                     continue;
                 if (!isset($sumArray[$key])) {
                     $sumArray[$key] = 0;
@@ -389,17 +409,22 @@ class Db
         if (in_array('app', $columns))
             $sumArray['app'] =
             $sumArray['conversion'] === 0 ? 0 : $sumArray['purchase'] * 1.0 / $sumArray['conversion'] * 100.0;
+
+        if (in_array('cpc', $columns))
+            $sumArray['cpc'] = $sumArray['clicks'] === 0 ? 0 : $sumArray['costs'] * 1.0 / $sumArray['clicks'];
         if (in_array('epc', $columns))
             $sumArray['epc'] = $sumArray['clicks'] === 0 ? 0 : $sumArray['revenue'] * 1.0 / $sumArray['clicks'];
         if (in_array('epuc', $columns))
             $sumArray['epuc'] = $sumArray['uniques'] === 0 ? 0 : $sumArray['revenue'] * 1.0 / $sumArray['uniques'] * 100;
+
         return $sumArray;
     }
 
     public function add_white_click($data, $reason, $config)
     {
         // Prepare click data
-        $click = $this->prepare_click_data($data, $reason, $config);
+        $click = $this->prepare_click_data($data, $config);
+        $click['reason'] = $reason;
 
         // Prepare SQL insert statement
         $query = "INSERT INTO blocked (time, ip, country, os, isp, ua, reason, params, config) VALUES (:time, :ip, :country, :os, :isp, :ua, :reason, :params, :config)";
@@ -424,13 +449,13 @@ class Db
     public function add_black_click($subid, $data, $preland, $land, $config)
     {
         // Prepare click data with the provided data and configuration
-        $click = $this->prepare_click_data($data, '', $config); // Assuming '' is used as a placeholder for 'reason'
+        $click = $this->prepare_click_data($data, $config); // Assuming '' is used as a placeholder for 'reason'
         $click['subid'] = $subid;
         $click['preland'] = empty($preland) ? 'unknown' : $preland;
         $click['land'] = empty($land) ? 'unknown' : $land;
 
         // Prepare the SQL INSERT statement for the 'clicks' table
-        $query = "INSERT INTO clicks (config, time, ip, country, os, isp, ua, subid, preland, land, params, lpclick, status) VALUES (:config, :time, :ip, :country, :os, :isp, :ua, :subid, :preland, :land, :params, 0, NULL)";
+        $query = "INSERT INTO clicks (config, time, ip, country, os, isp, ua, subid, preland, land, params, cost, lpclick, status) VALUES (:config, :time, :ip, :country, :os, :isp, :ua, :subid, :preland, :land, :params, :cpc, 0, NULL)";
 
         $db = $this->open_db();
         $stmt = $db->prepare($query);
@@ -528,29 +553,29 @@ class Db
         return ($row['count'] > 0);
     }
 
-    private function prepare_click_data($data, $reason, $config)
+    private function prepare_click_data($data, $config): array
     {
-        $queryarr = [];
+        $data["time"] = (new DateTime())->getTimestamp();
+        $data["config"] = $config;
+
+        $query = [];
         if (!empty($_SERVER['QUERY_STRING'])) {
-            parse_str($_SERVER['QUERY_STRING'], $queryarr);
+            parse_str($_SERVER['QUERY_STRING'], $query);
         }
 
-        return [
-        "time" => (new DateTime())->getTimestamp(),
-        "ip" => $data['ip'],
-        "country" => $data['country'],
-        "os" => $data['os'],
-        "isp" => str_replace(',', ' ', $data['isp']),
-        "ua" => str_replace(',', ' ', $data['ua']),
-        "reason" => $reason,
-        "params" => json_encode($queryarr),
-        "config" => $config
-        ];
+        if (array_key_exists("cpc", $query)) {
+            $data["cpc"] = $query["cpc"];
+            unset($query["cpc"]);
+        }
+
+        $data["params"] = json_encode($query);
+        return $data;
     }
 
     private function open_db(bool $readOnly = false): SQLite3
     {
-        $db = new SQLite3($this->dbPath, $readOnly ? SQLITE3_OPEN_READONLY : SQLITE3_OPEN_READWRITE);
+        $flags = ($readOnly ? SQLITE3_OPEN_READONLY : SQLITE3_OPEN_READWRITE) | SQLITE3_OPEN_CREATE;
+        $db = new SQLite3($this->dbPath, $flags);
         $db->busyTimeout(5000);
         return $db;
     }
@@ -574,6 +599,7 @@ class Db
                 leaddata TEXT,
                 lpclick BOOLEAN,
                 status TEXT,
+                cost NUMERIC DEFAULT 0,
                 payout NUMERIC DEFAULT 0
             );
             CREATE INDEX IF NOT EXISTS idx_config ON clicks (config);

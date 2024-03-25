@@ -171,6 +171,33 @@ function get_stats_columns(string $tName, array $columns, array $groupby, $timez
             ],
             "bottomCalc"=>"avg"
         ],
+        'cpc' => [
+            "title" => "CPC",
+            "field" => "cpc",
+            "width"=>"90",
+            "formatter"=> "money",
+            "formatterParams"=>[
+                "decimal"=> ".",
+                "thousand"=> ",",
+                "precision"=> 5,
+            ],
+            "bottomCalc"=>"avg"
+        ],
+        'costs' => [
+            "title" => "Costs",
+            "field" => "costs",
+            "width" => "100",
+            "formatter"=> "money",
+            "formatterParams"=>[
+                "decimal"=> ".",
+                "thousand"=> ",",
+                "precision"=> 2,
+            ],
+            "bottomCalc"=>"sum",
+            "bottomCalcParams"=>[
+                "precision" => 2,
+            ]
+        ],
         'epc' => [
             "title" => "EPC",
             "field" => "epc",
