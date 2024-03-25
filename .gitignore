@@ -357,3 +357,5 @@ healthchecksdb
 /white2
 /clicks.db
 /shop
+/clicks.db-shm
+/clicks.db-wal

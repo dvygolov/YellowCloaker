@@ -10,30 +10,13 @@
         "cra",
         "crs",
         "epc",
-        "revenue"
+        "cpc",
+        "costs",
+        "revenue",
+        "profit",
+        "roi"
       ],
       "groupby": ["creo"]
-    },
-    {
-      "name": "Site",
-      "columns": [
-        "clicks",
-        "uniques",
-        "conversion",
-        "purchase",
-        "hold",
-        "reject",
-        "trash",
-        "lpclicks",
-        "lpctr",
-        "cra",
-        "crs",
-        "appt",
-        "app",
-        "epc",
-        "revenue"
-      ],
-      "groupby": ["site"]
     }
   ]
 }

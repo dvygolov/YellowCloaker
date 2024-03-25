@@ -237,6 +237,35 @@ function get_stats_columns(string $tName, array $columns, array $groupby, $timez
                 "precision" => 2,
             ]
         ],
+        'profit' => [
+            "title" => "Profit",
+            "field" => "profit",
+            "width" => "100",
+            "formatter"=> "money",
+            "formatterParams"=>[
+                "decimal"=> ".",
+                "thousand"=> ",",
+                "precision"=> 2,
+            ],
+            "bottomCalc"=>"sum",
+            "bottomCalcParams"=>[
+                "precision" => 2,
+            ]
+        ],
+        'roi' => [
+            "title" => "ROI",
+            "field" => "roi",
+            "width"=>"90",
+            "formatter"=> "money",
+            "formatterParams"=>[
+                "decimal"=> ".",
+                "thousand"=> ",",
+                "symbol"=> "%",
+                "symbolAfter"=> true,
+                "precision"=> 2,
+            ],
+            "bottomCalc"=>"avg"
+        ],
     ];
 
     $tabulatorColumns = [];

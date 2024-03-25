@@ -248,6 +248,12 @@ class Db
                 case 'revenue':
                     $selectParts[] = "SUM(payout) AS revenue";
                     break;
+                case 'profit':
+                    $selectParts[] = "(SUM(payout) - SUM(cost)) as profit";
+                    break;
+                case 'roi':
+                    $selectParts[] = "((SUM(payout) - SUM(cost))*1.0 / SUM(cost) * 100.0) as roi";
+                    break;
             }
         }
 
@@ -574,8 +580,7 @@ class Db
 
     private function open_db(bool $readOnly = false): SQLite3
     {
-        $flags = ($readOnly ? SQLITE3_OPEN_READONLY : SQLITE3_OPEN_READWRITE) | SQLITE3_OPEN_CREATE;
-        $db = new SQLite3($this->dbPath, $flags);
+        $db = new SQLite3($this->dbPath, $readOnly ? SQLITE3_OPEN_READONLY : SQLITE3_OPEN_READWRITE);
         $db->busyTimeout(5000);
         return $db;
     }
@@ -623,7 +628,8 @@ class Db
             CREATE INDEX IF NOT EXISTS idx_btime ON blocked (time);
             PRAGMA journal_mode = wal;
             ";
-        $db = $this->open_db();
+        $db = new SQLite3($this->dbPath, SQLITE3_OPEN_CREATE | SQLITE3_OPEN_READWRITE);
+        $db->busyTimeout(5000);
         $db->exec($createTableSQL);
         $db->close();
     }
