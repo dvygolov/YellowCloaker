@@ -1,4 +1,44 @@
 <?php
+require_once __DIR__ . '/../db.php';
+function show_tables($startDate, $endDate, $dtz, $config):string    
+{
+    $tableData ='';
+    $db = new Db();
+    $sTables = get_table_settings();
+    foreach ($sTables['tables'] as $tSettings) {
+        $dataset = $db->getStatisticsData(
+            $tSettings['columns'], $tSettings['groupby'], $config, 
+            $startDate->getTimestamp(),$endDate->getTimestamp(), $dtz);
+        $dJson = json_encode($dataset);
+        $tName = $tSettings['name'];
+        $tColumns = get_stats_columns($tName, $tSettings['columns'], $tSettings['groupby'], $dtz);
+        $tableData.= <<<EOF
+            <div id="t$tName"></div>
+            <script>
+                let t{$tName}Data = $dJson;
+                let t{$tName}Columns = $tColumns;
+                let t{$tName}Table = new Tabulator('#t{$tSettings["name"]}', {
+                    layout: "fitColumns",
+                    columns: t{$tName}Columns,
+                    columnCalcs: "both",
+                    pagination: "local",
+                    paginationSize: 500,
+                    paginationSizeSelector: [25, 50, 100, 200, 500, 1000, 2000, 5000],
+                    paginationCounter: "rows",
+                    dataTree: true,
+                    dataTreeBranchElement:false,
+                    dataTreeStartExpanded:false,
+                    dataTreeChildIndent: 35,
+                    height: "100%",
+                    data: t{$tName}Data,
+                });
+            </script>
+            <br/>
+            <br/>
+EOF;
+   }
+    return $tableData;
+}
 
 function get_table_settings(): array
 {
