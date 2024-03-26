@@ -288,7 +288,7 @@ function get_stats_columns(string $tName, array $columns, array $groupby, $timez
         ],
         'profit' => [
             "title" => "Profit",
-            "field" => "revenue",
+            "field" => "profit",
             "width" => "100",
             "formatter"=> "money",
             "formatterParams"=>[
@@ -300,6 +300,18 @@ function get_stats_columns(string $tName, array $columns, array $groupby, $timez
             "bottomCalcParams"=>[
                 "precision" => 2,
             ]
+        ],
+        'roi' => [
+            "title" => "ROI",
+            "field" => "roi",
+            "width"=>"90",
+            "formatter"=> "money",
+            "formatterParams"=>[
+                "decimal"=> ".",
+                "thousand"=> ",",
+                "precision"=> 2,
+            ],
+            "bottomCalc"=>"avg"
         ],
     ];
 
@@ -328,7 +340,8 @@ function get_clicks_columns(string $filter, $timezone): string
                 {
                     "title": "IP",
                     "field": "ip",
-                    "width": "150"
+                    "width": "150",
+                    "headerFilter": "input"
                 },
                 {
                     "title": "Country",
@@ -360,7 +373,8 @@ function get_clicks_columns(string $filter, $timezone): string
                     "field": "reason",
                     "formatter": "plaintext",
                     "sorter": "string",
-                    "width": "80"
+                    "width": "80",
+                    "headerFilter": "input"
                 },
                 {
                     "title": "OS",
@@ -371,11 +385,17 @@ function get_clicks_columns(string $filter, $timezone): string
                 {
                     "title": "UA",
                     "field": "ua",
-                    "formatter": "textarea"
+                    "formatter": "textarea",
+                    "headerFilter": "input"
                 },
                 {
                     "title": "Subs",
                     "field": "params",
+                    "headerFilter": "input",
+                    "headerFilterFunc": function(headerValue, rowValue, rowData, filterParams){
+                        if (rowValue.length===0) return false;
+                        return JSON.stringify(rowValue).includes(headerValue); 
+                    },
                     "headerSort":false,
                     "formatter": function(cell, formatterParams, onRendered) {
                         var data = cell.getValue();
@@ -390,7 +410,7 @@ function get_clicks_columns(string $filter, $timezone): string
                         });
                         return formattedData;
                     }
-                }
+                },
             ]
 JSON;
             break;
@@ -429,15 +449,20 @@ JSON;
                 },
                 {
                     "title": "OS",
-                    "field": "os"
+                    "field": "os",
                 },
                 {
                     "title": "UA",
-                    "field": "ua"
+                    "field": "ua",
                 },
                 {
                     "title": "Subs",
                     "field": "params",
+                    "headerFilter": "input",
+                    "headerFilterFunc": function(headerValue, rowValue, rowData, filterParams){
+                        if (rowValue.length===0) return false;
+                        return JSON.stringify(rowValue).includes(headerValue); 
+                    },
                     "headerSort":false,
                     "formatter": function(cell, formatterParams, onRendered) {
                         var data = cell.getValue();
@@ -573,6 +598,11 @@ JSON;
                 {
                     "title": "Subs",
                     "field": "params",
+                    "headerFilter": "input",
+                    "headerFilterFunc": function(headerValue, rowValue, rowData, filterParams){
+                        if (rowValue.length===0) return false;
+                        return JSON.stringify(rowValue).includes(headerValue); 
+                    },
                     "headerSort":false,
                     "formatter": function(cell, formatterParams, onRendered) {
                         var data = cell.getValue();
