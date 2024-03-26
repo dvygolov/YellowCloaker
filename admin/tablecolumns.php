@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../db.php';
-function show_tables($startDate, $endDate, $dtz, $config):string    
+function show_stats($startDate, $endDate, $dtz, $config):string    
 {
     $tableData ='';
     $db = new Db();
@@ -31,6 +31,7 @@ function show_tables($startDate, $endDate, $dtz, $config):string
                     dataTreeChildIndent: 35,
                     height: "100%",
                     data: t{$tName}Data,
+                    tooltips: true
                 });
             </script>
             <br/>
@@ -397,6 +398,19 @@ function get_clicks_columns(string $filter, $timezone): string
                         return JSON.stringify(rowValue).includes(headerValue); 
                     },
                     "headerSort":false,
+                    "tooltip": function(e, cell, onRendered){
+                        var data = cell.getValue();
+
+                        var keys = Object.keys(data).sort();
+                        var formattedData = "";
+
+                        keys.forEach(function(key) {
+                            if (data.hasOwnProperty(key)) {
+                                formattedData += key + "=" + data[key] + "<br>";
+                            }
+                        });
+                        return formattedData;
+                    },
                     "formatter": function(cell, formatterParams, onRendered) {
                         var data = cell.getValue();
 
@@ -464,6 +478,19 @@ JSON;
                         return JSON.stringify(rowValue).includes(headerValue); 
                     },
                     "headerSort":false,
+                    "tooltip": function(e, cell, onRendered){
+                        var data = cell.getValue();
+
+                        var keys = Object.keys(data).sort();
+                        var formattedData = "";
+
+                        keys.forEach(function(key) {
+                            if (data.hasOwnProperty(key)) {
+                                formattedData += key + "=" + data[key] + "<br>";
+                            }
+                        });
+                        return formattedData;
+                    },
                     "formatter": function(cell, formatterParams, onRendered) {
                         var data = cell.getValue();
 
@@ -604,6 +631,19 @@ JSON;
                         return JSON.stringify(rowValue).includes(headerValue); 
                     },
                     "headerSort":false,
+                    "tooltip": function(e, cell, onRendered){
+                        var data = cell.getValue();
+
+                        var keys = Object.keys(data).sort();
+                        var formattedData = "";
+
+                        keys.forEach(function(key) {
+                            if (data.hasOwnProperty(key)) {
+                                formattedData += key + "=" + data[key] + "<br>";
+                            }
+                        });
+                        return formattedData;
+                    },
                     "formatter": function(cell, formatterParams, onRendered) {
                         var data = cell.getValue();
 

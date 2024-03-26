@@ -706,49 +706,6 @@ require_once __DIR__ . '/initialization.php';
             <div class="form-group-inner">
                 <div class="row">
                     <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                        <label class="login2 pull-left pull-left-pro"> TDS Mode:</label>
-                    </div>
-                    <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                        <div class="bt-df-checkbox pull-left">
-
-                            <div class="row">
-                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                    <div class="i-checks pull-left">
-                                        <label>
-                                            <input type="radio" <?= $tds_mode === 'on' ? 'checked' : '' ?> value="on" name="tds.mode" />
-                                            Standard
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                    <div class="i-checks pull-left">
-                                        <label>
-                                            <input type="radio" <?= $tds_mode === 'full' ? 'checked' : '' ?> value="full" name="tds.mode" />
-                                            Send all traffic to safe page
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                    <div class="i-checks pull-left">
-                                        <label>
-                                            <input type="radio" <?= $tds_mode === 'off' ? 'checked' : '' ?> value="off" name="tds.mode" />
-                                            Send all traffic to money page (TDS off)
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group-inner">
-                <div class="row">
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                         <label class="login2 pull-left pull-left-pro">
                             <img src="img/info.ico" title="If Yes then the user will always be shown the same content on every visit" />
                             Save user flow:

@@ -54,7 +54,6 @@ if ($black_preland_action==='none'&&$black_land_action==='redirect')
 else if ($black_jsconnect_action==='redirect')
     $black_jsconnect_action = 'replace';
 
-$tds_mode = $conf['tds.mode'];
 $tds_filters = $conf['tds.filters'];
 $save_user_flow = $conf['tds.saveuserflow'];
 

@@ -4,7 +4,6 @@ require_once __DIR__ . '/debug.php';
 require_once __DIR__ . '/settings.php';
 require_once __DIR__ . '/htmlprocessing.php';
 require_once __DIR__ . '/db.php';
-require_once __DIR__ . '/url.php';
 require_once __DIR__ . '/redirect.php';
 require_once __DIR__ . '/abtest.php';
 require_once __DIR__ . '/cookies.php';
@@ -22,9 +21,6 @@ switch ($black_land_action) {
         break;
     case 'redirect':
         $fullpath = select_item_by_index($black_land_redirect_urls, $l, false);
-        $fullpath = add_querystring($fullpath);
-        $fullpath = replace_all_macros($fullpath);
-        $fullpath = add_subs_to_link($fullpath);
         redirect($fullpath, $black_land_redirect_type, true,true,true);
         break;
 }

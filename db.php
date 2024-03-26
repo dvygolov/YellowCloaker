@@ -17,7 +17,7 @@ class Db
     public function get_white_clicks($startdate, $enddate, $config): array
     {
         // Prepare SQL query to select blocked clicks within the date range
-        $query = "SELECT * FROM blocked WHERE time BETWEEN :startDate AND :endDate AND config = :config";
+        $query = "SELECT * FROM blocked WHERE time BETWEEN :startDate AND :endDate AND config = :config ORDER BY time DESC";
 
         $db = $this->open_db(true);
         // Prepare statement
@@ -55,7 +55,7 @@ class Db
     public function get_black_clicks($startdate, $enddate, $config): array
     {
         // Prepare SQL query to select blocked clicks within the date range
-        $query = "SELECT id, time, ip, country, os, isp, ua, subid, preland, land, params FROM clicks WHERE time BETWEEN :startDate AND :endDate AND config = :config";
+        $query = "SELECT id, time, ip, country, os, isp, ua, subid, preland, land, params FROM clicks WHERE time BETWEEN :startDate AND :endDate AND config = :config ORDER BY time DESC";
 
         $db = $this->open_db(true);
         // Prepare statement
@@ -91,12 +91,14 @@ class Db
         return $clicks;
     }
 
-    public function get_clicks_by_subid($subid, $config): array
+    public function get_clicks_by_subid($subid, $firstOnly=false): array
     {
         if (empty($subid)) {
             return [];
         }
-        $query = "SELECT * FROM clicks WHERE subid = :subid AND config = :config";
+        $query = "SELECT * FROM clicks WHERE subid = :subid ORDER BY time DESC";
+        if ($firstOnly)
+            $query.=" LIMIT 1";
 
         $db = $this->open_db(true);
         // Prepare statement
@@ -104,14 +106,13 @@ class Db
 
         // Bind parameters to the prepared statement
         $stmt->bindValue(':subid', $subid, SQLITE3_TEXT);
-        $stmt->bindValue(':config', $config, SQLITE3_TEXT);
 
         // Execute the query
         $result = $stmt->execute();
 
         if ($result === false) {
             $errorMessage = $db->lastErrorMsg();
-            add_log("errors", "Get Clicks By Subid: $subid, $config $errorMessage");
+            add_log("errors", "Get Clicks By Subid: $subid, $errorMessage");
             $db->close();
             return [];
         }

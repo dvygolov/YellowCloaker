@@ -13,7 +13,7 @@ require_once __DIR__ . '/../settings.php';
     <?php include "menu.php" ?>
     <div class="all-content-wrapper">
         <?php include "header.php" ?>
-        <?=show_tables($startdate,$enddate,$stats_timezone,$config);?>
+        <?=show_stats($startdate,$enddate,$stats_timezone,$config);?>
     </div>
 </body>
 

@@ -1,6 +1,6 @@
 <?php
 
-global $tds_filters, $tds_mode, $black_jsconnect_action;
+global $tds_filters, $black_jsconnect_action;
 require_once __DIR__ . '/../debug.php';
 require_once __DIR__ . '/../core.php';
 require_once __DIR__ . '/../settings.php';
@@ -21,15 +21,14 @@ if (isset($_SERVER['HTTP_REFERER'])) {
 }
 header('Access-Control-Allow-Credentials: true');
 
-if ($is_bad_click === true || $tds_mode === 'full') {
-    //это бот, который прошёл javascript-проверку, ну или эта проверка выключена
+if ($is_bad_click) {
+    //это бот, который прошёл javascript-проверку
     $db = new Db();
     $db->add_white_click($cloaker->click_params, $cloaker->block_reason, $cur_config);
     header("Access-Control-Expose-Headers: YWBAction", false, 200);
     header("YWBAction: none", true, 200);
     return http_response_code(200);
-} else if ($is_bad_click === false || $tds_mode === 'off') { //Обычный юзверь или отключена фильтрация
-
+} else { //Обычный юзверь
     if ($black_jsconnect_action === 'redirect') { //если в настройках JS-подключения у нас редирект
         $url = rtrim(get_cloaker_path(), '/');
         $from = rtrim(strtok($_GET['uri'], '?'), '/');

@@ -58,14 +58,13 @@ function replace_landing_link($html, $land_number): string
     global $replace_prelanding, $replace_prelanding_address;
     $cloaker = get_cloaker_path();
     $querystr = $_SERVER['QUERY_STRING'];
-    //замена всех ссылок на прокле на универсальную ссылку ленда landing.php
+    //замена макроса {offer} на прокле на универсальную ссылку ленда landing.php
     $replacement = $cloaker . 'landing.php?l=' . $land_number . (!empty($querystr) ? '&' . $querystr : '');
 
     //если мы будем подменять преленд при переходе на ленд, то ленд надо открывать в новом окне
     if ($replace_prelanding) {
         $replacement = $replacement . '" target="_blank"';
         $url = replace_all_macros($replace_prelanding_address); //заменяем макросы
-        $url = add_subs_to_link($url); //добавляем сабы
         $html = insert_file_content($html, 'replaceprelanding.js', '</body>', true, true, '{REDIRECT}', $url);
     }
     $html = preg_replace('/\{offer\}/', $replacement, $html);
@@ -103,7 +102,6 @@ function load_landing($url)
     //если мы будем подменять ленд при переходе на страницу Спасибо, то Спасибо надо открывать в новом окне
     if ($replace_landing) {
         $replacelandurl = replace_all_macros($replace_landing_address); //заменяем макросы
-        $replacelandurl = add_subs_to_link($replacelandurl); //добавляем сабы
         $html = insert_file_content($html, 'replacelanding.js', '</body>', true, true, '{REDIRECT}', $replacelandurl);
     }
 

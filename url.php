@@ -35,23 +35,6 @@ function add_querystring($url)
     return $url;
 }
 
-function add_subs_to_link($url)
-{
-    global $sub_ids;
-    $preset = ['subid', 'prelanding', 'landing'];
-    foreach ($sub_ids as $sub) {
-        $key = $sub["name"];
-        $value = $sub["rewrite"];
-        $delimiter = (strpos($url, '?') === false ? "?" : "&");
-        if (in_array($key, $preset) && isset($_COOKIE[$key])) {
-            $url .= $delimiter . $value . '=' . $_COOKIE[$key];
-        } elseif (!empty($_GET[$key])) {
-            $url .= $delimiter . $value . '=' . $_GET[$key];
-        }
-    }
-    return $url;
-}
-
 function replace_subs_in_link($url)
 {
     global $sub_ids;

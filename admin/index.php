@@ -15,8 +15,8 @@ switch ($filter) {
         $dataset = $db->get_white_clicks($startdate->getTimestamp(), $enddate->getTimestamp(), $config);
         break;
     case 'single':
-        $click = $_GET['subid'] ?? '';
-        $dataset = $db->get_clicks_by_subid($click, $config);
+        $clickId = $_GET['subid'] ?? '';
+        $dataset = $db->get_clicks_by_subid($clickId);
         break;
     default:
         $dataset = $db->get_black_clicks($startdate->getTimestamp(), $enddate->getTimestamp(), $config);
@@ -40,11 +40,14 @@ switch ($filter) {
             layout: "fitColumns",
             columns: tableColumns,
             pagination: "local",
-            paginationSize: 25,
+            paginationSize: 50,
             paginationSizeSelector: [25, 50, 100, 200, 500],
             paginationCounter: "rows",
             height: "100%",
             data: tableData,
+            columnDefaults:{
+                tooltip:true,
+            }
         });
     </script>
 </body>
