@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    bootstrap="src/__.php"
+    colors="true"
+    verbose="true"
+    stopOnFailure="false"
+>
+    <testsuites>
+        <testsuite
+            name="testsuite"
+        >
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+        <server name="HTTPS" value="on" />
+        <server name="HTTP_HOST" value="github.com" />
+        <server name="REQUEST_URI" value="/vielhuber/stringhelper" />
+        <server name="HTTP_REFERER" value="https://google.de/" />
+        <server name="REMOTE_ADDR" value="192.168.178.1" />
+    </php>
+</phpunit>

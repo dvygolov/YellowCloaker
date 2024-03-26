@@ -3,7 +3,7 @@ require_once __DIR__ . '/settings.php';
 require_once __DIR__ . '/cookies.php';
 
 //заменяем все макросы на реальные значения из куки
-function replace_all_macros($url)
+function replace_url_macros($url)
 {
     $landing = get_cookie('landing');
     $prelanding = get_cookie('prelanding');
@@ -11,55 +11,30 @@ function replace_all_macros($url)
     $px = get_cookie('px');
     //TODO:сделать вытаскивание пикселей
 
-    $tmp_url = str_replace('{px}', $px, $url);
-    $tmp_url = str_replace('{landing}', $landing, $tmp_url);
-    $tmp_url = str_replace('{prelanding}', $prelanding, $tmp_url);
-    $tmp_url = str_replace('{subid}', $subid, $tmp_url);
-    $tmp_url = str_replace('{domain}', $_SERVER['HTTP_HOST'], $tmp_url);
-    return $tmp_url;
-}
-
-function add_querystring($url)
-{
-    $delimiter = (!str_contains($url, '?') ? "?" : "&");
-
-    $qs = $_SERVER['QUERY_STRING'];
-    if (!empty($qs)) {
-        parse_str($qs, $qp);
-        if (isset($qp['l'])) { //we remove the landing number here
-            unset($qp['l']);
-        }
-        $qs = http_build_query($qp);
-        $url = $url . $delimiter . $qs;
-    }
+    $url = str_replace('{px}', $px, $url);
+    $url = str_replace('{landing}', $landing, $url);
+    $url = str_replace('{prelanding}', $prelanding, $url);
+    $url = str_replace('{subid}', $subid, $url);
+    $url = str_replace('{domain}', $_SERVER['HTTP_HOST'], $url);
     return $url;
 }
 
 function replace_subs_in_link($url)
 {
-    global $sub_ids;
     $preset = ['subid', 'prelanding', 'landing'];
 
-    // Parse the URL to get its components
     $url_components = parse_url($url);
-
-    // Parse the query string into an associative array
     parse_str($url_components['query'] ?? '', $query_array);
 
     // Iterate over the $sub_ids and replace the keys
-    foreach ($sub_ids as $sub) {
-        $key = $sub["name"];
-        $value = $sub["rewrite"];
+    foreach ($query_array as $qk=>$qv) {
+        if ($qv[0]!=='{' || $qv[count($qv)-1]!=='}') continue; //we need only macroses
 
-        if (array_key_exists($key, $query_array)) {
-            // Replace the key in the query array
-            $query_array[$value] = $query_array[$key];
-            unset($query_array[$key]);
-        } elseif (in_array($key, $preset)) {
+        if (in_array($key, $preset)) {
             // Set from cookie if not in query string
-            $cookie = get_cookie($key);
+            $cookie = get_cookie($qv);
             if ($cookie!=='')
-                $query_array[$value] = $cookie;
+                $query_array[$qk] = $cookie;
         }
     }
 

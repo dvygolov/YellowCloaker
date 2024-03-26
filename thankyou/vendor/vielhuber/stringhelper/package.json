@@ -1,0 +1,28 @@
+{
+  "name": "stringhelper",
+  "version": "1.0.0",
+  "description": "[![Build Status](https://travis-ci.org/vielhuber/stringhelper.svg?branch=master)](https://travis-ci.org/vielhuber/stringhelper)",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@prettier/plugin-php": "^0.14.3",
+    "prettier": "^2.3.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vielhuber/stringhelper.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vielhuber/stringhelper/issues"
+  },
+  "homepage": "https://github.com/vielhuber/stringhelper#readme"
+}

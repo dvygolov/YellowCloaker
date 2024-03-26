@@ -38,7 +38,7 @@ function load_prelanding($url, $land_number): string
     $html = fix_head_add_base($html, $fullpath);
     $html = fix_src($html);
 
-    $html = replace_macros($html);
+    $html = replace_html_macros($html);
     $html = fix_phone_and_name($html);
     //добавляем во все формы сабы
     $html = insert_subs_into_forms($html);
@@ -64,7 +64,7 @@ function replace_landing_link($html, $land_number): string
     //если мы будем подменять преленд при переходе на ленд, то ленд надо открывать в новом окне
     if ($replace_prelanding) {
         $replacement = $replacement . '" target="_blank"';
-        $url = replace_all_macros($replace_prelanding_address); //заменяем макросы
+        $url = replace_url_macros($replace_prelanding_address); //заменяем макросы
         $html = insert_file_content($html, 'replaceprelanding.js', '</body>', true, true, '{REDIRECT}', $url);
     }
     $html = preg_replace('/\{offer\}/', $replacement, $html);
@@ -101,7 +101,7 @@ function load_landing($url)
     }
     //если мы будем подменять ленд при переходе на страницу Спасибо, то Спасибо надо открывать в новом окне
     if ($replace_landing) {
-        $replacelandurl = replace_all_macros($replace_landing_address); //заменяем макросы
+        $replacelandurl = replace_url_macros($replace_landing_address); //заменяем макросы
         $html = insert_file_content($html, 'replacelanding.js', '</body>', true, true, '{REDIRECT}', $replacelandurl);
     }
 
@@ -109,7 +109,7 @@ function load_landing($url)
     $html = insert_subs_into_forms($html);
 
     $html = fix_anchors($html);
-    $html = replace_macros($html);
+    $html = replace_html_macros($html);
     //заменяем поле с телефоном на более удобный тип - tel + добавляем autocomplete
     $html = fix_phone_and_name($html);
 
@@ -166,14 +166,16 @@ function fix_phone_and_name($html)
     return $html;
 }
 
-function replace_macros($html): string
+function replace_html_macros($html): string
 {
     $ip = getip();
-    $subid = get_subid();
     $html = preg_replace_callback('/\{city,([^\}]+)\}/', function ($m) use ($ip) {
         return getcity($ip, $m[1]);
     }, $html);
+
+    $subid = get_subid();
     $html = preg_replace('/\{subid\}/', $subid, $html);
+
     $px = get_px();
     $html = preg_replace('/\{px\}/', $px, $html);
     return $html;

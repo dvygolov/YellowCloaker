@@ -128,7 +128,7 @@ function black($clkrdetect)
                     echo load_landing($landing);
                     break;
                 case 'redirect':
-                    redirect($landing,$black_land_redirect_type,false,true,true);
+                    redirect($landing,$black_land_redirect_type,true);
                     break;
             }
             break;

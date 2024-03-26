@@ -38,12 +38,11 @@ function is_https():bool
     return $isSecure;
 }
 
-function get_abs_from_rel($url, $add_query_string = false)
+function get_abs_from_rel($url)
 {
     $fullpath = get_cloaker_path();
     $fullpath .= $url;
     if (!str_ends_with($url, '.php')) $fullpath = $fullpath . '/';
-    if ($add_query_string) $fullpath = add_querystring($fullpath);
     return $fullpath;
 }
 

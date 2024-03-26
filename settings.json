@@ -5,7 +5,7 @@
             "localhost"
         ],
         "white": {
-            "action": "redirect",
+            "action": "error",
             "folder": {
                 "names": [
                     "white"
@@ -42,7 +42,7 @@
                 ]
             },
             "jschecks": {
-                "enabled": true,
+                "enabled": false,
                 "events": [
                     "audiocontext",
                     "timezone"
@@ -56,7 +56,7 @@
         },
         "black": {
             "prelanding": {
-                "action": "folder",
+                "action": "none",
                 "folders": [
                     "preland"
                 ],
@@ -80,9 +80,9 @@
                 },
                 "redirect": {
                     "urls": [
-                        "https://yandex.ru"
+                        "https://bigbonusbounty.life/?u=phak602&o=3548g36&t=freeclo"
                     ],
-                    "type": "307"
+                    "type": "302"
                 }
             },
             "jsconnect": "replace"
@@ -94,64 +94,9 @@
         "tds": {
             "mode": "on",
             "saveuserflow": false,
-            "filters": {
-                "condition": "AND",
-                "rules": [
-                    {
-                        "id": "os",
-                        "field": "os",
-                        "type": "string",
-                        "input": "text",
-                        "operator": "in",
-                        "value": "Android,iOS,Windows,OS X"
-                    },
-                    {
-                        "id": "country",
-                        "field": "country",
-                        "type": "string",
-                        "input": "text",
-                        "operator": "in",
-                        "value": "RU,BY,UA"
-                    },
-                    {
-                        "id": "useragent",
-                        "field": "useragent",
-                        "type": "string",
-                        "input": "text",
-                        "operator": "not_contains",
-                        "value": "facebook,facebot,curl,gce-spider,yandex.com,odklbot"
-                    },
-                    {
-                        "id": "isp",
-                        "field": "isp",
-                        "type": "string",
-                        "input": "text",
-                        "operator": "not_contains",
-                        "value": "facebook,google,yandex,amazon,azure,digitalocean,microsoft"
-                    },
-                    {
-                        "condition": "OR",
-                        "rules": [
-                            {
-                                "id": "url",
-                                "field": "url",
-                                "type": "string",
-                                "input": "text",
-                                "operator": "contains",
-                                "value": "new"
-                            },
-                            {
-                                "id": "referer",
-                                "field": "referer",
-                                "type": "string",
-                                "input": "text",
-                                "operator": "not_equal"
-                            }
-                        ]
-                    }
-                ],
-                "valid": true
-            }
+            "filters": [
+                "null"
+            ]
         },
         "scripts": {
             "prelandingreplace": {
@@ -162,24 +107,12 @@
                 "use": false,
                 "url": "https://ya.ru"
             },
-            "imageslazyload": true
+            "imageslazyload": false
         },
         "subids": [
             {
                 "name": "subid",
-                "rewrite": "sub1"
-            },
-            {
-                "name": "adn",
-                "rewrite": "sub2"
-            },
-            {
-                "name": "ad",
-                "rewrite": "sub3"
-            },
-            {
-                "name": "pl",
-                "rewrite": "sub4"
+                "rewrite": "cid"
             }
         ],
         "statistics": {
@@ -188,17 +121,9 @@
                 {
                     "name": "adn",
                     "value": "Adset"
-                },
-                {
-                    "name": "ad",
-                    "value": "Creative"
-                },
-                {
-                    "name": "pl",
-                    "value": "Placement"
                 }
             ],
-            "timezone": "Europe/Moscow"
+            "timezone": "Europe/Samara"
         },
         "postback": {
             "lead": "Lead",

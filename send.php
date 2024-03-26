@@ -28,7 +28,7 @@ if ($subid === '' && isset($_POST['subid']))
 
 //если юзверь каким-то чудом отправил пустые поля в форме
 if ($name === '' || $phone === '') {
-    redirect('thankyou.php?nopixel=1');
+    redirect('thankyou/thankyou.php?nopixel=1');
     return;
 }
 

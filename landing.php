@@ -21,6 +21,6 @@ switch ($black_land_action) {
         break;
     case 'redirect':
         $fullpath = select_item_by_index($black_land_redirect_urls, $l, false);
-        redirect($fullpath, $black_land_redirect_type, true,true,true);
+        redirect($fullpath, $black_land_redirect_type, true);
         break;
 }
