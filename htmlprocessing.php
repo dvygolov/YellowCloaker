@@ -220,7 +220,26 @@ function load_white_curl($url, $add_js_check)
     //удаляем лишние палящие теги
     $html = preg_replace('/(<meta property=\"og:url\" [^>]+>)/', "", $html);
     $html = preg_replace('/(<link rel=\"canonical\" [^>]+>)/', "", $html);
-
+    //режем все трекинговые скрипты
+    $tracking_scripts = array(
+        'google_analytics' => 'https://www.google-analytics.com/analytics.js',
+        'google_tag_manager' => 'https://www.googletagmanager.com/gtag/js',
+        'facebook_pixel' => 'connect.facebook.net/en_US/fbevents.js',
+        'twitter_conversion' => 'https://platform.twitter.com/oct.js',
+        'linkedin_insight_tag' => 'https://snap.licdn.com/li.lms-analytics/insight.min.js',
+        'pinterest_tag' => '//s.pinimg.com/ct/core.js',
+        'adobe_dtm' => 'https://assets.adobedtm.com',
+        'adobe_analytics' => '.sc.omtrdc.net/s/s_code.js',
+        'hubspot_tracking_code' => '//js.hs-scripts.com/',
+        'bing_ads' => '//bat.bing.com/bat.js',
+        'crazy_egg' => '//script.crazyegg.com/pages/scripts/',
+        'yandex_metrika' => 'https://mc.yandex.ru/metrika/tag.js',
+        'hotjar' => 'static.hotjar.com/c/hotjar'
+    );
+    foreach ($tracking_scripts as $key => $url) {
+        $pattern = '#<script[^>]*(src="[^"]*' . preg_quote($url) . '[^"]*")[^>]*>.*?</script>|<script[^>]*>[^<]*' . preg_quote($url) . '[^<]*</script>#is';
+        $html = preg_replace($pattern, '', $html);
+    }
     //добавляем в <head> пару доп. метатегов
     $html = str_replace('<head>', '<head><meta name="referrer" content="no-referrer"><meta name="robots" content="noindex, nofollow">', $html);
 
