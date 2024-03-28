@@ -3,7 +3,7 @@ require_once __DIR__ . '/js/obfuscator.php';
 require_once __DIR__ . '/bases/ipcountry.php';
 require_once __DIR__ . '/requestfunc.php';
 require_once __DIR__ . '/htmlinject.php';
-require_once __DIR__ . '/url.php';
+require_once __DIR__ . '/macros.php';
 require_once __DIR__ . '/cookies.php';
 
 function load_content_with_include($url): string
@@ -166,20 +166,6 @@ function fix_phone_and_name($html)
     return $html;
 }
 
-function replace_html_macros($html): string
-{
-    $ip = getip();
-    $html = preg_replace_callback('/\{city,([^\}]+)\}/', function ($m) use ($ip) {
-        return getcity($ip, $m[1]);
-    }, $html);
-
-    $subid = get_subid();
-    $html = preg_replace('/\{subid\}/', $subid, $html);
-
-    $px = get_px();
-    $html = preg_replace('/\{px\}/', $px, $html);
-    return $html;
-}
 
 function fix_anchors($html)
 {

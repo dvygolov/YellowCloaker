@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/url.php';
+require_once __DIR__ . '/macros.php';
 
 function redirect($url, $redirect_type = 302, $rep_macros = false): void
 {

@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/bases/ipcountry.php';
-require_once __DIR__ . '/url.php';
 
 function get_cloaker_path(): string
 {
