@@ -1,5 +1,5 @@
 <?php
-include_once __DIR__.'/../requestfunc.php';
+include_once __DIR__.'/../../requestfunc.php';
 class LibreTranslate
 {
     private $translateAddress = 'https://libretranslate.de/translate';
@@ -12,9 +12,15 @@ class LibreTranslate
 
     public function translate($text, $sourceLang, $targetLang)
     {
-
         $params = array("q" => $text, "source" => $sourceLang, "target" => $targetLang, "format" => "text");
-        $json = json_decode(post($this->translateAddress, $params));
+        $res = post($this->translateAddress, $params);
+        if ($res['info']['http_code']!==200){
+            add_log("thankyou",
+                "Can't translate text '$text' from $sourceLang to $targetLang using Libretranslate. Error {$res['error']}");
+            return 'error';
+        }
+
+        $json = json_decode($res['html']);
         if (isset($json->error)) //this language is not supported so we show an english version
             return 'error';
         else

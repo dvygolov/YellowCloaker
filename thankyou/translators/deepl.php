@@ -1,5 +1,6 @@
 <?php
-include_once __DIR__.'/../requestfunc.php';
+include_once __DIR__.'/../../requestfunc.php';
+include_once __DIR__.'/../../logging.php';
 class Deepl
 {
     private $apiKey = ""; //enter your Deepl API KEY here
@@ -20,7 +21,12 @@ class Deepl
             "target_lang" => strtoupper($targetLang)
         );
         $res = post($translateAddress, $params);
-        $json = json_decode($res);
+        if ($res['info']['http_code']!==200){
+            add_log("thankyou",
+                "Can't translate text '$text' from $sourceLang to $targetLang using Deepl. Error {$res['error']}");
+            return 'error';
+        }
+        $json = json_decode($res['html']);
         if (!isset($json))
             return 'error';
         else
