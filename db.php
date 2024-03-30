@@ -466,6 +466,10 @@ class Db
 
         $db = $this->open_db();
         $stmt = $db->prepare($query);
+        if ($stmt === false) {
+            $errorMessage = $db->lastErrorMsg();
+            add_log("errors", "Couldn't prepare black click: $errorMessage:" . json_encode($click));
+        }
 
         // Bind parameters from the $click array to the prepared statement
         foreach ($click as $key => $value) {

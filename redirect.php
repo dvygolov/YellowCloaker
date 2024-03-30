@@ -17,3 +17,4 @@ function jsredirect($url): void
 {
     echo "<script type='text/javascript'> window.location='$url';</script>";
 }
+

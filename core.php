@@ -45,8 +45,6 @@ class Cloaker
 
     private function match_filters(bool $all, array|null $filters): bool
     {
-        if ($filters===null) 
-            return true;
         for ($i = 0; $i < count($filters); $i++) {
             $f = $filters[$i];
             if (!empty($f['condition'])) //this is a filter group
@@ -64,7 +62,7 @@ class Cloaker
 
     private function match_filter(array $filter): bool
     {
-        $val = $filter['value']??'';
+        $val = $filter['value'] ?? '';
 
         switch ($filter['id']) {
             case 'os':
@@ -83,14 +81,18 @@ class Cloaker
                 return $this->operator($val, $filter['operator'], 'referer');
             case 'vpntor':
                 $vpnDetected = $this->is_proxy_or_vpn($this->click_params['ip']);
-                if ($val === 0 && $vpnDetected) return true;
-                if ($val === 1 && !$vpnDetected) return true;
+                if ($val === 0 && $vpnDetected)
+                    return true;
+                if ($val === 1 && !$vpnDetected)
+                    return true;
                 $this->block_reason = $filter['id'];
                 return false;
             case 'ipbase':
-                $inBase = $this->is_ip_in_base($this->click_params['ip'],$val);
-                if ($filter['operator']==='contains' && $inBase) return true;
-                if ($filter['operator']==='not_contains' && !$inBase) return true;
+                $inBase = $this->is_ip_in_base($this->click_params['ip'], $val);
+                if ($filter['operator'] === 'contains' && $inBase)
+                    return true;
+                if ($filter['operator'] === 'not_contains' && !$inBase)
+                    return true;
                 $this->block_reason = $filter['id'];
                 return false;
         }
@@ -101,6 +103,8 @@ class Cloaker
     {
         try {
             DebugMethods::start();
+            if (!array_key_exists('rules', $this->s))
+                return false;
             return !$this->match_filters($this->s['condition'] === 'AND', $this->s['rules']);
         } finally {
             DebugMethods::stop("YWBCoreCheck");
@@ -149,7 +153,7 @@ class Cloaker
 
     private function is_ip_in_base($ip, $baseFileName): bool
     {
-        $base_full_path = __DIR__ . "/bases/".$baseFileName;
+        $base_full_path = __DIR__ . "/bases/" . $baseFileName;
         if (!file_exists($base_full_path))
             return false;
         $cidr = file($base_full_path, FILE_IGNORE_NEW_LINES);
@@ -172,9 +176,9 @@ class Cloaker
                 $values = explode(',', $val);
                 $contains = false;
                 foreach ($values as $value) {
-                    if (empty($value)) continue;
-                    if (stripos($this->click_params[$param], $value) !== false)
-                    {
+                    if (empty($value))
+                        continue;
+                    if (stripos($this->click_params[$param], $value) !== false) {
                         $contains = true;
                         break;
                     }
@@ -186,9 +190,9 @@ class Cloaker
                 $values = explode(',', $val);
                 $contains = false;
                 foreach ($values as $value) {
-                    if (empty($value)) continue;
-                    if (stripos($this->click_params[$param], $value) !== false)
-                    {
+                    if (empty($value))
+                        continue;
+                    if (stripos($this->click_params[$param], $value) !== false) {
                         $contains = true;
                         break;
                     }

@@ -27,19 +27,25 @@ if ($payout === '') {
     return;
 }
 $inner_status = '';
-switch ($status) {
-    case $lead_status_name:
+switch (strtolower($status)) {
+    case strtolower($lead_status_name):
         $inner_status = 'Lead';
         break;
-    case $purchase_status_name:
+    case strtolower($purchase_status_name):
         $inner_status = 'Purchase';
         break;
-    case $reject_status_name:
+    case strtolower($reject_status_name):
         $inner_status = 'Reject';
         break;
-    case $trash_status_name:
+    case strtolower($trash_status_name):
         $inner_status = 'Trash';
         break;
+}
+
+if ($inner_status === '') {
+    http_response_code(500);
+    echo "Status $status is unknown! Url: $curLink";
+    return;
 }
 
 if ($subid === '' || $status === '')
@@ -67,8 +73,8 @@ function process_s2s_posbacks(array $s2s_postbacks, string $inner_status, string
     foreach ($s2s_postbacks as $s2s) {
         if (!in_array($inner_status, $s2s['events'])) continue;
         if (empty($s2s['url'])) continue;
-        $final_url = str_replace('{status}', $inner_status, $final_url);
-        $final_url = $mp->replace_url_macros($s2s['url']);
+        $final_url = str_replace('{status}', $inner_status, $s2s['url']);
+        $final_url = $mp->replace_url_macros($final_url);
         $s2s_res = '';
         switch ($s2s['method']) {
             case 'GET':

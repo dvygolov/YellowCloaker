@@ -41,7 +41,7 @@ class MacrosProcessor
         foreach ($query_array as $qk => $qv) {
             if (empty($qv))
                 continue;
-            if ($qv[0] !== '{' || $qv[count($qv) - 1] !== '}')
+            if ($qv[0] !== '{' || $qv[strlen($qv) - 1] !== '}')
                 continue; //we need only macroses
 
             $macro = substr($qv, 1, strlen($qv) - 2);
@@ -85,7 +85,12 @@ class MacrosProcessor
                 return false;
             } else {
                 $clicks = $db->get_clicks_by_subid($this->subid, true);
-                $p = json_decode($clicks[0]['params'], true);
+                if(count($clicks[0]['params'])==0){
+                    add_log("macros",
+                        "Couldn't find click macro $macro value. Subid:$this->subid, Params are EMPTY!");
+                    return false;
+                }
+                $p = $clicks[0]['params'];
                 $cmacro = substr($macro, 2);
                 if (array_key_exists($cmacro, $p)) {
                     return $p[$cmacro];
