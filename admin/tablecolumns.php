@@ -69,6 +69,12 @@ function get_stats_columns(string $tName, array $columns, array $groupby, $timez
             "headerFilter" => "input",
             "width" => "50",
         ],
+        'lang' => [
+            "title" => "Lang",
+            "field" => "lang",
+            "headerFilter" => "input",
+            "width" => "50",
+        ],
         'isp' => [
             "title" => "ISP",
             "field" => "isp",
@@ -444,6 +450,10 @@ JSON;
                     "field": "country"
                 },
                 {
+                    "title": "Lang",
+                    "field": "lang"
+                },
+                {
                     "title": "ISP",
                     "field": "isp"
                 },
@@ -589,6 +599,12 @@ JSON;
                     "field": "country",
                     "headerFilter": "input",
                     "width": "80"
+                },
+                {
+                    "title": "Lang",
+                    "field": "lang",
+                    "headerFilter": "input",
+                    "width": "50"
                 },
                 {
                     "title": "ISP",
