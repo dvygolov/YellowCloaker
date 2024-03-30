@@ -10,7 +10,7 @@ require_once __DIR__ . '/cookies.php';
 
 //добавляем в лог факт пробива проклы
 $db = new Db();
-$db->add_lpctr(get_subid()); //запись пробива проклы
+$db->add_lpctr(get_cookie('subid')); //запись пробива проклы
 
 $l = $_GET['l'] ?? -1;
 

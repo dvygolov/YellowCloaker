@@ -56,6 +56,7 @@ else if ($black_jsconnect_action==='redirect')
 
 $tds_filters = $conf['tds.filters'];
 $save_user_flow = $conf['tds.saveuserflow'];
+$tds_api_key = $conf['tds.apikey'];
 
 $replace_prelanding = $conf['scripts.prelandingreplace.use'];
 $replace_prelanding_address = $conf['scripts.prelandingreplace.url'];
@@ -69,7 +70,6 @@ $admin_password = strval($conf['statistics.password']);
 $stats_timezone = $conf->get('statistics.timezone', 'Europe/Moscow');
 
 $s2s_postbacks = $conf['postback.s2s'];
-
 $lead_status_name = $conf['postback.lead'];
 $purchase_status_name = $conf['postback.purchase'];
 $reject_status_name = $conf['postback.reject'];

@@ -62,11 +62,13 @@ if ($updated) {
 
 function process_s2s_posbacks(array $s2s_postbacks, string $inner_status, string $subid): void
 {
+    global $tds_api_key;
+    $mp = new MacrosProcessor($tds_api_key, $subid);
     foreach ($s2s_postbacks as $s2s) {
         if (!in_array($inner_status, $s2s['events'])) continue;
         if (empty($s2s['url'])) continue;
         $final_url = str_replace('{status}', $inner_status, $final_url);
-        $final_url = replace_url_macros($s2s['url'],$subid);
+        $final_url = $mp->replace_url_macros($s2s['url']);
         $s2s_res = '';
         switch ($s2s['method']) {
             case 'GET':

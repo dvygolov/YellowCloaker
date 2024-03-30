@@ -10,7 +10,9 @@ function load_content_with_include($url): string
 {
     ob_start();
     $fulldir = __DIR__ . '/' . $url;
-    if (str_ends_with($fulldir,".php")||str_ends_with($fulldir,".html")){
+    if (str_ends_with($fulldir,".php")||
+        str_ends_with($fulldir,".html")||
+        str_ends_with($fulldir,".htm")){
         require $fulldir;
     }
     // Check for each file and require/include the first one that exists
@@ -29,6 +31,8 @@ function load_content_with_include($url): string
 //Подгрузка контента блэк проклы из другой папки
 function load_prelanding($url, $land_number): string
 {
+    global $replace_prelanding, $replace_prelanding_address;
+    global $tds_api_key;
     $fullpath = get_abs_from_rel($url);
 
     $html = load_content_with_include($url);
@@ -38,7 +42,8 @@ function load_prelanding($url, $land_number): string
     $html = fix_head_add_base($html, $fullpath);
     $html = fix_src($html);
 
-    $html = replace_html_macros($html);
+    $mp = new MacrosProcessor($tds_api_key);
+    $html = $mp->replace_html_macros($html);
     $html = fix_phone_and_name($html);
     //добавляем во все формы сабы
     $html = insert_subs_into_forms($html);
@@ -46,16 +51,6 @@ function load_prelanding($url, $land_number): string
     //убираем target=_blank если был изначально на прокле
     $html = preg_replace('/(<a[^>]+)(target="_blank")/i', "\\1", $html);
 
-    $html = replace_landing_link($html, $land_number);
-
-    $html = add_images_lazy_load($html);
-
-    return $html;
-}
-
-function replace_landing_link($html, $land_number): string
-{
-    global $replace_prelanding, $replace_prelanding_address;
     $cloaker = get_cloaker_path();
     $querystr = $_SERVER['QUERY_STRING'];
     //замена макроса {offer} на прокле на универсальную ссылку ленда landing.php
@@ -64,19 +59,22 @@ function replace_landing_link($html, $land_number): string
     //если мы будем подменять преленд при переходе на ленд, то ленд надо открывать в новом окне
     if ($replace_prelanding) {
         $replacement = $replacement . '" target="_blank"';
-        $url = replace_url_macros($replace_prelanding_address); //заменяем макросы
+        $url = $mp->replace_url_macros($replace_prelanding_address); //заменяем макросы
         $html = insert_file_content($html, 'replaceprelanding.js', '</body>', true, true, '{REDIRECT}', $url);
     }
     $html = preg_replace('/\{offer\}/', $replacement, $html);
+
+    $html = add_images_lazy_load($html);
+
     return $html;
 }
-
 
 //Подгрузка контента блэк ленда из другой папки
 function load_landing($url)
 {
     global $black_land_use_custom_thankyou_page;
     global $replace_landing, $replace_landing_address;
+    global $tds_api_key;
 
     $fullpath = get_abs_from_rel($url);
 
@@ -99,9 +97,11 @@ function load_landing($url)
             $html
         );
     }
+
+    $mp = new MacrosProcessor($tds_api_key);
     //если мы будем подменять ленд при переходе на страницу Спасибо, то Спасибо надо открывать в новом окне
     if ($replace_landing) {
-        $replacelandurl = replace_url_macros($replace_landing_address); //заменяем макросы
+        $replacelandurl = $mp->replace_url_macros($replace_landing_address); //заменяем макросы
         $html = insert_file_content($html, 'replacelanding.js', '</body>', true, true, '{REDIRECT}', $replacelandurl);
     }
 
@@ -109,7 +109,7 @@ function load_landing($url)
     $html = insert_subs_into_forms($html);
 
     $html = fix_anchors($html);
-    $html = replace_html_macros($html);
+    $html = $mp->replace_html_macros($html);
     //заменяем поле с телефоном на более удобный тип - tel + добавляем autocomplete
     $html = fix_phone_and_name($html);
 

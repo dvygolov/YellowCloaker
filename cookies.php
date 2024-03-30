@@ -13,18 +13,6 @@ function get_cookie($name): string
     return $_COOKIE[$name] ?? $_SESSION[$name] ?? '';
 }
 
-function get_subid(): string
-{
-    $subid = get_cookie('subid');
-    return $subid;
-}
-
-function get_px(): string
-{
-    $px = get_cookie('px');
-    return $px;
-}
-
 function set_subid(): string
 {
     if (session_status() !== PHP_SESSION_ACTIVE) {

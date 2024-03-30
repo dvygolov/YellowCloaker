@@ -2,79 +2,116 @@
 require_once __DIR__ . '/cookies.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/logging.php';
+require_once __DIR__ . '/settings.php';
 
-function replace_html_macros($html): string
+class MacrosProcessor
 {
-    $ip = getip();
-    $html = preg_replace_callback('/\{city,([^\}]+)\}/', function ($m) use ($ip) {
-        return getcity($ip, $m[1]);
-    }, $html);
+    private string $subid;
+    private string $hashSalt;
 
-    $subid = get_subid();
-    $html = preg_replace('/\{subid\}/', $subid, $html);
+    public function __construct($hashSalt, $subid = null)
+    {
+        global $cur_config;
+        $this->subid = $subid ?? get_cookie('subid');
+        if (is_null($hashSalt))
+            add_log("macros","Salt is NULL! Error in config $cur_config");
+        $this->hashSalt = $hashSalt;
+    }
 
-    $px = get_px();
-    $html = preg_replace('/\{px\}/', $px, $html);
-    return $html;
-}
+    public function replace_html_macros($html): string
+    {
+        $ip = getip();
+        $html = preg_replace_callback('/\{city,([^\}]+)\}/', function ($m) use ($ip) {
+            return getcity($ip, $m[1]);
+        }, $html);
 
-function replace_url_macros($url, $subid=null)
-{
-    $subid = $subid??get_subid();
-    $db = new Db();
-    $preset = ['subid', 'prelanding', 'landing'];
+        $html = preg_replace('/\{subid\}/', $this->subid, $html);
 
-    $url_components = parse_url($url);
-    parse_str($url_components['query'] ?? '', $query_array);
+        $px = get_cookie('px');
+        $html = preg_replace('/\{px\}/', $px, $html);
+        return $html;
+    }
 
-    // Iterate over the $sub_ids and replace the keys
-    foreach ($query_array as $qk=>$qv) {
-        if (empty($qv)) continue;
-        if ($qv[0]!=='{' || $qv[count($qv)-1]!=='}') continue; //we need only macroses
+    public function replace_url_macros($url): string
+    {
+        $url_components = parse_url($url);
+        parse_str($url_components['query'] ?? '', $query_array);
 
-        $macro = substr($qv,1,strlen($qv)-2);;
+        // Iterate over the $sub_ids and replace the keys
+        foreach ($query_array as $qk => $qv) {
+            if (empty($qv))
+                continue;
+            if ($qv[0] !== '{' || $qv[count($qv) - 1] !== '}')
+                continue; //we need only macroses
+
+            $macro = substr($qv, 1, strlen($qv) - 2);
+            $macroValue = $this->get_macro_value($macro);
+            if ($macroValue === false)
+                continue; //HINT: should we log $url?
+            $query_array[$qk] = $macroValue;
+        }
+
+        // Build the new query string
+        $new_query = http_build_query($query_array);
+
+        // Rebuild the URL
+        $new_url = $url_components['scheme'] . '://' . $url_components['host'];
+        if (isset($url_components['path'])) {
+            $new_url .= $url_components['path'];
+        }
+        if ($new_query) {
+            $new_url .= '?' . $new_query;
+        }
+
+        return $new_url;
+    }
+
+    private function get_macro_value($macro): string|bool
+    {
+        $db = new Db();
+        $preset = ['subid', 'prelanding', 'landing'];
         if (in_array($macro, $preset)) {
             $cookie = get_cookie($macro);
-            if (!empty($cookie) && $cookie!=='')
-                $query_array[$qk] = $cookie;
+            if (!empty($cookie) || $cookie !== '') {
+                add_log("macros", "Couldn't get macros $macro value from cookie.");
+                return false;
+            }
+            return $cookie;
         }
         //we need to find click parameter with this name, we can do that only if we know subid
-        else if (str_starts_with($macro,"c.")){
-            if (!isset($subid)||empty($subid)){
-                add_log("macros","Couldn't get macros $macro value from DB. Subid not set! Str:$url");
-            } 
-            else{
-                $clicks = $db->get_clicks_by_subid($subid,true);
-                $p = json_decode($clicks[0]['params'],true);
-                $cmacro = substr($macro,2);
-                if (array_key_exists($cmacro,$p)){
-                    $query_array[$qk] = $p[$cmacro];
-                }
-                else{
-                    add_log("macros",
-                        "Couldn't find click macro $macro value. Subid:$subid, Str:$url, Params:".json_encode($p));
+        else if (str_starts_with($macro, "c.")) {
+            if (!isset($this->subid) || empty($this->subid)) {
+                add_log("macros", "Couldn't get macros $macro value from DB. Subid not set!");
+                return false;
+            } else {
+                $clicks = $db->get_clicks_by_subid($this->subid, true);
+                $p = json_decode($clicks[0]['params'], true);
+                $cmacro = substr($macro, 2);
+                if (array_key_exists($cmacro, $p)) {
+                    return $p[$cmacro];
+                } else {
+                    add_log(
+                    "macros",
+                    "Couldn't find click macro $macro value. Subid:$this->subid, Params:" . json_encode($p)
+                    );
+                    return false;
                 }
             }
-        }
-        else if ($macro === 'domain'){
-            $query_array[$qk] = $_SERVER['HTTP_HOST'];
-        }
-        else{ //some kind of strange macros, we need to log this situation
-            add_log("macros","Couldn't find macros: $macro. Str:$url, Subid:$subid");
+        } else if ($macro === 'domain') {
+            return $_SERVER['HTTP_HOST'];
+        } else if (str_starts_with($macro, "hash:")) {
+            $toHash = substr($macro, 5);
+            $toHashValue = $this->get_macro_value($toHash);
+            if ($toHashValue === false) {
+                add_log("macros", "Couldn't find  macro $toHash value to hash. Subid:$this->subid");
+                return false;
+            }
+            $hashed = crypt($toHashValue, $this->hashSalt);
+            add_log("macros", "Hashing $toHashValue to $hashed");
+            return $hashed;
+        } else { //some kind of strange macros, we need to log this situation
+            add_log("macros", "Couldn't find macros: $macro. Subid:$this->subid");
+            return false;
         }
     }
-
-    // Build the new query string
-    $new_query = http_build_query($query_array);
-
-    // Rebuild the URL
-    $new_url = $url_components['scheme'] . '://' . $url_components['host'];
-    if (isset($url_components['path'])) {
-        $new_url .= $url_components['path'];
-    }
-    if ($new_query) {
-        $new_url .= '?' . $new_query;
-    }
-
-    return $new_url;
 }

@@ -22,7 +22,7 @@ if (isset($_POST['phone']))
 else if (isset($_POST['tel']))
     $phone = $_POST['tel'];
 
-$subid = get_subid();
+$subid = get_cookie('subid');
 if ($subid === '' && isset($_POST['subid']))
     $subid = $_POST['subid'];
 
