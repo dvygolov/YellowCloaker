@@ -132,7 +132,7 @@ class Db
     public function get_leads($startdate, $enddate, $config): array
     {
         // Prepare SQL query to select leads within the date range and configuration
-        $query = "SELECT * FROM clicks WHERE time BETWEEN :startDate AND :endDate AND config = :config AND status IS NOT NULL";
+        $query = "SELECT * FROM clicks WHERE time BETWEEN :startDate AND :endDate AND config = :config AND status IS NOT NULL ORDER BY time DESC";
 
         $db = $this->open_db();
 
@@ -261,7 +261,17 @@ class Db
         // Process group by fields
         foreach ($groupByFields as $field) {
             if ($field === 'date') {
-                $selectParts[] = "strftime('%Y-%m-%d', datetime(time, 'unixepoch')) AS date";
+
+                $dateTime = new DateTime('now', new DateTimeZone($timezone));
+                // Get the offset in seconds from UTC
+                $offsetInSeconds = $dateTime->getOffset();
+                // Convert this offset to an SQLite compatible format (HH:MM)
+                $hours = floor($offsetInSeconds / 3600);
+                $minutes = floor(($offsetInSeconds % 3600) / 60);
+                $offsetFormatted = sprintf('%+03d:%02d', $hours, $minutes);
+
+                $selectParts[] = 
+                    "strftime('%Y-%m-%d', datetime(time, 'unixepoch', '{$offsetFormatted}')) AS date";
                 $groupByParts[] = "date";
                 $orderByParts[] = "date";
             } elseif (in_array($field, ['preland', 'land', 'isp', 'country', 'lang', 'os'])) {
