@@ -55,7 +55,7 @@ class Db
     public function get_black_clicks($startdate, $enddate, $config): array
     {
         // Prepare SQL query to select blocked clicks within the date range
-        $query = "SELECT id, time, ip, country, lang, os, isp, ua, subid, preland, land, params FROM clicks WHERE time BETWEEN :startDate AND :endDate AND config = :config ORDER BY time DESC";
+        $query = "SELECT * FROM clicks WHERE time BETWEEN :startDate AND :endDate AND config = :config ORDER BY time DESC";
 
         $db = $this->open_db(true);
         // Prepare statement
@@ -87,7 +87,6 @@ class Db
         }
 
         $db->close();
-        // Return the array of blocked clicks
         return $clicks;
     }
 
@@ -472,7 +471,7 @@ class Db
         $click['land'] = empty($land) ? 'unknown' : $land;
 
         // Prepare the SQL INSERT statement for the 'clicks' table
-        $query = "INSERT INTO clicks (config, time, ip, country, lang, os, isp, ua, subid, preland, land, params, cost, lpclick, status) VALUES (:config, :time, :ip, :country, :lang, :os, :isp, :ua, :subid, :preland, :land, :params, :cpc, 0, NULL)";
+        $query = "INSERT INTO clicks (config, time, ip, country, lang, os, osver, client, clientver, device, brand, model, isp, ua, subid, preland, land, params, cost, lpclick, status) VALUES (:config, :time, :ip, :country, :lang, :os, :osver, :client, :clientver, :device, :brand, :model, :isp, :ua, :subid, :preland, :land, :params, :cpc, 0, NULL)";
 
         $db = $this->open_db();
         $stmt = $db->prepare($query);
@@ -611,7 +610,13 @@ class Db
                 country TEXT NOT NULL,
                 lang TEXT NOT NULL,
                 os TEXT NOT NULL,
+                osver TEXT NOT NULL,
+                device TEXT NOT NULL,
+                brand TEXT NOT NULL,
+                model TEXT NOT NULL,
                 isp TEXT NOT NULL,
+                client TEXT NOT NULL,
+                clientver TEXT NOT NULL,
                 ua TEXT NOT NULL,
                 subid TEXT NOT NULL,
                 preland TEXT,
@@ -629,7 +634,13 @@ class Db
             CREATE INDEX IF NOT EXISTS idx_date ON clicks (date(time, 'unixepoch'));
             CREATE INDEX IF NOT EXISTS idx_country ON clicks (country);
             CREATE INDEX IF NOT EXISTS idx_lang ON clicks (lang);
+            CREATE INDEX IF NOT EXISTS idx_lang ON clicks (client);
+            CREATE INDEX IF NOT EXISTS idx_lang ON clicks (clientver);
+            CREATE INDEX IF NOT EXISTS idx_lang ON clicks (device);
+            CREATE INDEX IF NOT EXISTS idx_lang ON clicks (brand);
+            CREATE INDEX IF NOT EXISTS idx_lang ON clicks (model);
             CREATE INDEX IF NOT EXISTS idx_os ON clicks (os);
+            CREATE INDEX IF NOT EXISTS idx_os ON clicks (osver);
             CREATE INDEX IF NOT EXISTS idx_isp ON clicks (isp);
 
             CREATE TABLE IF NOT EXISTS blocked (
@@ -638,8 +649,15 @@ class Db
                 time INTEGER,
                 ip TEXT NOT NULL,
                 country TEXT,
+                lang TEXT,
                 os TEXT,
+                osver TEXT,
+                device TEXT,
+                brand TEXT,
+                model TEXT,
                 isp TEXT,
+                client TEXT,
+                clientver TEXT,
                 ua TEXT,
                 params TEXT,
                 reason TEXT

@@ -632,6 +632,12 @@ JSON;
                     "width": "100"
                 },
                 {
+                    "title": "OSVer",
+                    "field": "osver",
+                    "headerFilter": "input",
+                    "width": "100"
+                },
+                {
                     "title": "UA",
                     "field": "ua",
                     "headerFilter": "input",

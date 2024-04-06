@@ -2,7 +2,7 @@
 
 namespace Sinergi\BrowserDetector;
 
-class LanguageDetector implements DetectorInterface
+class LanguageDetector
 {
     /**
      * Detect a user's languages and order them by priority.

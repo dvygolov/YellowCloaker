@@ -1,17 +1,19 @@
 <?php
-require_once __DIR__ . '/bases/browser/DetectorInterface.php';
-require_once __DIR__ . '/bases/browser/UserAgent.php';
-require_once __DIR__ . '/bases/browser/Os.php';
-require_once __DIR__ . '/bases/browser/OsDetector.php';
-require_once __DIR__ . '/bases/browser/AcceptLanguage.php';
-require_once __DIR__ . '/bases/browser/Language.php';
-require_once __DIR__ . '/bases/browser/LanguageDetector.php';
-require_once __DIR__ . '/bases/browser/Referer.php';
+//Language detection
+require_once __DIR__ . '/bases/lang/AcceptLanguage.php';
+require_once __DIR__ . '/bases/lang/Language.php';
+require_once __DIR__ . '/bases/lang/LanguageDetector.php';
+//Device/Model/Browser/Platform detection
+require_once __DIR__ . '/bases/device/autoload.php';
+require_once __DIR__ . '/bases/device/Spyc.php';
+//GEO and referer
+require_once __DIR__ . '/bases/referer.php';
 require_once __DIR__ . '/bases/iputils.php';
 require_once __DIR__ . '/bases/ipcountry.php';
 
-use Sinergi\BrowserDetector\Os;
 use Sinergi\BrowserDetector\Language;
+use DeviceDetector\ClientHints;
+use DeviceDetector\DeviceDetector;
 
 class Cloaker
 {
@@ -21,6 +23,7 @@ class Cloaker
 
     public function __construct(array $s)
     {
+        ClientHints::requestClientHints();
         DebugMethods::start();
         $this->s = $s;
         $this->click_params = Cloaker::get_click_params();
@@ -30,13 +33,27 @@ class Cloaker
     public static function get_click_params(): array
     {
         $a = [];
+        $a['ua'] = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
         $a['referer'] = get_referer();
         $lang = new Language();
         $a['lang'] = $lang->getLanguage();
-        $os = new Os();
-        $a['os'] = $os->getName();
+
+        $clientHints = ClientHints::factory($_SERVER); // client hints are optional
+        $dd = new DeviceDetector($a['ua'], $clientHints);
+        $dd->parse();
+
+        $clientInfo = $dd->getClient();
+        $a['client'] = $clientInfo['name'];
+        $a['clientver'] = $clientInfo['version'];
+
+        $osInfo = $dd->getOs();
+        $a['os'] = $osInfo['name'];
+        $a['osver'] = $osInfo['version'];
+        $a['device'] = $dd->getDeviceName();
+        $a['brand'] = $dd->getBrandName();
+        $a['model'] = $dd->getModel();
+
         $a['ip'] = getip();
-        $a['ua'] = $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
         $a['country'] = getcountry($a['ip']);
         $a['isp'] = getisp($a['ip']);
         $a['url'] = $_SERVER['REQUEST_URI'];
