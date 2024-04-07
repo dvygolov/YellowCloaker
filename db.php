@@ -14,10 +14,10 @@ class Db
     }
 
 
-    public function get_white_clicks($startdate, $enddate, $config): array
+    public function get_white_clicks($startdate, $enddate, $campId): array
     {
         // Prepare SQL query to select blocked clicks within the date range
-        $query = "SELECT * FROM blocked WHERE time BETWEEN :startDate AND :endDate AND config = :config ORDER BY time DESC";
+        $query = "SELECT * FROM blocked WHERE time BETWEEN :startDate AND :endDate AND campaign_id = :campid ORDER BY time DESC";
 
         $db = $this->open_db(true);
         // Prepare statement
@@ -26,14 +26,14 @@ class Db
         // Bind parameters to the prepared statement
         $stmt->bindValue(':startDate', $startdate, SQLITE3_INTEGER);
         $stmt->bindValue(':endDate', $enddate, SQLITE3_INTEGER);
-        $stmt->bindValue(':config', $config, SQLITE3_TEXT);
+        $stmt->bindValue(':campid', $campId, SQLITE3_INTEGER);
 
         // Execute the query and fetch the results
         $result = $stmt->execute();
 
         if ($result === false) {
             $errorMessage = $db->lastErrorMsg();
-            add_log("errors", "Get Blocked Clicks: $startdate $enddate $config $errorMessage");
+            add_log("errors", "Get Blocked Clicks: $startdate $enddate $campId $errorMessage");
             return [];
         }
         // Initialize an array to hold the results
@@ -52,10 +52,10 @@ class Db
         return $blockedClicks;
     }
 
-    public function get_black_clicks($startdate, $enddate, $config): array
+    public function get_black_clicks($startdate, $enddate, $campId): array
     {
         // Prepare SQL query to select blocked clicks within the date range
-        $query = "SELECT * FROM clicks WHERE time BETWEEN :startDate AND :endDate AND config = :config ORDER BY time DESC";
+        $query = "SELECT * FROM clicks WHERE time BETWEEN :startDate AND :endDate AND campaign_id = :campid ORDER BY time DESC";
 
         $db = $this->open_db(true);
         // Prepare statement
@@ -64,14 +64,14 @@ class Db
         // Bind parameters to the prepared statement
         $stmt->bindValue(':startDate', $startdate, SQLITE3_INTEGER);
         $stmt->bindValue(':endDate', $enddate, SQLITE3_INTEGER);
-        $stmt->bindValue(':config', $config, SQLITE3_TEXT);
+        $stmt->bindValue(':campid', $campId, SQLITE3_INTEGER);
 
         // Execute the query and fetch the results
         $result = $stmt->execute();
 
         if ($result === false) {
             $errorMessage = $db->lastErrorMsg();
-            add_log("errors", "Get Black Clicks: $startdate $enddate $config $errorMessage");
+            add_log("errors", "Get Black Clicks: $startdate $enddate $campId $errorMessage");
             return [];
         }
 
@@ -90,14 +90,14 @@ class Db
         return $clicks;
     }
 
-    public function get_clicks_by_subid($subid, $firstOnly=false): array
+    public function get_clicks_by_subid($subid, $firstOnly = false): array
     {
         if (empty($subid)) {
             return [];
         }
         $query = "SELECT * FROM clicks WHERE subid = :subid ORDER BY time DESC";
         if ($firstOnly)
-            $query.=" LIMIT 1";
+            $query .= " LIMIT 1";
 
         $db = $this->open_db(true);
         // Prepare statement
@@ -128,10 +128,10 @@ class Db
         return $clicks;
     }
 
-    public function get_leads($startdate, $enddate, $config): array
+    public function get_leads($startdate, $enddate, $campId): array
     {
         // Prepare SQL query to select leads within the date range and configuration
-        $query = "SELECT * FROM clicks WHERE time BETWEEN :startDate AND :endDate AND config = :config AND status IS NOT NULL ORDER BY time DESC";
+        $query = "SELECT * FROM clicks WHERE time BETWEEN :startDate AND :endDate AND campaign_id = :campid AND status IS NOT NULL ORDER BY time DESC";
 
         $db = $this->open_db();
 
@@ -141,13 +141,13 @@ class Db
         // Bind parameters to the prepared statement
         $stmt->bindValue(':startDate', $startdate, SQLITE3_INTEGER);
         $stmt->bindValue(':endDate', $enddate, SQLITE3_INTEGER);
-        $stmt->bindValue(':config', $config, SQLITE3_TEXT);
+        $stmt->bindValue(':campid', $campId, SQLITE3_INTEGER);
 
         // Execute the query and fetch the results
         $result = $stmt->execute();
         if ($result === false) {
             $errorMessage = $db->lastErrorMsg();
-            add_log("errors", "Get Leads: $startdate, $enddate, $config $errorMessage");
+            add_log("errors", "Get Leads: $startdate, $enddate, $campId $errorMessage");
             $db->close();
             return [];
         }
@@ -167,13 +167,13 @@ class Db
     public function getStatisticsData(
     $selectedFields,
     $groupByFields,
-    $configName,
+    $campId,
     $startDate,
     $endDate,
     $timezone
     ) {
         $baseQuery =
-        "SELECT %s FROM clicks WHERE config = :configName AND time BETWEEN :startDate AND :endDate";
+        "SELECT %s FROM clicks WHERE campaign_id = :campid AND time BETWEEN :startDate AND :endDate";
         $selectParts = [];
         $groupByParts = [];
         $orderByParts = [];
@@ -269,8 +269,8 @@ class Db
                 $minutes = floor(($offsetInSeconds % 3600) / 60);
                 $offsetFormatted = sprintf('%+03d:%02d', $hours, $minutes);
 
-                $selectParts[] = 
-                    "strftime('%Y-%m-%d', datetime(time, 'unixepoch', '{$offsetFormatted}')) AS date";
+                $selectParts[] =
+                "strftime('%Y-%m-%d', datetime(time, 'unixepoch', '{$offsetFormatted}')) AS date";
                 $groupByParts[] = "date";
                 $orderByParts[] = "date";
             } elseif (in_array($field, ['preland', 'land', 'isp', 'country', 'lang', 'os'])) {
@@ -302,7 +302,7 @@ class Db
             $db->close();
             return [];
         }
-        $stmt->bindValue(':configName', $configName, SQLITE3_TEXT);
+        $stmt->bindValue(':campid', $campId, SQLITE3_INTEGER);
         $stmt->bindValue(':startDate', $startDate, SQLITE3_INTEGER);
         $stmt->bindValue(':endDate', $endDate, SQLITE3_INTEGER);
         $result = $stmt->execute();
@@ -436,10 +436,10 @@ class Db
         return $sumArray;
     }
 
-    public function add_white_click($data, $reason, $config)
+    public function add_white_click($data, $reason, $campId)
     {
         // Prepare click data
-        $click = $this->prepare_click_data($data, $config);
+        $click = $this->prepare_click_data($data, $campId);
         $click['reason'] = $reason;
 
         // Prepare SQL insert statement
@@ -462,16 +462,16 @@ class Db
         $db->close();
     }
 
-    public function add_black_click($subid, $data, $preland, $land, $config)
+    public function add_black_click($subid, $data, $preland, $land, $campId)
     {
         // Prepare click data with the provided data and configuration
-        $click = $this->prepare_click_data($data, $config); // Assuming '' is used as a placeholder for 'reason'
+        $click = $this->prepare_click_data($data, $campId);
         $click['subid'] = $subid;
         $click['preland'] = empty($preland) ? 'unknown' : $preland;
         $click['land'] = empty($land) ? 'unknown' : $land;
 
         // Prepare the SQL INSERT statement for the 'clicks' table
-        $query = "INSERT INTO clicks (config, time, ip, country, lang, os, osver, client, clientver, device, brand, model, isp, ua, subid, preland, land, params, cost, lpclick, status) VALUES (:config, :time, :ip, :country, :lang, :os, :osver, :client, :clientver, :device, :brand, :model, :isp, :ua, :subid, :preland, :land, :params, :cpc, 0, NULL)";
+        $query = "INSERT INTO clicks (campaign_id, time, ip, country, lang, os, osver, client, clientver, device, brand, model, isp, ua, subid, preland, land, params, cost, lpclick, status) VALUES (:campid, :time, :ip, :country, :lang, :os, :osver, :client, :clientver, :device, :brand, :model, :isp, :ua, :subid, :preland, :land, :params, :cpc, 0, NULL)";
 
         $db = $this->open_db();
         $stmt = $db->prepare($query);
@@ -573,10 +573,10 @@ class Db
         return ($row['count'] > 0);
     }
 
-    private function prepare_click_data($data, $config): array
+    private function prepare_click_data($data, $campId): array
     {
         $data["time"] = (new DateTime())->getTimestamp();
-        $data["config"] = $config;
+        $data["campaign_id"] = $campId;
 
         $query = [];
         if (!empty($_SERVER['QUERY_STRING'])) {
@@ -603,8 +603,9 @@ class Db
     {
         $createTableSQL = "
             CREATE TABLE IF NOT EXISTS clicks (
-                id INTEGER PRIMARY KEY,
-                config TEXT NOT NULL,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                campaign_id INTEGER,
+                FOREIGN KEY (campaign_id)  REFERENCES campaigns (id) ON DELETE CASCADE,
                 time INTEGER NOT NULL,
                 ip TEXT NOT NULL,
                 country TEXT NOT NULL,
@@ -628,7 +629,6 @@ class Db
                 cost NUMERIC DEFAULT 0,
                 payout NUMERIC DEFAULT 0
             );
-            CREATE INDEX IF NOT EXISTS idx_config ON clicks (config);
             CREATE INDEX IF NOT EXISTS idx_subid ON clicks (subid);
             CREATE INDEX IF NOT EXISTS idx_time ON clicks (time);
             CREATE INDEX IF NOT EXISTS idx_date ON clicks (date(time, 'unixepoch'));
@@ -643,9 +643,17 @@ class Db
             CREATE INDEX IF NOT EXISTS idx_os ON clicks (osver);
             CREATE INDEX IF NOT EXISTS idx_isp ON clicks (isp);
 
+            CREATE TABLE campaigns
+            (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                settings TEXT NOT NULL
+            );
+
             CREATE TABLE IF NOT EXISTS blocked (
                 id INTEGER PRIMARY KEY,
-                config TEXT NOT NULL,
+                campaign_id INTEGER,
+                FOREIGN KEY (campaign_id)  REFERENCES campaigns (id) ON DELETE CASCADE,
                 time INTEGER,
                 ip TEXT NOT NULL,
                 country TEXT,
@@ -662,7 +670,6 @@ class Db
                 params TEXT,
                 reason TEXT
             );
-            CREATE INDEX IF NOT EXISTS idx_bconfig ON blocked (config);
             CREATE INDEX IF NOT EXISTS idx_btime ON blocked (time);
             PRAGMA journal_mode = wal;
             ";
