@@ -592,6 +592,131 @@ class Db
         return $data;
     }
 
+
+    public function add_campaign($name, $settings)
+    {
+        $query = "INSERT INTO campaigns (name, settings) VALUES (:name, :settings)";
+
+        $db = $this->open_db();
+        $stmt = $db->prepare($query);
+
+        // Convert settings array to JSON string
+        $settingsJson = json_encode($settings);
+
+        $stmt->bindValue(':name', $name, SQLITE3_TEXT);
+        $stmt->bindValue(':settings', $settingsJson, SQLITE3_TEXT);
+
+        $result = $stmt->execute();
+        $db->close();
+
+        if ($result === false) {
+            $errorMessage = $db->lastErrorMsg();
+            add_log("errors", "Couldn't add campaign: $errorMessage");
+            return false;
+        }
+        return true;
+    }
+
+    public function get_campaign($id)
+    {
+        $query = "SELECT * FROM campaigns WHERE id = :id";
+
+        $db = $this->open_db(true);
+        $stmt = $db->prepare($query);
+
+        $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
+
+        $result = $stmt->execute();
+
+        if ($result === false) {
+            $errorMessage = $db->lastErrorMsg();
+            add_log("errors", "Couldn't fetch campaign: $errorMessage");
+            $db->close();
+            return [];
+        }
+
+        $campaign = $result->fetchArray(SQLITE3_ASSOC);
+        $db->close();
+
+        if ($campaign) {
+            $campaign['settings'] = json_decode($campaign['settings'], true);
+        }
+
+        return $campaign;
+    }
+
+    public function update_campaign($id, $name, $settings)
+    {
+        $query = "UPDATE campaigns SET name = :name, settings = :settings WHERE id = :id";
+
+        $db = $this->open_db();
+        $stmt = $db->prepare($query);
+
+        $settingsJson = json_encode($settings);
+
+        $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
+        $stmt->bindValue(':name', $name, SQLITE3_TEXT);
+        $stmt->bindValue(':settings', $settingsJson, SQLITE3_TEXT);
+
+        $result = $stmt->execute();
+        $db->close();
+
+        if ($result === false) {
+            $errorMessage = $db->lastErrorMsg();
+            add_log("errors", "Couldn't update campaign: $errorMessage");
+            return false;
+        }
+        return true;
+    }
+
+    public function delete_campaign($id)
+    {
+        $query = "DELETE FROM campaigns WHERE id = :id";
+
+        $db = $this->open_db();
+        $stmt = $db->prepare($query);
+
+        $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
+
+        $result = $stmt->execute();
+        $db->close();
+
+        if ($result === false) {
+            $errorMessage = $db->lastErrorMsg();
+            add_log("errors", "Couldn't delete campaign: $errorMessage");
+            return false;
+        }
+        return true;
+    }
+
+    public function get_campaigns()
+    {
+        $query = "SELECT * FROM campaigns";
+
+        $db = $this->open_db(true);
+        $stmt = $db->prepare($query);
+
+        $result = $stmt->execute();
+
+        if ($result === false) {
+            $errorMessage = $db->lastErrorMsg();
+            add_log("errors", "Couldn't fetch campaigns: $errorMessage");
+            $db->close();
+            return [];
+        }
+
+        $campaigns = [];
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            if (!empty($row['settings'])) {
+                $row['settings'] = json_decode($row['settings'], true);
+            }
+            $campaigns[] = $row;
+        }
+        $db->close();
+
+        return $campaigns;
+    }
+
     private function open_db(bool $readOnly = false): SQLite3
     {
         $db = new SQLite3($this->dbPath, $readOnly ? SQLITE3_OPEN_READONLY : SQLITE3_OPEN_READWRITE);
