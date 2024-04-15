@@ -1,5 +1,11 @@
 <?php
-include_once 'countryfuncs.php';
+require_once __DIR__ . '/countryfuncs.php';
+require_once __DIR__ . '/../bases/lang/AcceptLanguage.php';
+require_once __DIR__ . '/../bases/lang/Language.php';
+require_once __DIR__ . '/../bases/lang/LanguageDetector.php';
+
+use Sinergi\BrowserDetector\Language;
+
 class ThankyouTemplate
 {
     private $cache_dir = 'cache';
@@ -16,6 +22,9 @@ class ThankyouTemplate
             $this->lang = strtolower($_REQUEST['lang']);
         elseif (isset($_REQUEST['country']))
             $this->lang = CountryFuncs::get_language($_REQUEST['country']);
+        else {
+            $this->lang = (new Language())->getLanguage();
+        }
 
         if (isset($_REQUEST['template'])) {
             $this->template = $_REQUEST['template'];
@@ -107,7 +116,8 @@ class ThankyouTemplate
         }
     }
 
-    public function getPage(){
+    public function getPage()
+    {
         return $this->pageContent;
     }
 }

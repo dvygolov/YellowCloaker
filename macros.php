@@ -2,7 +2,6 @@
 require_once __DIR__ . '/cookies.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/logging.php';
-require_once __DIR__ . '/settings.php';
 
 class MacrosProcessor
 {
@@ -11,10 +10,9 @@ class MacrosProcessor
 
     public function __construct($hashSalt, $subid = null)
     {
-        global $cur_config;
         $this->subid = $subid ?? get_cookie('subid');
         if (is_null($hashSalt))
-            add_log("macros","Salt is NULL! Error in config $cur_config");
+            add_log("macros","Salt is NULL! Error constructing MarcrosProcessor for subid: $subid");
         $this->hashSalt = $hashSalt;
     }
 

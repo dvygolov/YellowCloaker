@@ -1,7 +1,7 @@
 <?php
-include __DIR__ . '/translators/google.php';
-include __DIR__ . '/translators/deepl.php';
-include __DIR__ . '/translators/libretranslate.php';
+include_once __DIR__ . '/translators/google.php';
+include_once __DIR__ . '/translators/deepl.php';
+include_once __DIR__ . '/translators/libretranslate.php';
 
 function translate($text_content, $templates_lang, $lang)
 {

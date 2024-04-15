@@ -568,19 +568,6 @@ require_once __DIR__ . '/initialization.php';
                         </div>
                     </div>
                 </div>
-
-                <div class="form-group-inner">
-                    <div class="row">
-                        <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                            <label class="login2 pull-left pull-left-pro"> ThankYou Page language:</label>
-                        </div>
-                        <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                            <div class="input-group custom-go-button">
-                                <input type="text" class="form-control" placeholder="EN" name="black.landing.folder.customthankyoupage.language" value="<?= $black_land_thankyou_page_language ?>" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
             <div id="b_landings_redirect" style="display:<?= $black_land_action === 'redirect' ? 'block' : 'none' ?>;">
                 <div class="form-group-inner">

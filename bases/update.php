@@ -85,17 +85,13 @@ if (!$passOk) {
     send_update_result("Error: password check not passed!");
     exit;
 }
-$configPath = __DIR__ . "/update.json";
-if (!file_exists($configPath)) {
-    send_update_result("Error: 'bases/update.json' not found!");
-    exit;
-}
-$config = json_decode(file_get_contents($configPath), true);
-if (empty($config["licenseKey"])) {
-    send_update_result("Error: licenseKey not set, edit 'bases/update.json'!");
+
+$cloSettings = json_decode(file_get_contents(__DIR__ . '/../settings.json'), true);
+if (empty($cloSettings["maxMindKey"])) {
+    send_update_result("Error: MaxMind key not set, edit 'settings.json'!");
     exit;
 }
 
 $editionIds = ['GeoLite2-ASN', 'GeoLite2-City', 'GeoLite2-Country'];
-$result = downloadAndExtractMaxMindDB($config["licenseKey"], __DIR__, $editionIds);
+$result = downloadAndExtractMaxMindDB($cloSettings["maxMindKey"], __DIR__, $editionIds);
 send_update_result("OK");

@@ -38,7 +38,7 @@ class Cloaker
         $lang = new Language();
         $a['lang'] = $lang->getLanguage();
 
-        $clientHints = ClientHints::factory($_SERVER); // client hints are optional
+        $clientHints = ClientHints::factory($_SERVER); 
         $dd = new DeviceDetector($a['ua'], $clientHints);
         $dd->parse();
 

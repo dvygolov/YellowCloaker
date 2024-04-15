@@ -1,12 +1,11 @@
 <?php
 require_once __DIR__ . '/macros.php';
-require_once __DIR__ . '/settings.php';
 
 function redirect($url, $redirect_type = 302, $rep_macros = false): void
 {
-    global $tds_api_key;
+    global $campaign;
     if ($rep_macros) {
-        $mp = new MacrosProcessor($tds_api_key);
+        $mp = new MacrosProcessor($campaign->apiKey);
         $url = $mp->replace_url_macros($url);
     }
     header('X-Robots-Tag: noindex, nofollow');

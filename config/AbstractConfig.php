@@ -16,7 +16,6 @@ use Iterator;
  */
 abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
 {
-    protected string $namespace = "default";
     /**
      * Stores the configuration data
      *
@@ -40,48 +39,6 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
     {
         $this->data = array_merge($this->getDefaults(), $data);
     }
-
-    /**
-     * Sets a specific namespace, it will be used as a start of the name for getting parameters
-     * @param string $namespace
-     * @return void
-     */
-    public function setNamespace(string $namespace)
-    {
-        $this->namespace = $namespace;
-    }
-
-    public function addNamespace(string $namespace)
-    {
-        if (
-            $namespace === 'default' ||
-            empty($namespace) ||
-            array_key_exists($namespace, $this->data)
-        ) return false;
-
-        $this->data[$namespace] = $this->data['default'];
-        $this->namespace = $namespace;
-        return true;
-    }
-
-    public function duplicateNamespace(string $namespace, string $dupnamespace)
-    {
-        if (empty($namespace) || empty($dupnamespace) ||
-            !array_key_exists($namespace, $this->data)
-        ) return false;
-
-        $this->data[$dupnamespace] = $this->data[$namespace];
-        $this->namespace = $dupnamespace;
-        return true;
-    }
-    public function deleteNamespace(string $namespace)
-    {
-        if ($namespace === 'default') return false;
-        unset($this->data[$namespace]);
-        $this->namespace = "default";
-        return true;
-    }
-
 
     /**
      * Override this method in your own subclass to provide an array of default
@@ -118,7 +75,6 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
      */
     public function set(string $key, $value)
     {
-        $key = "{$this->namespace}.{$key}";
         $segs = explode('.', $key);
         $root = &$this->data;
         $cacheKey = '';
@@ -158,7 +114,6 @@ abstract class AbstractConfig implements ArrayAccess, ConfigInterface, Iterator
      */
     public function has(string $key): bool
     {
-        $key = "{$this->namespace}.{$key}";
         // Check if already cached
         if (isset($this->cache[$key])) {
             return true;

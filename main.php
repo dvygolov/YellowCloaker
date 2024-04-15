@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/debug.php';
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/config/Campaign.php';
 require_once __DIR__ . '/htmlprocessing.php';
 require_once __DIR__ . '/cookies.php';
 require_once __DIR__ . '/redirect.php';
@@ -8,19 +9,12 @@ require_once __DIR__ . '/abtest.php';
 
 function white($use_js_checks)
 {
-    global $white_action, $white_folder_names, $white_redirect_urls, $white_redirect_type;
-    global $white_curl_urls, $white_error_codes, $white_use_domain_specific, $white_domain_specific;
-    global $save_user_flow;
-
-    $action = $white_action;
-    $folder_names = $white_folder_names;
-    $redirect_urls = $white_redirect_urls;
-    $curl_urls = $white_curl_urls;
-    $error_codes = $white_error_codes;
+    global $campaign;
+    $ws = $campaign->white;
 
     //HACK: грязный хак для прокидывания реферера через куки
-    if ($use_js_checks && !empty($_SERVER['HTTP_REFERER'])) {
-        ywbsetcookie("referer", $_SERVER['HTTP_REFERER']);
+    if ($campaign->use_js_checks && !empty($_SERVER['HTTP_REFERER'])) {
+        set_cookie("referer", $_SERVER['HTTP_REFERER']);
     }
 
     if ($white_use_domain_specific) { //если у нас под каждый домен свой вайт

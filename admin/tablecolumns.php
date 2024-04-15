@@ -6,7 +6,7 @@ function show_stats($startDate, $endDate, $dtz, $config):string
     $db = new Db();
     $sTables = get_table_settings();
     foreach ($sTables['tables'] as $tSettings) {
-        $dataset = $db->getStatisticsData(
+        $dataset = $db->get_statistics(
             $tSettings['columns'], $tSettings['groupby'], $config, 
             $startDate->getTimestamp(),$endDate->getTimestamp(), $dtz);
         $dJson = json_encode($dataset);

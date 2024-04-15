@@ -164,13 +164,13 @@ class Db
         return $leads;
     }
 
-    public function getStatisticsData(
-    $selectedFields,
-    $groupByFields,
-    $campId,
-    $startDate,
-    $endDate,
-    $timezone
+    public function get_statistics(
+        $selectedFields,
+        $groupByFields,
+        $campId,
+        $startDate,
+        $endDate,
+        $timezone
     ) {
         $baseQuery =
         "SELECT %s FROM clicks WHERE campaign_id = :campid AND time BETWEEN :startDate AND :endDate";
@@ -317,15 +317,15 @@ class Db
 
         $treeData = [];
         while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $this->addRow($treeData, $row, $selectedFields, $groupByFields);
+            $this->add_row($treeData, $row, $selectedFields, $groupByFields);
         }
 
         //$this->countTotals($treeData, $newGroupIndex, $selectedFields, $groupByFields);
         $db->close();
         return $treeData;
     }
-
-    private function addRow(&$treeData, $row, $columns, $groupBy)
+    //TODO: totals correct counting
+    private function add_row(&$treeData, $row, $columns, $groupBy)
     {
         $children = &$treeData;
         $i = 0;
@@ -349,7 +349,7 @@ class Db
                     }
                     while ($j > $i) {
                         $parent = array_pop($totParents);
-                        $totals = $this->countTotals($totChildren, $columns);
+                        $totals = $this->count_totals($totChildren, $columns);
                         $parent = array_merge($parent, $totals);
                         $j--;
                     }
@@ -370,7 +370,7 @@ class Db
             $i++;
         }
     }
-    private function countTotals(array $children, array $columns)
+    private function count_totals(array $children, array $columns)
     {
         // If we have only one child row
         if (count($children) === 1) {
@@ -592,7 +592,6 @@ class Db
         return $data;
     }
 
-
     public function add_campaign($name, $settings)
     {
         $query = "INSERT INTO campaigns (name, settings) VALUES (:name, :settings)";
@@ -611,7 +610,30 @@ class Db
 
         if ($result === false) {
             $errorMessage = $db->lastErrorMsg();
-            add_log("errors", "Couldn't add campaign: $errorMessage");
+            add_log("errors", "Couldn't add campaign $name: $errorMessage\n$settingsJson");
+            return false;
+        }
+        return true;
+    }
+
+    public function clone_campaign($id)
+    {
+        // SQL query to clone campaign using a single command
+        $query = "INSERT INTO campaigns (name, settings)
+                  SELECT name || ' (Clone)', settings FROM campaigns WHERE id = :id";
+
+        $db = $this->open_db();
+        $stmt = $db->prepare($query);
+
+        // Bind the original campaign ID to the query
+        $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
+
+        $result = $stmt->execute();
+        $db->close();
+
+        if ($result === false) {
+            $errorMessage = $db->lastErrorMsg();
+            add_log("errors", "Couldn't clone campaign $id: $errorMessage");
             return false;
         }
         return true;
@@ -630,7 +652,7 @@ class Db
 
         if ($result === false) {
             $errorMessage = $db->lastErrorMsg();
-            add_log("errors", "Couldn't fetch campaign: $errorMessage");
+            add_log("errors", "Couldn't fetch campaign $id: $errorMessage");
             $db->close();
             return [];
         }
@@ -643,6 +665,59 @@ class Db
         }
 
         return $campaign;
+    }
+
+    public function get_campaign_by_domain($domain)
+    {
+        $query = "SELECT * FROM campaigns";
+
+        $db = $this->open_db(true);
+        $stmt = $db->prepare($query);
+        if ($stmt === false) {
+            $errorMessage = $db->lastErrorMsg();
+            add_log("errors", "Couldn't prepare fetch campaigns query for domain $domain: $errorMessage");
+            $db->close();
+            return null;
+        }
+        $result = $stmt->execute();
+
+        if ($result === false) {
+            $errorMessage = $db->lastErrorMsg();
+            add_log("errors", "Couldn't fetch campaigns for domain $domain: $errorMessage");
+            $db->close();
+            return null;
+        }
+
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            if (!empty($row['settings'])) {
+                $settings = json_decode($row['settings'], true);
+                if (isset($settings['domains']) && $this->match_domain($settings['domains'], $domain)) {
+                    $db->close();
+                    $row['settings'] = json_decode($row['settings'], true);
+                    return $row;
+                }
+            }
+        }
+
+        $db->close();
+        return null;
+    }
+
+    private function match_domain($domains, $domainToMatch)
+    {
+        foreach ($domains as $domain) {
+            if ($domain === $domainToMatch) {
+                return true;
+            } elseif (strpos($domain, '*') !== false) {
+                // Convert wildcard domain to a regex pattern
+                $pattern = str_replace('.', '\.', $domain);
+                $pattern = str_replace('*', '.*', $pattern);
+                if (preg_match('/^' . $pattern . '$/', $domainToMatch)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public function update_campaign($id, $name, $settings)
@@ -663,7 +738,7 @@ class Db
 
         if ($result === false) {
             $errorMessage = $db->lastErrorMsg();
-            add_log("errors", "Couldn't update campaign: $errorMessage");
+            add_log("errors", "Couldn't update campaign $name: $errorMessage");
             return false;
         }
         return true;
@@ -683,7 +758,7 @@ class Db
 
         if ($result === false) {
             $errorMessage = $db->lastErrorMsg();
-            add_log("errors", "Couldn't delete campaign: $errorMessage");
+            add_log("errors", "Couldn't delete campaign $id: $errorMessage");
             return false;
         }
         return true;
@@ -695,7 +770,6 @@ class Db
 
         $db = $this->open_db(true);
         $stmt = $db->prepare($query);
-
         $result = $stmt->execute();
 
         if ($result === false) {
@@ -727,10 +801,16 @@ class Db
     private function create_new_db()
     {
         $createTableSQL = "
+            CREATE TABLE campaigns
+            (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                settings TEXT NOT NULL
+            );
+
             CREATE TABLE IF NOT EXISTS clicks (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 campaign_id INTEGER,
-                FOREIGN KEY (campaign_id)  REFERENCES campaigns (id) ON DELETE CASCADE,
                 time INTEGER NOT NULL,
                 ip TEXT NOT NULL,
                 country TEXT NOT NULL,
@@ -752,7 +832,8 @@ class Db
                 lpclick BOOLEAN,
                 status TEXT,
                 cost NUMERIC DEFAULT 0,
-                payout NUMERIC DEFAULT 0
+                payout NUMERIC DEFAULT 0,
+                FOREIGN KEY (campaign_id)  REFERENCES campaigns (id) ON DELETE CASCADE
             );
             CREATE INDEX IF NOT EXISTS idx_subid ON clicks (subid);
             CREATE INDEX IF NOT EXISTS idx_time ON clicks (time);
@@ -768,18 +849,11 @@ class Db
             CREATE INDEX IF NOT EXISTS idx_os ON clicks (osver);
             CREATE INDEX IF NOT EXISTS idx_isp ON clicks (isp);
 
-            CREATE TABLE campaigns
-            (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL,
-                settings TEXT NOT NULL
-            );
 
             CREATE TABLE IF NOT EXISTS blocked (
                 id INTEGER PRIMARY KEY,
                 campaign_id INTEGER,
-                FOREIGN KEY (campaign_id)  REFERENCES campaigns (id) ON DELETE CASCADE,
-                time INTEGER,
+                time INTEGER NOT NULL,
                 ip TEXT NOT NULL,
                 country TEXT,
                 lang TEXT,
@@ -793,14 +867,19 @@ class Db
                 clientver TEXT,
                 ua TEXT,
                 params TEXT,
-                reason TEXT
+                reason TEXT,
+                FOREIGN KEY (campaign_id)  REFERENCES campaigns (id) ON DELETE CASCADE
             );
             CREATE INDEX IF NOT EXISTS idx_btime ON blocked (time);
             PRAGMA journal_mode = wal;
             ";
         $db = new SQLite3($this->dbPath, SQLITE3_OPEN_CREATE | SQLITE3_OPEN_READWRITE);
         $db->busyTimeout(5000);
-        $db->exec($createTableSQL);
+        $result = $db->exec($createTableSQL);
+        if ($result === false) {
+            $errorMessage = $db->lastErrorMsg();
+            die("Can't create DB: $errorMessage");
+        }
         $db->close();
     }
 }

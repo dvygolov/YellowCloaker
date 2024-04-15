@@ -35,9 +35,9 @@ if ($name === '' || $phone === '') {
 $is_duplicate = has_conversion_cookies($name, $phone);
 //устанавливаем пользователю в куки его имя и телефон, чтобы показать их на стр Спасибо
 //также ставим куки даты конверсии
-ywbsetcookie('name', $name, '/');
-ywbsetcookie('phone', $phone, '/');
-ywbsetcookie('ctime', (new DateTime())->getTimestamp(), '/');
+set_cookie('name', $name, '/');
+set_cookie('phone', $phone, '/');
+set_cookie('ctime', (new DateTime())->getTimestamp(), '/');
 
 //шлём в ПП только если это не дубль
 if ($is_duplicate) {
