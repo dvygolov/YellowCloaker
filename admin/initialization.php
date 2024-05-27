@@ -11,8 +11,8 @@ if (!check_password(false)) {
     exit;
 }
 
-date_default_timezone_set($stats_timezone);
-$dtz = new DateTimeZone($stats_timezone);
+date_default_timezone_set($cloSettings['timezone']);
+$dtz = new DateTimeZone($cloSettings['timezone']);
 $startdate = isset($_GET['startdate']) ?
     DateTime::createFromFormat('d.m.y', $_GET['startdate'], $dtz) :
     new DateTime("now", $dtz);

@@ -1,10 +1,11 @@
 <?php
 require_once __DIR__ . '/../logging.php';
+require_once __DIR__ . '/../settings.php';
 
 function check_password($die = true): bool
 {
-    $cloSettings = json_decode(file_get_contents(__DIR__ . '/../settings.json'), true);
-    $pwd = $cloSettings['password'];
+    global $cloSettings;
+    $pwd = $cloSettings['adminPassword'];
 
     if (session_status() !== PHP_SESSION_ACTIVE) {
         session_start();

@@ -1,27 +1,41 @@
 <?php
-global $startdate, $enddate, $stats_timezone;
+global $startdate, $enddate, $config, $stats_timezone;
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/initialization.php';
 require_once __DIR__ . '/tablecolumns.php';
 require_once __DIR__ . '/../settings.php';
 
+$filter = $_GET['filter'] ?? '';
 $db = new Db();
-$dataset = $db->get_campaigns();
+switch ($filter) {
+    case 'leads':
+        $dataset = $db->get_leads($startdate->getTimestamp(), $enddate->getTimestamp(), $config);
+        break;
+    case 'blocked':
+        $dataset = $db->get_white_clicks($startdate->getTimestamp(), $enddate->getTimestamp(), $config);
+        break;
+    case 'single':
+        $clickId = $_GET['subid'] ?? '';
+        $dataset = $db->get_clicks_by_subid($clickId);
+        break;
+    default:
+        $dataset = $db->get_black_clicks($startdate->getTimestamp(), $enddate->getTimestamp(), $config);
+        break;
+}
 ?>
 <!doctype html>
 <html lang="en">
-
 <?php include "head.php" ?>
+
 <body>
     <?php include "header.php" ?>
     <div class="all-content-wrapper">
-        <button id="newcampaign">New campaign</button>
-        <div id="campaigns"></div>
+        <div id="clicks"></div>
     </div>
     <script>
         let tableData = <?= json_encode($dataset) ?>;
-        let tableColumns = <?= get_campaigns_columns() ?>;
-        let table = new Tabulator('#campaigns', {
+        let tableColumns = <?= get_clicks_columns($filter, $stats_timezone) ?>;
+        let table = new Tabulator('#clicks', {
             layout: "fitColumns",
             columns: tableColumns,
             pagination: "local",
@@ -34,9 +48,6 @@ $dataset = $db->get_campaigns();
                 tooltip:true,
             }
         });
-    </script>
-
-    <script>
     </script>
 </body>
 

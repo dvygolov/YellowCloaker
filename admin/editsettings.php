@@ -6,9 +6,8 @@ require_once __DIR__ . '/initialization.php';
 <?php include "head.php" ?>
 
 <body>
-    <?php include "menu.php" ?>
+    <?php include "header.php" ?>
     <div class="all-content-wrapper">
-        <?php include "header.php" ?>
 
         <form id="saveconfig" style="padding:35px;background-color:#1D2A48;">
             <h4>#0 Domains</h4>

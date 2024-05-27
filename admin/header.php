@@ -22,13 +22,6 @@
                                 <div class="header-right-info">
                                     <ul class="nav navbar-nav mai-top-nav header-right-menu">
                                         <li class="nav-item">
-                                            <a class="nav-link">
-                                                <i class="bi bi-gear"></i>
-                                                <span>Current Config:&nbsp;</span>
-                                                <select style="color:black;" onchange="selectConfig(this.value)">
-                                                    <?= get_config_menu() ?>
-                                                </select>
-                                            </a>
                                             <a class="nav-link" href="#" id='litepicker'>
                                                 <i class="bi bi-calendar"></i>
                                                 <span>Date:&nbsp;&nbsp;<?= get_calend_date() ?></span>
@@ -52,16 +45,6 @@
         </div>
     </div>
 </div>
-<script>
-    function selectConfig(configName) {
-        let url = new URL(window.location.href);
-        let p = new URLSearchParams(window.location.search);
-        p.set("config", configName);
-        url.search = p.toString();
-        console.log(url.href);
-        window.location.href = url.href;
-    }
-</script>
 <script>
     flatpickr("#litepicker", {
         dateFomat: "DD.MM.YY",
@@ -99,16 +82,5 @@ function get_calend_date()
     }
 }
 
-function get_config_menu()
-{
-    $options = "";
-    $curConfig = $_GET['config'] ?? "default";
-    $allConfigNames = get_all_config_names();
-    foreach ($allConfigNames as $configName) {
-        $confSelected = $configName === $curConfig ? " selected" : "";
-        $options .= "<option {$confSelected}>{$configName}</option>";
-    }
-    return $options;
-}
 
 ?>

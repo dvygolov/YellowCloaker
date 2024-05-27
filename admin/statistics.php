@@ -10,9 +10,8 @@ require_once __DIR__ . '/../settings.php';
 <?php include "head.php" ?>
 
 <body>
-    <?php include "menu.php" ?>
+    <?php include "header.php" ?>
     <div class="all-content-wrapper">
-        <?php include "header.php" ?>
         <?=show_stats($startdate,$enddate,$stats_timezone,$config);?>
     </div>
 </body>

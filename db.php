@@ -592,28 +592,30 @@ class Db
         return $data;
     }
 
-    public function add_campaign($name, $settings)
+    public function add_campaign($name)
     {
         $query = "INSERT INTO campaigns (name, settings) VALUES (:name, :settings)";
 
         $db = $this->open_db();
         $stmt = $db->prepare($query);
 
-        // Convert settings array to JSON string
-        $settingsJson = json_encode($settings);
+        $settingsJson = file_get_contents(__DIR__.'/default.json');
 
         $stmt->bindValue(':name', $name, SQLITE3_TEXT);
         $stmt->bindValue(':settings', $settingsJson, SQLITE3_TEXT);
 
         $result = $stmt->execute();
-        $db->close();
 
         if ($result === false) {
             $errorMessage = $db->lastErrorMsg();
-            add_log("errors", "Couldn't add campaign $name: $errorMessage\n$settingsJson");
+            add_log("errors", "Couldn't add campaign $name: $errorMessage");
+            $db->close();
             return false;
         }
-        return true;
+
+        $newCampaignId = $db->lastInsertRowID();
+        $db->close();
+        return $newCampaignId;
     }
 
     public function clone_campaign($id)
@@ -629,14 +631,17 @@ class Db
         $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
 
         $result = $stmt->execute();
-        $db->close();
 
         if ($result === false) {
             $errorMessage = $db->lastErrorMsg();
             add_log("errors", "Couldn't clone campaign $id: $errorMessage");
+            $db->close();
             return false;
         }
-        return true;
+
+        $newCampaignId = $db->lastInsertRowID();
+        $db->close();
+        return $newCampaignId;
     }
 
     public function get_campaign($id)

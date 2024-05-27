@@ -20,12 +20,12 @@ switch ($action) {
         else
             return send_camp_result("Error adding new campaign!");
     case 'dup':
-        if (duplicate_config($config,$dupconfig ))
+        if ($db->clone_campaign($campId))
             return send_camp_result("OK");
         else
             return send_camp_result("Error duplicating campaign!");
     case 'del':
-        if (del_config($config))
+        if ($db->delete_campaign($campId))
             return send_camp_result("OK");
         else
             return send_camp_result("Error deleting campaign!");

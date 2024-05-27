@@ -698,3 +698,16 @@ JSON;
     }
     return $columns;
 }
+
+function get_campaigns_columns(): string
+{
+    $columnSettings = [
+        'name' => [
+            "title" => "Name",
+            "field" => "name",
+            "headerFilter" => "input",
+        ]
+    ];
+
+    return json_encode($columnSettings);
+}
