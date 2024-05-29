@@ -1,6 +1,6 @@
 <h2>
     <a href="https://yellowweb.top/donate" target="_blank">
-        Version: 09.12.2023
+        Version: 29.05.2024
         <br />
         PHP: <?= PHP_VERSION ?>
         <br /> Please, donate!
