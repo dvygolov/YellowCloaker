@@ -231,7 +231,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <div class="i-checks pull-left">
                             <label>
-                                    <input type="radio" <?=$white_redirect_type===301?'checked':''?> value="301" name="white.redirect.type"> 301 </label>
+                                    <input type="radio" <?=$white_redirect_type==='301'?'checked':''?> value="301" name="white.redirect.type"> 301 </label>
                         </div>
                     </div>
                 </div>
@@ -239,7 +239,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <div class="i-checks pull-left">
                             <label>
-                                    <input type="radio" <?=$white_redirect_type===302?'checked':''?> value="302" name="white.redirect.type"> 302 </label>
+                                    <input type="radio" <?=$white_redirect_type==='302'?'checked':''?> value="302" name="white.redirect.type"> 302 </label>
                         </div>
                     </div>
                 </div>
@@ -247,7 +247,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <div class="i-checks pull-left">
                             <label>
-                                    <input type="radio" <?=$white_redirect_type===303?'checked':''?> value="303" name="white.redirect.type">  303 </label>
+                                    <input type="radio" <?=$white_redirect_type==='303'?'checked':''?> value="303" name="white.redirect.type">  303 </label>
                         </div>
                     </div>
                 </div>
@@ -255,7 +255,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <div class="i-checks pull-left">
                             <label>
-                                    <input type="radio" <?=$white_redirect_type===307?'checked':''?> value="307" name="white.redirect.type">  307 </label>
+                                    <input type="radio" <?=$white_redirect_type==='307'?'checked':''?> value="307" name="white.redirect.type">  307 </label>
                         </div>
                     </div>
                 </div>
@@ -839,7 +839,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <div class="i-checks pull-left">
                             <label>
-                                    <input type="radio" <?=$black_land_redirect_type===301?'checked':''?> value="301" name="black.landing.redirect.type"> 301 </label>
+                                    <input type="radio" <?=$black_land_redirect_type==='301'?'checked':''?> value="301" name="black.landing.redirect.type"> 301 </label>
                         </div>
                     </div>
                 </div>
@@ -847,7 +847,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <div class="i-checks pull-left">
                             <label>
-                                    <input type="radio" <?=$black_land_redirect_type===302?'checked':''?> value="302" name="black.landing.redirect.type"> 302 </label>
+                                    <input type="radio" <?=$black_land_redirect_type==='302'?'checked':''?> value="302" name="black.landing.redirect.type"> 302 </label>
                         </div>
                     </div>
                 </div>
@@ -855,7 +855,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <div class="i-checks pull-left">
                             <label>
-                                    <input type="radio" <?=$black_land_redirect_type===303?'checked':''?> value="303" name="black.landing.redirect.type">  303 </label>
+                                    <input type="radio" <?=$black_land_redirect_type==='303'?'checked':''?> value="303" name="black.landing.redirect.type">  303 </label>
                         </div>
                     </div>
                 </div>
@@ -863,7 +863,7 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                         <div class="i-checks pull-left">
                             <label>
-                                    <input type="radio" <?=$black_land_redirect_type===307?'checked':''?> value="307" name="black.landing.redirect.type">  307 </label>
+                                    <input type="radio" <?=$black_land_redirect_type==='307'?'checked':''?> value="307" name="black.landing.redirect.type">  307 </label>
                         </div>
                     </div>
                 </div>
@@ -1971,14 +1971,20 @@ if (isset($_GET['startdate'])&& isset($_GET['enddate'])) {
 <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
     <br/>
     <br/>
+        <?php
+            function s2s_postback_contains($conv_event,$s2s_postback){
+                if (!array_key_exists("events",$s2s_postback)) return false;
+                return in_array($conv_event,$s2s_postback["events"]);
+            }
+        ?>
          <label class="form-check-input">
-        <input type="checkbox" class="form-check-input" name="postback.s2s[<?=$i?>][events][]" value="Lead"<?=(in_array("Lead",$s2s_postbacks[$i]["events"])?' checked':'')?>>Lead</label>&nbsp;&nbsp;
+        <input type="checkbox" class="form-check-input" name="postback.s2s[<?=$i?>][events][]" value="Lead"<?=(s2s_postback_contains("Lead",$s2s_postbacks[$i])?' checked':'')?>>Lead</label>&nbsp;&nbsp;
          <label class="form-check-input">
-        <input type="checkbox" class="form-check-input" name="postback.s2s[<?=$i?>][events][]" value="Purchase"<?=(in_array("Purchase",$s2s_postbacks[$i]["events"])?' checked':'')?>>Purchase</label>&nbsp;&nbsp;
+        <input type="checkbox" class="form-check-input" name="postback.s2s[<?=$i?>][events][]" value="Purchase"<?=(s2s_postback_contains("Purchase",$s2s_postbacks[$i])?' checked':'')?>>Purchase</label>&nbsp;&nbsp;
          <label class="form-check-input">
-        <input type="checkbox" class="form-check-input" name="postback.s2s[<?=$i?>][events][]" value="Reject"<?=(in_array("Reject",$s2s_postbacks[$i]["events"])?' checked':'')?>>Reject</label>&nbsp;&nbsp;
+        <input type="checkbox" class="form-check-input" name="postback.s2s[<?=$i?>][events][]" value="Reject"<?=(s2s_postback_contains("Reject",$s2s_postbacks[$i])?' checked':'')?>>Reject</label>&nbsp;&nbsp;
          <label class="form-check-input">
-        <input type="checkbox" class="form-check-input" name="postback.s2s[<?=$i?>][events][]" value="Trash"<?=(in_array("Trash",$s2s_postbacks[$i]["events"])?' checked':'')?>>Trash
+        <input type="checkbox" class="form-check-input" name="postback.s2s[<?=$i?>][events][]" value="Trash"<?=(s2s_postback_contains("Trash",$s2s_postbacks[$i])?' checked':'')?>>Trash
 </label>
 </div>
 </div>
