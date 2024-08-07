@@ -26,7 +26,7 @@ function select_item($items,$save_user_flow=false,$itemtype='landing',$isfolder=
     //если есть, то берём её
     if ($isfolder)
     {
-        $country=getcountry();
+        $country=strtolower(getcountry());
         if (is_dir(__DIR__.'/'.$item.$country))
             $item.=$country;
     }
@@ -46,7 +46,7 @@ function select_item_by_index($items,$index,$isfolder=true){
     //если есть, то берём её
     if ($isfolder)
     {
-        $country=getcountry();
+        $country=strtolower(getcountry());
         if (is_dir(__DIR__.'/'.$item.$country))
             $item.=$country;
     }

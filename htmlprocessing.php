@@ -57,7 +57,7 @@ function load_prelanding($url, $land_number)
         $url = add_subs_to_link($url); //добавляем сабы
         $html = insert_file_content_with_replace($html, 'replaceprelanding.js', '</body>', '{REDIRECT}', $url);
     }
-    $html = preg_replace('/(<a[^>]+href=")([^"]*)/', $replacement, $html);
+    $html = preg_replace('/(<a[^>]+href=")(?!mailto:|tel:)([^"]*)/', $replacement, $html);
     //убираем левые обработчики onclick у ссылок
     $html = preg_replace('/(<a[^>]+)(onclick="[^"]+")/i', "\\1", $html);
     $html = preg_replace("/(<a[^>]+)(onclick='[^']+')/i", "\\1", $html);

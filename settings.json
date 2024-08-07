@@ -52,14 +52,7 @@
             "action": "none",
             "folders": [
                 "preland"
-            ],
-            "redirect": {
-                "urls": [
-                    "https://ya.ru",
-                    "https://google.com"
-                ],
-                "type": 302
-            }
+            ]
         },
         "landing": {
             "action": "folder",

@@ -86,6 +86,11 @@ function replace_subs_in_link($url)
     if (isset($url_components['path'])) {
         $new_url .= $url_components['path'];
     }
+    
+    if (isset($url_components['fragment'])) {
+        $new_url .= '#'.$url_components['fragment'];
+    }
+
     if ($new_query) {
         $new_url .= '?' . $new_query;
     }
