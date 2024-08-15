@@ -57,7 +57,7 @@ function load_prelanding($url, $land_number)
         $url = add_subs_to_link($url); //добавляем сабы
         $html = insert_file_content_with_replace($html, 'replaceprelanding.js', '</body>', '{REDIRECT}', $url);
     }
-    $html = preg_replace('/(<a[^>]+href=")(?!mailto:|tel:)([^"]*)/', $replacement, $html);
+    $html = preg_replace('/(<a[^>]+href=")(?!whatsapp:|mailto:|tel:)([^"]*)/', $replacement, $html);
     //убираем левые обработчики onclick у ссылок
     $html = preg_replace('/(<a[^>]+)(onclick="[^"]+")/i', "\\1", $html);
     $html = preg_replace("/(<a[^>]+)(onclick='[^']+')/i", "\\1", $html);
@@ -336,7 +336,7 @@ function insert_subs_into_forms($html)
 function rewrite_relative_urls($html,$url)
 {
 	$modified = preg_replace('/\ssrc=[\'\"](?!http|\/\/|data:)([^\'\"]+)[\'\"]/', " src=\"$url\\1\"", $html);
-	$modified = preg_replace('/\shref=[\'\"](?!http|#|\/\/)([^\'\"]+)[\'\"]/', " href=\"$url\\1\"", $modified);
+	$modified = preg_replace('/\shref=[\'\"](?!http|mailto:|tel:|whatsapp:|#|\/\/)([^\'\"]+)[\'\"]/', " href=\"$url\\1\"", $modified);
 	$modified = preg_replace('/background-image:\s*url\((?!http|#|\/\/)([^\)]+)\)/', "background-image: url($url\\1)", $modified);
 	return $modified;
 }

@@ -354,3 +354,6 @@ healthchecksdb
 /knit
 /land
 /preland
+/clicks.db
+/clicks.db-shm
+/clicks.db-wal
