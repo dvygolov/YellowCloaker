@@ -15,10 +15,10 @@ $db = new Db();
 
 switch ($action) {
     case 'add':
-        if ($db->add_campaign($name))
-            return send_camp_result("OK");
-        else
-            return send_camp_result("Error adding new campaign!");
+        $campId = $db->add_campaign($name);
+        if ($campId===false)
+            return send_camp_result("Error adding new campaign!",true);
+        return send_camp_result("OK");
     case 'dup':
         if ($db->clone_campaign($campId))
             return send_camp_result("OK");
@@ -38,10 +38,14 @@ switch ($action) {
     default:
         return send_camp_result("Error: wrong action!");
 }
-function send_camp_result($msg): void
+function send_camp_result($msg,$error=false): void
 {
     $res = ["result" => $msg];
+    if ($error){
+        $res['error']=true;
+    }
     header('Content-type: application/json');
     http_response_code(200);
-    echo json_encode($res);
+    $json = json_encode($res);
+    echo $json;
 }

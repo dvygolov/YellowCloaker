@@ -702,7 +702,7 @@ JSON;
 function get_campaigns_columns(): string
 {
     $columnSettings = [
-        'name' => [
+        [
             "title" => "Name",
             "field" => "name",
             "headerFilter" => "input",

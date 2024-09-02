@@ -6,8 +6,8 @@ document.addEventListener("DOMContentLoaded", function () {
         window.location.href = newUrl;
     }
 
-    function campEditor(body) {
-        let res = await fetch("campaigneditor.php", {
+    async function campEditor(body) {
+        let res = await fetch("campeditor.php", {
             method: "POST",
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
@@ -46,14 +46,7 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
         if (!confirm(`Are you sure you want to delete this config: ${config}?`)) return;
-        let res = await fetch("campaigneditor.php", {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `action=del&name=${config}`
-        });
-        let js = await res.json();
+        let js = await campEditor(`action=del&name=${config}`)
         if (js["result"] === "OK")
             reloadWithConfig("default");
         else

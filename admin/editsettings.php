@@ -3,10 +3,10 @@ require_once __DIR__ . '/initialization.php';
 ?>
 <!doctype html>
 <html lang="en">
-<?php include "head.php" ?>
+<?php include __DIR__.'/head.php' ?>
 
 <body>
-    <?php include "header.php" ?>
+    <?php include __DIR__.'/header.php' ?>
     <div class="all-content-wrapper">
 
         <form id="saveconfig" style="padding:35px;background-color:#1D2A48;">

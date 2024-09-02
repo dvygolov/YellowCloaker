@@ -1,5 +1,4 @@
 <?php
-global $startdate, $enddate, $stats_timezone;
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/initialization.php';
 require_once __DIR__ . '/tablecolumns.php';
@@ -15,7 +14,8 @@ $dataset = $db->get_campaigns();
 <body>
     <?php include "header.php" ?>
     <div class="all-content-wrapper">
-        <button id="newcampaign">New campaign</button>
+        <button id="newcampaign" title="Create new campaign" class="btn btn-primary"><i class="bi bi-plus-circle-fill"></i> New</button>
+        <button id="" title="Campaigns table view settings" class="btn btn-info"><i class="bi bi-gear-fill"></i></button>
         <div id="campaigns"></div>
     </div>
     <script>
@@ -35,9 +35,7 @@ $dataset = $db->get_campaigns();
             }
         });
     </script>
-
-    <script>
-    </script>
+    <script src="./js/campeditor.js?v=<?= filemtime(__DIR__.'/js/campeditor.js') ?>"></script> 
 </body>
 
 </html>
