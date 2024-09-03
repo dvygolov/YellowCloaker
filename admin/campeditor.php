@@ -9,8 +9,7 @@ if (!$passOk)
 
 $action = $_REQUEST['action'];
 $name = $_REQUEST['name'];
-$campId = $_REQUEST['campid'];
-$dupId = $_REQUEST['dupid']??'';
+$campId = $_REQUEST['campId'];
 $db = new Db();
 
 switch ($action) {
@@ -18,26 +17,33 @@ switch ($action) {
         $campId = $db->add_campaign($name);
         if ($campId===false)
             return send_camp_result("Error adding new campaign!",true);
-        return send_camp_result("OK");
+        break;
     case 'dup':
-        if ($db->clone_campaign($campId))
-            return send_camp_result("OK");
-        else
-            return send_camp_result("Error duplicating campaign!");
+        $clonedId = $db->clone_campaign($campId);
+        if ($clonedId===false)
+            return send_camp_result("Error duplicating campaign!",true);
+        break;
     case 'del':
-        if ($db->delete_campaign($campId))
-            return send_camp_result("OK");
-        else
-            return send_camp_result("Error deleting campaign!");
+        $delRes = $db->delete_campaign($campId);
+        if ($delRes===false)
+            return send_camp_result("Error deleting campaign!",true);
+        break;
+    case 'ren':
+        $renRes = $db->rename_campaign($campId, $name);
+        if ($renRes===false)
+            return send_camp_result("Error renaming campaign!",true);
+        break;
     case 'save':
-        $campSettings->to_json_string($config)
-        if(save_config($config))
-            return send_camp_result("OK");
-        else
-            return send_camp_result("Error saving campaign!");
+        $campSettings->to_json_string($config);
+        $saveRes = $db->save_campaign_settings($campId, $campSettings);
+        if($saveRes===false)
+            return send_camp_result("Error saving campaign!",true);
+        break;
     default:
-        return send_camp_result("Error: wrong action!");
+        return send_camp_result("Error: wrong action!",true);
 }
+return send_camp_result("OK");
+
 function send_camp_result($msg,$error=false): void
 {
     $res = ["result" => $msg];

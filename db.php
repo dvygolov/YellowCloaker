@@ -725,9 +725,30 @@ class Db
         return false;
     }
 
-    public function update_campaign($id, $name, $settings)
+    public function rename_campaign($id, $name)
     {
-        $query = "UPDATE campaigns SET name = :name, settings = :settings WHERE id = :id";
+        $query = "UPDATE campaigns SET name = :name WHERE id = :id";
+
+        $db = $this->open_db();
+        $stmt = $db->prepare($query);
+
+        $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
+        $stmt->bindValue(':name', $name, SQLITE3_TEXT);
+
+        $result = $stmt->execute();
+        $db->close();
+
+        if ($result === false) {
+            $errorMessage = $db->lastErrorMsg();
+            add_log("errors", "Couldn't rename campaign $id to $name: $errorMessage");
+            return false;
+        }
+        return true;
+    }
+
+    public function save_campaign_settings($id, $settings)
+    {
+        $query = "UPDATE campaigns SET settings = :settings WHERE id = :id";
 
         $db = $this->open_db();
         $stmt = $db->prepare($query);
@@ -735,7 +756,6 @@ class Db
         $settingsJson = json_encode($settings);
 
         $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
-        $stmt->bindValue(':name', $name, SQLITE3_TEXT);
         $stmt->bindValue(':settings', $settingsJson, SQLITE3_TEXT);
 
         $result = $stmt->execute();
@@ -743,7 +763,7 @@ class Db
 
         if ($result === false) {
             $errorMessage = $db->lastErrorMsg();
-            add_log("errors", "Couldn't update campaign $name: $errorMessage");
+            add_log("errors", "Couldn't save campaign's $id settings: $errorMessage, $settingsJson");
             return false;
         }
         return true;
@@ -771,7 +791,7 @@ class Db
 
     public function get_campaigns()
     {
-        $query = "SELECT * FROM campaigns";
+        $query = "SELECT id,name FROM campaigns";
 
         $db = $this->open_db(true);
         $stmt = $db->prepare($query);

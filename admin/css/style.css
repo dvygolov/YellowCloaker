@@ -151,8 +151,12 @@ body {
 /*  8. Menu collapse Area
 /*----------------------------------------*/
 .all-content-wrapper {
-    margin-left: 205px;
+    margin: 20px;
     transition: all 0.3s;
+}
+
+.buttons-block {
+    margin-bottom: 5px;
 }
 
 .left-sidebar-pro {

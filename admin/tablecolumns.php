@@ -701,13 +701,33 @@ JSON;
 
 function get_campaigns_columns(): string
 {
-    $columnSettings = [
-        [
-            "title" => "Name",
-            "field" => "name",
-            "headerFilter" => "input",
-        ]
-    ];
-
-    return json_encode($columnSettings);
+    $columnSettings = <<<JSON
+    [
+        {
+            "title": "ID",
+            "field": "id",
+            "visible": false, 
+        },        
+        {
+            "title": "Name",
+            "field": "name",
+            "headerFilter": "input",
+        },
+        {
+            "title": "Actions",
+            "formatter": "html",
+            "hozAlign": "center",
+            "cellClick": campActionsHandler, 
+            "formatter": function() {
+                return `
+                    <button class="btn btn-rename" title="Rename"><i class="bi bi-pencil-fill"></i></button>
+                    <button class="btn btn-delete" title="Delete"><i class="bi bi-file-x"></i></button>
+                    <button class="btn btn-clone" title="Clone"><i class="bi bi-copy"></i></button>
+                    <button class="btn btn-copy-link" title="Copy link"><i class="bi bi-link"></i></button>
+                    <button class="btn btn-stats" title="View stats"><i class="bi bi-bar-chart-fill"></i></button>`;
+            },
+        }
+    ]
+JSON;
+    return $columnSettings;
 }
