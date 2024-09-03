@@ -710,6 +710,12 @@ function get_campaigns_columns(): string
         },        
         {
             "title": "Name",
+            "formatter": "link",
+            "formatterParams": {
+                "target":"_blank",
+                "urlField":"id",
+                "urlPrefix":"editsettings.php?campId="
+            },
             "field": "name",
             "headerFilter": "input",
         },

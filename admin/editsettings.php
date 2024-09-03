@@ -1,5 +1,10 @@
 <?php
 require_once __DIR__ . '/initialization.php';
+require_once __DIR__ . '/../db.php';
+
+$db = new Db();
+$campId = $_REQUEST['campId'];
+$s = $db->get_campaign_settings($campId);
 ?>
 <!doctype html>
 <html lang="en">
@@ -21,7 +26,7 @@ require_once __DIR__ . '/initialization.php';
                     </div>
                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                         <div class="input-group custom-go-button">
-                            <input type="text" class="form-control" placeholder="domain.com" name="domains" value="<?= implode(',', $domain_names) ?>" />
+                            <input type="text" class="form-control" placeholder="domain.com" name="domains" value="<?= implode(',', $s['domains']) ?>" />
                         </div>
                     </div>
                 </div>
@@ -40,7 +45,7 @@ require_once __DIR__ . '/initialization.php';
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $white_action === 'folder' ? 'checked' : '' ?> value="folder" name="white.action" onclick="(document.getElementById('b_2').style.display = 'block'); (document.getElementById('b_3').style.display = 'none'); (document.getElementById('b_4').style.display = 'none'); (document.getElementById('b_5').style.display = 'none')" />
+                                            <input type="radio" <?= $s['white']['action'] === 'folder' ? 'checked' : '' ?> value="folder" name="white.action" onclick="(document.getElementById('b_2').style.display = 'block'); (document.getElementById('b_3').style.display = 'none'); (document.getElementById('b_4').style.display = 'none'); (document.getElementById('b_5').style.display = 'none')" />
                                             Local safe page from folder
                                         </label>
                                     </div>
@@ -50,7 +55,7 @@ require_once __DIR__ . '/initialization.php';
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $white_action === 'redirect' ? 'checked' : '' ?> value="redirect" name="white.action" onclick="(document.getElementById('b_2').style.display = 'none'); (document.getElementById('b_3').style.display = 'block'); (document.getElementById('b_4').style.display = 'none'); (document.getElementById('b_5').style.display = 'none')" />
+                                            <input type="radio" <?= $s['white']['action'] === 'redirect' ? 'checked' : '' ?> value="redirect" name="white.action" onclick="(document.getElementById('b_2').style.display = 'none'); (document.getElementById('b_3').style.display = 'block'); (document.getElementById('b_4').style.display = 'none'); (document.getElementById('b_5').style.display = 'none')" />
                                             Redirect
                                         </label>
                                     </div>
@@ -60,7 +65,7 @@ require_once __DIR__ . '/initialization.php';
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $white_action === 'curl' ? 'checked' : '' ?> value="curl" name="white.action" onclick="(document.getElementById('b_2').style.display = 'none'); (document.getElementById('b_3').style.display = 'none'); (document.getElementById('b_4').style.display = 'block'); (document.getElementById('b_5').style.display = 'none')" />
+                                            <input type="radio" <?= $s['white']['action'] === 'curl' ? 'checked' : '' ?> value="curl" name="white.action" onclick="(document.getElementById('b_2').style.display = 'none'); (document.getElementById('b_3').style.display = 'none'); (document.getElementById('b_4').style.display = 'block'); (document.getElementById('b_5').style.display = 'none')" />
                                             Load a website using CURL
                                         </label>
                                     </div>
@@ -70,7 +75,7 @@ require_once __DIR__ . '/initialization.php';
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $white_action === 'error' ? 'checked' : '' ?> value="error" name="white.action" onclick="(document.getElementById('b_2').style.display = 'none'); (document.getElementById('b_3').style.display = 'none'); (document.getElementById('b_4').style.display = 'none'); (document.getElementById('b_5').style.display = 'block')" />
+                                            <input type="radio" <?= $s['white']['action'] === 'error' ? 'checked' : '' ?> value="error" name="white.action" onclick="(document.getElementById('b_2').style.display = 'none'); (document.getElementById('b_3').style.display = 'none'); (document.getElementById('b_4').style.display = 'none'); (document.getElementById('b_5').style.display = 'block')" />
                                             Return HTTP-code <small>(for example,
                                                 404 for NotFound or 200 for
                                                 OK)</small>
@@ -82,7 +87,7 @@ require_once __DIR__ . '/initialization.php';
                     </div>
                 </div>
             </div>
-            <div id="b_2" style="display:<?= $white_action === 'folder' ? 'block' : 'none' ?>;">
+            <div id="b_2" style="display:<?= $s['white']['action'] === 'folder' ? 'block' : 'none' ?>;">
                 <div class="form-group-inner">
                     <div class="row">
                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -91,13 +96,13 @@ require_once __DIR__ . '/initialization.php';
                         </div>
                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                             <div class="input-group custom-go-button">
-                                <input type="text" class="form-control" placeholder="white" name="white.folder.names" value="<?= implode(',', $white_folder_names) ?>" />
+                                <input type="text" class="form-control" placeholder="white" name="white.folder.names" value="<?= implode(',', $s['white']['folder']['names']) ?>" />
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div id="b_3" style="display:<?= ($white_action === 'redirect' ? 'block' : 'none') ?>;">
+            <div id="b_3" style="display:<?= ($s['white']['action'] === 'redirect' ? 'block' : 'none') ?>;">
                 <div class="form-group-inner">
                     <div class="row">
                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -106,7 +111,7 @@ require_once __DIR__ . '/initialization.php';
                         </div>
                         <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                             <div class="input-group custom-go-button">
-                                <input type="text" class="form-control" placeholder="https://ya.ru" name="white.redirect.urls" value="<?= implode(',', $white_redirect_urls) ?>" />
+                                <input type="text" class="form-control" placeholder="https://ya.ru" name="white.redirect.urls" value="<?= implode(',', $s['white']['redirect']['urls']) ?>" />
                             </div>
                         </div>
                     </div>
@@ -125,7 +130,7 @@ require_once __DIR__ . '/initialization.php';
                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                         <div class="i-checks pull-left">
                                             <label>
-                                                <input type="radio" <?= $white_redirect_type === '301' ? 'checked' : '' ?> value="301" name="white.redirect.type" />
+                                                <input type="radio" <?= $s['white']['redirect']['type'] === '301' ? 'checked' : '' ?> value="301" name="white.redirect.type" />
                                                 301
                                             </label>
                                         </div>
@@ -135,7 +140,7 @@ require_once __DIR__ . '/initialization.php';
                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                         <div class="i-checks pull-left">
                                             <label>
-                                                <input type="radio" <?= $white_redirect_type === '302' ? 'checked' : '' ?> value="302" name="white.redirect.type" />
+                                                <input type="radio" <?= $s['white']['redirect']['type'] === '302' ? 'checked' : '' ?> value="302" name="white.redirect.type" />
                                                 302
                                             </label>
                                         </div>
@@ -145,7 +150,7 @@ require_once __DIR__ . '/initialization.php';
                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                         <div class="i-checks pull-left">
                                             <label>
-                                                <input type="radio" <?= $white_redirect_type === '303' ? 'checked' : '' ?> value="303" name="white.redirect.type" />
+                                                <input type="radio" <?= $s['white']['redirect']['type'] === '303' ? 'checked' : '' ?> value="303" name="white.redirect.type" />
                                                 303
                                             </label>
                                         </div>
@@ -155,7 +160,7 @@ require_once __DIR__ . '/initialization.php';
                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                         <div class="i-checks pull-left">
                                             <label>
-                                                <input type="radio" <?= $white_redirect_type === '307' ? 'checked' : '' ?> value="307" name="white.redirect.type" />
+                                                <input type="radio" <?= $s['white']['redirect']['type'] === '307' ? 'checked' : '' ?> value="307" name="white.redirect.type" />
                                                 307
                                             </label>
                                         </div>
@@ -166,7 +171,7 @@ require_once __DIR__ . '/initialization.php';
                     </div>
                 </div>
             </div>
-            <div id="b_4" style="display:<?= $white_action === 'curl' ? 'block' : 'none' ?>;">
+            <div id="b_4" style="display:<?= $s['white']['action'] === 'curl' ? 'block' : 'none' ?>;">
                 <div class="form-group-inner">
                     <div class="row">
                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -175,13 +180,13 @@ require_once __DIR__ . '/initialization.php';
                         </div>
                         <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                             <div class="input-group custom-go-button">
-                                <input type="text" class="form-control" placeholder="https://ya.ru" name="white.curl.urls" value="<?= implode(',', $white_curl_urls) ?>" />
+                                <input type="text" class="form-control" placeholder="https://ya.ru" name="white.curl.urls" value="<?= implode(',', $s['white']['curl']['urls']) ?>" />
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div id="b_5" style="display:<?= $white_action === 'error' ? 'block' : 'none' ?>;">
+            <div id="b_5" style="display:<?= $s['white']['action'] === 'error' ? 'block' : 'none' ?>;">
                 <div class="form-group-inner">
                     <div class="row">
                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -189,7 +194,7 @@ require_once __DIR__ . '/initialization.php';
                         </div>
                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                             <div class="input-group custom-go-button">
-                                <input type="text" class="form-control" placeholder="404" name="white.error.codes" value="<?= implode(',', $white_error_codes) ?>" />
+                                <input type="text" class="form-control" placeholder="404" name="white.error.codes" value="<?= implode(',', $s['white']['error']['codes']) ?>" />
                             </div>
                         </div>
                     </div>
@@ -214,7 +219,7 @@ require_once __DIR__ . '/initialization.php';
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $white_use_domain_specific === false ? 'checked' : '' ?> value="false" name="white.domainfilter.use" onclick="(document.getElementById('b_6').style.display = 'none')" />
+                                            <input type="radio" <?= $s['white']['domainfilter']['use'] === false ? 'checked' : '' ?> value="false" name="white.domainfilter.use" onclick="(document.getElementById('b_6').style.display = 'none')" />
                                             No
                                         </label>
                                     </div>
@@ -224,7 +229,7 @@ require_once __DIR__ . '/initialization.php';
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $white_use_domain_specific === true ? 'checked' : '' ?> value="true" name="white.domainfilter.use" onclick="(document.getElementById('b_6').style.display = 'block')" />
+                                            <input type="radio" <?= $s['white']['domainfilter']['use'] === true ? 'checked' : '' ?> value="true" name="white.domainfilter.use" onclick="(document.getElementById('b_6').style.display = 'block')" />
                                             Yes
                                         </label>
                                     </div>
@@ -235,9 +240,9 @@ require_once __DIR__ . '/initialization.php';
                 </div>
             </div>
 
-            <div id="b_6" style="display:<?= $white_use_domain_specific === true ? 'block' : 'none' ?>;">
+            <div id="b_6" style="display:<?= $s['white']['domainfilter']['use'] === true ? 'block' : 'none' ?>;">
                 <div id="white_domainspecific">
-                    <?php for ($j = 0; $j < count($white_domain_specific); $j++) { ?>
+                    <?php for ($j = 0; $j < count($s['white']['domainfilter']['domains']); $j++) { ?>
                     <div class="form-group-inner white">
                         <div class="row">
                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
@@ -246,7 +251,7 @@ require_once __DIR__ . '/initialization.php';
                             </div>
                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                                 <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="xxx.yyy.com" value="<?= $white_domain_specific[$j]["name"] ?>" name="white.domainfilter.domains[<?= $j ?>][name]" />
+                                    <input type="text" class="form-control" placeholder="xxx.yyy.com" value="<?= $s['white']['domainfilter']['domains'][$j]["name"] ?>" name="white.domainfilter.domains[<?= $j ?>][name]" />
                                 </div>
                             </div>
                             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
@@ -254,7 +259,7 @@ require_once __DIR__ . '/initialization.php';
                             </div>
                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                                 <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="site:white" value="<?= $white_domain_specific[$j]["action"] ?>" name="white.domainfilter.domains[<?= $j ?>][action]" />
+                                    <input type="text" class="form-control" placeholder="site:white" value="<?= $s['white']['domainfilter']['domains'][$j]["action"] ?>" name="white.domainfilter.domains[<?= $j ?>][action]" />
                                 </div>
                             </div>
                             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">

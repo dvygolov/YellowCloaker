@@ -27,10 +27,7 @@ $dataset = $db->get_campaigns();
         let table = new Tabulator('#campaigns', {
             layout: "fitColumns",
             columns: tableColumns,
-            pagination: "local",
-            paginationSize: 50,
-            paginationSizeSelector: [25, 50, 100, 200, 500],
-            paginationCounter: "rows",
+            pagination: false,
             height: "100%",
             data: tableData,
             columnDefaults:{

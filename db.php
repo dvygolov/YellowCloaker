@@ -644,9 +644,9 @@ class Db
         return $newCampaignId;
     }
 
-    public function get_campaign($id)
+    public function get_campaign_settings($id)
     {
-        $query = "SELECT * FROM campaigns WHERE id = :id";
+        $query = "SELECT settings FROM campaigns WHERE id = :id";
 
         $db = $this->open_db(true);
         $stmt = $db->prepare($query);
@@ -662,14 +662,12 @@ class Db
             return [];
         }
 
-        $campaign = $result->fetchArray(SQLITE3_ASSOC);
+        $arr = $result->fetchArray(SQLITE3_ASSOC);
         $db->close();
 
-        if ($campaign) {
-            $campaign['settings'] = json_decode($campaign['settings'], true);
-        }
+        $settings = json_decode($arr['settings'], true);
 
-        return $campaign;
+        return $settings;
     }
 
     public function get_campaign_by_domain($domain)
