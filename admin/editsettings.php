@@ -287,7 +287,7 @@ $s = $db->get_campaign_settings($campId);
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $use_js_checks === false ? 'checked="checked"' : '' ?> value="false" name="white.jschecks.enabled" onclick="(document.getElementById('jscheckssettings').style.display = 'none')" />
+                                            <input type="radio" <?= $s['white']['jschecks']['enabled'] === false ? 'checked="checked"' : '' ?> value="false" name="white.jschecks.enabled" onclick="(document.getElementById('jscheckssettings').style.display = 'none')" />
                                             No, don't use
                                         </label>
                                     </div>
@@ -297,7 +297,7 @@ $s = $db->get_campaign_settings($campId);
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" value="true" <?= $use_js_checks === true ? 'checked="checked"' : '' ?> name="white.jschecks.enabled" onclick="(document.getElementById('jscheckssettings').style.display = 'block')" />
+                                            <input type="radio" value="true" <?= $s['white']['jschecks']['enabled'] === true ? 'checked="checked"' : '' ?> name="white.jschecks.enabled" onclick="(document.getElementById('jscheckssettings').style.display = 'block')" />
                                             Yes, use
                                         </label>
                                     </div>
@@ -308,7 +308,7 @@ $s = $db->get_campaign_settings($campId);
                 </div>
             </div>
 
-            <div id="jscheckssettings" style="display:<?= $use_js_checks === true ? 'block' : 'none' ?>;">
+            <div id="jscheckssettings" style="display:<?=$s['white']['jschecks']['enabled'] === true ? 'block' : 'none' ?>;">
                 <div class="form-group-inner">
                     <div class="row">
                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -317,7 +317,7 @@ $s = $db->get_campaign_settings($campId);
                         </div>
                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                             <div class="input-group custom-go-button">
-                                <input type="text" class="form-control" placeholder="10000" name="white.jschecks.timeout" value="<?= $js_timeout ?>" />
+                                <input type="text" class="form-control" placeholder="10000" name="white.jschecks.timeout" value="<?= $s['white']['jschecks']['timeout'] ?>" />
                             </div>
                         </div>
                     </div>
@@ -335,7 +335,7 @@ $s = $db->get_campaign_settings($campId);
                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                         <div class="i-checks pull-left">
                                             <label>
-                                                <input type="checkbox" name="white.jschecks.events[]" value="mousemove" <?= in_array('mousemove', $js_checks) ? 'checked' : '' ?> />
+                                                <input type="checkbox" name="white.jschecks.events[]" value="mousemove" <?= in_array('mousemove', $s['white']['jschecks']['events']) ? 'checked' : '' ?> />
                                                 Mouse moves
                                             </label>
                                         </div>
@@ -345,7 +345,7 @@ $s = $db->get_campaign_settings($campId);
                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                         <div class="i-checks pull-left">
                                             <label>
-                                                <input type="checkbox" name="white.jschecks.events[]" value="keydown" <?= in_array('keydown', $js_checks) ? 'checked' : '' ?> />
+                                                <input type="checkbox" name="white.jschecks.events[]" value="keydown" <?= in_array('keydown', $s['white']['jschecks']['events']) ? 'checked' : '' ?> />
                                                 Key presses
                                             </label>
                                         </div>
@@ -355,7 +355,7 @@ $s = $db->get_campaign_settings($campId);
                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                         <div class="i-checks pull-left">
                                             <label>
-                                                <input type="checkbox" name="white.jschecks.events[]" value="scroll" <?= in_array('scroll', $js_checks) ? 'checked' : '' ?> />
+                                                <input type="checkbox" name="white.jschecks.events[]" value="scroll" <?= in_array('scroll', $s['white']['jschecks']['events']) ? 'checked' : '' ?> />
                                                 Scrolling
                                             </label>
                                         </div>
@@ -365,7 +365,7 @@ $s = $db->get_campaign_settings($campId);
                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                         <div class="i-checks pull-left">
                                             <label>
-                                                <input type="checkbox" name="white.jschecks.events[]" value="devicemotion" <?= in_array('devicemotion', $js_checks) ? 'checked' : '' ?> />
+                                                <input type="checkbox" name="white.jschecks.events[]" value="devicemotion" <?= in_array('devicemotion', $s['white']['jschecks']['events']) ? 'checked' : '' ?> />
                                                 Device motion (Android only)
                                             </label>
                                         </div>
@@ -375,7 +375,7 @@ $s = $db->get_campaign_settings($campId);
                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                         <div class="i-checks pull-left">
                                             <label>
-                                                <input type="checkbox" name="white.jschecks.events[]" value="deviceorientation" <?= in_array('deviceorientation', $js_checks) ? 'checked' : '' ?> />
+                                                <input type="checkbox" name="white.jschecks.events[]" value="deviceorientation" <?= in_array('deviceorientation', $s['white']['jschecks']['events']) ? 'checked' : '' ?> />
                                                 Device orientation (Android
                                                 only)
                                             </label>
@@ -387,7 +387,7 @@ $s = $db->get_campaign_settings($campId);
                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                         <div class="i-checks pull-left">
                                             <label>
-                                                <input type="checkbox" name="white.jschecks.events[]" value="audiocontext" <?= in_array('audiocontext', $js_checks) ? 'checked' : '' ?> />
+                                                <input type="checkbox" name="white.jschecks.events[]" value="audiocontext" <?= in_array('audiocontext', $s['white']['jschecks']['events']) ? 'checked' : '' ?> />
                                                 Audio engine existence
                                             </label>
                                         </div>
@@ -398,7 +398,7 @@ $s = $db->get_campaign_settings($campId);
                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                         <div class="i-checks pull-left">
                                             <label>
-                                                <input id="tzcheck" type="checkbox" name="white.jschecks.events[]" value="timezone" <?= in_array('timezone', $js_checks) ? 'checked' : '' ?> onchange="(document.getElementById('jscheckstz').style.display = this.checked ? 'block' : 'none')" />
+                                                <input id="tzcheck" type="checkbox" name="white.jschecks.events[]" value="timezone" <?= in_array('timezone', $s['white']['jschecks']['events']) ? 'checked' : '' ?> onchange="(document.getElementById('jscheckstz').style.display = this.checked ? 'block' : 'none')" />
                                                 Time Zone
                                             </label>
                                         </div>
@@ -408,7 +408,7 @@ $s = $db->get_campaign_settings($campId);
                         </div>
                     </div>
                 </div>
-                <div id="jscheckstz" class="form-group-inner" style="display:<?= in_array('timezone', $js_checks) ? 'block' : 'none' ?>;">
+                <div id="jscheckstz" class="form-group-inner" style="display:<?= in_array('timezone', $s['white']['jschecks']['events']) ? 'block' : 'none' ?>;">
                     <div class="row">
                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
                             <label class="login2 pull-left pull-left-pro">Minimum
@@ -416,7 +416,7 @@ $s = $db->get_campaign_settings($campId);
                         </div>
                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                             <div class="input-group custom-go-button">
-                                <input type="text" class="form-control" placeholder="-3" name="white.jschecks.tzstart" value="<?= $js_tzstart ?>" />
+                                <input type="text" class="form-control" placeholder="-3" name="white.jschecks.tzstart" value="<?= $s['white']['jschecks']['tzstart'] ?>" />
                             </div>
                         </div>
                     </div>
@@ -427,41 +427,7 @@ $s = $db->get_campaign_settings($campId);
                         </div>
                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                             <div class="input-group custom-go-button">
-                                <input type="text" class="form-control" placeholder="3" name="white.jschecks.tzend" value="<?= $js_tzend ?>" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group-inner">
-                    <div class="row">
-                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                            <label class="login2 pull-left pull-left-pro">Obfuscate
-                                JS-test code?</label>
-                        </div>
-                        <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                            <div class="bt-df-checkbox pull-left">
-
-                                <div class="row">
-                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                        <div class="i-checks pull-left">
-                                            <label>
-                                                <input type="radio" value="true" <?= $js_obfuscate === true ? 'checked="checked"' : '' ?> name="white.jschecks.obfuscate" />
-                                                Yes
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                                        <div class="i-checks pull-left">
-                                            <label>
-                                                <input type="radio" value="false" <?= $js_obfuscate === false ? 'checked="checked"' : '' ?> name="white.jschecks.obfuscate" />
-                                                No
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-
+                                <input type="text" class="form-control" placeholder="3" name="white.jschecks.tzend" value="<?= $s['white']['jschecks']['tzend'] ?>" />
                             </div>
                         </div>
                     </div>
@@ -482,7 +448,7 @@ $s = $db->get_campaign_settings($campId);
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $black_preland_action === 'none' ? 'checked' : '' ?> value="none" name="black.prelanding.action" onclick="(document.getElementById('b_8').style.display = 'none')" />
+                                            <input type="radio" <?= $s['black']['prelanding']['action'] === 'none' ? 'checked' : '' ?> value="none" name="black.prelanding.action" onclick="(document.getElementById('b_8').style.display = 'none')" />
                                             Don't use prelanding
                                         </label>
                                     </div>
@@ -492,7 +458,7 @@ $s = $db->get_campaign_settings($campId);
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $black_preland_action === 'folder' ? 'checked' : '' ?> value="folder" name="black.prelanding.action" onclick="(document.getElementById('b_8').style.display = 'block')" />
+                                            <input type="radio" <?= $s['black']['prelanding']['action'] === 'folder' ? 'checked' : '' ?> value="folder" name="black.prelanding.action" onclick="(document.getElementById('b_8').style.display = 'block')" />
                                             Local prelanding from folder
                                         </label>
                                     </div>
@@ -504,7 +470,7 @@ $s = $db->get_campaign_settings($campId);
             </div>
 
 
-            <div id="b_8" style="display:<?= $black_preland_action === 'folder' ? 'block' : 'none' ?>;">
+            <div id="b_8" style="display:<?= $s['black']['prelanding']['action'] === 'folder' ? 'block' : 'none' ?>;">
                 <div class="form-group-inner">
                     <div class="row">
                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -515,7 +481,7 @@ $s = $db->get_campaign_settings($campId);
                         </div>
                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                             <div class="input-group custom-go-button">
-                                <input type="text" class="form-control" placeholder="p1,p2" name="black.prelanding.folders" value="<?= implode(',', $black_preland_folder_names) ?>" />
+                                <input type="text" class="form-control" placeholder="p1,p2" name="black.prelanding.folders" value="<?= implode(',', $s['black']['prelanding']['folders']) ?>" />
                             </div>
                         </div>
                     </div>
@@ -536,7 +502,7 @@ $s = $db->get_campaign_settings($campId);
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $black_land_action === 'folder' ? 'checked' : '' ?> value="folder" name="black.landing.action" onclick="(document.getElementById('b_landings_redirect').style.display = 'none'); (document.getElementById('b_landings_folder').style.display = 'block')" />
+                                            <input type="radio" <?= $s['black']['landing']['action'] === 'folder' ? 'checked' : '' ?> value="folder" name="black.landing.action" onclick="(document.getElementById('b_landings_redirect').style.display = 'none'); (document.getElementById('b_landings_folder').style.display = 'block')" />
                                             Local landing from folder
                                         </label>
                                     </div>
@@ -546,7 +512,7 @@ $s = $db->get_campaign_settings($campId);
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $black_land_action === 'redirect' ? 'checked' : '' ?> value="redirect" name="black.landing.action" onclick="(document.getElementById('b_landings_redirect').style.display = 'block'); (document.getElementById('b_landings_folder').style.display = 'none')" />
+                                            <input type="radio" <?= $s['black']['landing']['action'] === 'redirect' ? 'checked' : '' ?> value="redirect" name="black.landing.action" onclick="(document.getElementById('b_landings_redirect').style.display = 'block'); (document.getElementById('b_landings_folder').style.display = 'none')" />
                                             Redirect
                                         </label>
                                     </div>
@@ -556,7 +522,7 @@ $s = $db->get_campaign_settings($campId);
                     </div>
                 </div>
             </div>
-            <div id="b_landings_folder" style="display:<?= $black_land_action === 'folder' ? 'block' : 'none' ?>;">
+            <div id="b_landings_folder" style="display:<?= $s['black']['landing']['action'] === 'folder' ? 'block' : 'none' ?>;">
                 <div class="form-group-inner">
                     <div class="row">
                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -567,13 +533,13 @@ $s = $db->get_campaign_settings($campId);
                         </div>
                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                             <div class="input-group custom-go-button">
-                                <input type="text" class="form-control" placeholder="l1,l2" name="black.landing.folder.names" value="<?= implode(',', $black_land_folder_names) ?>" />
+                                <input type="text" class="form-control" placeholder="l1,l2" name="black.landing.folder.names" value="<?= implode(',', $s['black']['landing']['folder']['names']) ?>" />
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div id="b_landings_redirect" style="display:<?= $black_land_action === 'redirect' ? 'block' : 'none' ?>;">
+            <div id="b_landings_redirect" style="display:<?= $s['black']['landing']['action'] === 'redirect' ? 'block' : 'none' ?>;">
                 <div class="form-group-inner">
                     <div class="row">
                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -584,7 +550,7 @@ $s = $db->get_campaign_settings($campId);
                         </div>
                         <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                             <div class="input-group custom-go-button">
-                                <input type="text" class="form-control" placeholder="https://ya.ru,https://google.com" name="black.landing.redirect.urls" value="<?= implode(',', $black_land_redirect_urls) ?>" />
+                                <input type="text" class="form-control" placeholder="https://ya.ru,https://google.com" name="black.landing.redirect.urls" value="<?= implode(',', $s['black']['landing']['redirect']['urls']) ?>" />
                             </div>
                         </div>
                     </div>
@@ -603,7 +569,7 @@ $s = $db->get_campaign_settings($campId);
                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                         <div class="i-checks pull-left">
                                             <label>
-                                                <input type="radio" <?= $black_land_redirect_type === '301' ? 'checked' : '' ?> value="301" name="black.landing.redirect.type" />
+                                                <input type="radio" <?= $s['black']['landing']['redirect']['type'] === '301' ? 'checked' : '' ?> value="301" name="black.landing.redirect.type" />
                                                 301
                                             </label>
                                         </div>
@@ -613,7 +579,7 @@ $s = $db->get_campaign_settings($campId);
                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                         <div class="i-checks pull-left">
                                             <label>
-                                                <input type="radio" <?= $black_land_redirect_type === '302' ? 'checked' : '' ?> value="302" name="black.landing.redirect.type" />
+                                                <input type="radio" <?= $s['black']['landing']['redirect']['type'] === '302' ? 'checked' : '' ?> value="302" name="black.landing.redirect.type" />
                                                 302
                                             </label>
                                         </div>
@@ -623,7 +589,7 @@ $s = $db->get_campaign_settings($campId);
                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                         <div class="i-checks pull-left">
                                             <label>
-                                                <input type="radio" <?= $black_land_redirect_type === '303' ? 'checked' : '' ?> value="303" name="black.landing.redirect.type" />
+                                                <input type="radio" <?= $s['black']['landing']['redirect']['type'] === '303' ? 'checked' : '' ?> value="303" name="black.landing.redirect.type" />
                                                 303
                                             </label>
                                         </div>
@@ -633,7 +599,7 @@ $s = $db->get_campaign_settings($campId);
                                     <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                         <div class="i-checks pull-left">
                                             <label>
-                                                <input type="radio" <?= $black_land_redirect_type === '307' ? 'checked' : '' ?> value="307" name="black.landing.redirect.type" />
+                                                <input type="radio" <?= $s['black']['landing']['redirect']['type'] === '307' ? 'checked' : '' ?> value="307" name="black.landing.redirect.type" />
                                                 307
                                             </label>
                                         </div>
@@ -645,7 +611,11 @@ $s = $db->get_campaign_settings($campId);
                     </div>
                 </div>
             </div>
-            <div class="form-group-inner">
+            <?php
+            $use_js_redirect = ($s['black']['prelanding']['action'] === 'none' && $s['black']['landing']['action'] === 'redirect');
+            $black_jsconnect_display = $use_js_redirect?'none':'block';
+            ?>
+            <div class="form-group-inner" id="black_jsconnect" style="display:<?=$black_jsconnect_display;?>">
                 <div class="row">
                     <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                         <label class="login2 pull-left pull-left-pro">When adding
@@ -654,7 +624,7 @@ $s = $db->get_campaign_settings($campId);
                     <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                         <div class="bt-df-checkbox pull-left">
 
-                            <?php if ($black_preland_action === 'none' && $black_land_action === 'redirect') { ?>
+                            <?php if ($use_js_redirect) { ?>
                             <div class="row">
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
@@ -670,7 +640,7 @@ $s = $db->get_campaign_settings($campId);
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $black_jsconnect_action === 'replace' ? 'checked' : '' ?> value="replace" name="black.jsconnect" />
+                                            <input type="radio" <?= $s['black']['jsconnect'] === 'replace' ? 'checked' : '' ?> value="replace" name="black.jsconnect" />
                                             Content replace
                                         </label>
                                     </div>
@@ -680,7 +650,7 @@ $s = $db->get_campaign_settings($campId);
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $black_jsconnect_action === 'iframe' ? 'checked' : '' ?> value="iframe" name="black.jsconnect" />
+                                            <input type="radio" <?= $s['black']['jsconnect'] === 'iframe' ? 'checked' : '' ?> value="iframe" name="black.jsconnect" />
                                             IFrame
                                         </label>
                                     </div>
@@ -709,7 +679,7 @@ $s = $db->get_campaign_settings($campId);
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $save_user_flow === false ? 'checked' : '' ?> value="false" name="tds.saveuserflow" /> No
+                                            <input type="radio" <?= $s['tds']['saveuserflow'] === false ? 'checked' : '' ?> value="false" name="tds.saveuserflow" /> No
                                         </label>
                                     </div>
                                 </div>
@@ -718,7 +688,7 @@ $s = $db->get_campaign_settings($campId);
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $save_user_flow === true ? 'checked' : '' ?> value="true" name="tds.saveuserflow" />
+                                            <input type="radio" <?= $s['tds']['saveuserflow'] === true ? 'checked' : '' ?> value="true" name="tds.saveuserflow" />
                                             Yes
                                         </label>
                                     </div>
@@ -754,7 +724,7 @@ $s = $db->get_campaign_settings($campId);
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $replace_prelanding === false ? 'checked' : '' ?> value="false" name="scripts.prelandingreplace.use" onclick="(document.getElementById('b_10').style.display = 'none')" />
+                                            <input type="radio" <?= $s['scripts']['prelandingreplace']['use'] === false ? 'checked' : '' ?> value="false" name="scripts.prelandingreplace.use" onclick="(document.getElementById('b_10').style.display = 'none')" />
                                             No
                                         </label>
                                     </div>
@@ -764,7 +734,7 @@ $s = $db->get_campaign_settings($campId);
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $replace_prelanding === true ? 'checked' : '' ?> value="true" name="scripts.prelandingreplace.use" onclick="(document.getElementById('b_10').style.display = 'block')" />
+                                            <input type="radio" <?= $s['scripts']['prelandingreplace']['use'] === true ? 'checked' : '' ?> value="true" name="scripts.prelandingreplace.use" onclick="(document.getElementById('b_10').style.display = 'block')" />
                                             Yes
                                         </label>
                                     </div>
