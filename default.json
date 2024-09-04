@@ -121,6 +121,7 @@
     }
   ],
   "statistics": {
+    "timezone": "Europe/Moscow",
     "allowed": [],
     "blocked": [],
     "tables": [

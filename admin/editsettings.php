@@ -744,7 +744,7 @@ $s = $db->get_campaign_settings($campId);
                     </div>
                 </div>
             </div>
-            <div id="b_10" style="display:<?= $replace_prelanding === true ? 'block' : 'none' ?>;">
+            <div id="b_10" style="display:<?= $s['scripts']['prelandingreplace']['use'] === true ? 'block' : 'none' ?>;">
                 <div class="form-group-inner">
                     <div class="row">
                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -752,7 +752,7 @@ $s = $db->get_campaign_settings($campId);
                         </div>
                         <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                             <div class="input-group custom-go-button">
-                                <input type="text" name="scripts.prelandingreplace.url" class="form-control" placeholder="http://ya.ru?pixel={px}&subid={subid}&prelanding={prelanding}" value="<?= $replace_prelanding_address ?>" />
+                                <input type="text" name="scripts.prelandingreplace.url" class="form-control" placeholder="http://ya.ru?pixel={px}&subid={subid}&prelanding={prelanding}" value="<?= $s['scripts']['prelandingreplace']['url']?>" />
                             </div>
                         </div>
                     </div>
@@ -774,7 +774,7 @@ $s = $db->get_campaign_settings($campId);
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $replace_landing === false ? 'checked' : '' ?> value="false" name="scripts.landingreplace.use" onclick="(document.getElementById('b_1010').style.display = 'none')" />
+                                            <input type="radio" <?= $s['scripts']['landingreplace']['use']=== false ? 'checked' : '' ?> value="false" name="scripts.landingreplace.use" onclick="(document.getElementById('b_1010').style.display = 'none')" />
                                             No
                                         </label>
                                     </div>
@@ -784,7 +784,7 @@ $s = $db->get_campaign_settings($campId);
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $replace_landing === true ? 'checked' : '' ?> value="true" name="scripts.landingreplace.use" onclick="(document.getElementById('b_1010').style.display = 'block')" />
+                                            <input type="radio" <?= $s['scripts']['landingreplace']['use'] === true ? 'checked' : '' ?> value="true" name="scripts.landingreplace.use" onclick="(document.getElementById('b_1010').style.display = 'block')" />
                                             Yes
                                         </label>
                                     </div>
@@ -794,7 +794,7 @@ $s = $db->get_campaign_settings($campId);
                     </div>
                 </div>
             </div>
-            <div id="b_1010" style="display:<?= $replace_landing === true ? 'block' : 'none' ?>;">
+            <div id="b_1010" style="display:<?= $s['scripts']['landingreplace']['use'] === true ? 'block' : 'none' ?>;">
                 <div class="form-group-inner">
                     <div class="row">
                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -802,7 +802,7 @@ $s = $db->get_campaign_settings($campId);
                         </div>
                         <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                             <div class="input-group custom-go-button">
-                                <input type="text" name="scripts.landingreplace.url" class="form-control" placeholder="http://ya.ru?pixel={px}&subid={subid}&prelanding={prelanding}" value="<?= $replace_landing_address ?>" />
+                                <input type="text" name="scripts.landingreplace.url" class="form-control" placeholder="http://ya.ru?pixel={px}&subid={subid}&prelanding={prelanding}" value="<?= $s['scripts']['landingreplace']['url'] ?>" />
                             </div>
                         </div>
                     </div>
@@ -821,7 +821,7 @@ $s = $db->get_campaign_settings($campId);
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $images_lazy_load === false ? 'checked' : '' ?> value="false" name="scripts.imageslazyload" />
+                                            <input type="radio" <?= $s['scripts']['imageslazyload'] === false ? 'checked' : '' ?> value="false" name="scripts.imageslazyload" />
                                             No
                                         </label>
                                     </div>
@@ -831,7 +831,7 @@ $s = $db->get_campaign_settings($campId);
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $images_lazy_load === true ? 'checked' : '' ?> value="true" name="scripts.imageslazyload" />
+                                            <input type="radio" <?= $s['scripts']['imageslazyload'] === true ? 'checked' : '' ?> value="true" name="scripts.imageslazyload" />
                                             Yes
                                         </label>
                                     </div>
@@ -860,18 +860,18 @@ $s = $db->get_campaign_settings($campId);
                 - prelanding - название папки преленда<br />
                 - landing - название папки ленда<br /><br />
                 Пример: <br />
-                у вас в адресной строке было http://xxx.com?cn=MyCampaign<br />
+                у вас в адресной строке было https://xxx.com?cn=MyCampaign<br />
                 вы написали в настройке: cn => utm_campaign <br />
                 в форме на ленде добавится
                 <pre>&lt;input type="hidden" name="utm_campaign" value="MyCampaign"/&gt;</pre>
             </p>
             <div id="subs_container">
-                <?php for ($i = 0; $i < count($sub_ids); $i++) { ?>
+                <?php for ($i = 0; $i < count($s['subids']); $i++) { ?>
                 <div class="form-group-inner subs">
                     <div class="row">
                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                             <div class="input-group">
-                                <input type="text" class="form-control" placeholder="subid" value="<?= $sub_ids[$i]["name"] ?>" name="subids[<?= $i ?>][name]" />
+                                <input type="text" class="form-control" placeholder="subid" value="<?= $s['subids'][$i]["name"] ?>" name="subids[<?= $i ?>][name]" />
                             </div>
                         </div>
                         <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
@@ -879,7 +879,7 @@ $s = $db->get_campaign_settings($campId);
                         </div>
                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                             <div class="input-group custom-go-button">
-                                <input type="text" class="form-control" placeholder="sub_id" value="<?= $sub_ids[$i]["rewrite"] ?>" name="subids[<?= $i ?>][rewrite]" />
+                                <input type="text" class="form-control" placeholder="sub_id" value="<?= $s['subids'][$i]["rewrite"] ?>" name="subids[<?= $i ?>][rewrite]" />
                             </div>
                         </div>
                         <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
@@ -893,22 +893,7 @@ $s = $db->get_campaign_settings($campId);
 
             <br />
             <hr />
-            <h4>#8 Statistics settings</h4>
-            <div class="form-group-inner">
-                <div class="row">
-                    <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                        <label class="login2 pull-left pull-left-pro">
-                            <img src="img/info.ico" title="Add it to url like: /admin/?password=xxxxx" />
-                            Admin-panel password:
-                        </label>
-                    </div>
-                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                        <div class="input-group custom-go-button">
-                            <input type="password" name="statistics.password" class="form-control" placeholder="12345" value="<?= $admin_password ?>" />
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <h4>#8 Campaign statistics settings</h4>
             <div class="form-group-inner">
                 <div class="row">
                     <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -917,7 +902,7 @@ $s = $db->get_campaign_settings($campId);
                     </div>
                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                         <div class="input-group custom-go-button">
-                            <?= select_timezone('statistics.timezone', $stats_timezone) ?>
+                            <?= select_timezone('statistics.timezone', $s['statistics']['timezone']); ?>
                         </div>
                     </div>
                 </div>
@@ -929,7 +914,7 @@ $s = $db->get_campaign_settings($campId);
                 <div class="row">
                     <div class="col-lg-5 col-md-12 col-sm-12 col-xs-12">
                         <label class="login2 pull-left pull-left-pro">
-                            <img src="img/info.ico" title="Your postback will look smth like this: https://yourdomain.com/postback.php?subid={subid}&payout={payout}&status={status}" />
+                            <img src="img/info.ico" title="Your postback will look like this: https://yourdomain.com/postback.php?subid={subid}&payout={payout}&status={status}" />
                             Here you need to write lead statuses in the format that
                             you get them from Affiliate Network's postback:
                         </label>
@@ -943,7 +928,7 @@ $s = $db->get_campaign_settings($campId);
                     </div>
                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                         <div class="input-group custom-go-button">
-                            <input type="text" name="postback.lead" class="form-control" placeholder="Lead" value="<?= $lead_status_name ?>" />
+                            <input type="text" name="postback.events.lead" class="form-control" placeholder="Lead" value="<?= $s['postback']['events']['lead'] ?>" />
                         </div>
                     </div>
                 </div>
@@ -956,7 +941,7 @@ $s = $db->get_campaign_settings($campId);
                     </div>
                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                         <div class="input-group custom-go-button">
-                            <input type="text" name="postback.purchase" class="form-control" placeholder="Purchase" value="<?= $purchase_status_name ?>" />
+                            <input type="text" name="postback.events.purchase" class="form-control" placeholder="Purchase" value="<?= $s['postback']['events']['purchase'] ?>" />
                         </div>
                     </div>
                 </div>
@@ -969,7 +954,7 @@ $s = $db->get_campaign_settings($campId);
                     </div>
                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                         <div class="input-group custom-go-button">
-                            <input type="text" name="postback.reject" class="form-control" placeholder="Reject" value="<?= $reject_status_name ?>" />
+                            <input type="text" name="postback.events.reject" class="form-control" placeholder="Reject" value="<?= $s['postback']['events']['reject'] ?>" />
                         </div>
                     </div>
                 </div>
@@ -982,11 +967,12 @@ $s = $db->get_campaign_settings($campId);
                     </div>
                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                         <div class="input-group custom-go-button">
-                            <input type="text" name="postback.trash" class="form-control" placeholder="Trash" value="<?= $trash_status_name ?>" />
+                            <input type="text" name="postback.events.trash" class="form-control" placeholder="Trash" value="<?= $s['postback']['events']['trash'] ?>" />
                         </div>
                     </div>
                 </div>
             </div>
+
             <div class="form-group-inner">
                 <div class="row">
                     <div class="col-lg-5 col-md-12 col-sm-12 col-xs-12">
@@ -997,7 +983,7 @@ $s = $db->get_campaign_settings($campId);
 
                 <div id="s2s_container">
                     <?php 
-                    for ( $i = 0; $i < count($s2s_postbacks); $i++) { ?>
+                    for ( $i = 0; $i < count($s['postback']['s2s']); $i++) { ?>
                     <div class="form-group-inner s2s">
                         <div class="row">
                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
@@ -1009,7 +995,7 @@ $s = $db->get_campaign_settings($campId);
                             </div>
                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                                 <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="https://s2s-postback.com" value="<?= $s2s_postbacks[$i]["url"] ?>" name="postback.s2s[<?= $i ?>][url]" />
+                                    <input type="text" class="form-control" placeholder="https://s2s-postback.com" value="<?= $s['postback']['s2s'][$i]["url"] ?>" name="postback.s2s[<?= $i ?>][url]" />
                                 </div>
                             </div>
                             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
@@ -1024,9 +1010,9 @@ $s = $db->get_campaign_settings($campId);
                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                                 <div class="input-group">
                                     <select class="form-control" name="postback.s2s[<?= $i ?>][method]">
-                                        <option value="GET" <?= ($s2s_postbacks[$i]["method"] === "GET" ? ' selected' : '') ?>> GET
+                                        <option value="GET" <?= ($s['postback']['s2s'][$i]["method"] === "GET" ? ' selected' : '') ?>> GET
                                         </option>
-                                        <option value="POST" <?= ($s2s_postbacks[$i]["method"] === "POST" ? ' selected' : '') ?>> POST
+                                        <option value="POST" <?= ($s['postback']['s2s'][$i]["method"] === "POST" ? ' selected' : '') ?>> POST
                                         </option>
                                     </select>
                                 </div>
@@ -1046,7 +1032,7 @@ $s = $db->get_campaign_settings($campId);
                                 {?>
                                     <div class="form-check form-switch">
                                         <label for="<?=$status?><?=$i?>" class="form-check-label"><?=$status?></label>
-                                        <input id="<?=$status?><?=$i?>" type="checkbox" class="form-check-input" name="postback.s2s[<?= $i ?>][events][]" value="<?=$status?>" <?= (in_array($status, $s2s_postbacks[$i]["events"]) ? ' checked' : '') ?> />
+                                        <input id="<?=$status?><?=$i?>" type="checkbox" class="form-check-input" name="postback.s2s[<?= $i ?>][events][]" value="<?=$status?>" <?= (in_array($status, $s['postback']['s2s'][$i]['events']) ? ' checked' : '') ?> />
                                     </div>
                                 <?php
                                 }
@@ -1148,7 +1134,7 @@ $s = $db->get_campaign_settings($campId);
         });
     </script>
     <script>
-        var rules_basic = <?=json_encode($tds_filters)?>;
+        var rules_basic = <?=json_encode($s['tds']['filters'])?>;
 
         $('#filtersbuilder').queryBuilder({
 
