@@ -1106,18 +1106,25 @@ $s = $db->get_campaign_settings($campId);
             document.getElementById("saveconfig")?.addEventListener("submit", async (e) => {
                 e.preventDefault();
 
+                const urlParams = new URLSearchParams(window.location.search);
+                const campId = urlParams.get('campId');
+                if (campId === null) {
+                    alert("No campaign ID found!");
+                    return false;
+                }
+
                 let rules = $('#filtersbuilder').queryBuilder('getRules');
                 let formData = new FormData(document.getElementById("saveconfig"));
                 let filteredFormData = new FormData();
-
                 for (let [key, value] of formData.entries()) {
                     if (!key.startsWith("filtersbuilder")) {
                         filteredFormData.append(key, value);
                     }
                 }
-
                 filteredFormData.append("tds.filters", JSON.stringify(rules));
-                let res = await fetch("configmanager.php?action=save&name=<?= $config ?>", {
+
+
+                let res = await fetch(`campeditor.php?action=save&campId=${campId}`, {
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
@@ -1125,10 +1132,10 @@ $s = $db->get_campaign_settings($campId);
                     body: new URLSearchParams(filteredFormData.entries()).toString()
                 });
                 let js = await res.json();
-                if (js["result"] === "OK")
-                    alert("Settings saved!")
+                if (js.error)
+                    alert(`An error occured: ${js.result}`);
                 else
-                    alert(`An error occured: ${js["result"]}`);
+                    alert("Settings saved!");
                 return false;
             });
         });

@@ -1,13 +1,15 @@
 <?php
 require_once __DIR__ . "/cookies.php";
 require_once __DIR__ . "/logging.php";
-
+require_once __DIR__ . "/settings.php";
 class Db
 {
-    private $dbPath = __DIR__ . '/clicks.db';
+    private $dbPath;
 
     public function __construct()
     {
+        global $cloSettings;
+        $this->dbPath=  __DIR__ . '/'.$cloSettings['dbFileName'];
         if (!file_exists($this->dbPath)) {
             $this->create_new_db();
         }
