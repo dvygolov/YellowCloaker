@@ -5,7 +5,7 @@ require_once __DIR__ . '/requestfunc.php';
 require_once __DIR__ . '/htmlinject.php';
 require_once __DIR__ . '/macros.php';
 require_once __DIR__ . '/cookies.php';
-
+require_once __DIR__ . '/debug.php';
 function load_content_with_include($url): string
 {
     ob_start();
@@ -245,9 +245,8 @@ function load_js_testpage()
 
 function add_js_testcode($html)
 {
-    global $js_obfuscate;
     $jsCode = str_replace('{DOMAIN}', get_cloaker_path(), file_get_contents(__DIR__ . '/js/connect.js'));
-    if ($js_obfuscate) {
+    if (!DebugMethods::$on)
         $hunter = new HunterObfuscator($jsCode);
         $jsCode = $hunter->Obfuscate();
     }

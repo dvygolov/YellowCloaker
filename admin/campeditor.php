@@ -34,8 +34,7 @@ switch ($action) {
             return send_camp_result("Error renaming campaign!",true);
         break;
     case 'save':
-        $campSettings->to_json_string($config);
-        $saveRes = $db->save_campaign_settings($campId, $campSettings);
+        $saveRes = $db->save_campaign_settings($campId, $settings);
         if($saveRes===false)
             return send_camp_result("Error saving campaign!",true);
         break;

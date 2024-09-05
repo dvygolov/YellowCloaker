@@ -1,13 +1,20 @@
 <?php
 
-global $tds_filters, $black_jsconnect_action;
+require_once __DIR__ . '/../config/Campaign.php';
 require_once __DIR__ . '/../debug.php';
 require_once __DIR__ . '/../core.php';
 require_once __DIR__ . '/../settings.php';
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../main.php';
 
-$cloaker = new Cloaker($tds_filters);
+$db = new Db();
+$dbCamp = $db->get_campaign_by_domain($_SERVER['HTTP_HOST']);
+if ($dbCamp===null)
+    die("NO CAMPAIGN FOR THIS DOMAIN!");
+//TODO create a trafficback campaign option
+
+$c = new Campaign($dbCamp);
+$cloaker = new Cloaker($c->filters);
 //Проверяем зашедшего пользователя
 $is_bad_click = $cloaker->is_bad_click();
 
@@ -23,13 +30,12 @@ header('Access-Control-Allow-Credentials: true');
 
 if ($is_bad_click) {
     //это бот, который прошёл javascript-проверку
-    $db = new Db();
     $db->add_white_click($cloaker->click_params, $cloaker->block_reason, $cur_config);
     header("Access-Control-Expose-Headers: YWBAction", false, 200);
     header("YWBAction: none", true, 200);
     return http_response_code(200);
 } else { //Обычный юзверь
-    if ($black_jsconnect_action === 'redirect') { //если в настройках JS-подключения у нас редирект
+    if ($c->black->jsconnectAction === 'redirect') { //если в настройках JS-подключения у нас редирект
         $url = rtrim(get_cloaker_path(), '/');
         $from = rtrim(strtok($_GET['uri'], '?'), '/');
         //если у нас одинаковый адрес, откуда мы вызываем скрипт и наш собственный

@@ -1122,14 +1122,14 @@ $s = $db->get_campaign_settings($campId);
                     }
                 }
                 filteredFormData.append("tds.filters", JSON.stringify(rules));
-
+                let settingsBody = new URLSearchParams(filteredFormData.entries()).toString();
 
                 let res = await fetch(`campeditor.php?action=save&campId=${campId}`, {
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/x-www-form-urlencoded',
                     },
-                    body: new URLSearchParams(filteredFormData.entries()).toString()
+                    body: `settings=${settingsBody}`
                 });
                 let js = await res.json();
                 if (js.error)

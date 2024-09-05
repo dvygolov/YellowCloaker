@@ -1668,12 +1668,12 @@ ul.two-part-sp li {
     position: fixed;
     background: #1b2a47;
     z-index: 99;
-    left: 200px;
+    left: 0;
     right: 0;
     top: 0;
     margin: 0 auto;
     transition: all 0.3s;
-    height: 60px;
+    border-bottom: 10px solid #152036;
 }
 
 .jqstooltip {
