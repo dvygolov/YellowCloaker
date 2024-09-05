@@ -68,8 +68,7 @@ if ($updated) {
 
 function process_s2s_posbacks(array $s2s_postbacks, string $inner_status, string $subid): void
 {
-    global $tds_api_key;
-    $mp = new MacrosProcessor($tds_api_key, $subid);
+    $mp = new MacrosProcessor($subid);
     foreach ($s2s_postbacks as $s2s) {
         if (!in_array($inner_status, $s2s['events'])) continue;
         if (empty($s2s['url'])) continue;

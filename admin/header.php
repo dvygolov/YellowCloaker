@@ -1,44 +1,35 @@
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-            <div class="logo-pro">
-                <a href="index.php">
-                    <img class="main-logo" src="./img/logo.png" alt="" />
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
 <div class="header-advance-area">
     <div class="header-top-area">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                    <div class="header-top-wraper">
-                        <div class="row">
-                            <div class="col-lg-11 col-md-1 col-sm-12 col-xs-12">
-                                <div>
-                                </div>
-                                <div class="header-right-info">
-                                    <ul class="nav navbar-nav mai-top-nav header-right-menu">
-                                        <li class="nav-item">
-                                            <a class="nav-link" href="#" id='litepicker'>
-                                                <i class="bi bi-calendar"></i>
-                                                <span>Date:&nbsp;&nbsp;<?= get_calend_date() ?></span>
-                                            </a>
-                                            <a class="nav-link" href="" onclick="location.reload()">
-                                                <i class="bi bi-arrow-clockwise"></i>
-                                                <span>Refresh</span>
-                                            </a>
-                                            <a class="nav-link" href="logout.php">
-                                                <i class="bi bi-door-closed"></i>
-                                                <span>Logout</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+                    <div class="logo-pro">
+                        <a href="index.php">
+                            <img class="main-logo" src="./img/logo.png" alt="" />
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
+                    <div class="header-right-info">
+                        <ul class="nav navbar-nav mai-top-nav header-right-menu">
+                            <li class="nav-item">
+                                <a class="nav-link" href="#" id='litepicker'>
+                                    <i class="bi bi-calendar"></i>
+                                    <span>
+                                        Date:&nbsp;&nbsp;<?= get_calend_date() ?>
+                                    </span>
+                                </a>
+                                <a class="nav-link" href="" onclick="location.reload()">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                    <span>Refresh</span>
+                                </a>
+                                <a class="nav-link" href="logout.php">
+                                    <i class="bi bi-door-closed"></i>
+                                    <span>Logout</span>
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>

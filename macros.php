@@ -6,14 +6,9 @@ require_once __DIR__ . '/logging.php';
 class MacrosProcessor
 {
     private string $subid;
-    private string $hashSalt;
-
-    public function __construct($hashSalt, $subid = null)
+    public function __construct($subid = null)
     {
         $this->subid = $subid ?? get_cookie('subid');
-        if (is_null($hashSalt))
-            add_log("macros","Salt is NULL! Error constructing MarcrosProcessor for subid: $subid");
-        $this->hashSalt = $hashSalt;
     }
 
     public function replace_html_macros($html): string
@@ -85,7 +80,7 @@ class MacrosProcessor
                 $clicks = $db->get_clicks_by_subid($this->subid, true);
                 if(count($clicks[0]['params'])==0){
                     add_log("macros",
-                        "Couldn't find click macro $macro value. Subid:$this->subid, Params are EMPTY!");
+                        "Couldn't find click macro $macro value. Subid:{$this->subid}, Params are EMPTY!");
                     return false;
                 }
                 $p = $clicks[0]['params'];
@@ -93,9 +88,8 @@ class MacrosProcessor
                 if (array_key_exists($cmacro, $p)) {
                     return $p[$cmacro];
                 } else {
-                    add_log(
-                    "macros",
-                    "Couldn't find click macro $macro value. Subid:$this->subid, Params:" . json_encode($p)
+                    add_log("macros",
+                        "Couldn't find click macro $macro value. Subid:{$this->subid}, Params:" . json_encode($p)
                     );
                     return false;
                 }
@@ -106,14 +100,14 @@ class MacrosProcessor
             $toHash = substr($macro, 5);
             $toHashValue = $this->get_macro_value($toHash);
             if ($toHashValue === false) {
-                add_log("macros", "Couldn't find  macro $toHash value to hash. Subid:$this->subid");
+                add_log("macros", "Couldn't find  macro $toHash value to hash. Subid:{$this->subid}");
                 return false;
             }
-            $hashed = crypt($toHashValue, $this->hashSalt);
+            $hashed = crypt($toHashValue);
             add_log("macros", "Hashing $toHashValue to $hashed");
             return $hashed;
         } else { //some kind of strange macros, we need to log this situation
-            add_log("macros", "Couldn't find macros: $macro. Subid:$this->subid");
+            add_log("macros", "Couldn't find macros: $macro. Subid:{$this->subid}");
             return false;
         }
     }
