@@ -13,7 +13,7 @@ $dbCamp = $db->get_campaign_by_domain($_SERVER['HTTP_HOST']);
 if ($dbCamp===null)
     die("NO CAMPAIGN FOR THIS DOMAIN!");
 //TODO: add traffickback campaign
-$c = new Campaign($camp);
+$c = new Campaign($dbCamp['id'],$dbCamp['settings']);
 
 
 $jsCode = file_get_contents(__DIR__.'/detect.js');

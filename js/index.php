@@ -20,7 +20,7 @@ if ($dbCamp===null)
     die("NO CAMPAIGN FOR THIS DOMAIN!");
 //TODO create a trafficback campaign option
 
-$c = new Campaign($dbCamp);
+$c = new Campaign($dbCamp['id'],$dbCamp['settings']);
 if ($c->white->jsChecks->enabled) {
     header('Content-Type: text/javascript');
     $jsCode= str_replace('{DOMAIN}', get_cloaker_path(), file_get_contents(__DIR__.'/connect.js'));

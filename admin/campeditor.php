@@ -2,6 +2,7 @@
 require_once __DIR__ . '/password.php';
 require_once __DIR__ . '/../settings.php';
 require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/../config/Campaign.php';
 
 $passOk = check_password(false);
 if (!$passOk)
@@ -34,6 +35,8 @@ switch ($action) {
             return send_camp_result("Error renaming campaign!",true);
         break;
     case 'save':
+        $body = file_get_contents('php://input');
+        $c = new Campaign($campId,$body);
         $saveRes = $db->save_campaign_settings($campId, $settings);
         if($saveRes===false)
             return send_camp_result("Error saving campaign!",true);

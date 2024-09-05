@@ -21,4 +21,5 @@
     <link rel="stylesheet" href="./css/flatpickr.min.css">
     <link rel="stylesheet" href="./css/dark.css">
     <!--Data tables-->
-    <link rel="stylesheet" href="./css/tabulator_midnight.css?v=<?= filemtime($cssPath.'/tabulator_midnight.css') ?>" >
+    <link rel="stylesheet" href="./css/tabulator_clo.css?v=<?=filemtime($cssPath.'/tabulator_clo.css') ?>" >
+    <link rel="stylesheet" href="./css/tabulator_midnight.css?v=<?=filemtime($cssPath.'/tabulator_midnight.css') ?>" >

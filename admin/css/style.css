@@ -151,7 +151,7 @@ body {
 /*  8. Menu collapse Area
 /*----------------------------------------*/
 .all-content-wrapper {
-    margin: 20px;
+    margin: 40px;
     transition: all 0.3s;
 }
 
@@ -1665,7 +1665,7 @@ ul.two-part-sp li {
 }
 
 .header-top-area {
-    position: fixed;
+/*  position: fixed; */    
     background: #1b2a47;
     z-index: 99;
     left: 0;

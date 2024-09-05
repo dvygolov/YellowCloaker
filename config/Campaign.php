@@ -34,10 +34,10 @@ class Campaign
     public StatisticsSettings $statistics;
     private Config $conf;
 
-    public function __construct(array $camp)
+    public function __construct(int $campId, string $settings)
     {
-        $conf = Config::load($camp['settings'], null, true);
-        $this->campaignId = $camp['id'];
+        $conf = Config::load($settings, null, true);
+        $this->campaignId = $campId;
         $this->conf = $conf;
         $this->domains = $conf->get('domains');
         $this->filters = $conf['tds.filters'];

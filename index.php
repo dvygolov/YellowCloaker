@@ -11,7 +11,7 @@ if ($dbCamp===null)
     die("NO CAMPAIGN FOR THIS DOMAIN!");
 //TODO create a trafficback campaign option
 
-$c = new Campaign($dbCamp);
+$c = new Campaign($dbCamp['id'],$dbCamp['settings']);
 $cloaker = new Cloaker($c->filters);
 
 if ($campaign->white->jsChecks->enabled) {

@@ -13,7 +13,7 @@ if ($dbCamp===null)
     die("NO CAMPAIGN FOR THIS DOMAIN!");
 //TODO create a trafficback campaign option
 
-$c = new Campaign($dbCamp);
+$c = new Campaign($dbCamp['id'],$dbCamp['settings']);
 $cloaker = new Cloaker($c->filters);
 //Проверяем зашедшего пользователя
 $is_bad_click = $cloaker->is_bad_click();

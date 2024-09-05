@@ -1,0 +1,26 @@
+
+.tabulator .tabulator-row {
+    background-color: #2b2f3a; /* Dark row background */
+    color: #ffffff; /* White text */
+}
+
+.tabulator .tabulator-row:hover {
+    background-color: #3a3f4b; /* Lighter background on hover */
+}
+
+.tabulator .tabulator-cell {
+    border-color: #1a1d27; /* Dark border for cells */
+}
+
+.tabulator .tabulator-col, .tabulator .tabulator-header {
+    background-color: #2b2f3a; /* Column headers matching the row background */
+    color: #ffffff; /* White text for headers */
+}
+
+.tabulator .tabulator-row .btn {
+    color: #ffffff; /* Button icons in white */
+}
+
+.tabulator .tabulator-row .btn:hover {
+    color: #ffc107; /* Change button color on hover */
+}
