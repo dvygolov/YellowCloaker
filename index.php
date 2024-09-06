@@ -14,7 +14,7 @@ if ($dbCamp===null)
 $c = new Campaign($dbCamp['id'],$dbCamp['settings']);
 $cloaker = new Cloaker($c->filters);
 
-if ($campaign->white->jsChecks->enabled) {
+if ($c->white->jsChecks->enabled) {
     white(true);
 } else if ($cloaker->is_bad_click()) { 
     $db->add_white_click($cloaker->click_params, $cloaker->block_reason, $camp['id']);

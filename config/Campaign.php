@@ -34,7 +34,7 @@ class Campaign
     public StatisticsSettings $statistics;
     private Config $conf;
 
-    public function __construct(int $campId, string $settings)
+    public function __construct(int $campId, array $settings)
     {
         $conf = Config::load($settings, null, true);
         $this->campaignId = $campId;

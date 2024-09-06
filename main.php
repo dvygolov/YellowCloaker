@@ -9,21 +9,21 @@ require_once __DIR__ . '/abtest.php';
 
 function white($use_js_checks)
 {
-    global $campaign;
-    $ws = $campaign->white;
+    global $c; //Campaign
+    $ws = $c->white;
 
     //HACK: грязный хак для прокидывания реферера через куки
-    if ($campaign->use_js_checks && !empty($_SERVER['HTTP_REFERER'])) {
+    if ($ws->jsChecks->enabled && !empty($_SERVER['HTTP_REFERER'])) {
         set_cookie("referer", $_SERVER['HTTP_REFERER']);
     }
 
-    if ($white_use_domain_specific) { //если у нас под каждый домен свой вайт
+    if ($ws->domainFilterEnabled) { //если у нас под каждый домен свой вайт
         $curdomain = $_SERVER['HTTP_HOST'];
         if (str_ends_with($curdomain, ':' . $_SERVER['SERVER_PORT'])) {
             $portLength = strlen(':' . $_SERVER['SERVER_PORT']);
             $curdomain = substr($curdomain, 0, - $portLength);
         }
-        foreach ($white_domain_specific as $wds) {
+        foreach ($ws->domainSpecific as $wds) {
             if ($wds['name'] == $curdomain) {
                 $wtd_arr = explode(":", $wds['action'], 2);
                 $action = $wtd_arr[0];
@@ -48,50 +48,46 @@ function white($use_js_checks)
 
     //при js-проверках либо показываем специально подготовленный вайт
     //либо вставляем в имеющийся вайт код проверки
-    if ($use_js_checks) {
+    if ($ws->jsChecks->enabled) {
         switch ($action) {
             case 'error':
             case 'redirect':
                 echo load_js_testpage();
                 break;
             case 'folder':
-                $curfolder = select_item($folder_names, $save_user_flow, 'white', true);
+                $curfolder = select_item($folder_names, $c->saveUserFlow, 'white', true);
                 echo load_white_content($curfolder[0], $use_js_checks);
                 break;
             case 'curl':
-                $cururl = select_item($curl_urls, $save_user_flow, 'white', false);
+                $cururl = select_item($curl_urls, $c->saveUserFlow, 'white', false);
                 echo load_white_curl($cururl[0], $use_js_checks);
                 break;
         }
     } else {
         switch ($action) {
             case 'error':
-                $curcode = select_item($error_codes, $save_user_flow, 'white', true);
+                $curcode = select_item($error_codes, $c->saveUserFlow, 'white', true);
                 http_response_code($curcode[0]);
                 break;
             case 'folder':
-                $curfolder = select_item($folder_names, $save_user_flow, 'white', true);
+                $curfolder = select_item($folder_names, $c->saveUserFlow, 'white', true);
                 echo load_white_content($curfolder[0], false);
                 break;
             case 'curl':
-                $cururl = select_item($curl_urls, $save_user_flow, 'white', false);
+                $cururl = select_item($curl_urls, $c->saveUserFlow, 'white', false);
                 echo load_white_curl($cururl[0], false);
                 break;
             case 'redirect':
-                $cururl = select_item($redirect_urls, $save_user_flow, 'white', false);
-                redirect($cururl[0], $white_redirect_type);
+                $cururl = select_item($redirect_urls, $c->saveUserFlow, 'white', false);
+                redirect($cururl[0], $ws->redirectType);
                 break;
         }
     }
 }
 
-function black($clkrdetect)
+function black(array $clickparams)
 {
-    global $black_preland_action, $black_preland_folder_names;
-    global $black_land_action, $black_land_folder_names, $save_user_flow;
-    global $black_land_redirect_type, $black_land_redirect_urls;
-    global $cur_config;
-
+    global $c; //Campaign
     header('Access-Control-Allow-Credentials: true');
     if (isset($_SERVER['HTTP_REFERER'])) {
         $parsed_url = parse_url($_SERVER['HTTP_REFERER']);
@@ -103,40 +99,43 @@ function black($clkrdetect)
 
     $landings = [];
     $isfolderland = false;
-    if ($black_land_action == 'redirect')
-        $landings = $black_land_redirect_urls;
-    else if ($black_land_action == 'folder') {
-        $landings = $black_land_folder_names;
+    
+    $bl = $c->black->land;
+    if ($bl->action == 'redirect')
+        $landings = $bl->redirectUrls;
+    else if ($bl->action == 'folder') {
+        $landings = $bl->folderNames;
         $isfolderland = true;
     }
 
+    $bp = $c->black->preland;
     $db = new Db();
-    switch ($black_preland_action) {
+    switch ($bp->action) {
         case 'none':
-            $res = select_item($landings, $save_user_flow, 'landing', $isfolderland);
+            $res = select_item($landings, $c->saveUserFlow, 'landing', $isfolderland);
             $landing = $res[0];
-            $db->add_black_click($cursubid, $clkrdetect, '', $landing, $cur_config);
+            $db->add_black_click($cursubid, $clickparams, '', $landing, $c->campaignId);
 
-            switch ($black_land_action) {
+            switch ($bl->action) {
                 case 'folder':
                     echo load_landing($landing);
                     break;
                 case 'redirect':
-                    redirect($landing,$black_land_redirect_type,true);
+                    redirect($landing,$bl->redirectType,true);
                     break;
             }
             break;
         case 'folder': //если мы используем локальные проклы
-            $prelandings = $black_preland_folder_names;
+            $prelandings = $bp->folderNames;
             if (empty($prelandings)) break;
-            $res = select_item($prelandings, $save_user_flow, 'prelanding', true);
+            $res = select_item($prelandings, $c->saveUserFlow, 'prelanding', true);
             $prelanding = $res[0];
-            $res = select_item($landings, $save_user_flow, 'landing', $isfolderland);
+            $res = select_item($landings, $c->saveUserFlow, 'landing', $isfolderland);
             $landing = $res[0];
             $t = $res[1];
 
             echo load_prelanding($prelanding, $t);
-            $db->add_black_click($cursubid, $clkrdetect, $prelanding, $landing, $cur_config);
+            $db->add_black_click($cursubid, $clickparams, $prelanding, $landing, $c->campaignId);
             break;
     }
 }

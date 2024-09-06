@@ -16,7 +16,8 @@ function get_cookie($name): string
 
 function set_subid(): string
 {
-    //устанавливаем пользователю в куки уникальный subid, либо берём его из куки, если он уже есть
+    //giving each user a unique ID - subid and saving it to cookies
+    //or getting it from cookies if exists
     $cursubid = get_cookie('subid');
     if (empty($cursubid))
         $cursubid = uniqid();

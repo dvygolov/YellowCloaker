@@ -239,14 +239,14 @@ function load_white_curl($url, $add_js_check)
 
 function load_js_testpage()
 {
-    $test_page = load_content_with_include('js/testpage.html');
+    $test_page = load_content_with_include('js/tests/testpage.html');
     return add_js_testcode($test_page);
 }
 
 function add_js_testcode($html)
 {
     $jsCode = str_replace('{DOMAIN}', get_cloaker_path(), file_get_contents(__DIR__ . '/js/connect.js'));
-    if (!DebugMethods::$on)
+    if (!DebugMethods::$on){
         $hunter = new HunterObfuscator($jsCode);
         $jsCode = $hunter->Obfuscate();
     }

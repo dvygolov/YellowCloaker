@@ -1,6 +1,6 @@
 {
   "domains": [
-    "yourdomain.com","*.mydomain.com"
+    "yourdomain.com","*.mydomain.com","localhost:48960"
   ],
   "white": {
     "action": "error",
