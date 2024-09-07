@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/debug.php';
 require_once __DIR__ . '/db.php';
-require_once __DIR__ . '/config/Campaign.php';
+require_once __DIR__ . '/campaign.php';
 require_once __DIR__ . '/htmlprocessing.php';
 require_once __DIR__ . '/cookies.php';
 require_once __DIR__ . '/redirect.php';

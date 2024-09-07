@@ -2,7 +2,7 @@
 require_once __DIR__ . '/password.php';
 require_once __DIR__ . '/../settings.php';
 require_once __DIR__ . '/../db.php';
-require_once __DIR__ . '/../config/Campaign.php';
+require_once __DIR__ . '/../campaign.php';
 
 $passOk = check_password(false);
 if (!$passOk)

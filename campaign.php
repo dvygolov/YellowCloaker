@@ -1,24 +1,8 @@
 <?php
-require_once __DIR__ . '/ConfigInterface.php';
-require_once __DIR__ . '/AbstractConfig.php';
-require_once __DIR__ . '/Config.php';
-require_once __DIR__ . '/Parser/ParserInterface.php';
-require_once __DIR__ . '/Parser/Json.php';
-require_once __DIR__ . '/Writer/AbstractWriter.php';
-require_once __DIR__ . '/Writer/WriterInterface.php';
-require_once __DIR__ . '/Writer/Json.php';
-require_once __DIR__ . '/ErrorException.php';
-require_once __DIR__ . '/Exception.php';
-require_once __DIR__ . '/Exception/ParseException.php';
-require_once __DIR__ . '/Exception/FileNotFoundException.php';
-require_once __DIR__ . '/../db.php';
-require_once __DIR__ . '/../logging.php';
+require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/logging.php';
 
-use Noodlehaus\Config;
-use Noodlehaus\Exception\EmptyDirectoryException;
-use Noodlehaus\Writer\Json;
-
-class Campaign
+class Campaign implements JsonSerializable
 {
     public int $campaignId;
     public array $domains;
@@ -32,7 +16,6 @@ class Campaign
     public ScriptsSettings $scripts;
     public PostbackSettings $postback;
     public StatisticsSettings $statistics;
-    private Config $conf;
 
     public function __construct(int $campId, array $settings)
     {
@@ -134,9 +117,23 @@ class Campaign
             return null;
         }
     }
+
+    #region JsonSerializable Members
+
+    /**
+     * Specify data which should be serialized to JSON
+     * Serializes the object to a value that can be serialized natively by json_encode().
+     * @return mixed Returns data which can be serialized by json_encode(), which is a value of any type other than a resource .
+     */
+    function jsonSerialize()
+    {
+        assert(false, 'Not implemented.');
+    }
+
+    #endregion
 }
 
-class WhiteSettings
+class WhiteSettings implements JsonSerializable
 {
     public JsChecks $jsChecks;
     public string $action;
@@ -147,63 +144,174 @@ class WhiteSettings
     public array $errorCodes;
     public bool $domainFilterEnabled;
     public array $domainSpecific;
+
+    #region JsonSerializable Members
+
+    /**
+     * Specify data which should be serialized to JSON
+     * Serializes the object to a value that can be serialized natively by json_encode().
+     * @return mixed Returns data which can be serialized by json_encode(), which is a value of any type other than a resource .
+     */
+    function jsonSerialize()
+    {
+        assert(false, 'Not implemented.');
+    }
+
+    #endregion
 }
 
-class BlackSettings
+class BlackSettings implements JsonSerializable
 {
     public string $jsconnectAction;
     public PrelandSettings $preland;
     public LandingSettings $land;
+
+    #region JsonSerializable Members
+
+    /**
+     * Specify data which should be serialized to JSON
+     * Serializes the object to a value that can be serialized natively by json_encode().
+     * @return mixed Returns data which can be serialized by json_encode(), which is a value of any type other than a resource .
+     */
+    function jsonSerialize()
+    {
+        assert(false, 'Not implemented.');
+    }
+
+    #endregion
 }
 
-class PrelandSettings
+class PrelandSettings implements JsonSerializable
 {
     public string $action;
     public array $folderNames;
+
+    #region JsonSerializable Members
+
+    /**
+     * Specify data which should be serialized to JSON
+     * Serializes the object to a value that can be serialized natively by json_encode().
+     * @return mixed Returns data which can be serialized by json_encode(), which is a value of any type other than a resource .
+     */
+    function jsonSerialize()
+    {
+        assert(false, 'Not implemented.');
+    }
+
+    #endregion
 }
 
-class LandingSettings
+class LandingSettings implements JsonSerializable
 {
     public string $action;
     public array $folderNames;
     public array $redirectUrls;
     public int $redirectType;
     public bool $useCustomThankyou;
+
+    function jsonSerialize()
+    {
+        assert(false, 'Not implemented.');
+    }
 }
 
-class JsChecks
+class JsChecks implements JsonSerializable
 {
     public bool $enabled;
     public array $events;
     public int $timeout;
-    public bool $obfuscate;
-    public int $tzStart;
-    public int $tzEnd;
+    public int $tzMin;
+    public int $tzMax;
+
+    function jsonSerialize()
+    { 
+        return [
+            "jschecks"=>[
+                "enabled"=>$this->enabled,
+                "events"=>$this->events,
+                "timeout"=>$this->timeout,
+                "timezone"=>[
+                    "min"=>$this->tzMin,
+                    "max"=>$this->tzMax
+                ]
+            ]
+        ];
+
+    }
 }
 
-class ScriptsSettings
+class ScriptsSettings implements JsonSerializable
 {
     public bool $backfix;
     public string $backfixAddress;
     public bool $replacePrelanding;
-    public string $replacePrelanding_address;
+    public string $replacePrelandingAddress;
     public bool $replaceLanding;
     public string $replaceLandingAddress;
     public bool $imagesLazyLoad;
+
+    function jsonSerialize()
+    {
+        return [
+            "scripts" => [
+                "backfix"=>[
+                    "use"=>$this->backfix,
+                    "address"=>$this->backfixAddress
+                ],
+                "replacePrelanding"=>[
+                    "use"=>$this->replacePrelanding,
+                    "address"=>$this->replacePrelandingAddress
+                ],
+                "replaceLanding"=>[
+                    "use"=>$this->replaceLanding,
+                    "address"=>$this->replaceLandingAddress
+                ],
+                "imagesLazyLoad"=>$this->imagesLazyLoad
+            ]
+        ];
+    }
 }
 
-class PostbackSettings
+class PostbackSettings implements JsonSerializable
 {
     public array $s2sPostbacks;
     public string $leadStatusName;
     public string $purchaseStatusName;
     public string $rejectStatusName;
     public string $trashStatusName;
+
+    function jsonSerialize()
+    {
+        return [
+            "postback" => [
+                "events"=>[
+                    "lead"=>$this->leadStatusName,
+                    "purchase"=>$this->purchaseStatusName,
+                    "reject"=>$this->rejectStatusName,
+                    "trash"=>$this->trashStatusName
+                ],
+                "s2s"=> $this->s2sPostbacks
+            ]
+        ];
+    }
 }
 
-class StatisticsSettings
+class StatisticsSettings implements JsonSerializable
 {
+    public string $timezone;
     public array $allowed;
     public array $blocked;
     public array $tables;
+
+    function jsonSerialize()
+    {
+        return [
+            "statistics" => [
+                "timezone" => $this->timezone,
+                "allowed" => $this->allowed,
+                "blocked" => $this->blocked,
+                "tables" => $this->tables
+            ]
+        ];
+    }
 }

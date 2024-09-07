@@ -4,7 +4,7 @@ require_once __DIR__.'/../settings.php';
 require_once __DIR__.'/../requestfunc.php';
 require_once __DIR__.'/../debug.php';
 require_once __DIR__.'/../db.php';
-require_once __DIR__.'/../config/Campaign.php';
+require_once __DIR__.'/../campaign.php';
 
 header('Content-Type: text/javascript');
 

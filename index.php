@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/debug.php';
-require_once __DIR__ . '/config/Campaign.php';
+require_once __DIR__ . '/campaign.php';
 require_once __DIR__ . '/core.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/main.php';

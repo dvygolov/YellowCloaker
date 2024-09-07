@@ -1,6 +1,8 @@
 {
   "domains": [
-    "yourdomain.com","*.mydomain.com","localhost:48960"
+    "yourdomain.com",
+    "*.mydomain.com",
+    "localhost:48960"
   ],
   "white": {
     "action": "error",
@@ -46,10 +48,10 @@
         "timezone"
       ],
       "timeout": "40000",
-      "obfuscate": true,
-      "timezone": true,
-      "tzstart": "-3",
-      "tzend": "4"
+      "timezone": {
+        "min": "-3",
+        "max": "4"
+      }
     }
   },
   "black": {
