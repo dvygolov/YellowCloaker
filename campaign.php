@@ -19,9 +19,7 @@ class Campaign implements JsonSerializable
 
     public function __construct(int $campId, array $settings)
     {
-        $conf = Config::load($settings, null, true);
         $this->campaignId = $campId;
-        $this->conf = $conf;
         $this->domains = $conf->get('domains');
         $this->filters = $conf['tds.filters'];
         $this->saveUserFlow = $conf['tds.saveuserflow'];
@@ -91,46 +89,12 @@ class Campaign implements JsonSerializable
         $sts = new StatisticsSettings();
     }
 
-    public function to_json_string(array $settings): string
-    {
-        try {
-            foreach ($settings as $key => $value) {
-                $confkey = str_replace('_', '.', $key);
-                if (is_string($value) && is_array($this->conf[$confkey])) {
-                    if (str_starts_with($value, '{') || str_starts_with($value, '[')) {
-                        $value = json_decode($value, true);
-                    } else if ($value === '')
-                        $value = [];
-                    else
-                        $value = explode(',', $value);
-                } else if ($value === 'false' || $value === 'true') {
-                    $value = filter_var($value, FILTER_VALIDATE_BOOLEAN);
-                }
-                $this->conf[$confkey] = $value;
-            }
-            return $this->conf->toString(new Json());
-        } catch (Exception $e) {
-            add_log(
-            "config",
-            "Couldn't save settings to JSON: " . $e->getMessage() . " " . implode(',', $settings)
-            );
-            return null;
-        }
-    }
-
-    #region JsonSerializable Members
-
-    /**
-     * Specify data which should be serialized to JSON
-     * Serializes the object to a value that can be serialized natively by json_encode().
-     * @return mixed Returns data which can be serialized by json_encode(), which is a value of any type other than a resource .
-     */
     function jsonSerialize()
     {
-        assert(false, 'Not implemented.');
-    }
+        return [
 
-    #endregion
+        ];
+    }
 }
 
 class WhiteSettings implements JsonSerializable
@@ -145,19 +109,19 @@ class WhiteSettings implements JsonSerializable
     public bool $domainFilterEnabled;
     public array $domainSpecific;
 
-    #region JsonSerializable Members
-
-    /**
-     * Specify data which should be serialized to JSON
-     * Serializes the object to a value that can be serialized natively by json_encode().
-     * @return mixed Returns data which can be serialized by json_encode(), which is a value of any type other than a resource .
-     */
     function jsonSerialize()
     {
-        assert(false, 'Not implemented.');
+        return [
+            "action"=>$this->action,
+            "folders"=>$this->folderNames,
+            "redirect"=>[
+                "urls"=>$this->redirectUrls,
+                "type"=>$this->redirectType
+            ],
+            "curls"=>$this->curlUrls,
+            "errorcodes"=>$this->errorCodes,
+        ];
     }
-
-    #endregion
 }
 
 class BlackSettings implements JsonSerializable
@@ -166,19 +130,14 @@ class BlackSettings implements JsonSerializable
     public PrelandSettings $preland;
     public LandingSettings $land;
 
-    #region JsonSerializable Members
-
-    /**
-     * Specify data which should be serialized to JSON
-     * Serializes the object to a value that can be serialized natively by json_encode().
-     * @return mixed Returns data which can be serialized by json_encode(), which is a value of any type other than a resource .
-     */
     function jsonSerialize()
     {
-        assert(false, 'Not implemented.');
+        return [
+            "prelanding"=>$this->preland,
+            "landing"=>$this->land,
+            "jsconnect"=>$this->jsconnectAction
+        ];
     }
-
-    #endregion
 }
 
 class PrelandSettings implements JsonSerializable
@@ -186,19 +145,13 @@ class PrelandSettings implements JsonSerializable
     public string $action;
     public array $folderNames;
 
-    #region JsonSerializable Members
-
-    /**
-     * Specify data which should be serialized to JSON
-     * Serializes the object to a value that can be serialized natively by json_encode().
-     * @return mixed Returns data which can be serialized by json_encode(), which is a value of any type other than a resource .
-     */
     function jsonSerialize()
     {
-        assert(false, 'Not implemented.');
+        return [
+            "action"=>$this->action,
+            "folders"=>$this->folderNames
+        ];
     }
-
-    #endregion
 }
 
 class LandingSettings implements JsonSerializable
@@ -211,7 +164,15 @@ class LandingSettings implements JsonSerializable
 
     function jsonSerialize()
     {
-        assert(false, 'Not implemented.');
+        return [
+            "action"=>$this->action,
+            "folders"=>$this->folderNames,
+            "redirect"=>[
+                "urls"=>$this->redirectUrls,
+                "type"=>$this->redirectType
+            ],
+            "customthankyou"=>$this->useCustomThankyou
+        ];
     }
 }
 

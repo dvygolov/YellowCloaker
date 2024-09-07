@@ -6,11 +6,9 @@
   ],
   "white": {
     "action": "error",
-    "folder": {
-      "names": [
-        "white"
-      ]
-    },
+    "folders": [
+      "white"
+    ],
     "redirect": {
       "type": "302",
       "urls": [
@@ -18,16 +16,12 @@
         "https://google.com"
       ]
     },
-    "curl": {
-      "urls": [
-        "https://www.9111.ru/"
-      ]
-    },
-    "error": {
-      "codes": [
-        "200"
-      ]
-    },
+    "curls": [
+      "https://www.9111.ru/"
+    ],
+    "errorcodes": [
+      "200"
+    ],
     "domainfilter": {
       "use": false,
       "domains": [
@@ -59,31 +53,18 @@
       "action": "none",
       "folders": [
         "preland"
-      ],
-      "redirect": {
-        "urls": [
-          "https://ya.ru",
-          "https://google.com"
-        ],
-        "type": 302
-      }
+      ]
     },
     "landing": {
       "action": "redirect",
-      "folder": {
-        "names": [
-          "land"
-        ],
-        "customthankyoupage": {
-          "language": "RU"
-        }
-      },
+      "folders": [ "land" ],
       "redirect": {
         "urls": [
           "https://www.rolltrk.com/DHSF7PS/2QM39NQ/"
         ],
-        "type": "302"
-      }
+        "type": 302
+      },
+      "customthankyou": false
     },
     "jsconnect": "redirect"
   },
