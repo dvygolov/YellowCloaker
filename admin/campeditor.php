@@ -9,8 +9,8 @@ if (!$passOk)
     return send_camp_result("Error: password check not passed!");
 
 $action = $_REQUEST['action'];
-$name = $_REQUEST['name'];
-$campId = $_REQUEST['campId'];
+$name = $_REQUEST['name']??'';
+$campId = $_REQUEST['campId']??-1;
 $db = new Db();
 
 switch ($action) {

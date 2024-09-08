@@ -20,6 +20,7 @@ class Campaign implements JsonSerializable
     public function __construct(int $campId, array $s)
     {
         $this->campaignId = $campId;
+
         $this->domains = $s['domains'];
         $this->filters = $s['filters'];
         $this->saveUserFlow = $s['saveuserflow'];
@@ -35,11 +36,10 @@ class Campaign implements JsonSerializable
 
         $this->scripts = ScriptsSettings::fromArray($s['scripts']);
         $this->postback = PostbackSettings::fromArray($s['postback']);
-
-        $sts = new StatisticsSettings();
+        $this->statistics = StatisticsSettings::fromArray($s['statistics']);
     }
 
-    function jsonSerialize()
+    function jsonSerialize():array
     {
         return [
         "campaignId" => $this->campaignId,
@@ -89,7 +89,7 @@ class WhiteSettings implements JsonSerializable
         return $ws;
     }
 
-    function jsonSerialize()
+    function jsonSerialize():array
     {
         return [
         "action" => $this->action,
@@ -125,7 +125,7 @@ class DomainSpecificWhite implements JsonSerializable
         return new DomainSpecificWhite($arr['name'], $arr['action']);
     }
 
-    function jsonSerialize()
+    function jsonSerialize():array
     {
         return [
         "name" => $this->name,
@@ -153,7 +153,7 @@ class BlackSettings implements JsonSerializable
             $bs->jsconnectAction = 'replace';
         return $bs;
     }
-    function jsonSerialize()
+    function jsonSerialize():array
     {
         return [
         "prelanding" => $this->preland,
@@ -176,7 +176,7 @@ class PrelandSettings implements JsonSerializable
         return $pls;
     }
 
-    function jsonSerialize()
+    function jsonSerialize():array
     {
         return [
         "action" => $this->action,
@@ -203,7 +203,7 @@ class LandingSettings implements JsonSerializable
         $ls->useCustomThankyou = $arr['customthankyou'];
         return $ls;
     }
-    function jsonSerialize()
+    function jsonSerialize():array
     {
         return [
         "action" => $this->action,
@@ -235,7 +235,7 @@ class JsChecks implements JsonSerializable
         $jsc->tzMax = $arr['timezone']['max'];
         return $jsc;
     }
-    function jsonSerialize()
+    function jsonSerialize():array
     {
         return [
         "jschecks" => [
@@ -275,7 +275,7 @@ class ScriptsSettings implements JsonSerializable
         return $ss;
     }
 
-    function jsonSerialize()
+    function jsonSerialize():array
     {
         return [
         "scripts" => [
@@ -307,7 +307,7 @@ class SubIdRewrite implements JsonSerializable
         $this->rewrite = $rewrite;
     }
 
-    function jsonSerialize()
+    function jsonSerialize():array
     {
         return [
         "name" => $this->name,
@@ -326,7 +326,7 @@ class PostbackSettings implements JsonSerializable
 
     public static function fromArray($arr): PostbackSettings
     {
-        $ps = PostbackSettings();
+        $ps = new PostbackSettings();
 
         $ps->s2sPostbacks = [];
         foreach ($arr['s2s'] as $s2s){
@@ -340,7 +340,7 @@ class PostbackSettings implements JsonSerializable
         return $ps;
     }
 
-    function jsonSerialize()
+    function jsonSerialize():array
     {
         return [
         "postback" => [
@@ -374,7 +374,7 @@ class S2sPostback implements JsonSerializable
         return new S2sPostback($arr['url'], $arr['method'], $arr['events']);
     }
 
-    function jsonSerialize()
+    function jsonSerialize():array
     {
         return [
         "url" => $this->url,
@@ -392,7 +392,19 @@ class StatisticsSettings implements JsonSerializable
     public array $blocked;
     public array $tables;
 
-    function jsonSerialize()
+    public static function fromArray($arr){
+        $ss = new StatisticsSettings();
+        $ss->timezone = $arr['timezone'];
+        $ss->allowed = $arr['allowed'];
+        $ss->blocked = $arr['blocked'];
+        $ss->tables = [];
+        foreach ($arr['tables'] as $st){
+            $ss->tables[] = StatisticsTable::fromArray($st);
+        }
+
+        return $ss;
+    }
+    function jsonSerialize():array
     {
         return [
         "statistics" => [
@@ -404,3 +416,33 @@ class StatisticsSettings implements JsonSerializable
         ];
     }
 }
+
+class StatisticsTable implements JsonSerializable
+{
+    public string $name;
+    public array $columns;
+    public array $groupby;
+    
+    public function __construct($name,$columns,$groupby)
+    {
+        $this->name = $name;
+        $this->columns = $columns;
+        $this->groupby = $groupby;
+    }
+    
+    public static function fromArray($arr): StatisticsTable
+    {
+        return new StatisticsTable($arr['name'],$arr['columns'],$arr['groupby']);
+    }
+    
+    function jsonSerialize():array
+    {
+        return [
+            "name" => $this->name,
+            "columns" => $this->columns,
+            "groupby" => $this->groupby,
+        ];
+    }
+}
+
+

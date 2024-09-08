@@ -12,12 +12,12 @@ function white($use_js_checks)
     global $c; //Campaign
     $ws = $c->white;
 
-    //HACK: грязный хак для прокидывания реферера через куки
-    if ($ws->jsChecks->enabled && !empty($_SERVER['HTTP_REFERER'])) {
+    //HACK: dirty hack to pass the referer through cookies
+    if ($use_js_checks && !empty($_SERVER['HTTP_REFERER'])) {
         set_cookie("referer", $_SERVER['HTTP_REFERER']);
     }
 
-    if ($ws->domainFilterEnabled) { //если у нас под каждый домен свой вайт
+    if ($ws->domainFilterEnabled) { //if we want to use different white pages for different domains
         $curdomain = $_SERVER['HTTP_HOST'];
         if (str_ends_with($curdomain, ':' . $_SERVER['SERVER_PORT'])) {
             $portLength = strlen(':' . $_SERVER['SERVER_PORT']);
@@ -46,9 +46,9 @@ function white($use_js_checks)
         }
     }
 
-    //при js-проверках либо показываем специально подготовленный вайт
-    //либо вставляем в имеющийся вайт код проверки
-    if ($ws->jsChecks->enabled) {
+    //if we have Javascript bot tests enabled then we use a special white page
+    //or add the test code into an existing white page
+    if ($use_js_checks) {
         switch ($action) {
             case 'error':
             case 'redirect':
