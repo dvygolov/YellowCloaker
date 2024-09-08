@@ -4,6 +4,7 @@ require_once __DIR__ . '/bases/lang/AcceptLanguage.php';
 require_once __DIR__ . '/bases/lang/Language.php';
 require_once __DIR__ . '/bases/lang/LanguageDetector.php';
 //Device/Model/Browser/Platform detection
+require_once __DIR__ . '/bases/device/autoload.php';
 require_once __DIR__ . '/bases/device/ClientHints.php';
 require_once __DIR__ . '/bases/device/DeviceDetector.php';
 require_once __DIR__ . '/bases/device/Spyc.php';
