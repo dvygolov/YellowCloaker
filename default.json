@@ -4,6 +4,22 @@
     "*.mydomain.com",
     "localhost:48960"
   ],
+  "apikey": "test",
+  "saveuserflow": false,
+  "filters": {
+    "condition": "AND",
+    "rules": [
+      {
+        "id": "country",
+        "field": "country",
+        "type": "string",
+        "input": "text",
+        "operator": "in",
+        "value": "RU,BG,SG"
+      }
+    ],
+    "valid": true
+  },
   "white": {
     "action": "error",
     "folders": [
@@ -68,25 +84,11 @@
     },
     "jsconnect": "redirect"
   },
-  "tds": {
-    "apikey": "test",
-    "saveuserflow": false,
-    "filters": {
-      "condition": "AND",
-      "rules": [
-        {
-          "id": "country",
-          "field": "country",
-          "type": "string",
-          "input": "text",
-          "operator": "in",
-          "value": "RU,BG,SG"
-        }
-      ],
-      "valid": true
-    }
-  },
   "scripts": {
+    "backfix": {
+      "use": false,
+      "url": ""
+    },
     "prelandingreplace": {
       "use": false,
       "url": "https://ya.ru"

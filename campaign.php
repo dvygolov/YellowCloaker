@@ -17,74 +17,24 @@ class Campaign implements JsonSerializable
     public PostbackSettings $postback;
     public StatisticsSettings $statistics;
 
-    public function __construct(int $campId, array $settings)
+    public function __construct(int $campId, array $s)
     {
         $this->campaignId = $campId;
-        $this->domains = $conf->get('domains');
-        $this->filters = $conf['tds.filters'];
-        $this->saveUserFlow = $conf['tds.saveuserflow'];
-        $this->apiKey = $conf['tds.apikey'];
-        $this->subIds = $conf['subids'];
+        $this->domains = $s['domains'];
+        $this->filters = $s['filters'];
+        $this->saveUserFlow = $s['saveuserflow'];
+        $this->apiKey = $s['apikey'];
 
-        $ws = new WhiteSettings();
-        $ws->action = $conf->get('white.action', 'folder');
-        $ws->folderNames = $conf->get('white.folder.names', ['white']);
-        $ws->redirectUrls = $conf->get('white.redirect.urls', []);
-        $ws->redirectType = $conf->get('white.redirect.type', 302);
-        $ws->curlUrls = $conf->get('white.curl.urls', []);
-        $ws->errorCodes = $conf->get('white.error.codes', [404]);
-        $ws->domainFilterEnabled = $conf->get('white.domainfilter.use', false);
-        $ws->domainSpecific = $conf['white.domainfilter.domains'];
+        $this->white = WhiteSettings::fromArray($s['white']);
+        $this->black = BlackSettings::fromArray($s['black']);
 
-        $jsc = new JsChecks();
-        $jsc->enabled = $conf['white.jschecks.enabled'];
-        $jsc->events = $conf['white.jschecks.events'];
-        $jsc->timeout = $conf['white.jschecks.timeout'];
-        $jsc->obfuscate = $conf['white.jschecks.obfuscate'];
-        $jsc->tzStart = $conf['white.jschecks.tzstart'];
-        $jsc->tzEnd = $conf['white.jschecks.tzend'];
-        $ws->jsChecks = $jsc;
+        $this->subIds = [];
+        foreach ($s['subids'] as $sr){
+            $this->subIds[] = new SubIdRewrite($sr['name'], $sr['rewrite']);
+        }
 
-        $this->white = $ws;
-
-        $pls = new PrelandSettings();
-        $pls->action = $conf['black.prelanding.action'];
-        $pls->folder_names = $conf['black.prelanding.folders'];
-
-        $ls = new LandingSettings();
-        $ls->action = $conf['black.landing.action'];
-        $ls->folderNames = $conf['black.landing.folder.names'];
-        $ls->redirectUrls = $conf['black.landing.redirect.urls'];
-        $ls->redirectType = $conf['black.landing.redirect.type'];
-        $ls->useCustomThankyou = $conf['black.landing.folder.customthankyoupage.use'];
-
-        $bs = new BlackSettings();
-        $bs->preland = $pls;
-        $bs->land = $ls;
-        $bs->jsconnectAction = $conf['black.jsconnect'];
-        if ($bs->preland->action === 'none' && $bs->land->action === 'redirect')
-            $bs->jsconnectAction = 'redirect';
-        else if ($bs->jsconnectAction === 'redirect')
-            $bs->jsconnectAction = 'replace';
-        $this->black = $bs;
-
-        $ss = new ScriptsSettings();
-        $ss->backfix = $conf['scripts.backfix.use'];
-        $ss->backfixAddress = $conf['scripts.backfix.url']; //TODO: implement backfix
-        $ss->replacePrelanding = $conf['scripts.prelandingreplace.use'];
-        $ss->replacePrelandingAddress = $conf['scripts.prelandingreplace.url'];
-        $ss->replaceLanding = $conf['scripts.landingreplace.use'];
-        $ss->replaceLandingAddress = $conf['scripts.landingreplace.url'];
-        $ss->imagesLazyLoad = $conf['scripts.imageslazyload'];
-        $this->scripts = $ss;
-
-        $ps = PostbackSettings();
-        $ps->s2sPostbacks = $conf['postback.s2s'];
-        $ps->leadStatusName = $conf['postback.lead'];
-        $ps->purchaseStatusName = $conf['postback.purchase'];
-        $ps->rejectStatusName = $conf['postback.reject'];
-        $ps->trashStatusName = $conf['postback.trash'];
-        $this->postback = $ps;
+        $this->scripts = ScriptsSettings::fromArray($s['scripts']);
+        $this->postback = PostbackSettings::fromArray($s['postback']);
 
         $sts = new StatisticsSettings();
     }
@@ -92,14 +42,23 @@ class Campaign implements JsonSerializable
     function jsonSerialize()
     {
         return [
-
+        "campaignId" => $this->campaignId,
+        "domains" => $this->domains,
+        "filters" => $this->filters,
+        "saveuserflow" => $this->saveUserFlow,
+        "apikey" => $this->apiKey,
+        "white" => $this->white,
+        "black" => $this->black,
+        "subids" => $this->subIds,
+        "statistics" => $this->statistics,
+        "postback" => $this->postback,
+        "scripts" => $this->scripts
         ];
     }
 }
 
 class WhiteSettings implements JsonSerializable
 {
-    public JsChecks $jsChecks;
     public string $action;
     public array $folderNames;
     public array $redirectUrls;
@@ -108,18 +67,69 @@ class WhiteSettings implements JsonSerializable
     public array $errorCodes;
     public bool $domainFilterEnabled;
     public array $domainSpecific;
+    public JsChecks $jsChecks;
+
+    public static function fromArray(array $s): WhiteSettings
+    {
+        $ws = new WhiteSettings();
+        $ws->action = $s['action'];
+        $ws->folderNames = $s['folders'];
+        $ws->redirectUrls = $s['redirect']['urls'];
+        $ws->redirectType = $s['redirect']['type'];
+        $ws->curlUrls = $s['curls'];
+        $ws->errorCodes = $s['errorcodes'];
+        $ws->domainFilterEnabled = $s['domainfilter']['use'];
+
+        $ws->domainSpecific = [];
+        foreach ($s['domainfilter']['domains'] as $df) {
+            $ws->domainSpecific[] = DomainSpecificWhite::fromArray($df);
+        }
+
+        $ws->jsChecks = JsChecks::fromArray($s['jschecks']);
+        return $ws;
+    }
 
     function jsonSerialize()
     {
         return [
-            "action"=>$this->action,
-            "folders"=>$this->folderNames,
-            "redirect"=>[
-                "urls"=>$this->redirectUrls,
-                "type"=>$this->redirectType
-            ],
-            "curls"=>$this->curlUrls,
-            "errorcodes"=>$this->errorCodes,
+        "action" => $this->action,
+        "folders" => $this->folderNames,
+        "redirect" => [
+        "urls" => $this->redirectUrls,
+        "type" => $this->redirectType
+        ],
+        "curls" => $this->curlUrls,
+        "errorcodes" => $this->errorCodes,
+        "jschecks" => $this->jsChecks,
+        "domainfilter" => [
+        "use" => $this->domainFilterEnabled,
+        "domains" => $this->domainSpecific
+        ]
+        ];
+    }
+}
+
+class DomainSpecificWhite implements JsonSerializable
+{
+    public string $name;
+    public string $action;
+
+    public function __construct($name, $action)
+    {
+        $this->name = $name;
+        $this->action = $action;
+    }
+
+    public static function fromArray($arr): DomainSpecificWhite
+    {
+        return new DomainSpecificWhite($arr['name'], $arr['action']);
+    }
+
+    function jsonSerialize()
+    {
+        return [
+        "name" => $this->name,
+        "action" => $this->action
         ];
     }
 }
@@ -130,12 +140,25 @@ class BlackSettings implements JsonSerializable
     public PrelandSettings $preland;
     public LandingSettings $land;
 
+    public static function fromArray($arr): BlackSettings
+    {
+        $bs = new BlackSettings();
+        $bs->preland = PrelandSettings::fromArray($arr['prelanding']);
+        $bs->land = LandingSettings::fromArray($arr['landing']);
+        $bs->jsconnectAction = $arr['jsconnect'];
+
+        if ($bs->preland->action === 'none' && $bs->land->action === 'redirect')
+            $bs->jsconnectAction = 'redirect';
+        else if ($bs->jsconnectAction === 'redirect')
+            $bs->jsconnectAction = 'replace';
+        return $bs;
+    }
     function jsonSerialize()
     {
         return [
-            "prelanding"=>$this->preland,
-            "landing"=>$this->land,
-            "jsconnect"=>$this->jsconnectAction
+        "prelanding" => $this->preland,
+        "landing" => $this->land,
+        "jsconnect" => $this->jsconnectAction
         ];
     }
 }
@@ -145,11 +168,19 @@ class PrelandSettings implements JsonSerializable
     public string $action;
     public array $folderNames;
 
+    public static function fromArray($arr): PrelandSettings
+    {
+        $pls = new PrelandSettings();
+        $pls->action = $arr['action'];
+        $pls->folderNames = $arr['folders'];
+        return $pls;
+    }
+
     function jsonSerialize()
     {
         return [
-            "action"=>$this->action,
-            "folders"=>$this->folderNames
+        "action" => $this->action,
+        "folders" => $this->folderNames
         ];
     }
 }
@@ -162,16 +193,26 @@ class LandingSettings implements JsonSerializable
     public int $redirectType;
     public bool $useCustomThankyou;
 
+    public static function fromArray($arr): LandingSettings
+    {
+        $ls = new LandingSettings();
+        $ls->action = $arr['action'];
+        $ls->folderNames = $arr['folders'];
+        $ls->redirectUrls = $arr['redirect']['urls'];
+        $ls->redirectType = $arr['redirect']['type'];
+        $ls->useCustomThankyou = $arr['customthankyou'];
+        return $ls;
+    }
     function jsonSerialize()
     {
         return [
-            "action"=>$this->action,
-            "folders"=>$this->folderNames,
-            "redirect"=>[
-                "urls"=>$this->redirectUrls,
-                "type"=>$this->redirectType
-            ],
-            "customthankyou"=>$this->useCustomThankyou
+        "action" => $this->action,
+        "folders" => $this->folderNames,
+        "redirect" => [
+        "urls" => $this->redirectUrls,
+        "type" => $this->redirectType
+        ],
+        "customthankyou" => $this->useCustomThankyou
         ];
     }
 }
@@ -184,18 +225,28 @@ class JsChecks implements JsonSerializable
     public int $tzMin;
     public int $tzMax;
 
+    public static function fromArray($arr): JsChecks
+    {
+        $jsc = new JsChecks();
+        $jsc->enabled = $arr['enabled'];
+        $jsc->events = $arr['events'];
+        $jsc->timeout = $arr['timeout'];
+        $jsc->tzMin = $arr['timezone']['min'];
+        $jsc->tzMax = $arr['timezone']['max'];
+        return $jsc;
+    }
     function jsonSerialize()
-    { 
+    {
         return [
-            "jschecks"=>[
-                "enabled"=>$this->enabled,
-                "events"=>$this->events,
-                "timeout"=>$this->timeout,
-                "timezone"=>[
-                    "min"=>$this->tzMin,
-                    "max"=>$this->tzMax
-                ]
-            ]
+        "jschecks" => [
+        "enabled" => $this->enabled,
+        "events" => $this->events,
+        "timeout" => $this->timeout,
+        "timezone" => [
+        "min" => $this->tzMin,
+        "max" => $this->tzMax
+        ]
+        ]
         ];
 
     }
@@ -211,24 +262,56 @@ class ScriptsSettings implements JsonSerializable
     public string $replaceLandingAddress;
     public bool $imagesLazyLoad;
 
+    public static function fromArray($arr): ScriptsSettings
+    {
+        $ss = new ScriptsSettings();
+        $ss->backfix = $arr['backfix']['use'];
+        $ss->backfixAddress = $arr['backfix']['url'];
+        $ss->replacePrelanding = $arr['prelandingreplace']['use'];
+        $ss->replacePrelandingAddress = $arr['prelandingreplace']['url'];
+        $ss->replaceLanding = $arr['landingreplace']['use'];
+        $ss->replaceLandingAddress = $arr['landingreplace']['url'];
+        $ss->imagesLazyLoad = $arr['imageslazyload'];
+        return $ss;
+    }
+
     function jsonSerialize()
     {
         return [
-            "scripts" => [
-                "backfix"=>[
-                    "use"=>$this->backfix,
-                    "address"=>$this->backfixAddress
-                ],
-                "replacePrelanding"=>[
-                    "use"=>$this->replacePrelanding,
-                    "address"=>$this->replacePrelandingAddress
-                ],
-                "replaceLanding"=>[
-                    "use"=>$this->replaceLanding,
-                    "address"=>$this->replaceLandingAddress
-                ],
-                "imagesLazyLoad"=>$this->imagesLazyLoad
-            ]
+        "scripts" => [
+        "backfix" => [
+        "use" => $this->backfix,
+        "address" => $this->backfixAddress
+        ],
+        "replacePrelanding" => [
+        "use" => $this->replacePrelanding,
+        "address" => $this->replacePrelandingAddress
+        ],
+        "replaceLanding" => [
+        "use" => $this->replaceLanding,
+        "address" => $this->replaceLandingAddress
+        ],
+        "imagesLazyLoad" => $this->imagesLazyLoad
+        ]
+        ];
+    }
+}
+
+class SubIdRewrite implements JsonSerializable
+{
+    public string $name;
+    public string $rewrite;
+
+    public function __construct($name, $rewrite){
+        $this->name = $name;
+        $this->rewrite = $rewrite;
+    }
+
+    function jsonSerialize()
+    {
+        return [
+        "name" => $this->name,
+        "rewrite" => $this->rewrite
         ];
     }
 }
@@ -241,20 +324,65 @@ class PostbackSettings implements JsonSerializable
     public string $rejectStatusName;
     public string $trashStatusName;
 
+    public static function fromArray($arr): PostbackSettings
+    {
+        $ps = PostbackSettings();
+
+        $ps->s2sPostbacks = [];
+        foreach ($arr['s2s'] as $s2s){
+            $ps->s2sPostbacks[] = S2sPostback::fromArray($s2s);
+        }
+        
+        $ps->leadStatusName = $arr['events']['lead'];
+        $ps->purchaseStatusName = $arr['events']['purchase'];
+        $ps->rejectStatusName = $arr['events']['reject'];
+        $ps->trashStatusName = $arr['events']['trash'];
+        return $ps;
+    }
+
     function jsonSerialize()
     {
         return [
-            "postback" => [
-                "events"=>[
-                    "lead"=>$this->leadStatusName,
-                    "purchase"=>$this->purchaseStatusName,
-                    "reject"=>$this->rejectStatusName,
-                    "trash"=>$this->trashStatusName
-                ],
-                "s2s"=> $this->s2sPostbacks
-            ]
+        "postback" => [
+        "events" => [
+        "lead" => $this->leadStatusName,
+        "purchase" => $this->purchaseStatusName,
+        "reject" => $this->rejectStatusName,
+        "trash" => $this->trashStatusName
+        ],
+        "s2s" => $this->s2sPostbacks
+        ]
         ];
     }
+}
+
+class S2sPostback implements JsonSerializable
+{
+    public string $url;
+    public string $method;
+    public array $events;
+
+    public function __construct($url, $method, $events)
+    {
+        $this->url = $url;
+        $this->method = $method;
+        $this->events = $events;
+    }
+
+    public static function fromArray($arr): S2sPostback
+    {
+        return new S2sPostback($arr['url'], $arr['method'], $arr['events']);
+    }
+
+    function jsonSerialize()
+    {
+        return [
+        "url" => $this->url,
+        "method" => $this->method,
+        "events" => $this->events
+        ];
+    }
+
 }
 
 class StatisticsSettings implements JsonSerializable
@@ -267,12 +395,12 @@ class StatisticsSettings implements JsonSerializable
     function jsonSerialize()
     {
         return [
-            "statistics" => [
-                "timezone" => $this->timezone,
-                "allowed" => $this->allowed,
-                "blocked" => $this->blocked,
-                "tables" => $this->tables
-            ]
+        "statistics" => [
+        "timezone" => $this->timezone,
+        "allowed" => $this->allowed,
+        "blocked" => $this->blocked,
+        "tables" => $this->tables
+        ]
         ];
     }
 }
