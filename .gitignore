@@ -359,3 +359,4 @@ healthchecksdb
 /shop
 /clicks.db-shm
 /clicks.db-wal
+/black
