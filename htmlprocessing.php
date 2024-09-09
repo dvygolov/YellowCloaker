@@ -246,7 +246,7 @@ function load_js_testpage()
 function add_js_testcode($html)
 {
     $jsCode = str_replace('{DOMAIN}', get_cloaker_path(), file_get_contents(__DIR__ . '/js/connect.js'));
-    if (!DebugMethods::$on){
+    if (!DebugMethods::on()){
         $hunter = new HunterObfuscator($jsCode);
         $jsCode = $hunter->Obfuscate();
     }

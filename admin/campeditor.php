@@ -35,9 +35,12 @@ switch ($action) {
             return send_camp_result("Error renaming campaign!",true);
         break;
     case 'save':
-        $body = file_get_contents('php://input');
-        $c = new Campaign($campId,$body);
-        $saveRes = $db->save_campaign_settings($campId, $settings);
+        $s = $db->get_campaign_settings($campId);
+        foreach($_POST as $key=>$value){
+            setArrayValueByDotNotation($s,$key,$value);
+        }
+        $c = new Campaign($campId,$s);
+        $saveRes = $db->save_campaign_settings($campId, $s);
         if($saveRes===false)
             return send_camp_result("Error saving campaign!",true);
         break;
@@ -56,4 +59,33 @@ function send_camp_result($msg,$error=false): void
     http_response_code(200);
     $json = json_encode($res);
     echo $json;
+}
+
+function setArrayValueByDotNotation(&$array, $dotNotationString, $newValue) {
+    // Split the dot notation string into keys
+    $keys = explode('.', $dotNotationString);
+    
+    // Traverse the array using each key
+    $current = &$array;
+    foreach ($keys as $key) {
+        // If the key doesn't exist, create it as an empty array
+        if (!isset($current[$key])) {
+            $current[$key] = [];
+        }
+        // Move to the next level
+        $current = &$current[$key];
+    }
+
+    if (is_string($newValue)&&is_array($current)){
+        $arrValue = (empty($newValue)?[]:explode(',',$newValue));
+        $current = $arrValue;
+    }
+    else if ($newValue==='false'|| $newValue==='true'){
+        $boolValue=filter_var($newValue,FILTER_VALIDATE_BOOLEAN);
+        $current=$boolValue;
+    }
+    else{
+        // Set the new value at the final key
+        $current = $newValue;
+    }
 }

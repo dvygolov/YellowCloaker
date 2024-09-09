@@ -17,7 +17,7 @@ $c = new Campaign($dbCamp['id'],$dbCamp['settings']);
 
 
 $jsCode = file_get_contents(__DIR__.'/detect.js');
-if (DebugMethods::$on)
+if (DebugMethods::on())
     $jsCode = str_replace('{DEBUG}', 'true', $jsCode);
 else
     $jsCode = str_replace('{DEBUG}', 'false', $jsCode);
@@ -33,7 +33,7 @@ $jsCode = str_replace('{JSTZEND}', $jsChecks->tzEnd, $jsCode);
 
 $detector= file_get_contents(__DIR__.'/detector.js');
 $fullCode = $detector."\n".$jsCode;
-if (DebugMethods::$on){
+if (DebugMethods::on()){
     echo $fullCode;
 } else {
     $hunter = new HunterObfuscator($fullCode);

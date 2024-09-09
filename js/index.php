@@ -24,7 +24,7 @@ $c = new Campaign($dbCamp['id'],$dbCamp['settings']);
 if ($c->white->jsChecks->enabled) {
     header('Content-Type: text/javascript');
     $jsCode= str_replace('{DOMAIN}', get_cloaker_path(), file_get_contents(__DIR__.'/connect.js'));
-    if (DebugMethods::$on){
+    if (DebugMethods::on()){
         echo $jsCode;
     } else {
         $hunter = new HunterObfuscator($jsCode);

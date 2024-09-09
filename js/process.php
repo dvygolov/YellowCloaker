@@ -10,7 +10,7 @@ $reason = '';
 if (!empty($_GET['reason'])) $reason = $_GET['reason'];
 $jsCode = str_replace('{REASON}', $reason, $jsCode); //пробрасываем js-причину того, что разрешаем переход на блэк
 
-if (!DebugMethods::$on) {
+if (!DebugMethods::on()) {
     $hunter = new HunterObfuscator($jsCode);
     echo $hunter->Obfuscate();
 } else {

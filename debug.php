@@ -1,21 +1,24 @@
 <?php
-
+require_once __DIR__.'/settings.php';
 class DebugMethods
 {
-
-    static bool $on = true;
     static float $start_time;
 
+    public static function on(): bool
+    {
+        global $cloSettings;
+        return $cloSettings['debug'];
+    }
     public static function start(): void
     {
-        if (!DebugMethods::$on) return;
-        DebugMethods::$start_time = microtime(true);
+        if (!self::on()) return;
+        self::$start_time = microtime(true);
     }
 
     public static function stop($header_name): void
     {
-        if (!DebugMethods::$on) return;
-        $time_elapsed_secs = microtime(true) - DebugMethods::$start_time;
+        if (!self::on()) return;
+        $time_elapsed_secs = microtime(true) - self::$start_time;
         header($header_name.": " . $time_elapsed_secs);
     }
 
@@ -33,5 +36,7 @@ class DebugMethods
             die("PHP version should be 8.2 or higher! Change your PHP version and return.");
     }
 }
-DebugMethods::display_errors();
+if (DebugMethods::on()){
+    DebugMethods::display_errors();
+}
 DebugMethods::check_php();

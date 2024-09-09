@@ -746,7 +746,7 @@ class Db
         return true;
     }
 
-    public function save_campaign_settings($id, $settings)
+    public function save_campaign_settings(int $id, array $settings)
     {
         $query = "UPDATE campaigns SET settings = :settings WHERE id = :id";
 

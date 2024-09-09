@@ -16,6 +16,12 @@ $cloSettings =
   
   //if you want to automatically update MaxMind's geobases then go to maxmind.com, register, get API key
   //and put it here
-  "maxMindKey"=> ""
+  "maxMindKey"=> "",
+
+//if true the cloaker will: 
+//- show any PHP error if any,
+//- won't obfuscate any javascript code 
+//- will add YWB headers to the response, where you'll be able to see, how long does it take to process requests
+  "debug" => true
 ]
 ?>
