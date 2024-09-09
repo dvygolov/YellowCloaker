@@ -681,7 +681,7 @@ $c = new Campaign($campId, $s);
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $s['tds']['saveuserflow'] === false ? 'checked' : '' ?> value="false" name="tds.saveuserflow" /> No
+                                            <input type="radio" <?= $c->saveUserFlow === false ? 'checked' : '' ?> value="false" name="saveuserflow" /> No
                                         </label>
                                     </div>
                                 </div>
@@ -690,7 +690,7 @@ $c = new Campaign($campId, $s);
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $s['tds']['saveuserflow'] === true ? 'checked' : '' ?> value="true" name="tds.saveuserflow" />
+                                            <input type="radio" <?= $c->saveUserFlow === true ? 'checked' : '' ?> value="true" name="saveuserflow" />
                                             Yes
                                         </label>
                                     </div>
@@ -716,6 +716,52 @@ $c = new Campaign($campId, $s);
             <div class="form-group-inner">
                 <div class="row">
                     <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                        <label class="login2 pull-left pull-left-pro"> Should we use backfix?</label>
+                    </div>
+                    <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
+                        <div class="bt-df-checkbox pull-left">
+
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                    <div class="i-checks pull-left">
+                                        <label>
+                                            <input type="radio" <?= $c->scripts->backfix === false ? 'checked' : '' ?> value="false" name="scripts.backfix.use" onclick="(document.getElementById('b_backfix').style.display = 'none')" />
+                                            No
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                                    <div class="i-checks pull-left">
+                                        <label>
+                                            <input type="radio" <?= $c->scripts->backfix === true ? 'checked' : '' ?> value="true" name="scripts.backfix.use" onclick="(document.getElementById('b_backfix').style.display = 'block')" />
+                                            Yes
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="b_backfix" style="display:<?= $c->scripts->backfix === true ? 'block' : 'none' ?>;">
+                <div class="form-group-inner">
+                    <div class="row">
+                        <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
+                            <label class="login2 pull-left pull-left-pro"> Backfix URL:</label>
+                        </div>
+                        <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
+                            <div class="input-group custom-go-button">
+                                <input type="text" name="scripts.backfix.url" class="form-control" placeholder="http://ya.ru?pixel={px}&subid={subid}&prelanding={prelanding}" value="<?= $c->scripts->backfixAddress?>" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group-inner">
+                <div class="row">
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                         <label class="login2 pull-left pull-left-pro"> Should we open landing in a new tab and
                             redirect prelanding page to another URL?</label>
                     </div>
@@ -726,7 +772,7 @@ $c = new Campaign($campId, $s);
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $s['scripts']['prelandingreplace']['use'] === false ? 'checked' : '' ?> value="false" name="scripts.prelandingreplace.use" onclick="(document.getElementById('b_10').style.display = 'none')" />
+                                            <input type="radio" <?= $c->scripts->replacePrelanding === false ? 'checked' : '' ?> value="false" name="scripts.prelandingreplace.use" onclick="(document.getElementById('b_10').style.display = 'none')" />
                                             No
                                         </label>
                                     </div>
@@ -736,7 +782,7 @@ $c = new Campaign($campId, $s);
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $s['scripts']['prelandingreplace']['use'] === true ? 'checked' : '' ?> value="true" name="scripts.prelandingreplace.use" onclick="(document.getElementById('b_10').style.display = 'block')" />
+                                            <input type="radio" <?= $c->scripts->replacePrelanding === true ? 'checked' : '' ?> value="true" name="scripts.prelandingreplace.use" onclick="(document.getElementById('b_10').style.display = 'block')" />
                                             Yes
                                         </label>
                                     </div>
@@ -746,7 +792,7 @@ $c = new Campaign($campId, $s);
                     </div>
                 </div>
             </div>
-            <div id="b_10" style="display:<?= $s['scripts']['prelandingreplace']['use'] === true ? 'block' : 'none' ?>;">
+            <div id="b_10" style="display:<?= $c->scripts->replacePrelanding === true ? 'block' : 'none' ?>;">
                 <div class="form-group-inner">
                     <div class="row">
                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -754,7 +800,7 @@ $c = new Campaign($campId, $s);
                         </div>
                         <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                             <div class="input-group custom-go-button">
-                                <input type="text" name="scripts.prelandingreplace.url" class="form-control" placeholder="http://ya.ru?pixel={px}&subid={subid}&prelanding={prelanding}" value="<?= $s['scripts']['prelandingreplace']['url']?>" />
+                                <input type="text" name="scripts.prelandingreplace.url" class="form-control" placeholder="http://ya.ru?pixel={px}&subid={subid}&prelanding={prelanding}" value="<?= $c->scripts->replacePrelandingAddress?>" />
                             </div>
                         </div>
                     </div>
@@ -765,8 +811,8 @@ $c = new Campaign($campId, $s);
             <div class="form-group-inner">
                 <div class="row">
                     <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                        <label class="login2 pull-left pull-left-pro"> Should we open Thankyou page in a new tab and redirect
-                            landing page to another URL:
+                        <label class="login2 pull-left pull-left-pro"> Should we open ThankYou page 
+                        in a new tab and redirect landing page to another URL:
                         </label>
                     </div>
                     <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
@@ -776,7 +822,7 @@ $c = new Campaign($campId, $s);
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $s['scripts']['landingreplace']['use']=== false ? 'checked' : '' ?> value="false" name="scripts.landingreplace.use" onclick="(document.getElementById('b_1010').style.display = 'none')" />
+                                            <input type="radio" <?= $c->scripts->replaceLanding === false ? 'checked' : '' ?> value="false" name="scripts.landingreplace.use" onclick="(document.getElementById('b_1010').style.display = 'none')" />
                                             No
                                         </label>
                                     </div>
@@ -786,7 +832,7 @@ $c = new Campaign($campId, $s);
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $s['scripts']['landingreplace']['use'] === true ? 'checked' : '' ?> value="true" name="scripts.landingreplace.use" onclick="(document.getElementById('b_1010').style.display = 'block')" />
+                                            <input type="radio" <?= $c->scripts->replaceLanding === true ? 'checked' : '' ?> value="true" name="scripts.landingreplace.use" onclick="(document.getElementById('b_1010').style.display = 'block')" />
                                             Yes
                                         </label>
                                     </div>
@@ -796,7 +842,7 @@ $c = new Campaign($campId, $s);
                     </div>
                 </div>
             </div>
-            <div id="b_1010" style="display:<?= $s['scripts']['landingreplace']['use'] === true ? 'block' : 'none' ?>;">
+            <div id="b_1010" style="display:<?= $c->scripts->replaceLanding === true ? 'block' : 'none' ?>;">
                 <div class="form-group-inner">
                     <div class="row">
                         <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
@@ -804,7 +850,7 @@ $c = new Campaign($campId, $s);
                         </div>
                         <div class="col-lg-9 col-md-9 col-sm-9 col-xs-12">
                             <div class="input-group custom-go-button">
-                                <input type="text" name="scripts.landingreplace.url" class="form-control" placeholder="http://ya.ru?pixel={px}&subid={subid}&prelanding={prelanding}" value="<?= $s['scripts']['landingreplace']['url'] ?>" />
+                                <input type="text" name="scripts.landingreplace.url" class="form-control" placeholder="http://ya.ru?pixel={px}&subid={subid}&prelanding={prelanding}" value="<?= $c->scripts->replaceLandingAddress ?>" />
                             </div>
                         </div>
                     </div>
@@ -823,7 +869,7 @@ $c = new Campaign($campId, $s);
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $s['scripts']['imageslazyload'] === false ? 'checked' : '' ?> value="false" name="scripts.imageslazyload" />
+                                            <input type="radio" <?= $c->scripts->imagesLazyLoad === false ? 'checked' : '' ?> value="false" name="scripts.imageslazyload" />
                                             No
                                         </label>
                                     </div>
@@ -833,7 +879,7 @@ $c = new Campaign($campId, $s);
                                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
                                     <div class="i-checks pull-left">
                                         <label>
-                                            <input type="radio" <?= $s['scripts']['imageslazyload'] === true ? 'checked' : '' ?> value="true" name="scripts.imageslazyload" />
+                                            <input type="radio" <?= $c->scripts->imagesLazyLoad === true ? 'checked' : '' ?> value="true" name="scripts.imageslazyload" />
                                             Yes
                                         </label>
                                     </div>
@@ -868,12 +914,15 @@ $c = new Campaign($campId, $s);
                 <pre>&lt;input type="hidden" name="utm_campaign" value="MyCampaign"/&gt;</pre>
             </p>
             <div id="subs_container">
-                <?php for ($i = 0; $i < count($s['subids']); $i++) { ?>
+                <?php for ($i = 0; $i < count($c->subIds); $i++) {
+                        $sn = $c->subIds[$i]->name;
+                        $sr = $c->subIds[$i]->rewrite;
+                ?>
                 <div class="form-group-inner subs">
                     <div class="row">
                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                             <div class="input-group">
-                                <input type="text" class="form-control" placeholder="subid" value="<?= $s['subids'][$i]["name"] ?>" name="subids[<?= $i ?>][name]" />
+                                <input type="text" class="form-control" placeholder="subid" value="<?=$sn?>" name="subids[<?= $i ?>][name]" />
                             </div>
                         </div>
                         <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
@@ -881,7 +930,7 @@ $c = new Campaign($campId, $s);
                         </div>
                         <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                             <div class="input-group custom-go-button">
-                                <input type="text" class="form-control" placeholder="sub_id" value="<?= $s['subids'][$i]["rewrite"] ?>" name="subids[<?= $i ?>][rewrite]" />
+                                <input type="text" class="form-control" placeholder="sub_id" value="<?=$sr?>" name="subids[<?= $i ?>][rewrite]" />
                             </div>
                         </div>
                         <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
@@ -904,7 +953,7 @@ $c = new Campaign($campId, $s);
                     </div>
                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                         <div class="input-group custom-go-button">
-                            <?= select_timezone('statistics.timezone', $s['statistics']['timezone']); ?>
+                            <?= select_timezone('statistics.timezone', $c->statistics->timezone); ?>
                         </div>
                     </div>
                 </div>
@@ -930,7 +979,7 @@ $c = new Campaign($campId, $s);
                     </div>
                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                         <div class="input-group custom-go-button">
-                            <input type="text" name="postback.events.lead" class="form-control" placeholder="Lead" value="<?= $s['postback']['events']['lead'] ?>" />
+                            <input type="text" name="postback.events.lead" class="form-control" placeholder="Lead" value="<?= $c->postback->leadStatusName ?>" />
                         </div>
                     </div>
                 </div>
@@ -943,7 +992,7 @@ $c = new Campaign($campId, $s);
                     </div>
                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                         <div class="input-group custom-go-button">
-                            <input type="text" name="postback.events.purchase" class="form-control" placeholder="Purchase" value="<?= $s['postback']['events']['purchase'] ?>" />
+                            <input type="text" name="postback.events.purchase" class="form-control" placeholder="Purchase" value="<?= $c->postback->purchaseStatusName ?>" />
                         </div>
                     </div>
                 </div>
@@ -956,7 +1005,7 @@ $c = new Campaign($campId, $s);
                     </div>
                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                         <div class="input-group custom-go-button">
-                            <input type="text" name="postback.events.reject" class="form-control" placeholder="Reject" value="<?= $s['postback']['events']['reject'] ?>" />
+                            <input type="text" name="postback.events.reject" class="form-control" placeholder="Reject" value="<?= $c->postback->rejectStatusName ?>" />
                         </div>
                     </div>
                 </div>
@@ -969,7 +1018,7 @@ $c = new Campaign($campId, $s);
                     </div>
                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                         <div class="input-group custom-go-button">
-                            <input type="text" name="postback.events.trash" class="form-control" placeholder="Trash" value="<?= $s['postback']['events']['trash'] ?>" />
+                            <input type="text" name="postback.events.trash" class="form-control" placeholder="Trash" value="<?= $c->postback->trashStatusName ?>" />
                         </div>
                     </div>
                 </div>
@@ -985,7 +1034,11 @@ $c = new Campaign($campId, $s);
 
                 <div id="s2s_container">
                     <?php 
-                    for ( $i = 0; $i < count($s['postback']['s2s']); $i++) { ?>
+                    for ($i = 0; $i < count($c->postback->s2sPostbacks); $i++) { 
+                        $s2sUrl = $c->postback->s2sPostbacks[$i]->url;
+                        $s2sMethod = $c->postback->s2sPostbacks[$i]->method;
+                        $s2sEvents = $c->postback->s2sPostbacks[$i]->events;
+                    ?>
                     <div class="form-group-inner s2s">
                         <div class="row">
                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
@@ -997,7 +1050,7 @@ $c = new Campaign($campId, $s);
                             </div>
                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                                 <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="https://s2s-postback.com" value="<?= $s['postback']['s2s'][$i]["url"] ?>" name="postback.s2s[<?= $i ?>][url]" />
+                                    <input type="text" class="form-control" placeholder="https://s2s-postback.com" value="<?= $s2sUrl ?>" name="postback.s2s[<?= $i ?>][url]" />
                                 </div>
                             </div>
                             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
@@ -1012,9 +1065,9 @@ $c = new Campaign($campId, $s);
                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                                 <div class="input-group">
                                     <select class="form-control" name="postback.s2s[<?= $i ?>][method]">
-                                        <option value="GET" <?= ($s['postback']['s2s'][$i]["method"] === "GET" ? ' selected' : '') ?>> GET
+                                        <option value="GET" <?= ($s2sMethod === "GET" ? ' selected' : '') ?>> GET
                                         </option>
-                                        <option value="POST" <?= ($s['postback']['s2s'][$i]["method"] === "POST" ? ' selected' : '') ?>> POST
+                                        <option value="POST" <?= ($s2sMethod === "POST" ? ' selected' : '') ?>> POST
                                         </option>
                                     </select>
                                 </div>
@@ -1034,7 +1087,7 @@ $c = new Campaign($campId, $s);
                                 {?>
                                     <div class="form-check form-switch">
                                         <label for="<?=$status?><?=$i?>" class="form-check-label"><?=$status?></label>
-                                        <input id="<?=$status?><?=$i?>" type="checkbox" class="form-check-input" name="postback.s2s[<?= $i ?>][events][]" value="<?=$status?>" <?= (in_array($status, $s['postback']['s2s'][$i]['events']) ? ' checked' : '') ?> />
+                                        <input id="<?=$status?><?=$i?>" type="checkbox" class="form-check-input" name="postback.s2s[<?= $i ?>][events][]" value="<?=$status?>" <?= (in_array($status, $s2sEvents) ? ' checked' : '') ?> />
                                     </div>
                                 <?php
                                 }
