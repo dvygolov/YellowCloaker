@@ -37,7 +37,12 @@ switch ($action) {
     case 'save':
         $s = $db->get_campaign_settings($campId);
         foreach($_POST as $key=>$value){
-            setArrayValueByDotNotation($s,$key,$value);
+            if ($key==="filters"){ //special case cause we store filters in json format
+                $arrFilters=json_decode($value,true);
+                $s['filters'] = $arrFilters;
+            }
+            else
+                setArrayValue($s,$key,$value);
         }
         $c = new Campaign($campId,$s);
         $saveRes = $db->save_campaign_settings($campId, $s);
@@ -61,9 +66,9 @@ function send_camp_result($msg,$error=false): void
     echo $json;
 }
 
-function setArrayValueByDotNotation(&$array, $dotNotationString, $newValue) {
-    // Split the dot notation string into keys
-    $keys = explode('.', $dotNotationString);
+function setArrayValue(&$array, $underscoreString, $newValue) {
+    // Split the underscrore notation string into keys
+    $keys = explode('_', $underscoreString);
     
     // Traverse the array using each key
     $current = &$array;
