@@ -730,7 +730,9 @@ function get_campaigns_columns(): string
                     <button class="btn btn-delete" title="Delete"><i class="bi bi-file-x"></i></button>
                     <button class="btn btn-clone" title="Clone"><i class="bi bi-copy"></i></button>
                     <button class="btn btn-copy-link" title="Copy link"><i class="bi bi-link"></i></button>
-                    <button class="btn btn-stats" title="View stats"><i class="bi bi-bar-chart-fill"></i></button>`;
+                    <button class="btn btn-stats" title="View stats"><i class="bi bi-bar-chart-fill"></i></button>
+                    <button class="btn btn-allowed" title="View allowed clicks"><i class="bi bi-person-circle"></i></button>
+                    <button class="btn btn-blocked" title="View blocked clicks"><i class="bi bi-ban"></i></button>`;
             },
         }
     ]

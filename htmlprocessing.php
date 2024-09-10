@@ -28,11 +28,11 @@ function load_content_with_include($url): string
     return $html;
 }
 
+//TODO:Add Backfix
 //Подгрузка контента блэк проклы из другой папки
 function load_prelanding($url, $land_number): string
 {
-    global $replace_prelanding, $replace_prelanding_address;
-    global $tds_api_key;
+    global $c;//campaign
     $fullpath = get_abs_from_rel($url);
 
     $html = load_content_with_include($url);
@@ -42,7 +42,7 @@ function load_prelanding($url, $land_number): string
     $html = fix_head_add_base($html, $fullpath);
     $html = fix_src($html);
 
-    $mp = new MacrosProcessor($tds_api_key);
+    $mp = new MacrosProcessor();
     $html = $mp->replace_html_macros($html);
     $html = fix_phone_and_name($html);
     //добавляем во все формы сабы
@@ -57,9 +57,9 @@ function load_prelanding($url, $land_number): string
     $replacement = $cloaker . 'landing.php?l=' . $land_number . (!empty($querystr) ? '&' . $querystr : '');
 
     //если мы будем подменять преленд при переходе на ленд, то ленд надо открывать в новом окне
-    if ($replace_prelanding) {
+    if ($c->scripts->replacePrelanding) {
         $replacement = $replacement . '" target="_blank"';
-        $url = $mp->replace_url_macros($replace_prelanding_address); //заменяем макросы
+        $url = $mp->replace_url_macros($c->scripts->replacePrelandingAddress); //заменяем макросы
         $html = insert_file_content($html, 'replaceprelanding.js', '</body>', true, true, '{REDIRECT}', $url);
     }
     $html = preg_replace('/\{offer\}/', $replacement, $html);
@@ -72,9 +72,7 @@ function load_prelanding($url, $land_number): string
 //Подгрузка контента блэк ленда из другой папки
 function load_landing($url)
 {
-    global $black_land_use_custom_thankyou_page;
-    global $replace_landing, $replace_landing_address;
-    global $tds_api_key;
+    global $c; //campaign
 
     $fullpath = get_abs_from_rel($url);
 
@@ -83,7 +81,7 @@ function load_landing($url)
     $html = fix_head_add_base($html, $fullpath);
     $html = fix_src($html);
 
-    if ($black_land_use_custom_thankyou_page === true) {
+    if ($c->black->land->useCustomThankyou === true) {
         $query = http_build_query($_GET);
         $html = preg_replace_callback(
             '/\saction=[\'\"]([^\'\"]+)[\'\"]/',
@@ -98,10 +96,10 @@ function load_landing($url)
         );
     }
 
-    $mp = new MacrosProcessor($tds_api_key);
+    $mp = new MacrosProcessor();
     //если мы будем подменять ленд при переходе на страницу Спасибо, то Спасибо надо открывать в новом окне
-    if ($replace_landing) {
-        $replacelandurl = $mp->replace_url_macros($replace_landing_address); //заменяем макросы
+    if ($c->scripts->replaceLanding) {
+        $replacelandurl = $mp->replace_url_macros($c->scripts->replaceLandingAddress); //заменяем макросы
         $html = insert_file_content($html, 'replacelanding.js', '</body>', true, true, '{REDIRECT}', $replacelandurl);
     }
 
@@ -174,8 +172,8 @@ function fix_anchors($html)
 
 function add_images_lazy_load($html)
 {
-    global $images_lazy_load;
-    if (!$images_lazy_load) return $html;
+    global $c;//campaign
+    if (!$c->scripts->imagesLazyLoad) return $html;
     $html = preg_replace('/(<img\s)((?!.*?loading=([\'\"])[^\'\"]+\3)[^>]*)(>)/s', '<img loading="lazy" \\2\\4', $html);
     return $html;
 }
@@ -259,12 +257,12 @@ function add_js_testcode($html)
 //вставляет все сабы в hidden полях каждой формы
 function insert_subs_into_forms($html)
 {
-    global $sub_ids;
+    global $c;//campaign
     $all_subs = '';
     $preset = ['subid', 'prelanding', 'landing'];
-    foreach ($sub_ids as $sub) {
-        $key = $sub["name"];
-        $value = $sub["rewrite"];
+    foreach ($c->subIds as $sub) {
+        $key = $sub->name;
+        $value = $sub->rewrite;
 
         if (in_array($key, $preset) && !empty(get_cookie($key))) {
             $html = preg_replace('/(<input[^>]*name="' . $value . '"[^>]*>)/', "", $html);

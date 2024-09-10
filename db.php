@@ -445,7 +445,7 @@ class Db
         $click['reason'] = $reason;
 
         // Prepare SQL insert statement
-        $query = "INSERT INTO blocked (time, ip, country, os, isp, ua, reason, params, config) VALUES (:time, :ip, :country, :os, :isp, :ua, :reason, :params, :config)";
+        $query = "INSERT INTO blocked (campaign_id, time, ip, country, lang, os, osver, brand, model, isp,client, clientver, ua, reason, params) VALUES (:campaign_id, :time, :ip, :country, :lang, :os, :osver, :brand, :model, :isp, :client, :clientver, :ua, :reason, :params)";
 
         $db = $this->open_db();
         $stmt = $db->prepare($query);

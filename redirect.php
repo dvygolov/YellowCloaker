@@ -3,7 +3,6 @@ require_once __DIR__ . '/macros.php';
 
 function redirect($url, $redirect_type = 302, $rep_macros = false): void
 {
-    global $campaign;
     if ($rep_macros) {
         $mp = new MacrosProcessor();
         $url = $mp->replace_url_macros($url);

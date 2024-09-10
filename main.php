@@ -11,6 +11,11 @@ function white($use_js_checks)
 {
     global $c; //Campaign
     $ws = $c->white;
+    $action = $ws->action;
+    $error_codes = $ws->errorCodes;
+    $folder_names = $ws->folderNames;
+    $curl_urls = $ws->curlUrls;
+    $redirect_urls = $ws->redirectUrls;
 
     //HACK: dirty hack to pass the referer through cookies
     if ($use_js_checks && !empty($_SERVER['HTTP_REFERER'])) {

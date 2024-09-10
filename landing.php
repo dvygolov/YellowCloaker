@@ -1,5 +1,4 @@
 <?php
-global $black_land_action, $black_land_folder_names, $black_land_redirect_urls, $black_land_redirect_type, $cur_config;
 require_once __DIR__ . '/debug.php';
 require_once __DIR__ . '/settings.php';
 require_once __DIR__ . '/htmlprocessing.php';
@@ -8,19 +7,20 @@ require_once __DIR__ . '/redirect.php';
 require_once __DIR__ . '/abtest.php';
 require_once __DIR__ . '/cookies.php';
 
-//добавляем в лог факт пробива проклы
+global $c;
+//adding the fact that user reached landing to the database
 $db = new Db();
-$db->add_lpctr(get_cookie('subid')); //запись пробива проклы
+$db->add_lpctr(get_cookie('subid'));
 
 $l = $_GET['l'] ?? -1;
 
-switch ($black_land_action) {
+switch ($c->black->land->action) {
     case 'folder':
-        $landing = select_item_by_index($black_land_folder_names, $l, true);
+        $landing = select_item_by_index($c->black->land->folderNames, $l, true);
         echo load_landing($landing);
         break;
     case 'redirect':
-        $fullpath = select_item_by_index($black_land_redirect_urls, $l, false);
-        redirect($fullpath, $black_land_redirect_type, true);
+        $fullpath = select_item_by_index($c->black->land->redirectUrls, $l, false);
+        redirect($fullpath, $$c->black->land->redirectType, true);
         break;
 }

@@ -17,7 +17,7 @@ $cloaker = new Cloaker($c->filters);
 if ($c->white->jsChecks->enabled) {
     white(true);
 } else if ($cloaker->is_bad_click()) { 
-    $db->add_white_click($cloaker->click_params, $cloaker->block_reason, $camp['id']);
+    $db->add_white_click($cloaker->click_params, $cloaker->block_reason, $c->campaignId);
     white(false);
 } else
     black($cloaker->click_params);
