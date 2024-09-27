@@ -1,10 +1,11 @@
 <?php
-require_once __DIR__ . '/initialization.php';
+require_once __DIR__ . '/passwordcheck.php';
 require_once __DIR__ . '/../db.php';
 require_once __DIR__ . '/../campaign.php';
+require_once __DIR__ . '/../campinit.php';
+global $campId;
 
 $db = new Db();
-$campId = $_REQUEST['campId'];
 $s = $db->get_campaign_settings($campId);
 $c = new Campaign($campId, $s);
 ?>

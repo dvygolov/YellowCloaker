@@ -1,23 +1,25 @@
 <?php
 require_once __DIR__ . '/../db.php';
-function show_stats($startDate, $endDate, $dtz, $config):string    
+function show_stats($startDate, $endDate, StatisticsSettings $ss):string    
 {
+    global $campId;
+    
     $tableData ='';
     $db = new Db();
-    $sTables = get_table_settings();
-    foreach ($sTables['tables'] as $tSettings) {
+    foreach ($ss->tables as $tSettings) {
         $dataset = $db->get_statistics(
-            $tSettings['columns'], $tSettings['groupby'], $config, 
-            $startDate->getTimestamp(),$endDate->getTimestamp(), $dtz);
+            $tSettings->columns, $tSettings->groupby, $campId,
+            $startDate->getTimestamp(),$endDate->getTimestamp(), $ss->timezone);
         $dJson = json_encode($dataset);
-        $tName = $tSettings['name'];
-        $tColumns = get_stats_columns($tName, $tSettings['columns'], $tSettings['groupby'], $dtz);
+        $tName = $tSettings->name;
+        $tColumns = get_stats_columns(
+            $tName, $tSettings->columns, $tSettings->groupby, $ss->timezone);
         $tableData.= <<<EOF
             <div id="t$tName"></div>
             <script>
                 let t{$tName}Data = $dJson;
                 let t{$tName}Columns = $tColumns;
-                let t{$tName}Table = new Tabulator('#t{$tSettings["name"]}', {
+                let t{$tName}Table = new Tabulator('#t{$tName}', {
                     layout: "fitColumns",
                     columns: t{$tName}Columns,
                     columnCalcs: "both",
