@@ -1,1 +1,105 @@
-[English version](README.en.md)  `$([Environment]::NewLine) [Support this project](https://yellowweb.top/donate)                              yellowtds     _            __     __  _ _             __          __  _    | |           \ \   / / | | |            \ \        / / | |    | |__  _   _   \ \_/ /__| | | _____      _\ \  /\  / /__| |__    | '_ \| | | |   \   / _ \ | |/ _ \ \ /\ / /\ \/  \/ / _ \ '_ \    | |_) | |_| |    | |  __/ | | (_) \ V  V /  \  /\  /  __/ |_) |    |_.__/ \__, |    |_|\___|_|_|\___/ \_/\_/    \/  \/ \___|_.__/            __/ |           |___/             https://yellowweb.top  If you like this script, PLEASE DONATE! `$([Environment]::NewLine) [Support this project](https://yellowweb.top/donate)     # Yellow TDS  Yellow TDS — TDS для маршрутизации трафика по правилам кампаний. Проект включает движок фильтрации и распределения трафика, SQLite-хранилище, админ-панель, статистику, click logs, postback-обработку и несколько режимов интеграции.  ## Что это за продукт  Система принимает входящий трафик и для каждого запроса решает, что нужно отдать пользователю:  - white-ветку для нежелательного или отфильтрованного трафика - black-ветку для целевого трафика - trafficback, если кампания не найдена или не подходит  Ключевые возможности:  - кампании с привязкой по доменам - white и black логика - multi-step funnels и flows - equal, weighted и Thompson Sampling distribution - JS bot detection - S2S postbacks - статистика, custom tables и click views - JS Connect и PHP Connect  ## Быстрый старт  ### Автоустановка на VPS  Для чистого Debian/Ubuntu VPS можно использовать автоустановщик:  `$([Environment]::NewLine) [Support this project](https://yellowweb.top/donate) bash curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/main/install.sh | sudo bash `$([Environment]::NewLine) [Support this project](https://yellowweb.top/donate)   Скрипт спросит домен, проверит DNS-привязку к VPS, поставит nginx/PHP/HTTPS, C-расширение MaxMind и предложит скачать GeoLite2 базы.  Чтобы добавить к уже установленному инстансу несколько новых доменов:  `$([Environment]::NewLine) [Support this project](https://yellowweb.top/donate) bash curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/main/install.sh | sudo bash -s -- --add-domain `$([Environment]::NewLine) [Support this project](https://yellowweb.top/donate)   Домены можно вводить через запятую: `tds1.example.com,tds2.example.com`.  Подробнее: [Установка на VPS](docs/ru/installation.md).  ### Ручная установка  1. Разверните содержимое на хостинге. 2. Откройте `settings.php` и задайте как минимум:    - `adminPassword`    - `dbConnection`    - `debug` (`false` для production)    - `adminDomain` при необходимости    - `adminIp` при необходимости 3. Убедитесь, что PHP может писать в:    - `db/`    - `logs/`    - `caching/` 4. Откройте `/admin/`. 5. Создайте кампанию, добавьте домены, настройте white/black, сохраните.  ## Основные точки входа  - `index.php` — основной runtime entry point - `js/index.php` — JS Connect - `phpconnect.php` — PHP Connect API - `postback.php` — входящие постбэки - `send.php` — отправка лид-форм - `next.php` — переходы по шагам воронки - `admin/` — админ-панель  ## Где читать полную документацию  Полная двуязычная документация находится в репозитории:  - [Русская документация](docs/ru/index.md) - [English documentation](docs/en/index.md)  Рекомендуемый порядок чтения:  1. [Обзор продукта](docs/ru/overview.md) 2. [Как это работает](docs/ru/how-it-works.md) 3. [Вход в админку](docs/ru/admin-login.md) 4. [Кампании и настройки](docs/ru/campaign-settings.md) 5. [Статистика](docs/ru/statistics.md)
+[English version](README.en.md)
+
+```
+                            yellowtds
+    _            __     __  _ _             __          __  _
+   | |           \ \   / / | | |            \ \        / / | |
+   | |__  _   _   \ \_/ /__| | | _____      _\ \  /\  / /__| |__
+   | '_ \| | | |   \   / _ \ | |/ _ \ \ /\ / /\ \/  \/ / _ \ '_ \
+   | |_) | |_| |    | |  __/ | | (_) \ V  V /  \  /\  /  __/ |_) |
+   |_.__/ \__, |    |_|\___|_|_|\___/ \_/\_/    \/  \/ \___|_.__/
+           __/ |
+          |___/             https://yellowweb.top
+
+If you like this script, PLEASE DONATE!
+```
+
+[Support this project](https://yellowweb.top/donate)
+
+
+
+# Yellow TDS
+
+Yellow TDS — TDS для маршрутизации трафика по правилам кампаний. Проект включает движок фильтрации и распределения трафика, SQLite-хранилище, админ-панель, статистику, click logs, postback-обработку и несколько режимов интеграции.
+
+## Что это за продукт
+
+Система принимает входящий трафик и для каждого запроса решает, что нужно отдать пользователю:
+
+- white-ветку для нежелательного или отфильтрованного трафика
+- black-ветку для целевого трафика
+- trafficback, если кампания не найдена или не подходит
+
+Ключевые возможности:
+
+- кампании с привязкой по доменам
+- white и black логика
+- multi-step funnels и flows
+- equal, weighted и Thompson Sampling distribution
+- JS bot detection
+- S2S postbacks
+- статистика, custom tables и click views
+- JS Connect и PHP Connect
+
+## Быстрый старт
+
+### Автоустановка на VPS
+
+Для чистого Debian/Ubuntu VPS можно использовать автоустановщик:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/main/install.sh | sudo bash
+```
+
+Скрипт спросит домен, проверит DNS-привязку к VPS, поставит nginx/PHP/HTTPS, C-расширение MaxMind и предложит скачать GeoLite2 базы.
+
+Чтобы добавить к уже установленному инстансу несколько новых доменов:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/main/install.sh | sudo bash -s -- --add-domain
+```
+
+Домены можно вводить через запятую: `tds1.example.com,tds2.example.com`.
+
+Подробнее: [Установка на VPS](docs/ru/installation.md).
+
+### Ручная установка
+
+1. Разверните содержимое на хостинге.
+2. Откройте `settings.php` и задайте как минимум:
+   - `adminPassword`
+   - `dbConnection`
+   - `debug` (`false` для production)
+   - `adminDomain` при необходимости
+   - `adminIp` при необходимости
+3. Убедитесь, что PHP может писать в:
+   - `db/`
+   - `logs/`
+   - `caching/`
+4. Откройте `/admin/`.
+5. Создайте кампанию, добавьте домены, настройте white/black, сохраните.
+
+## Основные точки входа
+
+- `index.php` — основной runtime entry point
+- `js/index.php` — JS Connect
+- `phpconnect.php` — PHP Connect API
+- `postback.php` — входящие постбэки
+- `send.php` — отправка лид-форм
+- `next.php` — переходы по шагам воронки
+- `admin/` — админ-панель
+
+## Где читать полную документацию
+
+Полная двуязычная документация находится в репозитории:
+
+- [Русская документация](docs/ru/index.md)
+- [English documentation](docs/en/index.md)
+
+Рекомендуемый порядок чтения:
+
+1. [Обзор продукта](docs/ru/overview.md)
+2. [Как это работает](docs/ru/how-it-works.md)
+3. [Вход в админку](docs/ru/admin-login.md)
+4. [Кампании и настройки](docs/ru/campaign-settings.md)
+5. [Статистика](docs/ru/statistics.md)
