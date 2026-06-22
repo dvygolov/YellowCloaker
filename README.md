@@ -1,6 +1,8 @@
 [English version](README.en.md)
 
-```
+`$([Environment]::NewLine)
+[Support this project](https://yellowweb.top/donate)
+
                             yellowtds
     _            __     __  _ _             __          __  _
    | |           \ \   / / | | |            \ \        / / | |
@@ -12,10 +14,9 @@
           |___/             https://yellowweb.top
 
 If you like this script, PLEASE DONATE!
-USDT TRC20: TKeNEVndhPSKXuYmpEwF4fVtWUvfCnWmra
-Bitcoin: bc1qqv99jasckntqnk0pkjnrjtpwu0yurm0qd0gnqv
-Ethereum: 0xBC118D3FDE78eE393A154C29A4545c575506ad6B
-```
+`$([Environment]::NewLine)
+[Support this project](https://yellowweb.top/donate)
+
 
 
 
@@ -48,17 +49,25 @@ Yellow TDS — TDS для маршрутизации трафика по пра�
 
 Для чистого Debian/Ubuntu VPS можно использовать автоустановщик:
 
-```bash
+`$([Environment]::NewLine)
+[Support this project](https://yellowweb.top/donate)
+bash
 curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/main/install.sh | sudo bash
-```
+`$([Environment]::NewLine)
+[Support this project](https://yellowweb.top/donate)
+
 
 Скрипт спросит домен, проверит DNS-привязку к VPS, поставит nginx/PHP/HTTPS, C-расширение MaxMind и предложит скачать GeoLite2 базы.
 
 Чтобы добавить к уже установленному инстансу несколько новых доменов:
 
-```bash
+`$([Environment]::NewLine)
+[Support this project](https://yellowweb.top/donate)
+bash
 curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/main/install.sh | sudo bash -s -- --add-domain
-```
+`$([Environment]::NewLine)
+[Support this project](https://yellowweb.top/donate)
+
 
 Домены можно вводить через запятую: `tds1.example.com,tds2.example.com`.
 

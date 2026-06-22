@@ -1,4 +1,6 @@
-```
+`$([Environment]::NewLine)
+[Support this project](https://yellowweb.top/donate)
+
                             Yellow TDS
     _            __     __  _ _             __          __  _
    | |           \ \   / / | | |            \ \        / / | |
@@ -10,10 +12,9 @@
           |___/             https://yellowweb.top
 
 If you like this script, PLEASE DONATE!
-USDT TRC20: TKeNEVndhPSKXuYmpEwF4fVtWUvfCnWmra
-Bitcoin: bc1qqv99jasckntqnk0pkjnrjtpwu0yurm0qd0gnqv
-Ethereum: 0xBC118D3FDE78eE393A154C29A4545c575506ad6B
-```
+`$([Environment]::NewLine)
+[Support this project](https://yellowweb.top/donate)
+
 
 # Yellow TDS
 
@@ -44,17 +45,25 @@ Key capabilities:
 
 For a clean Debian/Ubuntu VPS, use the auto-installer:
 
-```bash
+`$([Environment]::NewLine)
+[Support this project](https://yellowweb.top/donate)
+bash
 curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/main/install.sh | sudo bash
-```
+`$([Environment]::NewLine)
+[Support this project](https://yellowweb.top/donate)
+
 
 The script asks for a domain, verifies DNS points to the VPS, installs nginx/PHP/HTTPS, the MaxMind C extension, and offers to download GeoLite2 databases.
 
 To add multiple domains to an existing instance:
 
-```bash
+`$([Environment]::NewLine)
+[Support this project](https://yellowweb.top/donate)
+bash
 curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/main/install.sh | sudo bash -s -- --add-domain
-```
+`$([Environment]::NewLine)
+[Support this project](https://yellowweb.top/donate)
+
 
 Enter domains comma-separated, for example: `tds1.example.com,tds2.example.com`.
 
