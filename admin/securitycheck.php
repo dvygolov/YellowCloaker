@@ -3,22 +3,20 @@ require_once __DIR__ . '/../debug.php';
 require_once __DIR__ . '/../settings.php';
 require_once __DIR__ . '/../logging.php';
 require_once __DIR__ . '/password.php';
+require_once __DIR__ . '/accesscontrol.php';
 require_once __DIR__ . '/../redirect.php';
 require_once __DIR__ . '/../paths.php';
 
 global $cloSettings;
-$admDomain = $cloSettings['adminDomain'];
-if (isset($admDomain) && !empty($admDomain)) {
-    $currentDomain = $_SERVER['SERVER_NAME'] ?? '';
-    if ($currentDomain !== $admDomain) {
-        add_log('warning', "Tried to access admin page from $currentDomain, but admin  Domain $admDomain is set. User not allowed to access this page!");
-        if ($cloSettings['debug'] === true) {
-            echo "Admin Domain $admDomain is set, but your domain is $currentDomain. You are not allowed to access this page! ";
-        } else {
-            http_response_code(404);
-        }
-        die();
+$accessError = get_admin_access_error($_SERVER, $cloSettings);
+if ($accessError !== null) {
+    add_log('warning', $accessError);
+    if ($cloSettings['debug'] === true) {
+        echo $accessError;
+    } else {
+        http_response_code(404);
     }
+    die();
 }
 if (!check_password(false)) {
     $loginPath = get_cloaker_path() . "login.php";

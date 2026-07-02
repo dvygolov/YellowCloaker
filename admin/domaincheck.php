@@ -53,16 +53,7 @@ if ($records === false || empty($records)) {
 
 $resolvedIp = $records[0]['ip'];
 
-// Check CloudFlare via ISP (reuses existing GeoLite2-ASN)
-$isCloudflare = false;
-try {
-    $isp = getisp($resolvedIp);
-    if (is_string($isp) && str_contains(strtolower($isp), 'cloudflare')) {
-        $isCloudflare = true;
-    }
-} catch (Exception $e) {
-    // ISP lookup failed, not critical
-}
+$isCloudflare = is_cloudflare_ip($resolvedIp);
 
 // If CloudFlare, domain resolves to CF proxy — that's valid
 $resolves = ($resolvedIp === $serverIp) || $isCloudflare;
