@@ -56,6 +56,12 @@ switch ($action) {
         if (!isset($data['name']) || !isset($data['columns']) || !isset($data['groupby'])) {
             return send_clmnseditor_result("Error: invalid table configuration", true);
         }
+        $normalizedColumns = [];
+        $validationError = validate_stats_columns_config((array)$data['columns'], $normalizedColumns);
+        if ($validationError !== null) {
+            return send_clmnseditor_result($validationError, true);
+        }
+        $data['columns'] = $normalizedColumns;
 
         $saved = save_stats_table($campId, $tName,$data);
 
@@ -164,6 +170,22 @@ function get_new_columns($existingColumns, $newColumnNames): array
     }
 
     return $newColumns;
+}
+
+function validate_stats_columns_config(array $columns, array &$normalizedColumns): ?string
+{
+    foreach ($columns as $column) {
+        if (!is_array($column) || empty($column['custom'])) {
+            continue;
+        }
+        if (Db::normalize_custom_metric_column($column) === null) {
+            $title = trim((string)($column['title'] ?? $column['field'] ?? 'custom column'));
+            return "Error: invalid custom stats column: $title";
+        }
+    }
+
+    $normalizedColumns = Db::normalize_stats_columns_config($columns);
+    return null;
 }
 
 function get_current_columns_for_type(string $table, ?int $campId = null): array{

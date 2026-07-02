@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="css/sortable-common.css">
 
 <div id="statsTableModal" class="ywbmodal">
-    <div class="modal-content">
+        <div class="modal-content">
         <div class="modal-body">
             <div class="form-group" style="max-width: 200px;">
                 <h5>Table Name</h5>
@@ -15,6 +15,7 @@
                     <h5>Columns
                         <span id="selectAllMetrics" class="header-checkbox-btn" title="Select All"><input type="checkbox" checked readonly></span>
                         <span id="deselectAllMetrics" class="header-checkbox-btn" title="Deselect All"><input type="checkbox" readonly></span>
+                        <button id="openCustomColumns" type="button" class="btn btn-sm btn-outline-primary" style="margin-left: 8px;">+ Formula</button>
                     </h5>
                     <div class="columns-container">
                         <div id="metricsColumns" class="metricsColumns"></div>
@@ -48,6 +49,19 @@
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" id="cancelTableBtn">Cancel</button>
             <button type="button" class="btn btn-primary" id="saveTableBtn">Save</button>
+        </div>
+
+        <div id="customColumnsModal" style="display:none; position:absolute; inset:14px; background:#0f172a; border:1px solid #2a3245; border-radius:12px; z-index:20; box-shadow:0 18px 50px rgba(0,0,0,0.45); overflow:hidden;">
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid #25324a;">
+                <h5 style="margin:0;">Custom Columns</h5>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <button id="addCustomColumn" type="button" class="btn btn-sm btn-outline-primary">+ Add Formula</button>
+                    <button id="closeCustomColumns" type="button" class="btn btn-sm btn-secondary">Done</button>
+                </div>
+            </div>
+            <div style="padding:14px 16px; max-height:min(70vh, 720px); overflow:auto;">
+                <div id="customColumnsList"></div>
+            </div>
         </div>
     </div>
 </div>

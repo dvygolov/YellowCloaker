@@ -7,6 +7,22 @@ require_once __DIR__ . "/../paths.php";
 
 class Db
 {
+    private const DERIVED_STATS_DEPENDENCIES = [
+        'uniques_ratio' => ['clicks', 'uniques'],
+        'cra' => ['clicks', 'conversion'],
+        'crs' => ['clicks', 'purchase'],
+        'appt' => ['purchase', 'conversion', 'trash'],
+        'app' => ['purchase', 'conversion'],
+        'roi' => ['revenue', 'costs'],
+        'epc' => ['revenue', 'clicks'],
+        'uepc' => ['revenue', 'uniques'],
+        'cpc' => ['costs', 'clicks'],
+        'ucpc' => ['costs', 'uniques'],
+        'ec' => ['revenue', 'conversion'],
+        'cpa' => ['costs', 'conversion'],
+        'profit' => ['revenue', 'costs'],
+    ];
+
     private $dbPath;
     private ?SQLite3 $readDb = null;
     private ?SQLite3 $writeDb = null;
@@ -71,6 +87,409 @@ class Db
             }
             $decoded = json_decode($click[$jsonField], true);
             $click[$jsonField] = is_array($decoded) ? $decoded : [];
+        }
+    }
+
+    public static function normalize_stats_columns_config(array $columns): array
+    {
+        $normalized = [];
+        foreach ($columns as $column) {
+            if (is_string($column)) {
+                $normalized[] = ['field' => $column, 'width' => -1];
+                continue;
+            }
+            if (!is_array($column)) {
+                continue;
+            }
+
+            $rawField = $column['field'] ?? '';
+            if (!is_string($rawField)) {
+                continue;
+            }
+            $field = trim($rawField);
+            if ($field === '') {
+                continue;
+            }
+
+            $normalizedColumn = ['field' => $field, 'width' => (int)($column['width'] ?? -1)];
+            if (!empty($column['custom'])) {
+                $custom = self::normalize_custom_metric_column($column);
+                if ($custom === null) {
+                    continue;
+                }
+                $normalizedColumn = array_merge($normalizedColumn, $custom, ['custom' => true]);
+            } elseif (isset($column['title']) && is_string($column['title']) && trim($column['title']) !== '') {
+                $normalizedColumn['title'] = trim($column['title']);
+            }
+
+            $normalized[] = $normalizedColumn;
+        }
+        return $normalized;
+    }
+
+    public static function normalize_custom_metric_column(array $column): ?array
+    {
+        $field = trim((string)($column['field'] ?? ''));
+        $title = trim((string)($column['title'] ?? ''));
+        $formula = strtolower(preg_replace('/\s+/', '', (string)($column['formula'] ?? '')));
+        $format = trim((string)($column['format'] ?? 'number'));
+        $decimals = max(0, min(8, (int)($column['decimals'] ?? 2)));
+
+        if (!preg_match('/^custom\.[a-z0-9_]+$/', $field) || $title === '' || $formula === '') {
+            return null;
+        }
+        if (!in_array($format, ['number', 'percent', 'currency'], true)) {
+            $format = 'number';
+        }
+
+        $dependencies = self::extract_formula_dependencies($formula);
+        if ($dependencies === null || $dependencies === []) {
+            return null;
+        }
+
+        return [
+            'field' => $field,
+            'title' => $title,
+            'formula' => $formula,
+            'format' => $format,
+            'decimals' => $decimals,
+        ];
+    }
+
+    public static function extract_formula_dependencies(string $formula): ?array
+    {
+        $tokens = self::tokenize_formula($formula);
+        if ($tokens === null) {
+            return null;
+        }
+
+        $deps = [];
+        foreach ($tokens as $token) {
+            if ($token['type'] !== 'field') {
+                continue;
+            }
+            $field = $token['value'];
+            if (str_starts_with($field, 'custom.')) {
+                return null;
+            }
+            $deps[$field] = $field;
+        }
+
+        return array_values($deps);
+    }
+
+    private static function tokenize_formula(string $formula): ?array
+    {
+        $formula = strtolower(preg_replace('/\s+/', '', $formula));
+        if ($formula === '') {
+            return null;
+        }
+
+        $tokens = [];
+        $offset = 0;
+        $length = strlen($formula);
+        while ($offset < $length) {
+            $chunk = substr($formula, $offset);
+            if (preg_match('/^([A-Za-z][A-Za-z0-9_\.]*|\d+(?:\.\d+)?|[()+\-*\/])/', $chunk, $matches) !== 1) {
+                return null;
+            }
+            $raw = $matches[1];
+            $offset += strlen($raw);
+
+            if (preg_match('/^\d+(?:\.\d+)?$/', $raw)) {
+                $tokens[] = ['type' => 'number', 'value' => (float)$raw];
+            } elseif (in_array($raw, ['+', '-', '*', '/', '(', ')'], true)) {
+                $tokens[] = ['type' => 'operator', 'value' => $raw];
+            } else {
+                if (!preg_match('/^(?:[a-z][a-z0-9_]*|event\.[a-z0-9_]+|custom\.[a-z0-9_]+)$/', $raw)) {
+                    return null;
+                }
+                $tokens[] = ['type' => 'field', 'value' => $raw];
+            }
+        }
+
+        if (!self::has_valid_formula_syntax($tokens)) {
+            return null;
+        }
+
+        return $tokens;
+    }
+
+    private static function has_valid_formula_syntax(array $tokens): bool
+    {
+        if ($tokens === []) {
+            return false;
+        }
+
+        $balance = 0;
+        $expectsOperand = true;
+
+        foreach ($tokens as $token) {
+            if ($token['type'] === 'number' || $token['type'] === 'field') {
+                if (!$expectsOperand) {
+                    return false;
+                }
+                $expectsOperand = false;
+                continue;
+            }
+
+            $op = $token['value'];
+            if ($op === '(') {
+                if (!$expectsOperand) {
+                    return false;
+                }
+                $balance++;
+                continue;
+            }
+
+            if ($op === ')') {
+                if ($expectsOperand || $balance === 0) {
+                    return false;
+                }
+                $balance--;
+                $expectsOperand = false;
+                continue;
+            }
+
+            if ($expectsOperand) {
+                if ($op === '-') {
+                    continue;
+                }
+                return false;
+            }
+
+            $expectsOperand = true;
+        }
+
+        return $balance === 0 && !$expectsOperand;
+    }
+
+    private static function evaluate_formula(string $formula, array $values): float
+    {
+        $tokens = self::tokenize_formula($formula);
+        if ($tokens === null) {
+            return 0.0;
+        }
+
+        $output = [];
+        $operators = [];
+        $precedence = ['+' => 1, '-' => 1, '*' => 2, '/' => 2];
+
+        foreach ($tokens as $index => $token) {
+            if ($token['type'] === 'number') {
+                $output[] = $token;
+                continue;
+            }
+            if ($token['type'] === 'field') {
+                $output[] = ['type' => 'number', 'value' => (float)($values[$token['value']] ?? 0.0)];
+                continue;
+            }
+
+            $op = $token['value'];
+            if ($op === '(') {
+                $operators[] = $op;
+                continue;
+            }
+            if ($op === ')') {
+                while (!empty($operators) && end($operators) !== '(') {
+                    $output[] = ['type' => 'operator', 'value' => array_pop($operators)];
+                }
+                if (empty($operators)) {
+                    return 0.0;
+                }
+                array_pop($operators);
+                continue;
+            }
+
+            $previous = $tokens[$index - 1]['value'] ?? null;
+            if ($op === '-' && ($index === 0 || in_array($previous, ['+', '-', '*', '/', '('], true))) {
+                $output[] = ['type' => 'number', 'value' => 0.0];
+            }
+
+            while (!empty($operators)) {
+                $top = end($operators);
+                if ($top === '(' || ($precedence[$top] ?? 0) < ($precedence[$op] ?? 0)) {
+                    break;
+                }
+                $output[] = ['type' => 'operator', 'value' => array_pop($operators)];
+            }
+            $operators[] = $op;
+        }
+
+        while (!empty($operators)) {
+            $op = array_pop($operators);
+            if ($op === '(' || $op === ')') {
+                return 0.0;
+            }
+            $output[] = ['type' => 'operator', 'value' => $op];
+        }
+
+        $stack = [];
+        foreach ($output as $token) {
+            if ($token['type'] === 'number') {
+                $stack[] = (float)$token['value'];
+                continue;
+            }
+            if (count($stack) < 2) {
+                return 0.0;
+            }
+            $b = array_pop($stack);
+            $a = array_pop($stack);
+            $stack[] = match ($token['value']) {
+                '+' => $a + $b,
+                '-' => $a - $b,
+                '*' => $a * $b,
+                '/' => abs($b) < 1e-12 ? 0.0 : $a / $b,
+                default => 0.0,
+            };
+        }
+
+        if (count($stack) !== 1 || !is_finite($stack[0])) {
+            return 0.0;
+        }
+        return (float)$stack[0];
+    }
+
+    private static function split_requested_stats_columns(array $selectedColumns): array
+    {
+        $normalizedColumns = self::normalize_stats_columns_config($selectedColumns);
+        $selectedFields = [];
+        $customColumns = [];
+        foreach ($normalizedColumns as $column) {
+            $field = $column['field'];
+            $selectedFields[] = $field;
+            if (!empty($column['custom'])) {
+                $customColumns[] = $column;
+            }
+        }
+
+        if ($normalizedColumns === [] && $selectedColumns !== []) {
+            foreach ($selectedColumns as $field) {
+                if (is_string($field)) {
+                    $selectedFields[] = $field;
+                }
+            }
+        }
+
+        return [$selectedFields, $customColumns, $normalizedColumns];
+    }
+
+    private static function apply_custom_columns_to_tree(array &$tree, array $customColumns): void
+    {
+        foreach ($tree as &$row) {
+            self::apply_custom_columns_to_row($row, $customColumns);
+            if (!empty($row['_children']) && is_array($row['_children'])) {
+                self::apply_custom_columns_to_tree($row['_children'], $customColumns);
+            }
+        }
+    }
+
+    private static function apply_custom_columns_to_row(array &$row, array $customColumns): void
+    {
+        foreach ($customColumns as $column) {
+            $row[$column['field']] = round(self::evaluate_formula($column['formula'], $row), 8);
+        }
+    }
+
+    private static function expand_stats_dependencies(array $fields): array
+    {
+        $expanded = [];
+        $queue = array_values($fields);
+
+        while ($queue !== []) {
+            $field = array_shift($queue);
+            if (!is_string($field) || $field === '' || in_array($field, $expanded, true)) {
+                continue;
+            }
+
+            $expanded[] = $field;
+            foreach (self::DERIVED_STATS_DEPENDENCIES[$field] ?? [] as $dependency) {
+                if (!in_array($dependency, $expanded, true)) {
+                    $queue[] = $dependency;
+                }
+            }
+        }
+
+        return $expanded;
+    }
+
+    private static function filter_tree_fields(array &$tree, array $allowedFields): void
+    {
+        foreach ($tree as &$row) {
+            $children = [];
+            if (isset($row['_children']) && is_array($row['_children'])) {
+                $children = $row['_children'];
+                self::filter_tree_fields($children, $allowedFields);
+            }
+
+            $filtered = [];
+            foreach ($allowedFields as $field) {
+                if (array_key_exists($field, $row)) {
+                    $filtered[$field] = $row[$field];
+                }
+            }
+            if (array_key_exists('group', $row)) {
+                $filtered['group'] = $row['group'];
+            }
+            if ($children !== []) {
+                $filtered['_children'] = $children;
+            }
+            if (isset($row['_stats_totals']) && is_array($row['_stats_totals'])) {
+                $filtered['_stats_totals'] = $row['_stats_totals'];
+            }
+
+            $row = $filtered;
+        }
+    }
+
+    private static function filter_stats_totals_fields(array $totals, array $allowedFields): array
+    {
+        $filtered = [];
+        foreach ($allowedFields as $field) {
+            if (array_key_exists($field, $totals)) {
+                $filtered[$field] = $totals[$field];
+            }
+        }
+        return $filtered;
+    }
+
+    private static function attach_stats_totals_to_tree(array &$tree, array $totals): void
+    {
+        foreach ($tree as &$row) {
+            $row['_stats_totals'] = $totals;
+            if (!empty($row['_children']) && is_array($row['_children'])) {
+                self::attach_stats_totals_to_tree($row['_children'], $totals);
+            }
+        }
+    }
+
+    private static function sort_tree(array &$tree, array $orderby): void
+    {
+        if (!empty($orderby)) {
+            usort($tree, function ($a, $b) use ($orderby) {
+                foreach ($orderby as $rule) {
+                    $field = $rule['field'] ?? '';
+                    $dir = $rule['dir'] ?? 'asc';
+                    $va = $a[$field] ?? 0;
+                    $vb = $b[$field] ?? 0;
+                    $cmp = is_numeric($va) && is_numeric($vb)
+                        ? ((float)$va <=> (float)$vb)
+                        : strcasecmp((string)$va, (string)$vb);
+                    if ($dir === 'desc') {
+                        $cmp = -$cmp;
+                    }
+                    if ($cmp !== 0) {
+                        return $cmp;
+                    }
+                }
+                return 0;
+            });
+        }
+
+        foreach ($tree as &$row) {
+            if (!empty($row['_children']) && is_array($row['_children'])) {
+                self::sort_tree($row['_children'], $orderby);
+            }
         }
     }
 
@@ -169,49 +588,6 @@ class Db
             $this->writeDb->close();
             $this->writeDb = null;
         }
-    }
-
-    public function get_trafficback_clicks($startdate, $enddate): array
-    {
-        $query = "SELECT * FROM trafficback WHERE time BETWEEN :startDate AND :endDate ORDER BY time DESC";
-        $clicks = $this->exec_read_query($query, [$startdate => SQLITE3_INTEGER, $enddate => SQLITE3_INTEGER]);
-        foreach ($clicks as &$click) {
-            if (empty($click['params']))
-                continue;
-            $click['params'] = json_decode($click['params'], true);
-            if ($click['params'] === null && json_last_error() !== JSON_ERROR_NONE) {
-                add_log("errors", "Failed to parse trafficback params JSON for row " . $click['id'] . ": " . json_last_error_msg());
-                $click['params'] = [];
-            }
-        }
-        return $clicks;
-    }
-
-    private function get_campaign_clicks(int $startdate, int $enddate, int $campId, bool $blocked = false): array
-    {
-        $query = "SELECT * FROM " . ($blocked ? "blocked" : "clicks") . " WHERE time BETWEEN :startDate AND :endDate AND campaign_id = :campid ORDER BY time DESC";
-        $clicks = $this->exec_read_query($query, [$startdate => SQLITE3_INTEGER, $enddate => SQLITE3_INTEGER, $campId => SQLITE3_INTEGER]);
-        foreach ($clicks as &$click) {
-            if (!$blocked) {
-                self::decode_click_row($click);
-            } elseif (!empty($click['params'])) {
-                $click['params'] = json_decode($click['params'], true);
-                if ($click['params'] === null && json_last_error() !== JSON_ERROR_NONE) {
-                    add_log("errors", "Failed to parse trafficback params JSON for row " . $click['id'] . ": " . json_last_error_msg());
-                    $click['params'] = [];
-                }
-            }
-        }
-        return $clicks;
-    }
-
-    public function get_white_clicks(int $startdate, int $enddate, int $campId): array
-    {
-        return $this->get_campaign_clicks($startdate, $enddate, $campId, true);
-    }
-    public function get_black_clicks(int $startdate, int $enddate, int $campId): array
-    {
-        return $this->get_campaign_clicks($startdate, $enddate, $campId, false);
     }
 
     public function get_clicks_paginated(string $filter, int $startdate, int $enddate, ?int $campId, int $page, int $size, string $sortField = 'time', string $sortDir = 'desc', array $filters = [], array $paramColumns = [], string $searchTerm = ''): array
@@ -355,45 +731,6 @@ class Db
             self::decode_click_row($click);
         }
         return $clicks[0] ?? [];
-    }
-
-    public function get_clicks_by_userid(string $userid, int $campId = 0): array
-    {
-        if (empty($userid)) {
-            add_log("trace", "Skipping clicks retrieval - empty userid provided");
-            return [];
-        }
-
-        $query = "SELECT * FROM clicks WHERE userid = :userid";
-        $params = [$userid => SQLITE3_TEXT];
-        if ($campId > 0) {
-            $query .= " AND campaign_id = :cid";
-            $params[$campId] = SQLITE3_INTEGER;
-        }
-        $query .= " ORDER BY time DESC LIMIT 1";
-        $clicks = $this->exec_read_query($query, $params);
-        foreach ($clicks as &$click) {
-            self::decode_click_row($click);
-        }
-        return $clicks[0] ?? [];
-    }
-
-    public function get_leads($startdate, $enddate, $campId): array
-    {
-        // Prepare SQL query to select leads within the date range and configuration
-        $query = "SELECT * FROM clicks WHERE time BETWEEN :startDate AND :endDate AND campaign_id = :campid AND status IS NOT NULL ORDER BY time DESC";
-
-        $clicks = $this->exec_read_query($query, [$startdate => SQLITE3_INTEGER, $enddate => SQLITE3_INTEGER, $campId => SQLITE3_INTEGER]);
-        foreach ($clicks as &$click) {
-            if (empty($click['params']))
-                continue;
-            $click['params'] = json_decode($click['params'], true);
-            if ($click['params'] === null && json_last_error() !== JSON_ERROR_NONE) {
-                add_log("errors", "Failed to parse trafficback params JSON for row " . $click['id'] . ": " . json_last_error_msg());
-                $click['params'] = [];
-            }
-        }
-        return $clicks;
     }
 
     private function get_stats_select_parts(array $selectedFields): array
@@ -576,7 +913,7 @@ class Db
     }
 
     public function get_statistics(
-        array $selectedFields,
+        array $selectedColumns,
         array $groupByFields,
         int $campId,
         string $startDate,
@@ -585,13 +922,24 @@ class Db
         array $filters = [],
         array $orderby = []
     ): array {
+        [$selectedFields, $customColumns] = self::split_requested_stats_columns($selectedColumns);
+        $queryFields = $selectedFields;
+        foreach ($customColumns as $customColumn) {
+            foreach (self::extract_formula_dependencies($customColumn['formula']) ?? [] as $dependency) {
+                if (!in_array($dependency, $queryFields, true)) {
+                    $queryFields[] = $dependency;
+                }
+            }
+        }
+        $queryFields = self::expand_stats_dependencies($queryFields);
+
         $baseQuery =
             "SELECT %s FROM clicks c WHERE campaign_id = :campid AND time BETWEEN :startDate AND :endDate";
         $selectParts = [];
         $groupByParts = [];
         $orderByParts = [];
 
-        $selectParts = $this->get_stats_select_parts($selectedFields);
+        $selectParts = $this->get_stats_select_parts($queryFields);
 
         [$filterWhere, $filterBinds] = $this->buildFilterWhere($filters);
 
@@ -628,6 +976,9 @@ class Db
         }
 
         // Construct the SQL query
+        if ($selectParts === []) {
+            return [];
+        }
         $selectClause = implode(', ', $selectParts);
         $groupByClause = !empty($groupByParts) ? "GROUP BY " . implode(', ', $groupByParts) : '';
         $orderByClause = !empty($orderByParts) ? "ORDER BY " . implode(', ', $orderByParts) : '';
@@ -666,7 +1017,18 @@ class Db
         }, $groupByFields);
 
         // Build the tree structure
-        $tree = $this->build_tree($rows, $normalizedGroupBy, $selectedFields, 0, $orderby);
+        $tree = $this->build_tree($rows, $normalizedGroupBy, $queryFields, 0, $orderby);
+        if (!empty($customColumns)) {
+            $statsTotals = $this->calculate_totals($rows, $queryFields);
+            self::apply_custom_columns_to_row($statsTotals, $customColumns);
+            $statsTotals = self::filter_stats_totals_fields($statsTotals, $selectedFields);
+            self::apply_custom_columns_to_tree($tree, $customColumns);
+            self::sort_tree($tree, $orderby);
+        }
+        self::filter_tree_fields($tree, $selectedFields);
+        if (!empty($customColumns)) {
+            self::attach_stats_totals_to_tree($tree, $statsTotals);
+        }
         return $tree;
     }
 
@@ -716,18 +1078,7 @@ class Db
         }
 
         if (!empty($orderby)) {
-            usort($tree, function ($a, $b) use ($orderby) {
-                foreach ($orderby as $rule) {
-                    $field = $rule['field'] ?? '';
-                    $dir = $rule['dir'] ?? 'asc';
-                    $va = $a[$field] ?? 0;
-                    $vb = $b[$field] ?? 0;
-                    $cmp = $va <=> $vb;
-                    if ($dir === 'desc') $cmp = -$cmp;
-                    if ($cmp !== 0) return $cmp;
-                }
-                return 0;
-            });
+            self::sort_tree($tree, $orderby);
         }
 
         return $tree;

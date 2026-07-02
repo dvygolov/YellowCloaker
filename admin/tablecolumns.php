@@ -4,8 +4,84 @@ require_once __DIR__ . '/clmns.php';
 
 class Tabulator
 {
+    private static function custom_metric_formatter(array $column): array
+    {
+        $format = $column['format'] ?? 'number';
+        $decimals = max(0, (int)($column['decimals'] ?? 2));
+
+        if ($format === 'percent') {
+            return [
+                'formatter' => 'money',
+                'formatterParams' => [
+                    'decimal' => '.',
+                    'thousand' => ',',
+                    'symbol' => '%',
+                    'symbolAfter' => true,
+                    'precision' => $decimals,
+                ],
+                'bottomCalcFormatter' => 'money',
+                'bottomCalcFormatterParams' => [
+                    'decimal' => '.',
+                    'thousand' => ',',
+                    'symbol' => '%',
+                    'symbolAfter' => true,
+                    'precision' => $decimals,
+                ],
+            ];
+        }
+
+        if ($format === 'currency') {
+            return [
+                'formatter' => 'money',
+                'formatterParams' => [
+                    'decimal' => '.',
+                    'thousand' => ',',
+                    'precision' => $decimals,
+                ],
+                'bottomCalcFormatter' => 'money',
+                'bottomCalcFormatterParams' => [
+                    'decimal' => '.',
+                    'thousand' => ',',
+                    'precision' => $decimals,
+                ],
+            ];
+        }
+
+        return [
+            'formatter' => 'money',
+            'formatterParams' => [
+                'decimal' => '.',
+                'thousand' => ',',
+                'precision' => $decimals,
+            ],
+            'bottomCalcFormatter' => 'money',
+            'bottomCalcFormatterParams' => [
+                'decimal' => '.',
+                'thousand' => ',',
+                'precision' => $decimals,
+            ],
+        ];
+    }
+
+    private static function build_custom_metric_column(array $column): array
+    {
+        $field = $column['field'];
+        $title = $column['title'] ?? $field;
+        $escapedField = addcslashes($field, "'\\");
+        $tabulatorColumn = [
+            'title' => $title,
+            'field' => $field,
+            'sorter' => 'number',
+            'hozAlign' => 'right',
+            'bottomCalc' => 'FSTARTfunction(values,data){var totals=(data&&data[0]&&data[0]._stats_totals)||{};var result=((totals[\'' . $escapedField . '\'] ?? 0) * 1);return isFinite(result)?result:0;}FEND',
+        ];
+
+        return array_merge($tabulatorColumn, self::custom_metric_formatter($column));
+    }
+
     public static function get_stats_columns(array $columns, ?string $groupByClmnTitle = null, array $groupByFields = []): string
     {
+        $columns = Db::normalize_stats_columns_config($columns);
         $columnSettings = TableColumns::$statsClmns;
         $tabulatorColumns = [];
 
@@ -24,6 +100,8 @@ class Tabulator
             $width = $columns[$i]['width'] ?? -1;
             if (array_key_exists($field, $columnSettings)) {
                 $tabulatorColumns[] = $columnSettings[$field];
+            } elseif (!empty($columns[$i]['custom'])) {
+                $tabulatorColumns[] = self::build_custom_metric_column($columns[$i]);
             } elseif (str_starts_with($field, 'event.')) {
                 $title = $columns[$i]['title'] ?? ucwords(str_replace('_', ' ', substr($field, 6)));
                 $tabulatorColumns[] = [

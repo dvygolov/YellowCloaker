@@ -19,7 +19,7 @@ if (count($ss->tables)>0){
     $tFilters = isset($tSettings->filters) ? (array)$tSettings->filters : [];
     $tOrderby = isset($tSettings->orderby) ? $tSettings->orderby : [];
     $dataset = $db->get_statistics(
-        array_column($tSettings->columns, 'field'),
+        $tSettings->columns,
         $tSettings->groupby,
         $campId,
         $timeRange[0],
