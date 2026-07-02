@@ -179,16 +179,17 @@ $dataset = $db->get_campaigns(
             document.getElementById("trafficBack").onclick = async () => {
                 let tbUrl = prompt("Enter trafficback url:", "<?= $gs['trafficBackUrl'] ?>");
                 if (tbUrl === null) return;
-                let res = await fetch("clmnseditor.php?action=trafficback", {
+                let res = await fetch("commonseditor.php?action=trafficback", {
                     method: "POST",
                     body: tbUrl,
                 });
-                if (!res['error']) {
+                let js = await res.json();
+                if (!js.error) {
                     alert('TrafficBack url saved!');
                     window.location.reload();
                 }
                 else
-                    alert('Error saving trafficback url:' + res['msg']);
+                    alert('Error saving trafficback url: ' + js.result);
             };
 
             document.getElementById("trafficBackStats").onclick = () => {
