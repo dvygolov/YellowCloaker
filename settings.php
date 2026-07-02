@@ -16,10 +16,6 @@ $cloSettings =
 //downloading your database, or just rename the db file so security through obscurity will work! :-D
 "dbConnection" => "clicks.db",
 
-//if you want to automatically update MaxMind's geobases 
-//then go to maxmind.com, register, get API key and put it here
-"maxMindKey" => "",
-
 //set to true if you want to use universal thankyou page (UTP) instead of the thankyou pages from your landings, 
 //UTP autotranslates itself to the user's language and lets you effortlessy 
 //manage pixels for Facebook/TikTok/Google and other sources.

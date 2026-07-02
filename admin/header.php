@@ -11,7 +11,7 @@ function get_bases_version(): string
     }
 
     $missing = [];
-    foreach (['GeoLite2-Country.mmdb', 'GeoLite2-ASN.mmdb'] as $file) {
+    foreach (['country.mmdb', 'asn.mmdb'] as $file) {
         if (!is_readable($basesDir . "/" . $file)) {
             $missing[] = $file;
         }

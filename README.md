@@ -51,7 +51,7 @@ Yellow TDS — TDS для маршрутизации трафика по пра�
 curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/main/install.sh | sudo bash
 ```
 
-Скрипт спросит домен, проверит DNS-привязку к VPS, поставит nginx/PHP/HTTPS, C-расширение MaxMind и предложит скачать GeoLite2 базы.
+Скрипт спросит домен, проверит DNS-привязку к VPS, поставит nginx/PHP/HTTPS, C-расширение MMDB и скачает геобазы из `sapics/ip-location-db`.
 
 Чтобы добавить к уже установленному инстансу несколько новых доменов:
 

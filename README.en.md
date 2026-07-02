@@ -47,7 +47,7 @@ For a clean Debian/Ubuntu VPS, use the auto-installer:
 curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/main/install.sh | sudo bash
 ```
 
-The script asks for a domain, verifies DNS points to the VPS, installs nginx/PHP/HTTPS, the MaxMind C extension, and offers to download GeoLite2 databases.
+The script asks for a domain, verifies DNS points to the VPS, installs nginx/PHP/HTTPS, the MMDB C extension, and downloads geobases from `sapics/ip-location-db`.
 
 To add multiple domains to an existing instance:
 

@@ -3,8 +3,6 @@ require_once __DIR__ . '/../logging.php';
 if (!extension_loaded('maxminddb')) {
     require_once __DIR__ . '/geoip2.phar';
 }
-use GeoIp2\Database\Reader as GeoIp2Reader;
-use GeoIp2\Exception\AddressNotFoundException as ANFException;
 
 function getip(array|null $headers = null): string
 {
@@ -72,22 +70,20 @@ function getcountry(string $ip): string
         $ip = '31.177.76.70'; //for debugging
 
     if (use_maxminddb_extension()) {
-        $record = read_maxminddb_record('GeoLite2-Country.mmdb', $ip);
+        $record = read_maxminddb_record('country.mmdb', $ip);
         if ($record === null) {
             add_log("bases", "GetCountry AddressNotFoundException: $ip");
             return 'Unknown';
         }
-        return (string)($record['country']['iso_code'] ?? 'Unknown');
+        return get_country_code_from_record($record);
     }
 
-    $reader = open_geoip_reader('GeoLite2-Country.mmdb');
-    try {
-        $record = $reader->country($ip);
-        return $record->country->isoCode;
-    } catch (ANFException $exception) {
+    $record = read_maxminddb_record('country.mmdb', $ip);
+    if ($record === null) {
         add_log("bases", "GetCountry AddressNotFoundException: $ip");
         return 'Unknown';
     }
+    return get_country_code_from_record($record);
 }
 
 function getisp(string $ip)
@@ -97,36 +93,38 @@ function getisp(string $ip)
         $ip = '31.177.76.70'; //for debugging
 
     if (use_maxminddb_extension()) {
-        $record = read_maxminddb_record('GeoLite2-ASN.mmdb', $ip);
+        $record = read_maxminddb_record('asn.mmdb', $ip);
         if ($record === null) {
             add_log("bases", "GetISP AddressNotFoundException: $ip");
             return 'Unknown';
         }
-        return $record['autonomous_system_organization'] ?? 'Unknown';
+        return get_asn_organization_from_record($record);
     }
 
-    $reader = open_geoip_reader('GeoLite2-ASN.mmdb');
-    try {
-        $record = $reader->asn($ip);
-        return $record->autonomousSystemOrganization;
-    } catch (ANFException $exception) {
+    $record = read_maxminddb_record('asn.mmdb', $ip);
+    if ($record === null) {
         add_log("bases", "GetISP AddressNotFoundException: $ip");
         return 'Unknown';
     }
+    return get_asn_organization_from_record($record);
 }
 
-function open_geoip_reader(string $fileName): object
+function get_country_code_from_record(?array $record): string
 {
-    $path = __DIR__ . '/' . $fileName;
-    if (!is_readable($path)) {
-        throw new RuntimeException("Configuration error: GeoIP database is missing or unreadable: $path. Set maxMindKey in settings.php and run bases/update.php, or upload $fileName manually.");
+    if (!is_array($record)) {
+        return 'Unknown';
     }
 
-    try {
-        return new GeoIp2Reader($path);
-    } catch (Throwable $exception) {
-        throw new RuntimeException("Configuration error: GeoIP database cannot be opened: $path. " . $exception->getMessage(), 0, $exception);
+    return (string)($record['country_code'] ?? 'Unknown');
+}
+
+function get_asn_organization_from_record(?array $record): string
+{
+    if (!is_array($record)) {
+        return 'Unknown';
     }
+
+    return (string)($record['autonomous_system_organization'] ?? 'Unknown');
 }
 
 function use_maxminddb_extension(): bool
@@ -138,7 +136,7 @@ function read_maxminddb_record(string $fileName, string $ip): ?array
 {
     $path = __DIR__ . '/' . $fileName;
     if (!is_readable($path)) {
-        throw new RuntimeException("Configuration error: GeoIP database is missing or unreadable: $path. Set maxMindKey in settings.php and run bases/update.php, or upload $fileName manually.");
+        throw new RuntimeException("Configuration error: GeoIP database is missing or unreadable: $path. Run bases/update.php, or upload $fileName manually.");
     }
 
     try {

@@ -34,7 +34,6 @@ Environment variables:
   YELLOWTDS_DOMAINS      Comma-separated domains for --add-domain
   YELLOWTDS_APP_DIR      Installation directory or existing app directory
   YELLOWTDS_REPO_ZIP     Repository ZIP URL for curl-pipe installs
-  MAXMIND_LICENSE_KEY    Optional MaxMind license key for GeoLite2 downloads
   SKIP_SSL=1             Skip certbot, useful for test environments
 EOF
 }
@@ -252,7 +251,7 @@ install_dependencies() {
     info "[2/5] Preparing PHP ${PHP_VER} repository..."
     ensure_php_repository
 
-    info "[3/5] Installing nginx, PHP, HTTPS tools, and MaxMind build dependencies..."
+    info "[3/5] Installing nginx, PHP, HTTPS tools, and MMDB build dependencies..."
     apt-get install -y -qq \
         -o Dpkg::Options::="--force-confdef" \
         -o Dpkg::Options::="--force-confold" \
@@ -283,7 +282,7 @@ install_maxmind_extension() {
     php${PHP_VER} -r 'exit(extension_loaded("maxminddb") ? 0 : 1);' \
         || fail "PHP extension maxminddb is not loaded"
 
-    success "MaxMind C-extension is installed and loaded"
+    success "MMDB C-extension is installed and loaded"
 }
 
 copy_application() {
@@ -377,59 +376,42 @@ set_permissions() {
     find "$app_dir/db" "$app_dir/logs" "$app_dir/ycclogs" "$app_dir/tmp" "$app_dir/caching" "$app_dir/bases" -type f -exec chmod 0664 {} \;
 }
 
-download_maxmind_database() {
-    local license_key="$1"
-    local edition="$2"
+download_sapics_database() {
+    local source_name="$1"
+    local output_name="$2"
     local target_dir="$3"
     local temp_dir
-    local archive
-    local mmdb_path
+    local temp_file
 
     temp_dir="$(mktemp -d)"
-    archive="${temp_dir}/${edition}.tar.gz"
+    temp_file="${temp_dir}/${output_name}"
 
-    curl -fsSL "https://download.maxmind.com/app/geoip_download?edition_id=${edition}&license_key=${license_key}&suffix=tar.gz" \
-        -o "$archive" || {
+    curl -fsSL "https://github.com/sapics/ip-location-db/releases/download/latest/${source_name}" \
+        -o "$temp_file" || {
             rm -rf "$temp_dir"
-            fail "Failed to download ${edition} from MaxMind"
+            fail "Failed to download ${source_name} from sapics/ip-location-db"
         }
 
-    mmdb_path="$(tar -tzf "$archive" | grep '/.*\.mmdb$' | head -n 1 || true)"
-    [ -n "$mmdb_path" ] || {
+    mv "$temp_file" "${target_dir}/${output_name}" || {
         rm -rf "$temp_dir"
-        fail "MaxMind archive for ${edition} does not contain an .mmdb file"
+        fail "Failed to install ${output_name}"
     }
-
-    tar -xOzf "$archive" "$mmdb_path" > "${target_dir}/${edition}.mmdb" \
-        || {
-            rm -rf "$temp_dir"
-            fail "Failed to extract ${edition}.mmdb"
-        }
     rm -rf "$temp_dir"
 }
 
-maybe_download_maxmind_databases() {
+download_geo_databases() {
     local app_dir="$1"
-    local license_key="${MAXMIND_LICENSE_KEY:-}"
 
-    if [ -z "$license_key" ]; then
-        read -r -p "Enter MaxMind license key to download GeoLite2 databases, or press Enter to skip: " license_key < /dev/tty
-    fi
-
-    if [ -z "$license_key" ]; then
-        echo -e "${YELLOW}WARNING: MaxMind databases were not downloaded.${NC}"
-        echo -e "${YELLOW}Upload GeoLite2-Country.mmdb and GeoLite2-ASN.mmdb to: ${app_dir}/bases/${NC}"
-        echo -e "${YELLOW}GeoIP filters will fail until these files exist.${NC}"
-        return 0
-    fi
-
-    info "Downloading MaxMind GeoLite2 databases..."
+    info "Downloading GeoBases from sapics/ip-location-db..."
     mkdir -p "$app_dir/bases"
-    download_maxmind_database "$license_key" "GeoLite2-Country" "$app_dir/bases"
-    download_maxmind_database "$license_key" "GeoLite2-ASN" "$app_dir/bases"
-    chown www-data:www-data "$app_dir/bases/GeoLite2-Country.mmdb" "$app_dir/bases/GeoLite2-ASN.mmdb"
-    chmod 0664 "$app_dir/bases/GeoLite2-Country.mmdb" "$app_dir/bases/GeoLite2-ASN.mmdb"
-    success "MaxMind databases downloaded"
+    download_sapics_database "geolite2-country.mmdb" "country.mmdb" "$app_dir/bases"
+    download_sapics_database "origin-asn.mmdb" "asn.mmdb" "$app_dir/bases"
+    chown www-data:www-data "$app_dir/bases/country.mmdb" "$app_dir/bases/asn.mmdb"
+    chmod 0664 "$app_dir/bases/country.mmdb" "$app_dir/bases/asn.mmdb"
+    date '+%d.%m.%y' > "$app_dir/bases/update.txt"
+    chown www-data:www-data "$app_dir/bases/update.txt"
+    chmod 0664 "$app_dir/bases/update.txt"
+    success "GeoBases downloaded"
 }
 
 write_nginx_config() {
@@ -545,7 +527,7 @@ run_full_install() {
     info "[5/5] Installing application to $app_dir..."
     copy_application "$app_dir"
     set_permissions "$app_dir"
-    maybe_download_maxmind_databases "$app_dir"
+    download_geo_databases "$app_dir"
     set_permissions "$app_dir"
 
     configure_domain "$domain" "$app_dir" "$public_ip"

@@ -19,7 +19,7 @@ class InstallerScriptTest extends TestCase
         $this->assertStringNotContainsString('licensing', $this->script);
     }
 
-    public function testInstallerInstallsAndVerifiesMaxMindExtension(): void
+    public function testInstallerInstallsAndVerifiesMmdbExtension(): void
     {
         $this->assertStringContainsString('libmaxminddb0 libmaxminddb-dev', $this->script);
         $this->assertStringContainsString('php${PHP_VER}-dev php-pear', $this->script);
@@ -36,6 +36,14 @@ class InstallerScriptTest extends TestCase
         $this->assertStringContainsString("require_once __DIR__ . '/geoip2.phar';", $source);
         $this->assertStringContainsString('new \MaxMind\Db\Reader($path)', $source);
         $this->assertStringContainsString("class_exists('\\\\MaxMind\\\\Db\\\\Reader', false)", $source);
+    }
+
+    public function testInstallerDownloadsGeoBasesFromSapicsReleases(): void
+    {
+        $this->assertStringContainsString('https://github.com/sapics/ip-location-db/releases/download/latest/${source_name}', $this->script);
+        $this->assertStringContainsString('download_sapics_database "geolite2-country.mmdb" "country.mmdb"', $this->script);
+        $this->assertStringContainsString('download_sapics_database "origin-asn.mmdb" "asn.mmdb"', $this->script);
+        $this->assertStringNotContainsString('MAXMIND_LICENSE_KEY', $this->script);
     }
 
     public function testInstallerSupportsBatchAddDomainMode(): void

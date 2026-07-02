@@ -1,6 +1,6 @@
 # VPS Installation
 
-YellowTDS can be installed on a clean Debian/Ubuntu VPS with `install.sh`. The script installs nginx, PHP-FPM, an HTTPS certificate, the MaxMind C extension for faster GeoLite2 database reads, and blocks external access to private runtime files such as SQLite databases, logs, temp files, settings, MaxMind databases, and repository metadata.
+YellowTDS can be installed on a clean Debian/Ubuntu VPS with `install.sh`. The script installs nginx, PHP-FPM, an HTTPS certificate, the MMDB C extension for faster geobase reads, and blocks external access to private runtime files such as SQLite databases, logs, temp files, settings, MMDB databases, and repository metadata.
 
 ## Short Command
 
@@ -15,8 +15,7 @@ The script asks for the primary domain. Before issuing the certificate, it verif
 - installs nginx, PHP 8.4 FPM/CLI, SQLite, curl, mbstring, zip/xml, and certbot;
 - installs `libmaxminddb` and the PECL `maxminddb` extension;
 - enables `maxminddb` for PHP CLI and FPM and verifies the extension is loaded;
-- asks for a MaxMind license key to download `GeoLite2-Country.mmdb` and `GeoLite2-ASN.mmdb` into `bases/`;
-- if the MaxMind key is skipped, warns that both database files must be placed in `bases/` manually;
+- downloads `country.mmdb` and `asn.mmdb` from `sapics/ip-location-db` GitHub Releases into `bases/`;
 - configures writable permissions for `db/`, `logs/`, `ycclogs/`, `tmp/`, `caching/`, and `bases/`;
 - creates the nginx config and issues an HTTPS certificate with certbot.
 
@@ -42,7 +41,7 @@ For automation, pass values non-interactively:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/main/install.sh \
-  | sudo YELLOWTDS_DOMAIN=tds.example.com MAXMIND_LICENSE_KEY=your_maxmind_key bash
+  | sudo YELLOWTDS_DOMAIN=tds.example.com bash
 ```
 
 For batch domain additions:
@@ -58,7 +57,6 @@ Supported variables:
 - `YELLOWTDS_DOMAINS` — comma-separated domains for `--add-domain`;
 - `YELLOWTDS_APP_DIR` — install directory or existing instance directory;
 - `YELLOWTDS_REPO_ZIP` — repository ZIP URL when a custom source is needed;
-- `MAXMIND_LICENSE_KEY` — MaxMind key for GeoLite2 downloads;
 - `SKIP_SSL=1` — skip certbot in test environments.
 
 ## Private File Protection

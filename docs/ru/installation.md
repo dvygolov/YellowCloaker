@@ -1,6 +1,6 @@
 # Установка на VPS
 
-YellowTDS можно установить на чистый Debian/Ubuntu VPS через `install.sh`. Скрипт ставит nginx, PHP-FPM, HTTPS-сертификат, C-расширение MaxMind для быстрого чтения GeoLite2 баз и закрывает извне приватные файлы: SQLite БД, логи, временные файлы, настройки, MaxMind базы и служебные файлы репозитория.
+YellowTDS можно установить на чистый Debian/Ubuntu VPS через `install.sh`. Скрипт ставит nginx, PHP-FPM, HTTPS-сертификат, C-расширение MMDB для быстрого чтения геобаз и закрывает извне приватные файлы: SQLite БД, логи, временные файлы, настройки, MMDB базы и служебные файлы репозитория.
 
 ## Короткая команда
 
@@ -15,8 +15,7 @@ curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/main/install.sh 
 - ставит nginx, PHP 8.4 FPM/CLI, SQLite, curl, mbstring, zip/xml и certbot;
 - ставит `libmaxminddb` и PECL-расширение `maxminddb`;
 - включает `maxminddb` для PHP CLI и FPM и проверяет загрузку расширения;
-- предлагает ввести MaxMind license key для скачивания `GeoLite2-Country.mmdb` и `GeoLite2-ASN.mmdb` в `bases/`;
-- если ключ MaxMind пропущен, предупреждает, что эти два файла нужно положить в `bases/` вручную;
+- скачивает `country.mmdb` и `asn.mmdb` из `sapics/ip-location-db` GitHub Releases в `bases/`;
 - настраивает права на `db/`, `logs/`, `ycclogs/`, `tmp/`, `caching/`, `bases/`;
 - создаёт nginx-конфиг и выпускает HTTPS-сертификат через certbot.
 
@@ -42,7 +41,7 @@ tds1.example.com,tds2.example.com,track.example.net
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/main/install.sh \
-  | sudo YELLOWTDS_DOMAIN=tds.example.com MAXMIND_LICENSE_KEY=your_maxmind_key bash
+  | sudo YELLOWTDS_DOMAIN=tds.example.com bash
 ```
 
 Для batch-добавления доменов:
@@ -58,7 +57,6 @@ curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/main/install.sh 
 - `YELLOWTDS_DOMAINS` — домены через запятую для `--add-domain`;
 - `YELLOWTDS_APP_DIR` — каталог установки или существующего инстанса;
 - `YELLOWTDS_REPO_ZIP` — URL ZIP-архива репозитория, если нужен нестандартный источник;
-- `MAXMIND_LICENSE_KEY` — ключ MaxMind для скачивания GeoLite2 баз;
 - `SKIP_SSL=1` — пропустить certbot в тестовом окружении.
 
 ## Защита приватных файлов

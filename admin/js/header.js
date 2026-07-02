@@ -218,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function() {
             loadingAnimation.style.display = 'inline';
             updateOverlay.style.display = 'flex';
             setupMatrixRain();
-            typingCleanup = typeText('GEOIP UPDATING...', typingText);
+            typingCleanup = typeText('GEOBASES UPDATING...', typingText);
 
             try {
                 const response = await fetch('../bases/update.php');

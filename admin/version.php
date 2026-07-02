@@ -1,7 +1,7 @@
 <?php
 function check_geo_bases() {
     $bases_dir = __DIR__ . '/../bases/';
-    $required_files = ['GeoLite2-Country.mmdb', 'GeoLite2-ASN.mmdb'];
+    $required_files = ['country.mmdb', 'asn.mmdb'];
     $missing_files = [];
     
     // Check if directory exists
@@ -39,7 +39,7 @@ function check_geo_bases() {
                 <span class="version-value"><?= file_get_contents(__DIR__.'/version.txt') ?></span>
             </div>
             <div class="version-item">
-                <span class="version-label">GeoIP:</span>
+                <span class="version-label">GeoBases:</span>
                 <span class="version-value"><?= check_geo_bases() ?></span>
             </div>
             <div class="version-item">
