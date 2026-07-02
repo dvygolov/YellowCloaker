@@ -6,6 +6,7 @@ Check:
 
 - `adminPassword`
 - `adminDomain`
+- `adminIp`
 - rate limiting
 
 ## Statistics are empty
@@ -16,4 +17,3 @@ Check:
 - timezone
 - filters
 - whether the campaign has clicks
-

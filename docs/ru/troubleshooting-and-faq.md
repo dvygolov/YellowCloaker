@@ -6,6 +6,7 @@
 
 - `adminPassword`
 - `adminDomain`
+- `adminIp`
 - блокировку по rate limit
 
 ## Пустая статистика
@@ -25,4 +26,3 @@
 - `status`
 - payout
 - mapping статусов
-
