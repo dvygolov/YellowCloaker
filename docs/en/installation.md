@@ -66,7 +66,7 @@ The installer nginx config denies direct access to:
 - SQLite/data files: `.db`, `.sqlite`, `.sqlite3`, `.db-wal`, `.db-shm`;
 - `settings.php`, `.env`, `.git`, SQL, log/cache/backup files;
 - `db/`, `logs/`, `ycclogs/`, `tmp/`;
-- private cache folders: `caching/devices`, `caching/currency`, `caching/whites_curl`;
+- private cache folders: `caching/devices`, `caching/currency`, `caching/proxyvpn`, `caching/whites_curl`;
 - `bases/*.mmdb`, `bases/*.phar`, `bases/*.txt`;
 - `composer.json`, `composer.lock`, `phpunit.xml`, `agents.md`, `AGENTS.md`.
 

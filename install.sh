@@ -315,6 +315,7 @@ copy_application() {
             --exclude='./ycclogs/*' \
             --exclude='./tmp/*' \
             --exclude='./caching/currency/*' \
+            --exclude='./caching/proxyvpn/*' \
             --exclude='./caching/devices/*' \
             --exclude='./caching/whites_curl/*' \
             -C "$SCRIPT_DIR" -cf - . | tar -C "$app_dir" -xf - \
@@ -346,6 +347,7 @@ copy_application() {
         --exclude='./ycclogs/*' \
         --exclude='./tmp/*' \
         --exclude='./caching/currency/*' \
+        --exclude='./caching/proxyvpn/*' \
         --exclude='./caching/devices/*' \
         --exclude='./caching/whites_curl/*' \
         -C "$source_dir" -cf - . | tar -C "$app_dir" -xf - \
@@ -361,7 +363,8 @@ set_permissions() {
 
     mkdir -p "$app_dir/db" "$app_dir/logs" "$app_dir/ycclogs" "$app_dir/tmp" \
         "$app_dir/caching/landings" "$app_dir/caching/whites" \
-        "$app_dir/caching/whites_curl" "$app_dir/caching/devices" "$app_dir/caching/currency"
+        "$app_dir/caching/whites_curl" "$app_dir/caching/devices" \
+        "$app_dir/caching/currency" "$app_dir/caching/proxyvpn"
 
     find "$app_dir" -type d -exec chmod 0755 {} \;
     find "$app_dir" -type f -exec chmod 0644 {} \;
@@ -414,6 +417,23 @@ download_geo_databases() {
     success "GeoBases downloaded"
 }
 
+setup_currency_cron() {
+    local app_dir="$1"
+    local php_bin
+    local cron_file="/etc/cron.d/yellowtds-currency"
+
+    php_bin="$(command -v php${PHP_VER} || command -v php)"
+    [ -n "$php_bin" ] || fail "PHP CLI binary not found for currency cron"
+
+    cat > "$cron_file" <<EOF
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+0 * * * * www-data cd ${app_dir} && ${php_bin} ${app_dir}/cron/refresh_currency_rates.php >> ${app_dir}/logs/currency-cron.log 2>&1
+EOF
+
+    chmod 0644 "$cron_file"
+}
+
 write_nginx_config() {
     local domain="$1"
     local app_dir="$2"
@@ -455,7 +475,7 @@ server {
         deny all;
     }
 
-    location ~* ^/caching/(?:devices|currency|whites_curl)(?:/|$) {
+    location ~* ^/caching/(?:devices|currency|proxyvpn|whites_curl)(?:/|$) {
         deny all;
     }
 
@@ -528,6 +548,7 @@ run_full_install() {
     copy_application "$app_dir"
     set_permissions "$app_dir"
     download_geo_databases "$app_dir"
+    setup_currency_cron "$app_dir"
     set_permissions "$app_dir"
 
     configure_domain "$domain" "$app_dir" "$public_ip"

@@ -44,7 +44,24 @@ $cloSettings =
 "devicesCache" => "devices",
 
 //folder for currency rate cache (inside cachingDir)
-"currencyCache" => "currency"
+"currencyCache" => "currency",
+
+//folder for proxy/VPN detection cache (inside cachingDir)
+"proxyVpnCache" => "proxyvpn",
+
+//external service plugins. Plugins are registered explicitly, no directory scanning.
+"plugins" => [
+    "currency" => [
+        "sources" => [
+            "frankfurter" => [],
+            "turkish" => ["RUB", "THB"]
+        ]
+    ],
+    "proxyVpn" => [
+        "mode" => "any",
+        "detectors" => ["blackbox", "ipintel"]
+    ]
+]
 ];
 
 function get_cache_path(string $subKey): string {

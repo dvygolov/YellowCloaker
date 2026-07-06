@@ -78,7 +78,7 @@ class InstallerScriptTest extends TestCase
             'location = /settings.php',
             '.(?:db|sqlite|sqlite3|db-wal|db-shm|sql|env|log|cache|bak|old|orig|swp|md)',
             '^/(?:db|logs|ycclogs|tmp)(?:/|$)',
-            '^/caching/(?:devices|currency|whites_curl)(?:/|$)',
+            '^/caching/(?:devices|currency|proxyvpn|whites_curl)(?:/|$)',
             '^/bases/.*\.(?:mmdb|phar|txt)$',
             'composer\.(?:json|lock)',
             'phpunit\.xml',
@@ -93,5 +93,12 @@ class InstallerScriptTest extends TestCase
         $this->assertStringContainsString('location ~ \.php$', $this->script);
         $this->assertStringNotContainsString('^/(?:caching|admin|js|scripts|thankyou)', $this->script);
         $this->assertStringNotContainsString('^/bases(?:/|$)', $this->script);
+    }
+
+    public function testInstallerSetsCurrencyRefreshCron(): void
+    {
+        $this->assertStringContainsString('/etc/cron.d/yellowtds-currency', $this->script);
+        $this->assertStringContainsString('cron/refresh_currency_rates.php', $this->script);
+        $this->assertStringContainsString('setup_currency_cron "$app_dir"', $this->script);
     }
 }

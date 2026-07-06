@@ -1,127 +1,216 @@
 <?php
+
 require_once __DIR__ . '/logging.php';
-require_once __DIR__ . '/requestfunc.php';
 require_once __DIR__ . '/settings.php';
+require_once __DIR__ . '/plugins/registry.php';
+
+class CurrencyRateManager
+{
+    public const CACHE_TTL = 21600;
+
+    private static function cacheDir(): string
+    {
+        return self::absolutePath(get_cache_path('currencyCache'));
+    }
+
+    private static function cacheFile(): string
+    {
+        return self::cacheDir() . '/rates.json';
+    }
+
+    private static function absolutePath(string $path): string
+    {
+        $isAbsolute = (DIRECTORY_SEPARATOR === '\\')
+            ? preg_match('/^[A-Za-z]:[\/\\\\]/', $path) === 1 || str_starts_with($path, '\\\\')
+            : str_starts_with($path, '/');
+        return $isAbsolute ? str_replace('\\', '/', $path) : __DIR__ . '/' . $path;
+    }
+
+    public static function isCacheFresh(): bool
+    {
+        $file = self::cacheFile();
+        return file_exists($file) && filemtime($file) > (time() - self::CACHE_TTL);
+    }
+
+    public static function refreshIfStale(): bool
+    {
+        if (self::isCacheFresh()) {
+            return true;
+        }
+        return self::refresh(true);
+    }
+
+    public static function refresh(bool $force = false): bool
+    {
+        if (!$force && self::isCacheFresh()) {
+            return true;
+        }
+
+        $configuredSources = self::configuredSources();
+        $registry = PluginRegistry::currencyPlugins();
+        $plugins = [];
+        foreach ($configuredSources as $sourceId => $_preferredCurrencies) {
+            if (!isset($registry[$sourceId])) {
+                add_error_log("[currency:$sourceId] Unknown currency plugin configured");
+                continue;
+            }
+            $plugins[$sourceId] = $registry[$sourceId];
+        }
+
+        if (empty($plugins)) {
+            add_error_log('[currency] No valid currency plugins configured');
+            return false;
+        }
+
+        $requests = [];
+        foreach ($plugins as $sourceId => $plugin) {
+            try {
+                $requests[] = $plugin->buildRatesRequest();
+            } catch (Throwable $e) {
+                add_error_log("[currency:$sourceId] Failed to build request: " . $e->getMessage());
+            }
+        }
+
+        $responses = PluginHttpClient::runParallel($requests);
+        $sourceRates = [];
+        $errors = [];
+        foreach ($plugins as $sourceId => $plugin) {
+            if (!isset($responses[$sourceId])) {
+                $errors[$sourceId] = 'No response';
+                add_error_log("[currency:$sourceId] No response from plugin");
+                continue;
+            }
+
+            try {
+                $sourceRates[$sourceId] = $plugin->parseRatesResponse($responses[$sourceId]);
+            } catch (Throwable $e) {
+                $errors[$sourceId] = $e->getMessage();
+                add_error_log("[currency:$sourceId] " . $e->getMessage());
+            }
+        }
+
+        if (empty($sourceRates)) {
+            add_error_log('[currency] Failed to refresh rates: all currency plugins failed');
+            return false;
+        }
+
+        $rates = self::mergeRates($sourceRates, $configuredSources);
+        if (empty($rates)) {
+            add_error_log('[currency] Failed to refresh rates: merged rates are empty');
+            return false;
+        }
+
+        if (!is_dir(self::cacheDir())) {
+            mkdir(self::cacheDir(), 0755, true);
+        }
+
+        $payload = [
+            'generatedAt' => time(),
+            'ttl' => self::CACHE_TTL,
+            'rates' => $rates,
+            'sources' => array_keys($sourceRates),
+            'errors' => $errors,
+        ];
+        $json = json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+        if ($json === false) {
+            add_error_log('[currency] Failed to encode rates cache');
+            return false;
+        }
+
+        return file_put_contents(self::cacheFile(), $json, LOCK_EX) !== false;
+    }
+
+    /**
+     * @param array<string, array<string, float>> $sourceRates
+     * @param array<string, array<int, string>> $configuredSources
+     * @return array<string, float>
+     */
+    public static function mergeRates(array $sourceRates, array $configuredSources): array
+    {
+        $rates = ['USD' => 1.0];
+
+        foreach (array_keys($configuredSources) as $sourceId) {
+            if (empty($sourceRates[$sourceId])) {
+                continue;
+            }
+            foreach ($sourceRates[$sourceId] as $currency => $rate) {
+                $currency = strtoupper((string)$currency);
+                $rate = (float)$rate;
+                if ($currency === '' || $rate <= 0 || isset($rates[$currency])) {
+                    continue;
+                }
+                $rates[$currency] = $rate;
+            }
+        }
+
+        foreach ($configuredSources as $sourceId => $preferredCurrencies) {
+            if (empty($sourceRates[$sourceId]) || !is_array($preferredCurrencies)) {
+                continue;
+            }
+            foreach ($preferredCurrencies as $currency) {
+                $currency = strtoupper((string)$currency);
+                $rate = (float)($sourceRates[$sourceId][$currency] ?? 0);
+                if ($currency !== '' && $rate > 0) {
+                    $rates[$currency] = $rate;
+                }
+            }
+        }
+
+        ksort($rates);
+        return $rates;
+    }
+
+    /** @return array<string, array<int, string>> */
+    public static function configuredSources(): array
+    {
+        global $cloSettings;
+        $sources = $cloSettings['plugins']['currency']['sources'] ?? [];
+        return is_array($sources) ? $sources : [];
+    }
+
+    /** @return array<string, float> */
+    public static function getCachedRates(): array
+    {
+        $file = self::cacheFile();
+        if (!file_exists($file)) {
+            return [];
+        }
+
+        $data = json_decode((string)file_get_contents($file), true);
+        if (!is_array($data) || !isset($data['rates']) || !is_array($data['rates'])) {
+            add_error_log('[currency] Invalid rates cache format');
+            return [];
+        }
+
+        $rates = [];
+        foreach ($data['rates'] as $currency => $rate) {
+            $currency = strtoupper((string)$currency);
+            $rate = (float)$rate;
+            if ($currency !== '' && $rate > 0) {
+                $rates[$currency] = $rate;
+            }
+        }
+        return $rates;
+    }
+}
 
 class CurrencyConverter
 {
-    private const FRANKFURTER_CURRENCIES = [
-        "AUD","BGN","BRL","CAD","CHF","CNY","CZK","DKK","EUR","GBP","HKD","HUF","IDR",
-        "ILS","INR","ISK","JPY","KRW","MXN","MYR","NOK","NZD","PHP","PLN","RON","SEK",
-        "SGD", "THB","TRY","USD","ZAR" 
-    ];
-    
-    private const TURKISH_BANK_CURRENCIES = ['RUB','PKR','QAR','KRW','AZN','AED'];
-    private static function getCacheDir(): string {
-        return __DIR__ . '/' . get_cache_path('currencyCache');
-    }
-    
     public static function convert(float $amount, string $from): float
     {
-        if (empty($from) || $from === 'USD') return $amount;
-        
-        try {
-            if (in_array($from, self::FRANKFURTER_CURRENCIES)) {
-                return self::convertFromFrankfurter($amount, $from);
-            }
+        $from = strtoupper(trim($from));
+        if ($from === '' || $from === 'USD') {
+            return $amount;
+        }
 
-            if (in_array($from, self::TURKISH_BANK_CURRENCIES)) {
-                return self::convertFromTurkishBank($amount, $from);
-            } 
-            
-            add_error_log("Currency $from is not supported by any conversion APIs!");
-            return $amount;
-        } catch (Exception $e) {
-            add_error_log("Currency conversion failed for $amount $from to USD: " . $e->getMessage());
-            return $amount;
-        }
-    }
-    
-    private static function convertFromFrankfurter(float $amount, string $from): float
-    {
-        $url = "https://api.frankfurter.dev/v1/latest?base=$from&symbols=USD";
-        
-        $cacheDir = self::getCacheDir();
-        if (!file_exists($cacheDir)) 
-            mkdir($cacheDir, 0755, true);
-        $cacheFile = $cacheDir . "/$from.json";
-        
-        if (file_exists($cacheFile) && filemtime($cacheFile) > (time() - 600)) {
-            $res = json_decode(file_get_contents($cacheFile), true);
-        } else {
-            $curlRes = get($url);
-            if ($curlRes['error']) {
-                add_error_log("Curl error while trying to get Frankfurter rates: " . $curlRes['error']);
-                return $amount;
-            }
-            file_put_contents($cacheFile, $curlRes['content']);
-            $res = json_decode($curlRes['content'], true);
-        }
-        
-        $rate = $res['rates']['USD'];
-        if (empty($rate)) {
-            add_error_log("Currency conversion failed for $from to USD! Rate is empty! Url: $url");
-            return $amount;
-        }
-        return round($amount * $rate, 2);
-    }
-    
-    private static function convertFromTurkishBank(float $amount, string $from): float
-    {
-        // Get the XML file from Turkish Central Bank
-        $xmlUrl = 'https://www.tcmb.gov.tr/kurlar/today.xml';
-        
-        $cacheDir = self::getCacheDir();
-        if (!file_exists($cacheDir)) 
-            mkdir($cacheDir, 0755, true);
-        $cacheFile = $cacheDir . '/tur.xml';
-        $useCache = false;
-        
-        if (file_exists($cacheFile)) {
-            $fileTime = filemtime($cacheFile);
-            $currentTime = time();
-            // Use cached file if it's less than 6 hours old
-            if (($currentTime - $fileTime) < 21600) {
-                $useCache = true;
-                $xmlContent = file_get_contents($cacheFile);
-            }
-        }
-        
-        if (!$useCache) {
-            $curlRes = get($xmlUrl);
-            if ($curlRes['error']) {
-                add_error_log("Curl error while trying to get Turkish Central Bank rates: " . $curlRes['error']);
-                return $amount;
-            }
-            
-            $xmlContent = $curlRes['content'];
-            // Cache the XML content
-            file_put_contents($cacheFile, $xmlContent);
-        }
-        
-        // Parse the XML
-        $xml = simplexml_load_string($xmlContent);
-        if ($xml === false) {
-            add_error_log("Failed to parse Turkish Central Bank XML data");
-            return $amount;
-        }
-        
-        // Find the currency in the XML
-        $rate = null;
-        foreach ($xml->Currency as $currency) {
-            $currencyCode = (string)$currency['CurrencyCode'];
-            if ($currencyCode === $from) {
-                $rate = (float)$currency->CrossRateUSD;
-                break;
-            }
-        }
-        
+        CurrencyRateManager::refreshIfStale();
+        $rates = CurrencyRateManager::getCachedRates();
+        $rate = $rates[$from] ?? null;
         if ($rate === null || $rate <= 0) {
-            add_error_log("Currency $from not found in Turkish Central Bank data or invalid rate");
+            add_error_log("[currency] Unknown currency $from; payout left unchanged");
             return $amount;
         }
-        
-        // Calculate USD amount (divide by rate for currencies where 1 USD = X currency)
-        return round($amount / $rate, 2);
+
+        return round($amount * (float)$rate, 2);
     }
 }

@@ -66,7 +66,7 @@ nginx-конфиг автоустановщика запрещает прямо�
 - SQLite/data файлам: `.db`, `.sqlite`, `.sqlite3`, `.db-wal`, `.db-shm`;
 - `settings.php`, `.env`, `.git`, SQL, log/cache/backup файлам;
 - `db/`, `logs/`, `ycclogs/`, `tmp/`;
-- приватным cache-папкам `caching/devices`, `caching/currency`, `caching/whites_curl`;
+- приватным cache-папкам `caching/devices`, `caching/currency`, `caching/proxyvpn`, `caching/whites_curl`;
 - `bases/*.mmdb`, `bases/*.phar`, `bases/*.txt`;
 - `composer.json`, `composer.lock`, `phpunit.xml`, `agents.md`, `AGENTS.md`.
 
