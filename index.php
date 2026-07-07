@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/debug.php';
 require_once __DIR__ . '/paths.php';
+require_once __DIR__ . '/settings.php';
 DebugMethods::start("YWBMainCycle");
 
 //we always need a slash at the end of the url, otherwise links will not work properly
@@ -20,7 +21,6 @@ if (isset($_SERVER['REQUEST_URI']) && str_ends_with($_SERVER['REQUEST_URI'], '/r
     exit();
 }
 
-require_once __DIR__ . '/settings.php';
 require_once __DIR__ . '/cookies.php';
 require_once __DIR__ . '/directload.php';
 
