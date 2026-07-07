@@ -67,7 +67,7 @@ $headerDateConfig = [
                     <div class="logo-pro">
                         <div class="logo-container">
                             <a href="index.php?startdate=<?=$calDs[0]?>&enddate=<?=$calDs[1]?>" class="logo-link">
-                                <img class="main-logo" src="<?=get_cloaker_path()?>img/logo.png" alt="" />
+                                <img class="main-logo" src="<?=get_admin_base_url()?>img/logo.png" alt="" />
                             </a>
                             <div class="geo-version">
                                 <?php 
@@ -76,7 +76,7 @@ $headerDateConfig = [
                                     $basesEncoded = htmlspecialchars($basesVersion, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
                                 ?>
                                 GeoBases: <a href="#" id="updateBases" title="Update bases" class="<?=$basesClass?>"><?=$basesEncoded?></a>
-                                <img style="width:30px; height:30px;display:none;" src="<?=get_cloaker_path()?>img/loading.apng" id="loadingAnimation" />
+                                <img style="width:30px; height:30px;display:none;" src="<?=get_admin_base_url()?>img/loading.apng" id="loadingAnimation" />
                                 <?php if (DebugMethods::on()): ?>
                                 <span style="color: red; margin-left: 10px;">Debug Mode</span>
                                 <?php endif; ?>

@@ -1,7 +1,8 @@
 <?php
 
 require_once __DIR__ . "/../debug.php";
-require_once __DIR__ . "/../admin/password.php";
+require_once __DIR__ . "/../paths.php";
+require_once get_admin_dir() . "/password.php";
 require_once __DIR__ . "/../logging.php";
 
 const SAPICS_RELEASE_BASE = 'https://github.com/sapics/ip-location-db/releases/download/latest';

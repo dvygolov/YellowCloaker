@@ -19,7 +19,7 @@ if ($accessError !== null) {
     die();
 }
 if (!check_password(false)) {
-    $loginPath = get_cloaker_path() . "login.php";
+    $loginPath = get_admin_base_url() . "login.php";
     if (!str_contains($loginPath, $_SERVER['PHP_SELF'])) {
         redirect($loginPath);
         exit();

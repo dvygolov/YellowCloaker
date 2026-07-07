@@ -1,6 +1,7 @@
 <?php
 // ── Direct Load: serve landing/white resources via 404 catch-all ──
 // Included from index.php. Expects settings.php and cookies.php already loaded.
+require_once __DIR__ . '/paths.php';
 
 global $cloSettings;
 
@@ -223,7 +224,7 @@ if (empty($dlMode)) {
 
 // Skip root, admin, js, and existing cloaker files
 $isCloakerFile = file_exists(__DIR__ . '/' . $reqPath) && !is_dir(__DIR__ . '/' . $reqPath);
-if ($reqPath !== '' && !str_starts_with($reqPath, 'admin') && !str_starts_with($reqPath, 'js/') && !$isCloakerFile) {
+if ($reqPath !== '' && !is_admin_request_path($reqPath) && !str_starts_with($reqPath, 'js/') && !$isCloakerFile) {
 
     // Black directload is handled only via __dl/<clickid>/<step>/... route above.
 

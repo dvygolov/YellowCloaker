@@ -1,11 +1,14 @@
 <?php
 
 require_once __DIR__ . '/debug.php';
+require_once __DIR__ . '/paths.php';
 DebugMethods::start("YWBMainCycle");
 
 //we always need a slash at the end of the url, otherwise links will not work properly
 $url = $_SERVER['REQUEST_URI'];
-if (str_ends_with($url, '/admin')) {
+$urlPath = parse_url($url, PHP_URL_PATH);
+$urlPath = is_string($urlPath) ? $urlPath : $url;
+if (str_ends_with($urlPath, '/' . get_admin_path_segment())) {
     header("Location: " . $url . "/");
     exit();
 }

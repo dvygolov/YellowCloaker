@@ -1,5 +1,7 @@
 <?php
-require_once(__DIR__ . '/password.php');
+require_once __DIR__ . '/../settings.php';
+require_once __DIR__ . '/../paths.php';
+require_once __DIR__ . '/password.php';
 
 class AutoUpdater {
     private const GITHUB_REPO = 'dvygolov/YellowCloaker';
@@ -10,12 +12,12 @@ class AutoUpdater {
     private const BACKUP_DIR = __DIR__ . '/../backups';
     private const UPDATE_DIR = __DIR__ . '/../temp_update';
 
-    private $currentVersion;
-    private $latestVersion;
-    private $downloadUrl;
+    private string $currentVersion;
+    private string $latestVersion = '';
+    private string $downloadUrl = '';
 
     public function __construct() {
-        $this->currentVersion = trim(file_get_contents(self::VERSION_FILE));
+        $this->currentVersion = trim((string)file_get_contents(self::VERSION_FILE));
     }
 
     public function checkForUpdates(): bool {
@@ -31,7 +33,7 @@ class AutoUpdater {
             ];
             $context = stream_context_create($opts);
             $response = file_get_contents(self::GITHUB_API_URL, false, $context);
-            
+
             if ($response === false) {
                 throw new Exception("Failed to fetch version information");
             }
@@ -58,14 +60,14 @@ class AutoUpdater {
         if (count($parts) !== 3) {
             throw new Exception("Invalid version format");
         }
-        return mktime(0, 0, 0, $parts[1], $parts[0], 2000 + intval($parts[2]));
+        return mktime(0, 0, 0, (int)$parts[1], (int)$parts[0], 2000 + intval($parts[2]));
     }
 
     public function update(): array {
         $result = ['success' => false, 'message' => ''];
+        $targetRoot = dirname(__DIR__);
 
         try {
-            // Create necessary directories
             if (!file_exists(self::BACKUP_DIR)) {
                 mkdir(self::BACKUP_DIR, 0755, true);
             }
@@ -73,13 +75,20 @@ class AutoUpdater {
                 mkdir(self::UPDATE_DIR, 0755, true);
             }
 
-            // Backup settings.php
-            $settingsBackup = self::BACKUP_DIR . '/settings_' . date('Y-m-d_H-i-s') . '.php';
+            $stamp = date('Y-m-d_H-i-s');
+            $settingsBackup = self::BACKUP_DIR . '/settings_' . $stamp . '.php';
             if (!copy(self::SETTINGS_FILE, $settingsBackup)) {
                 throw new Exception("Failed to backup settings.php");
             }
 
-            // Download and extract update
+            $adminPath = $this->getActiveAdminPath($targetRoot);
+            $adminDir = $targetRoot . DIRECTORY_SEPARATOR . $adminPath;
+            $adminBackup = self::BACKUP_DIR . '/admin_' . $stamp;
+            if (!is_dir($adminDir)) {
+                throw new Exception("Current admin directory not found: " . $adminDir);
+            }
+            $this->recursiveCopy($adminDir, $adminBackup);
+
             $zipFile = self::UPDATE_DIR . '/update.zip';
 
             $this->downloadUrl = "https://api.github.com/repos/" . self::GITHUB_REPO . "/zipball/" . self::GITHUB_BRANCH;
@@ -92,34 +101,143 @@ class AutoUpdater {
                 throw new Exception("Failed to open update archive");
             }
 
-            // Extract to temporary directory
             $zip->extractTo(self::UPDATE_DIR);
             $zip->close();
 
-            // Find the extracted directory (it will be named like owner-repo-hash)
-            $extractedDir = glob(self::UPDATE_DIR . '/*', GLOB_ONLYDIR)[0];
-            if (!$extractedDir) {
+            $extractedDirs = glob(self::UPDATE_DIR . '/*', GLOB_ONLYDIR);
+            $extractedDir = $extractedDirs[0] ?? '';
+            if ($extractedDir === '') {
                 throw new Exception("Failed to locate extracted files");
             }
 
-            //TODO: uncomment when ready
-            // Copy files recursively, excluding settings.php
-            // $this->recursiveCopy($extractedDir, dirname(__DIR__), ['settings.php']);
-
-            // Clean up
+            $this->applyExtractedUpdate($extractedDir, $targetRoot);
             $this->recursiveDelete(self::UPDATE_DIR);
 
             $result['success'] = true;
             $result['message'] = "Successfully updated to version " . $this->latestVersion;
         } catch (Exception $e) {
             $result['message'] = "Update failed: " . $e->getMessage();
-            // Restore settings if needed
             if (isset($settingsBackup) && file_exists($settingsBackup)) {
                 copy($settingsBackup, self::SETTINGS_FILE);
+            }
+            if (isset($adminBackup, $adminDir) && is_dir($adminBackup)) {
+                if (is_dir($adminDir)) {
+                    $this->recursiveDelete($adminDir);
+                }
+                $this->recursiveCopy($adminBackup, $adminDir);
             }
         }
 
         return $result;
+    }
+
+    public function applyExtractedUpdate(string $extractedDir, ?string $targetRoot = null): void {
+        $targetRoot = $targetRoot ?? dirname(__DIR__);
+        $adminPath = $this->getActiveAdminPath($targetRoot);
+
+        $this->recursiveCopyUpdate($extractedDir, $targetRoot, $adminPath);
+        $this->assertAdminUpdateComplete($targetRoot, $adminPath);
+    }
+
+    public function getActiveAdminPath(?string $targetRoot = null): string {
+        $targetRoot = $targetRoot ?? dirname(__DIR__);
+        $settingsFile = $targetRoot . DIRECTORY_SEPARATOR . 'settings.php';
+        $fallback = basename(__DIR__);
+
+        if (is_file($settingsFile)) {
+            $settings = file_get_contents($settingsFile);
+            if ($settings !== false && preg_match('/"adminPath"\s*=>\s*[\'"]([^\'"]+)[\'"]\s*,?/', $settings, $m) === 1) {
+                $candidate = trim($m[1], "/ \t\n\r\0\x0B");
+                if (preg_match('/^[A-Za-z0-9_-]{1,64}$/', $candidate) === 1) {
+                    return $candidate;
+                }
+            }
+        }
+
+        return preg_match('/^[A-Za-z0-9_-]{1,64}$/', $fallback) === 1 ? $fallback : 'admin';
+    }
+
+    private function assertAdminUpdateComplete(string $targetRoot, string $adminPath): void {
+        $adminDir = $targetRoot . DIRECTORY_SEPARATOR . $adminPath;
+        foreach (['autoupdate.php', 'version.txt', 'login.php', 'index.php'] as $file) {
+            if (!is_file($adminDir . DIRECTORY_SEPARATOR . $file)) {
+                throw new Exception("Updated admin directory is incomplete: missing " . $file);
+            }
+        }
+    }
+
+    private function recursiveCopyUpdate(string $src, string $dstRoot, string $adminPath, string $relative = ''): void {
+        $dir = opendir($src);
+        if ($dir === false) {
+            throw new Exception("Failed to open update directory: " . $src);
+        }
+
+        while (($file = readdir($dir)) !== false) {
+            if ($file === '.' || $file === '..') {
+                continue;
+            }
+
+            $srcPath = $src . DIRECTORY_SEPARATOR . $file;
+            $relativePath = $relative === '' ? $file : $relative . '/' . $file;
+            $isDir = is_dir($srcPath);
+            if ($this->shouldSkipUpdatePath($relativePath, $isDir)) {
+                continue;
+            }
+
+            $dstPath = $this->mapUpdateDestination($dstRoot, $adminPath, $relativePath);
+            if ($isDir) {
+                if (!is_dir($dstPath) && !mkdir($dstPath, 0755, true)) {
+                    closedir($dir);
+                    throw new Exception("Failed to create directory: " . $dstPath);
+                }
+                $this->recursiveCopyUpdate($srcPath, $dstRoot, $adminPath, $relativePath);
+            } else {
+                $dstDir = dirname($dstPath);
+                if (!is_dir($dstDir) && !mkdir($dstDir, 0755, true)) {
+                    closedir($dir);
+                    throw new Exception("Failed to create directory: " . $dstDir);
+                }
+                if (!copy($srcPath, $dstPath)) {
+                    closedir($dir);
+                    throw new Exception("Failed to copy update file: " . $relativePath);
+                }
+            }
+        }
+        closedir($dir);
+    }
+
+    private function mapUpdateDestination(string $dstRoot, string $adminPath, string $relativePath): string {
+        $parts = explode('/', $relativePath);
+        if (($parts[0] ?? '') === 'admin') {
+            $parts[0] = $adminPath;
+        }
+        return $dstRoot . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $parts);
+    }
+
+    private function shouldSkipUpdatePath(string $relativePath, bool $isDir): bool {
+        $relativePath = trim(str_replace('\\', '/', $relativePath), '/');
+        if ($relativePath === '') {
+            return false;
+        }
+
+        if ($relativePath === 'settings.php') {
+            return true;
+        }
+
+        $first = explode('/', $relativePath, 2)[0];
+        if (in_array($first, ['backups', 'temp_update', 'logs', 'ycclogs', 'tmp'], true)) {
+            return true;
+        }
+
+        if ($isDir && in_array($relativePath, ['caching/devices', 'caching/currency', 'caching/proxyvpn', 'caching/whites_curl'], true)) {
+            return true;
+        }
+
+        if (preg_match('#^db/.*\.(?:db|sqlite|sqlite3|db-wal|db-shm)$#i', $relativePath) === 1) {
+            return true;
+        }
+
+        return false;
     }
 
     private function downloadFile(string $url, string $path): bool {
@@ -137,34 +255,44 @@ class AutoUpdater {
         return $content !== false && file_put_contents($path, $content) !== false;
     }
 
-    private function recursiveCopy(string $src, string $dst, array $excludeFiles = []): void {
-        $dir = opendir($src);
-        if (!file_exists($dst)) {
-            mkdir($dst);
-        }
-        
-        while (($file = readdir($dir)) !== false) {
-            if ($file === '.' || $file === '..') continue;
-            if (in_array($file, $excludeFiles)) continue;
-
-            $srcPath = $src . '/' . $file;
-            $dstPath = $dst . '/' . $file;
-
-            if (is_dir($srcPath)) {
-                $this->recursiveCopy($srcPath, $dstPath, $excludeFiles);
-            } else {
-                copy($srcPath, $dstPath);
+    private function recursiveCopy(string $src, string $dst): void {
+        if (is_dir($src)) {
+            if (!file_exists($dst) && !mkdir($dst, 0755, true)) {
+                throw new Exception("Failed to create directory: " . $dst);
             }
+
+            $dir = opendir($src);
+            if ($dir === false) {
+                throw new Exception("Failed to open directory: " . $src);
+            }
+
+            while (($file = readdir($dir)) !== false) {
+                if ($file === '.' || $file === '..') {
+                    continue;
+                }
+                $this->recursiveCopy($src . DIRECTORY_SEPARATOR . $file, $dst . DIRECTORY_SEPARATOR . $file);
+            }
+            closedir($dir);
+            return;
         }
-        closedir($dir);
+
+        $dstDir = dirname($dst);
+        if (!is_dir($dstDir) && !mkdir($dstDir, 0755, true)) {
+            throw new Exception("Failed to create directory: " . $dstDir);
+        }
+        if (!copy($src, $dst)) {
+            throw new Exception("Failed to copy file: " . $src);
+        }
     }
 
     private function recursiveDelete(string $dir): void {
-        if (!file_exists($dir)) return;
+        if (!file_exists($dir)) {
+            return;
+        }
 
         $files = array_diff(scandir($dir), ['.', '..']);
         foreach ($files as $file) {
-            $path = $dir . '/' . $file;
+            $path = $dir . DIRECTORY_SEPARATOR . $file;
             is_dir($path) ? $this->recursiveDelete($path) : unlink($path);
         }
         rmdir($dir);
@@ -179,43 +307,46 @@ class AutoUpdater {
     }
 }
 
-// Handle update request
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
-    if (!check_password(false)){
-        $response = ['success' => false, 'message' => 'Incorrect password'];
-    }
-    else {
-        $updater = new AutoUpdater();
-        $response = ['success' => false, 'message' => ''];
+function autoupdate_handle_request(): void {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+        if (!check_password(false)){
+            $response = ['success' => false, 'message' => 'Incorrect password'];
+        } else {
+            $updater = new AutoUpdater();
+            $response = ['success' => false, 'message' => ''];
 
-        switch ($_POST['action']) {
-            case 'check':
-                $hasUpdate = $updater->checkForUpdates();
-                $response = [
-                    'success' => true,
-                    'hasUpdate' => $hasUpdate,
-                    'version' => $hasUpdate ? $updater->getLatestVersion() : $updater->getCurrentVersion()
-                ];
-                break;
+            switch ($_POST['action']) {
+                case 'check':
+                    $hasUpdate = $updater->checkForUpdates();
+                    $response = [
+                        'success' => true,
+                        'hasUpdate' => $hasUpdate,
+                        'version' => $hasUpdate ? $updater->getLatestVersion() : $updater->getCurrentVersion()
+                    ];
+                    break;
 
-            case 'update':
-                $result = $updater->update();
-                $response = [
-                    'success' => $result['success'],
-                    'message' => $result['message']
-                ];
-                break;
+                case 'update':
+                    $result = $updater->update();
+                    $response = [
+                        'success' => $result['success'],
+                        'message' => $result['message']
+                    ];
+                    break;
 
-            default:
-                $response['message'] = 'Invalid action';
+                default:
+                    $response['message'] = 'Invalid action';
+            }
         }
+
+        header('Content-Type: application/json');
+        echo json_encode($response);
+        exit;
     }
 
-    header('Content-Type: application/json');
-    echo json_encode($response);
-    exit;
-} else {
     http_response_code(405);
     echo 'Method Not Allowed';
 }
-?>
+
+if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) {
+    autoupdate_handle_request();
+}

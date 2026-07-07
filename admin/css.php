@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__.'/../paths.php';
 $cssFsPath = __DIR__.'/css';
-$cssPath = get_cloaker_path().'css';
+$cssPath = get_admin_base_url().'css';
 ?>
     <!-- Google Fonts-->
     <link rel="stylesheet" href="<?=$cssPath?>/gfonts.css?v=<?= filemtime($cssFsPath.'/main.css') ?>" />

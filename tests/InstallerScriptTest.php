@@ -62,6 +62,22 @@ class InstallerScriptTest extends TestCase
         $this->assertStringContainsString('Downloaded repository ZIP does not look like YellowTDS', $this->script);
     }
 
+    public function testInstallerGeneratesAndPersistsRandomAdminPath(): void
+    {
+        $this->assertStringContainsString('YELLOWTDS_ADMIN_PATH', $this->script);
+        $this->assertStringContainsString('openssl rand -hex 4', $this->script);
+        $this->assertStringContainsString('od -An -N4 -tx1 /dev/urandom', $this->script);
+        $this->assertStringContainsString('validate_admin_path', $this->script);
+        $this->assertStringContainsString('write_admin_path_setting "$app_dir/settings.php" "$admin_path"', $this->script);
+    }
+
+    public function testInstallerRenamesPhysicalAdminDirectory(): void
+    {
+        $this->assertStringContainsString('mv "$app_dir/admin" "$app_dir/$admin_path"', $this->script);
+        $this->assertStringContainsString('configure_admin_path "$app_dir"', $this->script);
+        $this->assertStringContainsString('configure_domain "$domain" "$app_dir" "$public_ip" "$ADMIN_PATH"', $this->script);
+    }
+
     public function testInstallerChecksDnsBeforeCertbot(): void
     {
         $verifyPos = strpos($this->script, 'verify_domain_points_here "$domain" "$public_ip"');
@@ -87,12 +103,26 @@ class InstallerScriptTest extends TestCase
         }
     }
 
+    public function testNginxConfigCanDenyLegacyAdminPath(): void
+    {
+        $this->assertStringContainsString('local admin_path="${3:-admin}"', $this->script);
+        $this->assertStringContainsString('location = /admin', $this->script);
+        $this->assertStringContainsString('location ^~ /admin/', $this->script);
+        $this->assertStringContainsString('return 404;', $this->script);
+    }
+
     public function testNginxConfigKeepsRuntimeRoutingAndPublicAssetsAvailable(): void
     {
         $this->assertStringContainsString('try_files \$uri \$uri/ /index.php?\$query_string;', $this->script);
         $this->assertStringContainsString('location ~ \.php$', $this->script);
         $this->assertStringNotContainsString('^/(?:caching|admin|js|scripts|thankyou)', $this->script);
         $this->assertStringNotContainsString('^/bases(?:/|$)', $this->script);
+    }
+
+    public function testInstallerPrintsGeneratedAdminUrl(): void
+    {
+        $this->assertStringContainsString('Open https://${domain}/${ADMIN_PATH}/', $this->script);
+        $this->assertStringNotContainsString('Open https://${domain}/admin/', $this->script);
     }
 
     public function testInstallerSetsCurrencyRefreshCron(): void

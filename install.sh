@@ -33,6 +33,7 @@ Environment variables:
   YELLOWTDS_DOMAIN       Primary domain for full install
   YELLOWTDS_DOMAINS      Comma-separated domains for --add-domain
   YELLOWTDS_APP_DIR      Installation directory or existing app directory
+  YELLOWTDS_ADMIN_PATH   Admin path segment; defaults to a random 8-char hex value
   YELLOWTDS_REPO_ZIP     Repository ZIP URL for curl-pipe installs
   SKIP_SSL=1             Skip certbot, useful for test environments
 EOF
@@ -182,6 +183,93 @@ normalize_domain() {
 validate_domain() {
     local domain="$1"
     [[ "$domain" =~ ^([a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$ ]]
+}
+
+validate_admin_path() {
+    local admin_path="$1"
+    [[ "$admin_path" =~ ^[A-Za-z0-9_-]{6,64}$ ]] || return 1
+    case "$admin_path" in
+        api|bases|caching|db|docs|js|loadtest|logs|reverse|scripts|tests|thankyou|tmp|vendor|ycclogs)
+            return 1
+            ;;
+    esac
+    return 0
+}
+
+generate_admin_path() {
+    if command -v openssl >/dev/null 2>&1; then
+        openssl rand -hex 4
+        return
+    fi
+    od -An -N4 -tx1 /dev/urandom | tr -d ' \n'
+}
+
+read_admin_path() {
+    local app_dir="$1"
+    local settings_file="$app_dir/settings.php"
+    if [ ! -f "$settings_file" ]; then
+        echo "admin"
+        return
+    fi
+    php -r 'require $argv[1]; echo $cloSettings["adminPath"] ?? "admin";' "$settings_file" 2>/dev/null || echo "admin"
+}
+
+write_admin_path_setting() {
+    local settings_file="$1"
+    local admin_path="$2"
+    php -r '
+        $settingsFile = $argv[1];
+        $adminPath = $argv[2];
+        $settings = file_get_contents($settingsFile);
+        if ($settings === false) {
+            fwrite(STDERR, "failed to read settings.php\n");
+            exit(1);
+        }
+        $line = "\"adminPath\" => " . var_export($adminPath, true) . ",";
+        if (preg_match("/\"adminPath\"\s*=>\s*[^,\n]+,/", $settings) === 1) {
+            $settings = preg_replace("/\"adminPath\"\s*=>\s*[^,\n]+,/", $line, $settings, 1);
+        } else {
+            $settings = preg_replace(
+                "/(\"adminIp\"\s*=>\s*[^,\n]+,\s*)/",
+                "$1\n//admin panel path segment. Installer can replace this with a random value like e3c80abc\n" . $line . "\n",
+                $settings,
+                1
+            );
+        }
+        if (file_put_contents($settingsFile, $settings) === false) {
+            fwrite(STDERR, "failed to write settings.php\n");
+            exit(1);
+        }
+    ' "$settings_file" "$admin_path" || fail "Failed to write adminPath to settings.php"
+}
+
+configure_admin_path() {
+    local app_dir="$1"
+    local admin_path="${YELLOWTDS_ADMIN_PATH:-}"
+
+    if [ -z "$admin_path" ]; then
+        for _ in $(seq 1 20); do
+            admin_path="$(generate_admin_path)"
+            if validate_admin_path "$admin_path" && [ ! -e "$app_dir/$admin_path" ]; then
+                break
+            fi
+            admin_path=""
+        done
+    fi
+
+    validate_admin_path "$admin_path" || fail "Invalid admin path: $admin_path"
+
+    if [ "$admin_path" != "admin" ] && [ -e "$app_dir/$admin_path" ]; then
+        fail "Admin path already exists: $app_dir/$admin_path"
+    fi
+
+    if [ "$admin_path" != "admin" ]; then
+        [ -d "$app_dir/admin" ] || fail "Cannot rename admin directory: $app_dir/admin not found"
+        mv "$app_dir/admin" "$app_dir/$admin_path" || fail "Failed to rename admin directory"
+    fi
+
+    write_admin_path_setting "$app_dir/settings.php" "$admin_path"
+    ADMIN_PATH="$admin_path"
 }
 
 parse_domain_list() {
@@ -437,7 +525,21 @@ EOF
 write_nginx_config() {
     local domain="$1"
     local app_dir="$2"
+    local admin_path="${3:-admin}"
     local config_file="/etc/nginx/sites-available/${domain}"
+    local admin_legacy_block=""
+
+    if [ "$admin_path" != "admin" ]; then
+        admin_legacy_block='
+    location = /admin {
+        return 404;
+    }
+
+    location ^~ /admin/ {
+        return 404;
+    }
+'
+    fi
 
     cat > "$config_file" <<EOF
 server {
@@ -482,6 +584,7 @@ server {
     location ~* ^/bases/.*\.(?:mmdb|phar|txt)$ {
         deny all;
     }
+${admin_legacy_block}
 
     location / {
         try_files \$uri \$uri/ /index.php?\$query_string;
@@ -503,12 +606,13 @@ configure_domain() {
     local domain="$1"
     local app_dir="$2"
     local public_ip="$3"
+    local admin_path="${4:-admin}"
 
     validate_domain "$domain" || fail "Invalid domain: $domain"
     [ -d "$app_dir" ] || fail "Application directory does not exist: $app_dir"
 
     verify_domain_points_here "$domain" "$public_ip"
-    write_nginx_config "$domain" "$app_dir"
+    write_nginx_config "$domain" "$app_dir" "$admin_path"
     nginx -t || fail "Nginx configuration test failed for $domain"
     restart_service nginx || fail "Failed to reload nginx for $domain"
 
@@ -546,20 +650,22 @@ run_full_install() {
 
     info "[5/5] Installing application to $app_dir..."
     copy_application "$app_dir"
+    configure_admin_path "$app_dir"
     set_permissions "$app_dir"
     download_geo_databases "$app_dir"
     setup_currency_cron "$app_dir"
     set_permissions "$app_dir"
 
-    configure_domain "$domain" "$app_dir" "$public_ip"
+    configure_domain "$domain" "$app_dir" "$public_ip" "$ADMIN_PATH"
 
     success "Installation complete: https://${domain}"
-    echo "Open https://${domain}/admin/ and configure settings.php/admin access before production traffic."
+    echo "Open https://${domain}/${ADMIN_PATH}/ and configure settings.php/admin access before production traffic."
 }
 
 run_add_domain() {
     local domains="${YELLOWTDS_DOMAINS:-}"
     local app_dir="${YELLOWTDS_APP_DIR:-}"
+    local admin_path
     local public_ip
     local domain
 
@@ -576,10 +682,11 @@ run_add_domain() {
     fi
 
     parse_domain_list "$domains"
+    admin_path="$(read_admin_path "$app_dir")"
     public_ip="$(detect_public_ip)"
 
     for domain in "${PARSED_DOMAINS[@]}"; do
-        configure_domain "$domain" "$app_dir" "$public_ip"
+        configure_domain "$domain" "$app_dir" "$public_ip" "$admin_path"
     done
 
     success "All domains configured"

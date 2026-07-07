@@ -217,7 +217,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         });
     </script>
 </head>
-<?php $cloPath = get_cloaker_path(); ?>
+<?php $cloPath = get_admin_base_url(); ?>
 <body>
     <canvas id="matrix-rain"></canvas>
     <div class="grid-overlay"></div>

@@ -12,6 +12,9 @@ $cloSettings =
 //when behind Cloudflare, the real visitor IP will be taken from CF-Connecting-IP only for real Cloudflare proxy IPs
 "adminIp" => "",
 
+//admin panel path segment. Installer can replace this with a random value like e3c80abc
+"adminPath" => "admin",
+
 //WARNING:if you are using nginx either change your website's config so that it prevents people from
 //downloading your database, or just rename the db file so security through obscurity will work! :-D
 "dbConnection" => "clicks.db",

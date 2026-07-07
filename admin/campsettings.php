@@ -8,8 +8,8 @@ global $c, $db, $campId;
 <!doctype html>
 <html lang="en">
 <?php include __DIR__.'/head.php' ?>
-<link rel="stylesheet" href="<?=get_cloaker_path()?>css/campsettings.css?v=<?=filemtime(__DIR__.'/css/campsettings.css')?>">
-<link rel="stylesheet" href="<?=get_cloaker_path()?>css/fileeditor.css?v=<?=filemtime(__DIR__.'/css/fileeditor.css')?>">
+<link rel="stylesheet" href="<?=get_admin_base_url()?>css/campsettings.css?v=<?=filemtime(__DIR__.'/css/campsettings.css')?>">
+<link rel="stylesheet" href="<?=get_admin_base_url()?>css/fileeditor.css?v=<?=filemtime(__DIR__.'/css/fileeditor.css')?>">
 
 <body>
     <?php include __DIR__.'/header.php' ?>
@@ -950,7 +950,7 @@ global $c, $db, $campId;
                     </div>
                     <div class="col-lg-7 col-md-7 col-sm-7 col-xs-12">
                         <div class="input-group custom-go-button">
-                            <?php $cloakerRoot = dirname(get_cloaker_path()); ?>
+                            <?php $cloakerRoot = rtrim(get_cloaker_path(), '/'); ?>
                             <input type="text" readonly class="form-control" value="<?= $cloakerRoot ?>/api/postback.php?clickid={sub1}&payout={payout}&currency=USD&status={status}"/>
                         </div>
                     </div>

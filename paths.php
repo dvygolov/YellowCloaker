@@ -14,7 +14,7 @@ function get_cloaker_path(bool $withPrefix = true, bool $withSlashEnd = true): s
 
     if (count($script_path) > 0) {
         // Dirty hack for alternate entrypoint folders.
-        if (in_array($script_path[count($script_path) - 1], ['js', 'api'], true)) {
+        if (in_array($script_path[count($script_path) - 1], ['js', 'api', get_admin_path_segment()], true)) {
             array_pop($script_path);
         }
         if (count($script_path) > 0) {
@@ -29,6 +29,39 @@ function get_cloaker_path(bool $withPrefix = true, bool $withSlashEnd = true): s
     }
 
     return $fullpath;
+}
+
+function get_admin_path_segment(): string
+{
+    global $cloSettings;
+    $adminPath = trim((string)($cloSettings['adminPath'] ?? 'admin'), "/ \t\n\r\0\x0B");
+    if (preg_match('/^[A-Za-z0-9_-]{1,64}$/', $adminPath) !== 1) {
+        return 'admin';
+    }
+    return $adminPath;
+}
+
+function get_admin_dir(): string
+{
+    return __DIR__ . DIRECTORY_SEPARATOR . get_admin_path_segment();
+}
+
+function is_admin_request_path(string $reqPath): bool
+{
+    $parsedPath = parse_url($reqPath, PHP_URL_PATH);
+    $reqPath = trim(is_string($parsedPath) ? $parsedPath : $reqPath, '/');
+    $adminPath = get_admin_path_segment();
+
+    return $reqPath === $adminPath || str_starts_with($reqPath, $adminPath . '/');
+}
+
+function get_admin_base_url(bool $withPrefix = true, bool $withSlashEnd = true): string
+{
+    $url = rtrim(get_cloaker_path($withPrefix, true), '/') . '/' . get_admin_path_segment();
+    if ($withSlashEnd) {
+        return $url . '/';
+    }
+    return $url;
 }
 
 function is_https(): bool
