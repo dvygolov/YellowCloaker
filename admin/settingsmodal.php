@@ -1,0 +1,101 @@
+<link rel="stylesheet" href="<?=get_admin_base_url()?>css/modal-common.css">
+
+<div id="settingsModal" class="ywbmodal settings-modal" aria-labelledby="settingsModalTitle">
+    <div class="modal-content">
+        <div class="modal-header settings-modal-header">
+            <div>
+                <h5 id="settingsModalTitle"><i class="bi bi-gear"></i> Settings</h5>
+                <div class="settings-subtitle">Runtime configuration and maintenance</div>
+            </div>
+            <button type="button" class="settings-close" id="closeSettings" aria-label="Close">&times;</button>
+        </div>
+        <div class="settings-tabs" role="tablist">
+            <button type="button" class="settings-tab-button active" data-settings-tab="general">General</button>
+            <button type="button" class="settings-tab-button" data-settings-tab="storage">Storage</button>
+            <button type="button" class="settings-tab-button" data-settings-tab="plugins">Plugins</button>
+            <button type="button" class="settings-tab-button" data-settings-tab="updates">Updates</button>
+        </div>
+        <div class="modal-body settings-modal-body">
+            <div id="settingsLoading" class="settings-loading">Loading settings…</div>
+            <form id="settingsForm" autocomplete="off" hidden>
+                <section class="settings-tab-panel active" data-settings-panel="general">
+                    <div class="settings-grid">
+                        <label class="settings-field">
+                            <span>New admin password</span>
+                            <input type="password" name="adminPassword" autocomplete="new-password" placeholder="Leave blank to keep current password">
+                            <small>For security, the current password is never shown.</small>
+                        </label>
+                        <label class="settings-field">
+                            <span>Admin path</span>
+                            <input type="text" name="adminPath" maxlength="64">
+                            <small>The physical admin directory will be renamed.</small>
+                        </label>
+                        <label class="settings-field">
+                            <span>Allowed admin domain</span>
+                            <input type="text" name="adminDomain" placeholder="Empty means any domain">
+                        </label>
+                        <label class="settings-field">
+                            <span>Allowed admin IP</span>
+                            <input type="text" name="adminIp" placeholder="Empty means any IP">
+                            <button type="button" class="settings-current-ip" id="addCurrentAdminIp" hidden></button>
+                        </label>
+                    </div>
+                    <div class="settings-switches">
+                        <label><input type="checkbox" name="useUTP"> Use Universal Thank You Page</label>
+                        <label><input type="checkbox" name="debug"> Debug mode</label>
+                    </div>
+                </section>
+
+                <section class="settings-tab-panel" data-settings-panel="storage">
+                    <div class="settings-notice">Renamed database and cache locations are moved physically. Existing target names are never merged or overwritten.</div>
+                    <div class="settings-grid">
+                        <label class="settings-field"><span>Database file</span><input type="text" name="dbConnection"></label>
+                        <label class="settings-field"><span>Cache root</span><input type="text" name="cachingDir"></label>
+                        <label class="settings-field"><span>Landings</span><input type="text" name="landingFolder"></label>
+                        <label class="settings-field"><span>White pages</span><input type="text" name="whiteFolder"></label>
+                        <label class="settings-field"><span>White CURL cache</span><input type="text" name="whiteCurlCache"></label>
+                        <label class="settings-field"><span>Device cache</span><input type="text" name="devicesCache"></label>
+                        <label class="settings-field"><span>Currency cache</span><input type="text" name="currencyCache"></label>
+                        <label class="settings-field"><span>VPN cache</span><input type="text" name="proxyVpnCache"></label>
+                    </div>
+                </section>
+
+                <section class="settings-tab-panel" data-settings-panel="plugins">
+                    <div class="settings-plugin-section">
+                        <div class="settings-section-heading">
+                            <div><h6>Currency sources</h6><small>Preferred currencies use ISO three-letter codes separated by commas.</small></div>
+                        </div>
+                        <div id="currencyPlugins" class="settings-plugin-list"></div>
+                    </div>
+                    <div class="settings-plugin-section">
+                        <div class="settings-section-heading">
+                            <div><h6>VPN / proxy detectors</h6><small>No enabled detector means the VPN check is disabled.</small></div>
+                            <label class="settings-inline-field">Decision
+                                <select id="vpnMode"><option value="any">Any positive</option><option value="most">Majority</option></select>
+                            </label>
+                        </div>
+                        <div id="vpnPlugins" class="settings-plugin-list"></div>
+                    </div>
+                    <div id="pluginErrors" class="settings-plugin-errors" hidden></div>
+                </section>
+
+                <section class="settings-tab-panel" data-settings-panel="updates">
+                    <div class="settings-update-card">
+                        <div><h6>Yellow Cloaker</h6><div id="cloakerVersion" class="settings-update-meta"></div></div>
+                        <button type="button" class="btn btn-primary" id="updateCloaker"><i class="bi bi-cloud-arrow-down"></i> Check &amp; update</button>
+                    </div>
+                    <div class="settings-update-card">
+                        <div><h6>GeoBases</h6><div id="geoBasesVersion" class="settings-update-meta"></div></div>
+                        <button type="button" class="btn btn-primary" id="updateGeoBases"><i class="bi bi-globe2"></i> Update GeoBases</button>
+                    </div>
+                    <div id="settingsUpdateStatus" class="settings-update-status" aria-live="polite"></div>
+                </section>
+            </form>
+        </div>
+        <div class="modal-footer settings-modal-footer">
+            <div id="settingsSaveStatus" class="settings-save-status" aria-live="polite"></div>
+            <button type="button" class="btn btn-secondary" id="cancelSettings">Cancel</button>
+            <button type="button" class="btn btn-primary" id="saveSettings">Save settings</button>
+        </div>
+    </div>
+</div>

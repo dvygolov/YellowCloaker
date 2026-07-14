@@ -71,7 +71,7 @@ class CurrencyRateManager
             }
         }
 
-        $responses = PluginHttpClient::runParallel($requests);
+        $responses = HttpClient::sendParallel($requests);
         $sourceRates = [];
         $errors = [];
         foreach ($plugins as $sourceId => $plugin) {
@@ -164,8 +164,21 @@ class CurrencyRateManager
     public static function configuredSources(): array
     {
         global $cloSettings;
-        $sources = $cloSettings['plugins']['currency']['sources'] ?? [];
-        return is_array($sources) ? $sources : [];
+        $items = $cloSettings['plugins']['currency']['items'] ?? [];
+        if (!is_array($items)) {
+            return [];
+        }
+        $sources = [];
+        foreach ($items as $sourceId => $config) {
+            if (!is_array($config) || empty($config['enabled'])) {
+                continue;
+            }
+            $preferred = is_array($config['preferredCurrencies'] ?? null)
+                ? $config['preferredCurrencies']
+                : [];
+            $sources[(string)$sourceId] = array_values($preferred);
+        }
+        return $sources;
     }
 
     /** @return array<string, float> */

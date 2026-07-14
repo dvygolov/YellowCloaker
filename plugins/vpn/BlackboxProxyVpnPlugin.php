@@ -9,15 +9,15 @@ class BlackboxProxyVpnPlugin extends BaseProxyVpnPlugin
         return 'blackbox';
     }
 
-    public function buildDetectionRequest(string $ip, array $server): PluginHttpRequest
+    public function buildDetectionRequest(string $ip, array $server): HttpRequest
     {
-        return new PluginHttpRequest($this->getName(), 'https://blackbox.ipinfo.app/lookup/' . rawurlencode($ip), 5, 5);
+        return new HttpRequest($this->getName(), 'https://blackbox.ipinfo.app/lookup/' . rawurlencode($ip), timeout: 5, connectTimeout: 5);
     }
 
-    public function parseDetectionResponse(PluginHttpResponse $response): ?bool
+    public function parseDetectionResponse(HttpResponse $response): ?bool
     {
         if (!$response->isOk()) {
-            throw new Exception("HTTP {$response->httpCode}; curl {$response->errno} {$response->error}");
+            throw new Exception("HTTP {$response->httpCode()}; curl {$response->errno} {$response->error}");
         }
 
         $content = trim((string)$response->content);

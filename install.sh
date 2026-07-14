@@ -220,27 +220,21 @@ write_admin_path_setting() {
     php -r '
         $settingsFile = $argv[1];
         $adminPath = $argv[2];
-        $settings = file_get_contents($settingsFile);
-        if ($settings === false) {
-            fwrite(STDERR, "failed to read settings.php\n");
+        require $settingsFile;
+        if (!isset($cloSettings) || !is_array($cloSettings)) {
+            fwrite(STDERR, "failed to load settings.php\n");
             exit(1);
         }
-        $line = "\"adminPath\" => " . var_export($adminPath, true) . ",";
-        if (preg_match("/\"adminPath\"\s*=>\s*[^,\n]+,/", $settings) === 1) {
-            $settings = preg_replace("/\"adminPath\"\s*=>\s*[^,\n]+,/", $line, $settings, 1);
-        } else {
-            $settings = preg_replace(
-                "/(\"adminIp\"\s*=>\s*[^,\n]+,\s*)/",
-                "$1\n//admin panel path segment. Installer can replace this with a random value like e3c80abc\n" . $line . "\n",
-                $settings,
-                1
-            );
-        }
-        if (file_put_contents($settingsFile, $settings) === false) {
-            fwrite(STDERR, "failed to write settings.php\n");
+        $cloSettings["adminPath"] = $adminPath;
+        $payload = ["_revision" => 1] + $cloSettings;
+        $localFile = dirname($settingsFile) . DIRECTORY_SEPARATOR . "settings.local.php";
+        $content = "<?php\n\nreturn " . var_export($payload, true) . ";\n";
+        if (file_put_contents($localFile, $content, LOCK_EX) === false) {
+            fwrite(STDERR, "failed to write settings.local.php\n");
             exit(1);
         }
-    ' "$settings_file" "$admin_path" || fail "Failed to write adminPath to settings.php"
+        chmod($localFile, 0640);
+    ' "$settings_file" "$admin_path" || fail "Failed to write adminPath to settings.local.php"
 }
 
 configure_admin_path() {
@@ -458,7 +452,10 @@ set_permissions() {
     find "$app_dir" -type f -exec chmod 0644 {} \;
     [ -f "$app_dir/install.sh" ] && chmod 0755 "$app_dir/install.sh"
 
-    chown -R root:root "$app_dir"
+    chown -R root:www-data "$app_dir"
+    find "$app_dir" -type d -exec chmod 0775 {} \;
+    find "$app_dir" -type f -exec chmod 0664 {} \;
+    [ -f "$app_dir/settings.local.php" ] && chmod 0640 "$app_dir/settings.local.php"
     chown -R www-data:www-data \
         "$app_dir/db" "$app_dir/logs" "$app_dir/ycclogs" "$app_dir/tmp" \
         "$app_dir/caching" "$app_dir/bases"
@@ -527,19 +524,6 @@ write_nginx_config() {
     local app_dir="$2"
     local admin_path="${3:-admin}"
     local config_file="/etc/nginx/sites-available/${domain}"
-    local admin_legacy_block=""
-
-    if [ "$admin_path" != "admin" ]; then
-        admin_legacy_block='
-    location = /admin {
-        return 404;
-    }
-
-    location ^~ /admin/ {
-        return 404;
-    }
-'
-    fi
 
     cat > "$config_file" <<EOF
 server {
@@ -577,14 +561,9 @@ server {
         deny all;
     }
 
-    location ~* ^/caching/(?:devices|currency|proxyvpn|whites_curl)(?:/|$) {
-        deny all;
-    }
-
     location ~* ^/bases/.*\.(?:mmdb|phar|txt)$ {
         deny all;
     }
-${admin_legacy_block}
 
     location / {
         try_files \$uri \$uri/ /index.php?\$query_string;
@@ -659,7 +638,7 @@ run_full_install() {
     configure_domain "$domain" "$app_dir" "$public_ip" "$ADMIN_PATH"
 
     success "Installation complete: https://${domain}"
-    echo "Open https://${domain}/${ADMIN_PATH}/ and configure settings.php/admin access before production traffic."
+    echo "Open https://${domain}/${ADMIN_PATH}/ and configure admin access in Settings before production traffic."
 }
 
 run_add_domain() {

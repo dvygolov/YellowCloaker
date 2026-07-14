@@ -22,6 +22,29 @@ function get_admin_request_ip(array $server, ?callable $isCloudflareIp = null): 
     return '';
 }
 
+function get_admin_shortcut_redirect(array $server, array $settings, ?callable $isCloudflareIp = null): ?string
+{
+    $adminIp = trim((string)($settings['adminIp'] ?? ''));
+    if ($adminIp === '' || get_admin_request_ip($server, $isCloudflareIp) !== $adminIp) {
+        return null;
+    }
+
+    $adminPath = trim((string)($settings['adminPath'] ?? ''), "/ \t\n\r\0\x0B");
+    if (preg_match('/^[A-Za-z0-9_-]{1,64}$/', $adminPath) !== 1) {
+        return null;
+    }
+
+    $scriptName = str_replace('\\', '/', (string)($server['SCRIPT_NAME'] ?? '/admin.php'));
+    $basePath = str_replace('\\', '/', dirname($scriptName));
+    if ($basePath === '/' || $basePath === '.') {
+        $basePath = '';
+    } else {
+        $basePath = '/' . trim($basePath, '/');
+    }
+
+    return $basePath . '/' . $adminPath . '/';
+}
+
 function get_admin_access_error(array $server, array $settings, ?callable $isCloudflareIp = null): ?string
 {
     $adminDomain = trim((string)($settings['adminDomain'] ?? ''));

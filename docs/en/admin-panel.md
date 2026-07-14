@@ -16,3 +16,5 @@
 - manage folders and files
 
 ![Campaign dashboard](../assets/screenshots/admin-dashboard-campaigns.png)
+
+The **Settings** button opens [system settings](system-settings.md), plugin controls, and update actions. The GeoBases date in the header is informational.

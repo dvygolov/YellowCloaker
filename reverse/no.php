@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname(__DIR__) . '/requestfunc.php';
+
 $backend_url = "http://localhost:8000/";
 $backend_info = parse_url($backend_url);
 $host = $_SERVER['HTTP_HOST'];
@@ -81,42 +83,50 @@ function build_multipart_data_files($delimiter, $fields, $files)
     return $data;
 }
 
-$curl = curl_init($url);
-curl_setopt($curl, CURLOPT_HTTPHEADER, getRequestHeaders());
-curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true); # follow redirects
-curl_setopt($curl, CURLOPT_HEADER, true); # include the headers in the output
-curl_setopt($curl, CURLOPT_RETURNTRANSFER, true); # return output as string
-curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0); // Ignore SSL host verification
-curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0); // Ignore SSL peer verification
-
-if (strtolower($_SERVER['REQUEST_METHOD']) == 'post') {
-    curl_setopt($curl, CURLOPT_POST, true);
+$method = strtolower((string)($_SERVER['REQUEST_METHOD'] ?? 'get')) === 'post' ? 'POST' : 'GET';
+$requestHeaders = getRequestHeaders();
+$post_data = null;
+if ($method === 'POST') {
     $post_data = file_get_contents("php://input");
 
-    if (preg_match("/^multipart/", strtolower($_SERVER['CONTENT_TYPE']))) {
+    if (preg_match("/^multipart/", strtolower((string)($_SERVER['CONTENT_TYPE'] ?? '')))) {
         $delimiter = '-------------' . uniqid();
         $post_data = build_multipart_data_files($delimiter, $_POST, $_FILES);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, getRequestHeaders($delimiter));
+        $requestHeaders = getRequestHeaders($delimiter);
     }
-
-    curl_setopt($curl, CURLOPT_POSTFIELDS, $post_data);
 }
 
-$contents = curl_exec($curl); # reverse proxy. the actual request to the backend server.
-curl_close($curl); # curl is done now
-
-
-list($header_text, $contents) = preg_split('/([\r\n][\r\n])\\1/', $contents, 2);
-
-$headers_arr = preg_split('/[\r\n]+/', $header_text);
+$response = HttpClient::send(new HttpRequest(
+    id: 'reverse-proxy',
+    url: $url,
+    method: $method,
+    body: $post_data,
+    headers: $requestHeaders,
+    timeout: 0,
+    connectTimeout: 0,
+    followRedirects: true,
+    userAgent: null,
+    captureHeaders: true,
+));
+$contents = $response->content === false ? '' : $response->content;
 
 // Propagate headers to response.
-foreach ($headers_arr as $header) {
-    if (!preg_match('/^Transfer-Encoding:/i', $header)) {
-        if (preg_match('/^Location:/i', $header)) {
+foreach ($response->headers as $headerName => $values) {
+    if ($headerName === ':status') {
+        if (isset($values[0])) {
+            header($values[0], true);
+        }
+        continue;
+    }
+    if (in_array($headerName, ['transfer-encoding', 'connection', 'content-length'], true)) {
+        continue;
+    }
+    foreach ($values as $value) {
+        $header = $headerName . ': ' . $value;
+        if ($headerName === 'location') {
             # rewrite absolute local redirects to relative ones
             $header = str_replace($backend_url, "/", $header);
-        } else if (preg_match('/^set-cookie:/i', $header)) {
+        } else if ($headerName === 'set-cookie') {
             # replace original domain name in Set-Cookie headers with our server's domain
             $domain_regex = build_domain_regex($backend_info['host']);
             $header = preg_replace('/Domain=' . $domain_regex . '/', 'Domain=' . $host, $header);

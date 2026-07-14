@@ -9,6 +9,7 @@
 - [Как это работает](how-it-works.md)
 - [Вход в админку](admin-login.md)
 - [Админ-панель](admin-panel.md)
+- [Системные настройки](system-settings.md)
 - [Кампании](campaigns.md)
 - [Настройки кампании](campaign-settings.md)
 - [White settings](white-settings.md)

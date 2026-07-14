@@ -66,8 +66,9 @@ The installer nginx config denies direct access to:
 - SQLite/data files: `.db`, `.sqlite`, `.sqlite3`, `.db-wal`, `.db-shm`;
 - `settings.php`, `.env`, `.git`, SQL, log/cache/backup files;
 - `db/`, `logs/`, `ycclogs/`, `tmp/`;
-- private cache folders: `caching/devices`, `caching/currency`, `caching/proxyvpn`, `caching/whites_curl`;
 - `bases/*.mmdb`, `bases/*.phar`, `bases/*.txt`;
 - `composer.json`, `composer.lock`, `phpunit.xml`, `agents.md`, `AGENTS.md`.
 
 Public entrypoints, admin assets, JS assets, landing/white static assets, thank-you assets, and direct-load routing remain available.
+
+The installer creates `settings.local.php` next to `settings.php`. No separate nginx deny rule is added for it: it is a PHP script that returns an array and emits no output when requested directly. Further system configuration is managed through **Settings** in the admin panel.

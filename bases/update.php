@@ -4,6 +4,7 @@ require_once __DIR__ . "/../debug.php";
 require_once __DIR__ . "/../paths.php";
 require_once get_admin_dir() . "/password.php";
 require_once __DIR__ . "/../logging.php";
+require_once __DIR__ . "/../requestfunc.php";
 
 const SAPICS_RELEASE_BASE = 'https://github.com/sapics/ip-location-db/releases/download/latest';
 const GEO_DATABASES = [
@@ -29,23 +30,24 @@ function download_geo_base(string $url, string $targetPath): string
     try {
         add_log('trace', "Starting geobase download for $fileName from $url");
 
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-        curl_setopt($ch, CURLOPT_FAILONERROR, 1);
-        curl_setopt($ch, CURLOPT_USERAGENT, 'YellowCloaker GeoBases Updater');
-
-        $output = curl_exec($ch);
-        if ($output === false) {
-            $error = curl_error($ch);
-            curl_close($ch);
+        $response = HttpClient::send(new HttpRequest(
+            id: $fileName,
+            url: $url,
+            timeout: 0,
+            connectTimeout: 0,
+            followRedirects: true,
+            verifyPeer: true,
+            verifyHost: 2,
+            userAgent: 'YellowCloaker GeoBases Updater',
+            failOnHttpError: true,
+        ));
+        $output = $response->content;
+        if (!$response->isOk()) {
             @unlink($tempPath);
-            throw new RuntimeException("$fileName cURL Error: $error");
+            throw new RuntimeException("$fileName HTTP {$response->httpCode()}: {$response->error}");
         }
-        curl_close($ch);
 
-        if (file_put_contents($tempPath, $output, LOCK_EX) === false) {
+        if (file_put_contents($tempPath, (string)$output, LOCK_EX) === false) {
             @unlink($tempPath);
             throw new RuntimeException("$fileName Error: failed to write temporary file");
         }

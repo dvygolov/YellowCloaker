@@ -7,6 +7,36 @@ require_once __DIR__ . '/../proxyvpn.php';
 
 class PluginsTest extends TestCase
 {
+    public function testRegistryDiscoversPluginsFromCurrencyAndVpnFolders(): void
+    {
+        $catalog = PluginRegistry::catalog();
+        $this->assertSame(['frankfurter', 'turkish'], array_keys($catalog['currency']));
+        $this->assertSame(['blackbox', 'ipintel'], array_keys($catalog['vpn']));
+        $this->assertSame([], $catalog['errors']);
+    }
+
+    public function testOnlyEnabledPluginsAreConfigured(): void
+    {
+        $oldSettings = $GLOBALS['cloSettings'] ?? SettingsManager::defaults();
+        $GLOBALS['cloSettings'] = $oldSettings;
+        $GLOBALS['cloSettings']['plugins'] = [
+            'currency' => ['items' => [
+                'frankfurter' => ['enabled' => false, 'preferredCurrencies' => []],
+                'turkish' => ['enabled' => true, 'preferredCurrencies' => ['RUB']],
+            ]],
+            'vpn' => ['mode' => 'any', 'items' => [
+                'blackbox' => ['enabled' => false],
+                'ipintel' => ['enabled' => false],
+            ]],
+        ];
+        try {
+            $this->assertSame(['turkish' => ['RUB']], CurrencyRateManager::configuredSources());
+            $this->assertFalse(ProxyVpnDetector::isProxyOrVpn('1.1.1.1', ['HTTP_X_FORWARDED_FOR' => '2.2.2.2']));
+        } finally {
+            $GLOBALS['cloSettings'] = $oldSettings;
+        }
+    }
+
     public function testCurrencyMergeKeepsFirstSourceValues(): void
     {
         $rates = CurrencyRateManager::mergeRates(

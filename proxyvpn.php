@@ -12,16 +12,16 @@ class ProxyVpnDetector
     {
         $server ??= $_SERVER;
 
-        if (self::xffConflictDetected($ip, $server)) {
-            add_log('trace', "[proxyvpn:xff] X-Forwarded-For conflicts with request IP $ip");
-            return true;
-        }
-
         $config = self::config();
         $mode = self::mode($config['mode'] ?? 'any');
-        $detectorIds = self::detectorIds($config['detectors'] ?? []);
+        $detectorIds = self::detectorIds($config['items'] ?? []);
         if (empty($detectorIds)) {
-            add_error_log('[proxyvpn] No proxy/VPN detectors configured');
+            add_log('trace', '[proxyvpn] Detection is disabled');
+            return false;
+        }
+
+        if (self::xffConflictDetected($ip, $server)) {
+            add_log('trace', "[proxyvpn:xff] X-Forwarded-For conflicts with request IP $ip");
             return true;
         }
 
@@ -32,7 +32,7 @@ class ProxyVpnDetector
             return $cached;
         }
 
-        $registry = PluginRegistry::proxyVpnPlugins();
+        $registry = PluginRegistry::vpnPlugins();
         $plugins = [];
         foreach ($detectorIds as $detectorId) {
             if (!isset($registry[$detectorId])) {
@@ -56,7 +56,7 @@ class ProxyVpnDetector
             }
         }
 
-        $responses = PluginHttpClient::runParallel($requests);
+        $responses = HttpClient::sendParallel($requests);
         $details = [];
         $errors = [];
         $successful = 0;
@@ -133,13 +133,19 @@ class ProxyVpnDetector
         if (!is_array($detectors)) {
             return [];
         }
-        return array_values(array_filter(array_map(static fn($id) => trim((string)$id), $detectors), static fn($id) => $id !== ''));
+        $ids = [];
+        foreach ($detectors as $id => $config) {
+            if (is_array($config) && !empty($config['enabled'])) {
+                $ids[] = trim((string)$id);
+            }
+        }
+        return array_values(array_filter($ids, static fn($id) => $id !== ''));
     }
 
     private static function config(): array
     {
         global $cloSettings;
-        $config = $cloSettings['plugins']['proxyVpn'] ?? [];
+        $config = $cloSettings['plugins']['vpn'] ?? [];
         return is_array($config) ? $config : [];
     }
 

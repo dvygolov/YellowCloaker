@@ -19,6 +19,8 @@
 
 ![Dashboard со списком кампаний](../assets/screenshots/admin-dashboard-campaigns.png)
 
+Кнопка **Settings** открывает [системные настройки](system-settings.md), управление плагинами и обновлениями. Дата GeoBases в header носит информационный характер.
+
 ## Что хранится в UI
 
 Админка управляет:

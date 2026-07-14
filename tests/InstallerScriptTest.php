@@ -69,6 +69,7 @@ class InstallerScriptTest extends TestCase
         $this->assertStringContainsString('od -An -N4 -tx1 /dev/urandom', $this->script);
         $this->assertStringContainsString('validate_admin_path', $this->script);
         $this->assertStringContainsString('write_admin_path_setting "$app_dir/settings.php" "$admin_path"', $this->script);
+        $this->assertStringContainsString('settings.local.php', $this->script);
     }
 
     public function testInstallerRenamesPhysicalAdminDirectory(): void
@@ -94,7 +95,6 @@ class InstallerScriptTest extends TestCase
             'location = /settings.php',
             '.(?:db|sqlite|sqlite3|db-wal|db-shm|sql|env|log|cache|bak|old|orig|swp|md)',
             '^/(?:db|logs|ycclogs|tmp)(?:/|$)',
-            '^/caching/(?:devices|currency|proxyvpn|whites_curl)(?:/|$)',
             '^/bases/.*\.(?:mmdb|phar|txt)$',
             'composer\.(?:json|lock)',
             'phpunit\.xml',
@@ -103,12 +103,12 @@ class InstallerScriptTest extends TestCase
         }
     }
 
-    public function testNginxConfigCanDenyLegacyAdminPath(): void
+    public function testNginxConfigDoesNotDenyDynamicOrLegacyAdminPath(): void
     {
-        $this->assertStringContainsString('local admin_path="${3:-admin}"', $this->script);
-        $this->assertStringContainsString('location = /admin', $this->script);
-        $this->assertStringContainsString('location ^~ /admin/', $this->script);
-        $this->assertStringContainsString('return 404;', $this->script);
+        $this->assertStringNotContainsString('location = /admin', $this->script);
+        $this->assertStringNotContainsString('location ^~ /admin/', $this->script);
+        $this->assertStringNotContainsString('^/caching/(?:devices|currency|proxyvpn|whites_curl)', $this->script);
+        $this->assertStringNotContainsString('location = /settings.local.php', $this->script);
     }
 
     public function testNginxConfigKeepsRuntimeRoutingAndPublicAssetsAvailable(): void

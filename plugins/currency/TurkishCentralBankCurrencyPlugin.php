@@ -9,15 +9,15 @@ class TurkishCentralBankCurrencyPlugin extends BaseCurrencyPlugin
         return 'turkish';
     }
 
-    public function buildRatesRequest(): PluginHttpRequest
+    public function buildRatesRequest(): HttpRequest
     {
-        return new PluginHttpRequest($this->getName(), 'https://www.tcmb.gov.tr/kurlar/today.xml', 10, 5);
+        return new HttpRequest($this->getName(), 'https://www.tcmb.gov.tr/kurlar/today.xml', timeout: 10, connectTimeout: 5);
     }
 
-    public function parseRatesResponse(PluginHttpResponse $response): array
+    public function parseRatesResponse(HttpResponse $response): array
     {
         if (!$response->isOk()) {
-            throw new Exception("HTTP {$response->httpCode}; curl {$response->errno} {$response->error}");
+            throw new Exception("HTTP {$response->httpCode()}; curl {$response->errno} {$response->error}");
         }
 
         $xml = simplexml_load_string((string)$response->content);

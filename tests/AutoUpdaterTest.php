@@ -19,14 +19,17 @@ $GLOBALS['cloSettings'] = [
     'proxyVpnCache' => 'proxyvpn',
     'plugins' => [
         'currency' => [
-            'sources' => [
-                'frankfurter' => [],
-                'turkish' => ['RUB', 'THB'],
+            'items' => [
+                'frankfurter' => ['enabled' => true, 'preferredCurrencies' => []],
+                'turkish' => ['enabled' => true, 'preferredCurrencies' => ['RUB', 'THB']],
             ],
         ],
-        'proxyVpn' => [
+        'vpn' => [
             'mode' => 'any',
-            'detectors' => ['blackbox', 'ipintel'],
+            'items' => [
+                'blackbox' => ['enabled' => true],
+                'ipintel' => ['enabled' => true],
+            ],
         ],
     ],
 ];
@@ -80,10 +83,9 @@ class AutoUpdaterTest extends TestCase
             file_get_contents($target . DIRECTORY_SEPARATOR . 'e3c80abc' . DIRECTORY_SEPARATOR . 'version.txt')
         );
         $this->assertDirectoryDoesNotExist($target . DIRECTORY_SEPARATOR . 'admin');
-        $this->assertStringContainsString(
-            '"adminPath" => "e3c80abc"',
-            file_get_contents($target . DIRECTORY_SEPARATOR . 'settings.php')
-        );
+        $local = include $target . DIRECTORY_SEPARATOR . 'settings.local.php';
+        $this->assertSame('e3c80abc', $local['adminPath']);
+        $this->assertSame('<?php $cloSettings = ["adminPath" => "admin"];', file_get_contents($target . DIRECTORY_SEPARATOR . 'settings.php'));
     }
 
     public function testUpdateSkipsRuntimePaths(): void
@@ -119,6 +121,27 @@ class AutoUpdaterTest extends TestCase
         $this->assertDirectoryDoesNotExist($target . DIRECTORY_SEPARATOR . 'backups');
         $this->assertFileDoesNotExist($target . DIRECTORY_SEPARATOR . 'db' . DIRECTORY_SEPARATOR . 'clicks.db');
         $this->assertDirectoryDoesNotExist($target . DIRECTORY_SEPARATOR . 'caching' . DIRECTORY_SEPARATOR . 'devices');
+    }
+
+    public function testUpdatePreservesExistingLocalSettings(): void
+    {
+        $target = $this->tempRoot . DIRECTORY_SEPARATOR . 'target';
+        $source = $this->tempRoot . DIRECTORY_SEPARATOR . 'source';
+        mkdir($target . DIRECTORY_SEPARATOR . 'e3c80abc', 0755, true);
+        mkdir($source . DIRECTORY_SEPARATOR . 'admin', 0755, true);
+        file_put_contents($target . DIRECTORY_SEPARATOR . 'settings.php', '<?php $cloSettings = ["adminPath" => "admin"];');
+        file_put_contents($target . DIRECTORY_SEPARATOR . 'settings.local.php', '<?php return ["_revision" => 7, "adminPath" => "e3c80abc"];');
+        file_put_contents($source . DIRECTORY_SEPARATOR . 'settings.php', '<?php $cloSettings = ["adminPath" => "admin"];');
+        file_put_contents($source . DIRECTORY_SEPARATOR . 'settings.local.php', '<?php return ["_revision" => 1, "adminPath" => "wrong"];');
+        foreach (['autoupdate.php', 'version.txt', 'login.php', 'index.php'] as $file) {
+            file_put_contents($source . DIRECTORY_SEPARATOR . 'admin' . DIRECTORY_SEPARATOR . $file, $file);
+        }
+
+        (new AutoUpdater())->applyExtractedUpdate($source, $target);
+
+        $local = include $target . DIRECTORY_SEPARATOR . 'settings.local.php';
+        $this->assertSame(7, $local['_revision']);
+        $this->assertSame('e3c80abc', $local['adminPath']);
     }
 
     private function removeDir(string $dir): void

@@ -9,15 +9,15 @@ class FrankfurterCurrencyPlugin extends BaseCurrencyPlugin
         return 'frankfurter';
     }
 
-    public function buildRatesRequest(): PluginHttpRequest
+    public function buildRatesRequest(): HttpRequest
     {
-        return new PluginHttpRequest($this->getName(), 'https://api.frankfurter.dev/v1/latest?base=USD', 10, 5);
+        return new HttpRequest($this->getName(), 'https://api.frankfurter.dev/v1/latest?base=USD', timeout: 10, connectTimeout: 5);
     }
 
-    public function parseRatesResponse(PluginHttpResponse $response): array
+    public function parseRatesResponse(HttpResponse $response): array
     {
         if (!$response->isOk()) {
-            throw new Exception("HTTP {$response->httpCode}; curl {$response->errno} {$response->error}");
+            throw new Exception("HTTP {$response->httpCode()}; curl {$response->errno} {$response->error}");
         }
 
         $data = json_decode((string)$response->content, true);

@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../settings.php';
 require_once __DIR__ . '/../paths.php';
+require_once __DIR__ . '/../requestfunc.php';
 require_once __DIR__ . '/password.php';
 
 class AutoUpdater {
@@ -22,21 +23,21 @@ class AutoUpdater {
 
     public function checkForUpdates(): bool {
         try {
-            $opts = [
-                'http' => [
-                    'method' => 'GET',
-                    'header' => [
-                        'User-Agent: PHP',
-                        'Accept: application/vnd.github.v3+json'
-                    ]
-                ]
-            ];
-            $context = stream_context_create($opts);
-            $response = file_get_contents(self::GITHUB_API_URL, false, $context);
-
-            if ($response === false) {
-                throw new Exception("Failed to fetch version information");
+            $httpResponse = HttpClient::send(new HttpRequest(
+                id: 'autoupdate-check',
+                url: self::GITHUB_API_URL,
+                headers: ['Accept: application/vnd.github.v3+json'],
+                timeout: 20,
+                connectTimeout: 5,
+                followRedirects: true,
+                verifyPeer: true,
+                verifyHost: 2,
+                userAgent: 'YellowCloaker Updater',
+            ));
+            if (!$httpResponse->isOk()) {
+                throw new Exception("Failed to fetch version information: HTTP {$httpResponse->httpCode()} {$httpResponse->error}");
             }
+            $response = (string)$httpResponse->content;
 
             $fileInfo = json_decode($response, true);
             if (!$fileInfo || !isset($fileInfo['content'])) {
@@ -134,15 +135,46 @@ class AutoUpdater {
     public function applyExtractedUpdate(string $extractedDir, ?string $targetRoot = null): void {
         $targetRoot = $targetRoot ?? dirname(__DIR__);
         $adminPath = $this->getActiveAdminPath($targetRoot);
+        $this->ensureLocalSettings($targetRoot, $adminPath);
 
         $this->recursiveCopyUpdate($extractedDir, $targetRoot, $adminPath);
         $this->assertAdminUpdateComplete($targetRoot, $adminPath);
+    }
+
+    private function ensureLocalSettings(string $targetRoot, string $adminPath): void {
+        $manager = new SettingsManager($targetRoot);
+        $settings = SettingsManager::defaults();
+        if (realpath($targetRoot) === realpath(dirname(__DIR__))) {
+            global $cloSettings;
+            if (is_array($cloSettings ?? null)) {
+                $settings = $cloSettings;
+            }
+        }
+        $settings['adminPath'] = $adminPath;
+        $manager->initializeLocal($settings);
     }
 
     public function getActiveAdminPath(?string $targetRoot = null): string {
         $targetRoot = $targetRoot ?? dirname(__DIR__);
         $settingsFile = $targetRoot . DIRECTORY_SEPARATOR . 'settings.php';
         $fallback = basename(__DIR__);
+
+        if (realpath($targetRoot) === realpath(dirname(__DIR__))) {
+            global $cloSettings;
+            $candidate = trim((string)($cloSettings['adminPath'] ?? ''), "/ \t\n\r\0\x0B");
+            if (preg_match('/^[A-Za-z0-9_-]{1,64}$/', $candidate) === 1) {
+                return $candidate;
+            }
+        }
+
+        $localFile = $targetRoot . DIRECTORY_SEPARATOR . 'settings.local.php';
+        if (is_file($localFile)) {
+            $local = include $localFile;
+            $candidate = is_array($local) ? trim((string)($local['adminPath'] ?? ''), "/ \t\n\r\0\x0B") : '';
+            if (preg_match('/^[A-Za-z0-9_-]{1,64}$/', $candidate) === 1) {
+                return $candidate;
+            }
+        }
 
         if (is_file($settingsFile)) {
             $settings = file_get_contents($settingsFile);
@@ -220,7 +252,7 @@ class AutoUpdater {
             return false;
         }
 
-        if ($relativePath === 'settings.php') {
+        if ($relativePath === 'settings.local.php') {
             return true;
         }
 
@@ -241,18 +273,18 @@ class AutoUpdater {
     }
 
     private function downloadFile(string $url, string $path): bool {
-        $opts = [
-            'http' => [
-                'method' => 'GET',
-                'header' => [
-                    'User-Agent: PHP',
-                    'Accept: application/vnd.github.v3+json'
-                ]
-            ]
-        ];
-        $context = stream_context_create($opts);
-        $content = file_get_contents($url, false, $context);
-        return $content !== false && file_put_contents($path, $content) !== false;
+        $response = HttpClient::send(new HttpRequest(
+            id: 'autoupdate-download',
+            url: $url,
+            headers: ['Accept: application/vnd.github.v3+json'],
+            timeout: 120,
+            connectTimeout: 10,
+            followRedirects: true,
+            verifyPeer: true,
+            verifyHost: 2,
+            userAgent: 'YellowCloaker Updater',
+        ));
+        return $response->isOk() && file_put_contents($path, (string)$response->content) !== false;
     }
 
     private function recursiveCopy(string $src, string $dst): void {

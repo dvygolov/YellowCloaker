@@ -2,6 +2,7 @@
 // ── Direct Load: serve landing/white resources via 404 catch-all ──
 // Included from index.php. Expects settings.php and cookies.php already loaded.
 require_once __DIR__ . '/paths.php';
+require_once __DIR__ . '/requestfunc.php';
 
 global $cloSettings;
 
@@ -261,21 +262,19 @@ if ($reqPath !== '' && !is_admin_request_path($reqPath) && !str_starts_with($req
                 exit();
             }
 
-            // Cache miss — fetch via CURL
+            // Cache miss — fetch through the shared HTTP transport
             $resourceUrl = $baseUrl . '/' . $reqPath;
-            $ch = curl_init($resourceUrl);
-            curl_setopt_array($ch, [
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_SSL_VERIFYPEER => false,
-                CURLOPT_SSL_VERIFYHOST => false,
-                CURLOPT_TIMEOUT => 15,
-                CURLOPT_USERAGENT => $_SERVER['HTTP_USER_AGENT'] ?? 'Mozilla/5.0',
-            ]);
-            $content = curl_exec($ch);
-            $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-            $contentType = curl_getinfo($ch, CURLINFO_CONTENT_TYPE);
-            curl_close($ch);
+            $resourceResponse = HttpClient::send(new HttpRequest(
+                id: 'directload-resource',
+                url: $resourceUrl,
+                timeout: 15,
+                connectTimeout: 5,
+                followRedirects: true,
+                userAgent: $_SERVER['HTTP_USER_AGENT'] ?? 'Mozilla/5.0',
+            ));
+            $content = $resourceResponse->content;
+            $httpCode = $resourceResponse->httpCode();
+            $contentType = $resourceResponse->contentType();
 
             if ($httpCode === 200 && $content !== false) {
                 // Sanitize HTML subpages (remove trackers, add noindex/nofollow)

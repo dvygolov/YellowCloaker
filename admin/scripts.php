@@ -15,7 +15,9 @@ $jsPath = get_admin_base_url() . 'js';
 $tTime = filemtime($jsFsPath . '/tabulator.js');
 $cTime = filemtime($jsFsPath . '/campeditor.js');
 $hTime = filemtime($jsFsPath . '/header.js'); 
+$sTime = filemtime($jsFsPath . '/settings.js');
 ?>
 <script src="<?=$jsPath?>/tabulator.js?v=<?=$tTime?>"></script>
 <script src="<?=$jsPath?>/campeditor.js?v=<?=$cTime?>"></script>
 <script src="<?=$jsPath?>/header.js?v=<?=$hTime?>"></script>
+<script src="<?=$jsPath?>/settings.js?v=<?=$sTime?>"></script>

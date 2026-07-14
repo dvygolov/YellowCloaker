@@ -11,18 +11,18 @@ class GetIpIntelProxyVpnPlugin extends BaseProxyVpnPlugin
         return 'ipintel';
     }
 
-    public function buildDetectionRequest(string $ip, array $server): PluginHttpRequest
+    public function buildDetectionRequest(string $ip, array $server): HttpRequest
     {
         $host = (string)($server['HTTP_HOST'] ?? 'localhost');
         $contactEmail = 'support@' . preg_replace('/[^A-Za-z0-9.-]/', '', $host);
         $url = 'http://check.getipintel.net/check.php?ip=' . rawurlencode($ip) . '&contact=' . rawurlencode($contactEmail) . '&flags=m';
-        return new PluginHttpRequest($this->getName(), $url, 5, 5);
+        return new HttpRequest($this->getName(), $url, timeout: 5, connectTimeout: 5);
     }
 
-    public function parseDetectionResponse(PluginHttpResponse $response): ?bool
+    public function parseDetectionResponse(HttpResponse $response): ?bool
     {
         if (!$response->isOk()) {
-            throw new Exception("HTTP {$response->httpCode}; curl {$response->errno} {$response->error}");
+            throw new Exception("HTTP {$response->httpCode()}; curl {$response->errno} {$response->error}");
         }
 
         $content = trim((string)$response->content);

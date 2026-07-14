@@ -66,8 +66,9 @@ nginx-конфиг автоустановщика запрещает прямо�
 - SQLite/data файлам: `.db`, `.sqlite`, `.sqlite3`, `.db-wal`, `.db-shm`;
 - `settings.php`, `.env`, `.git`, SQL, log/cache/backup файлам;
 - `db/`, `logs/`, `ycclogs/`, `tmp/`;
-- приватным cache-папкам `caching/devices`, `caching/currency`, `caching/proxyvpn`, `caching/whites_curl`;
 - `bases/*.mmdb`, `bases/*.phar`, `bases/*.txt`;
 - `composer.json`, `composer.lock`, `phpunit.xml`, `agents.md`, `AGENTS.md`.
 
 Публичные entrypoints, админские assets, JS assets, лендинги/вайты, thank-you assets и direct-load routing остаются доступными.
+
+Установщик создаёт `settings.local.php` рядом с `settings.php`. Отдельное nginx-правило для него не добавляется: файл является PHP-скриптом, возвращает массив и не выводит содержимое при прямом запросе. Системные настройки далее меняются через кнопку **Settings** в админке.

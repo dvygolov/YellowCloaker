@@ -61,9 +61,8 @@ $headerDateConfig = [
 ?>
 <div class="header-advance-area">
     <div class="header-top-area">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+        <div class="container-fluid header-shell">
+                <div class="header-brand-area">
                     <div class="logo-pro">
                         <div class="logo-container">
                             <a href="index.php?startdate=<?=$calDs[0]?>&enddate=<?=$calDs[1]?>" class="logo-link">
@@ -75,8 +74,7 @@ $headerDateConfig = [
                                     $basesClass = str_starts_with($basesVersion, 'Missing:') || str_ends_with($basesVersion, 'NOT FOUND') ? 'text-danger' : '';
                                     $basesEncoded = htmlspecialchars($basesVersion, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
                                 ?>
-                                GeoBases: <a href="#" id="updateBases" title="Update bases" class="<?=$basesClass?>"><?=$basesEncoded?></a>
-                                <img style="width:30px; height:30px;display:none;" src="<?=get_admin_base_url()?>img/loading.apng" id="loadingAnimation" />
+                                GeoBases: <span class="<?=$basesClass?>"><?=$basesEncoded?></span>
                                 <?php if (DebugMethods::on()): ?>
                                 <span style="color: red; margin-left: 10px;">Debug Mode</span>
                                 <?php endif; ?>
@@ -85,7 +83,7 @@ $headerDateConfig = [
                     </div>
                 </div>
 
-                <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
+                <div class="header-actions-area">
                     <div class="header-right-info">
                         <ul class="nav navbar-nav mai-top-nav header-right-menu">
                             <li class="nav-item">
@@ -97,9 +95,9 @@ $headerDateConfig = [
                                     </span>
                                 </a>
                                 <?php endif; ?>
-                                <a class="nav-link" href="#" onclick="checkForUpdates(); return false;">
-                                    <i class="bi bi-cloud-arrow-down"></i>
-                                    <span>Update</span>
+                                <a class="nav-link" href="#" id="openSettings">
+                                    <i class="bi bi-gear"></i>
+                                    <span>Settings</span>
                                 </a>
                                 <a class="nav-link" href="logout.php">
                                     <i class="bi bi-door-closed"></i>
@@ -109,13 +107,13 @@ $headerDateConfig = [
                         </ul>
                     </div>
                 </div>
-            </div>
         </div>
     </div>
 </div>
 <script id="headerDateConfig" type="application/json">
     <?=json_encode($headerDateConfig, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>
 </script>
+<?php include __DIR__ . '/settingsmodal.php'; ?>
 <div class="overlay" id="updateOverlay">
     <canvas id="matrix-rain"></canvas>
     <div class="grid-overlay"></div>

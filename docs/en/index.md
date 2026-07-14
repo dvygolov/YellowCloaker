@@ -9,6 +9,7 @@ This is the main product, admin, and runtime documentation for YellowCloaker.
 - [How It Works](how-it-works.md)
 - [Admin Login](admin-login.md)
 - [Admin Panel](admin-panel.md)
+- [System Settings](system-settings.md)
 - [Campaigns](campaigns.md)
 - [Campaign Settings](campaign-settings.md)
 - [White Settings](white-settings.md)
