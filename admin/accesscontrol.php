@@ -76,3 +76,19 @@ function get_admin_access_error(array $server, array $settings, ?callable $isClo
 
     return null;
 }
+
+/** @return array{status: int, body: string} */
+function get_admin_access_denial_response(string $accessError, bool $debug): array
+{
+    if ($debug) {
+        return [
+            'status' => 200,
+            'body' => $accessError,
+        ];
+    }
+
+    return [
+        'status' => 404,
+        'body' => 'Not Found',
+    ];
+}

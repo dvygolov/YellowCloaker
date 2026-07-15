@@ -10,12 +10,17 @@ require_once __DIR__ . '/../paths.php';
 global $cloSettings;
 $accessError = get_admin_access_error($_SERVER, $cloSettings);
 if ($accessError !== null) {
-    add_log('warning', $accessError);
-    if ($cloSettings['debug'] === true) {
-        echo $accessError;
-    } else {
-        http_response_code(404);
+    $debug = ($cloSettings['debug'] ?? false) === true;
+    $response = get_admin_access_denial_response($accessError, $debug);
+
+    if (!$debug) {
+        @ini_set('display_errors', '0');
     }
+
+    @add_log('warning', $accessError);
+    http_response_code($response['status']);
+    header('Content-Type: text/plain; charset=utf-8');
+    echo $response['body'];
     die();
 }
 if (!check_password(false)) {
