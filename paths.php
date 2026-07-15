@@ -1,6 +1,6 @@
 <?php
 
-function get_cloaker_path(bool $withPrefix = true, bool $withSlashEnd = true): string
+function get_tds_path(bool $withPrefix = true, bool $withSlashEnd = true): string
 {
     $domain = get_request_host();
     if ($withPrefix) {
@@ -57,7 +57,7 @@ function is_admin_request_path(string $reqPath): bool
 
 function get_admin_base_url(bool $withPrefix = true, bool $withSlashEnd = true): string
 {
-    $url = rtrim(get_cloaker_path($withPrefix, true), '/') . '/' . get_admin_path_segment();
+    $url = rtrim(get_tds_path($withPrefix, true), '/') . '/' . get_admin_path_segment();
     if ($withSlashEnd) {
         return $url . '/';
     }

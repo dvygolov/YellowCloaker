@@ -407,7 +407,7 @@ global $c, $db, $campId;
                 <div class="row">
                     <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
                         <label class="login2 pull-left pull-left-pro">
-                            <i class="bi bi-info-circle admin-info-icon" title="You can connect any website to the cloaker using &lt;script src='https://yourwebsite.com/js/index.php'&gt;&lt;/script&gt;"></i>
+                            <i class="bi bi-info-circle admin-info-icon" title="You can connect any website to YellowTDS using &lt;script src='https://yourwebsite.com/js/index.php'&gt;&lt;/script&gt;"></i>
                             Javascript Connect Action:
                         </label>
                     </div>
@@ -950,8 +950,8 @@ global $c, $db, $campId;
                     </div>
                     <div class="col-lg-7 col-md-7 col-sm-7 col-xs-12">
                         <div class="input-group custom-go-button">
-                            <?php $cloakerRoot = rtrim(get_cloaker_path(), '/'); ?>
-                            <input type="text" readonly class="form-control" value="<?= $cloakerRoot ?>/api/postback.php?clickid={sub1}&payout={payout}&currency=USD&status={status}"/>
+                            <?php $tdsRoot = rtrim(get_tds_path(), '/'); ?>
+                            <input type="text" readonly class="form-control" value="<?= $tdsRoot ?>/api/postback.php?clickid={sub1}&payout={payout}&currency=USD&status={status}"/>
                         </div>
                     </div>
                 </div>
@@ -1106,7 +1106,7 @@ global $c, $db, $campId;
                     </div>
                     <div class="col-lg-7 col-md-7 col-sm-7 col-xs-12">
                         <div class="input-group custom-go-button">
-                            <input type="text" readonly class="form-control" value="<?= $cloakerRoot ?>/api/phpconnect.php?apikey=<?= $c->apiKey ?>"/>
+                            <input type="text" readonly class="form-control" value="<?= $tdsRoot ?>/api/phpconnect.php?apikey=<?= $c->apiKey ?>"/>
                         </div>
                     </div>
                 </div>

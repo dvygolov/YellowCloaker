@@ -38,7 +38,7 @@ function download_geo_base(string $url, string $targetPath): string
             followRedirects: true,
             verifyPeer: true,
             verifyHost: 2,
-            userAgent: 'YellowCloaker GeoBases Updater',
+            userAgent: 'YellowTDS GeoBases Updater',
             failOnHttpError: true,
         ));
         $output = $response->content;

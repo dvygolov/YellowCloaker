@@ -1,6 +1,6 @@
-# YellowCloaker Documentation
+# YellowTDS Documentation
 
-This is the main product, admin, and runtime documentation for YellowCloaker.
+This is the main product, admin, and runtime documentation for YellowTDS.
 
 ## Contents
 

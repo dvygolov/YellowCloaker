@@ -1,8 +1,8 @@
 <?php
 /**
- * YellowCloaker PHP Client Library
+ * YellowTDS PHP Client Library
  * 
- * Simple include file for connecting external PHP sites to the cloaker.
+ * Simple include file for connecting external PHP sites to YellowTDS.
  * Just include this file in your index.php like:
  * require_once __DIR__ . '/phpclient.php';
  */
@@ -16,11 +16,11 @@ if (__FILE__ === $_SERVER['SCRIPT_FILENAME'] ||
     exit;
 }
 
-define("YC_API_KEY", "test");
-define("YC_API_URL", "http://localhost:8080/fromfolder/api/phpconnect.php");
-define("YC_DEBUG", true);
+define("YTDS_API_KEY", "test");
+define("YTDS_API_URL", "http://localhost:8080/fromfolder/api/phpconnect.php");
+define("YTDS_DEBUG", true);
 
-class YellowCloakerClient 
+class YellowTDSClient
 {
     public function __construct()
     {
@@ -68,7 +68,7 @@ class YellowCloakerClient
     private function collectParams() 
     {
         $params = [
-            'api_key' => YC_API_KEY,
+            'api_key' => YTDS_API_KEY,
             'tds_ua' => $_SERVER['HTTP_USER_AGENT'] ?? '',
             'tds_ref' => $_SERVER['HTTP_REFERER'] ?? '',
             'tds_url' => $_SERVER['REQUEST_URI'] ?? '/',
@@ -101,7 +101,7 @@ class YellowCloakerClient
         $ch = curl_init();
         
         curl_setopt_array($ch, [
-            CURLOPT_URL => YC_API_URL,
+            CURLOPT_URL => YTDS_API_URL,
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => json_encode($params),
             CURLOPT_RETURNTRANSFER => true,
@@ -109,7 +109,7 @@ class YellowCloakerClient
             CURLOPT_CONNECTTIMEOUT => 5,
             CURLOPT_HTTPHEADER => [
                 'Content-Type: application/json',
-                'User-Agent: YellowCloaker-PHP-Client/1.0'
+                'User-Agent: YellowTDS-PHP-Client/1.0'
             ],
             CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_SSL_VERIFYHOST => false,
@@ -122,18 +122,18 @@ class YellowCloakerClient
         curl_close($ch);
         
         if ($curl_error) {
-            $this->log("YellowCloaker cURL Error: " . $curl_error);
+            $this->log("YellowTDS cURL Error: " . $curl_error);
             return null;
         }
         
         if ($http_code !== 200) {
-            $this->log("YellowCloaker HTTP Error: " . $http_code);
+            $this->log("YellowTDS HTTP Error: " . $http_code);
             return null;
         }
         
         $decoded = json_decode($response, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
-            $this->log("YellowCloaker JSON Error: " . json_last_error_msg(). "\n" . $response);
+            $this->log("YellowTDS JSON Error: " . json_last_error_msg(). "\n" . $response);
             return null;
         }
         
@@ -180,12 +180,12 @@ class YellowCloakerClient
     }
     
     private function logdebug($msg){
-        if (!YC_DEBUG) return;
+        if (!YTDS_DEBUG) return;
         file_put_contents("php://stdout", $msg);
     }
 
         
 }
 
-$ycc = new YellowCloakerClient();
-register_shutdown_function([$ycc, 'check']);
+$ytds = new YellowTDSClient();
+register_shutdown_function([$ytds, 'check']);

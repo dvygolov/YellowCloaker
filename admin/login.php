@@ -28,7 +28,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Yellow Cloaker Login</title>
+    <title>YellowTDS Login</title>
     <link rel="icon" type="image/png" href="img/favicon.png">
     <link rel="stylesheet" type="text/css" href="css/login.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
@@ -217,13 +217,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         });
     </script>
 </head>
-<?php $cloPath = get_admin_base_url(); ?>
+<?php $tdsPath = get_admin_base_url(); ?>
 <body>
     <canvas id="matrix-rain"></canvas>
     <div class="grid-overlay"></div>
     <div id="main">
         <div id="title">
-            <img src="<?= $cloPath ?>img/logobig.png" alt="Yellow Cloaker Logo" />
+            <img src="<?= $tdsPath ?>img/logobig.png" alt="YellowTDS Logo" />
         </div>
         <div class="login-container">
             <form id="login-form">
@@ -238,7 +238,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
                 </div>
                 <button type="submit" class="login-button">
-                    <img src="<?= $cloPath ?>img/loading.apng" class="loading-img" alt="Loading..." />
+                    <img src="<?= $tdsPath ?>img/loading.apng" class="loading-img" alt="Loading..." />
                     <span>Login to Dashboard</span>
                 </button>
             </form>

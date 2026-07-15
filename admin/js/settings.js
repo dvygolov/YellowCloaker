@@ -18,7 +18,7 @@
     }
 
     function setBusy(busy) {
-        ['#saveSettings', '#updateCloaker', '#updateGeoBases'].forEach((selector) => {
+        ['#saveSettings', '#updateTds', '#updateGeoBases'].forEach((selector) => {
             const element = node(selector);
             if (element) element.disabled = busy;
         });
@@ -182,7 +182,7 @@
         fillFields(result.settings);
         renderCurrentIp(result.currentIp);
         renderPlugins(result.settings, result.plugins);
-        node('#cloakerVersion').textContent = `Installed version: ${result.updates?.currentVersion || 'unknown'}`;
+        node('#tdsVersion').textContent = `Installed version: ${result.updates?.currentVersion || 'unknown'}`;
         node('#geoBasesVersion').textContent = `Installed bases: ${result.updates?.geoBases || 'unknown'}`;
         node('#settingsLoading').hidden = true;
         node('#settingsForm').hidden = false;
@@ -264,7 +264,7 @@
         }
     }
 
-    async function updateCloaker() {
+    async function updateTds() {
         setBusy(true);
         setUpdateStatus('Checking for updates…');
         const cleanup = startUpdateOverlay('SYSTEM UPDATING...');
@@ -301,7 +301,7 @@
         node('#openSettings')?.addEventListener('click', openSettings);
         node('#saveSettings')?.addEventListener('click', saveSettings);
         node('#updateGeoBases')?.addEventListener('click', updateGeoBases);
-        node('#updateCloaker')?.addEventListener('click', updateCloaker);
+        node('#updateTds')?.addEventListener('click', updateTds);
         node('#addCurrentAdminIp')?.addEventListener('click', () => {
             const button = node('#addCurrentAdminIp');
             if (!button.dataset.ip) return;

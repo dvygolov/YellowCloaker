@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../logging.php';
 
-if (empty($_SERVER['HTTP_USER_AGENT']) || strpos($_SERVER['HTTP_USER_AGENT'], 'YellowCloaker') === false) {
+if (empty($_SERVER['HTTP_USER_AGENT']) || strpos($_SERVER['HTTP_USER_AGENT'], 'YellowTDS') === false) {
     add_error_log('PhpAPI: Attempt to access API with invalid user-agent', true);
     http_response_code(404);
     exit;
@@ -39,7 +39,7 @@ try {
     $action = Tds::getPhpAction($data['api_key'], $data);
     $action->perform();
 } catch (Exception $e) {
-    error_log('YellowCloaker API Error: ' . $e->getMessage());
+    error_log('YellowTDS API Error: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         'error' => 'Internal server error',

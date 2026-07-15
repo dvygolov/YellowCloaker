@@ -223,9 +223,9 @@ if (empty($dlMode)) {
     return;
 }
 
-// Skip root, admin, js, and existing cloaker files
-$isCloakerFile = file_exists(__DIR__ . '/' . $reqPath) && !is_dir(__DIR__ . '/' . $reqPath);
-if ($reqPath !== '' && !is_admin_request_path($reqPath) && !str_starts_with($reqPath, 'js/') && !$isCloakerFile) {
+// Skip root, admin, js, and existing TDS files
+$isTdsFile = file_exists(__DIR__ . '/' . $reqPath) && !is_dir(__DIR__ . '/' . $reqPath);
+if ($reqPath !== '' && !is_admin_request_path($reqPath) && !str_starts_with($reqPath, 'js/') && !$isTdsFile) {
 
     // Black directload is handled only via __dl/<clickid>/<step>/... route above.
 

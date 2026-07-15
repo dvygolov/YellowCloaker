@@ -193,6 +193,25 @@
     white-space: nowrap;
 }
 
+/* Keep text legible in the dark campaign-settings inputs. */
+.camp-content input.form-control,
+.camp-content textarea.form-control {
+    color: #e2e8f0;
+    caret-color: #f8fafc;
+}
+
+.camp-content input.form-control:focus,
+.camp-content textarea.form-control:focus {
+    color: #212529;
+    caret-color: #212529;
+}
+
+.camp-content input.form-control::placeholder,
+.camp-content textarea.form-control::placeholder {
+    color: #8ea0bf;
+    opacity: 1;
+}
+
 /* Query builder: make Add rule / Add group buttons blue instead of green */
 .query-builder .btn-success {
     background-color: #0d6efd;
@@ -201,6 +220,56 @@
 .query-builder .btn-success:hover {
     background-color: #0b5ed7;
     border-color: #0a58ca;
+}
+
+/* QueryBuilder header: compact condition toggle with balanced action buttons. */
+.query-builder .rules-group-header {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 32px;
+}
+
+.query-builder .rules-group-header .group-conditions,
+.query-builder .rules-group-header .group-actions {
+    float: none !important;
+    display: inline-flex;
+    width: auto;
+    margin-top: 0;
+}
+
+.query-builder .rules-group-header .group-conditions {
+    order: 1;
+    flex: 0 0 auto;
+    gap: 0;
+}
+
+.query-builder .rules-group-header .group-conditions .btn {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    min-width: 58px;
+    min-height: 32px;
+    padding: 5px 14px;
+}
+
+.query-builder .rules-group-header .group-actions {
+    order: 2;
+    flex: 0 0 auto;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.query-builder .rules-group-header .group-actions .btn {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    min-height: 32px;
+    border-radius: 6px !important;
 }
 
 /* Flow section visual groups */

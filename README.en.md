@@ -1,5 +1,5 @@
 ```
-                            Yellow TDS
+                            YellowTDS
     _            __     __  _ _             __          __  _
    | |           \ \   / / | | |            \ \        / / | |
    | |__  _   _   \ \_/ /__| | | _____      _\ \  /\  / /__| |__
@@ -14,9 +14,9 @@ If you like this script, PLEASE DONATE!
 
 [Support this project](https://yellowweb.top/donate)
 
-# Yellow TDS
+# YellowTDS
 
-Yellow TDS is a traffic distribution system for routing traffic according to campaign rules. The project includes the filtering engine, SQLite storage, admin panel, statistics, click logs, postback handling, and multiple integration modes.
+YellowTDS is a traffic distribution system for routing traffic according to campaign rules. The project includes the filtering engine, SQLite storage, admin panel, statistics, click logs, postback handling, and multiple integration modes.
 
 ## What This Product Does
 

@@ -5,9 +5,9 @@ require_once __DIR__ . '/../requestfunc.php';
 require_once __DIR__ . '/password.php';
 
 class AutoUpdater {
-    private const GITHUB_REPO = 'dvygolov/YellowCloaker';
+    private const GITHUB_REPO = 'dvygolov/YellowTDS';
     private const GITHUB_BRANCH = 'multipleconfigs';
-    private const GITHUB_API_URL = 'https://api.github.com/repos/dvygolov/YellowCloaker/contents/admin/version.txt?ref=multipleconfigs';
+    private const GITHUB_API_URL = 'https://api.github.com/repos/dvygolov/YellowTDS/contents/admin/version.txt?ref=multipleconfigs';
     private const VERSION_FILE = __DIR__ . '/version.txt';
     private const SETTINGS_FILE = __DIR__ . '/../settings.php';
     private const BACKUP_DIR = __DIR__ . '/../backups';
@@ -32,7 +32,7 @@ class AutoUpdater {
                 followRedirects: true,
                 verifyPeer: true,
                 verifyHost: 2,
-                userAgent: 'YellowCloaker Updater',
+                userAgent: 'YellowTDS Updater',
             ));
             if (!$httpResponse->isOk()) {
                 throw new Exception("Failed to fetch version information: HTTP {$httpResponse->httpCode()} {$httpResponse->error}");
@@ -282,7 +282,7 @@ class AutoUpdater {
             followRedirects: true,
             verifyPeer: true,
             verifyHost: 2,
-            userAgent: 'YellowCloaker Updater',
+            userAgent: 'YellowTDS Updater',
         ));
         return $response->isOk() && file_put_contents($path, (string)$response->content) !== false;
     }

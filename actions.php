@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/redirect.php';
-class CloakerAction
+class TdsAction
 {
     public string $click_type;
     public string $action;
@@ -32,9 +32,9 @@ class CloakerAction
     }
 }
 
-class JsAction extends CloakerAction
+class JsAction extends TdsAction
 {
-    public static function FromCloakerAction(CloakerAction $action):JsAction
+    public static function FromTdsAction(TdsAction $action):JsAction
     {
         return new JsAction($action->click_type, $action->action, $action->value, $action->redirect_type);
     }
@@ -98,9 +98,9 @@ class JsAction extends CloakerAction
 }
 
 
-class PhpAction extends CloakerAction
+class PhpAction extends TdsAction
 {
-    public static function FromCloakerAction(CloakerAction $action):PhpAction
+    public static function FromTdsAction(TdsAction $action):PhpAction
     {
         return new PhpAction($action->click_type, $action->action, $action->value, $action->redirect_type);
     }

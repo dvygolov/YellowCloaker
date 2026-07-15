@@ -1505,7 +1505,7 @@ class Db
 
     public function get_campaign_by_domain(): array|bool
     {
-        $cPath = get_cloaker_path(true, false);
+        $cPath = get_tds_path(true, false);
         $parsedUrl = parse_url($cPath);
         $domain = isset($parsedUrl['port']) ?
             $parsedUrl['host'] . ":" . $parsedUrl['port'] :

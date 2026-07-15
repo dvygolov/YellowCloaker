@@ -1,8 +1,8 @@
 # Overview
 
-## What YellowCloaker Is
+## What YellowTDS Is
 
-YellowCloaker is a PHP traffic cloaker and routing system. It decides which scenario should be applied to each request:
+YellowTDS is a PHP traffic distribution and routing system. It decides which scenario should be applied to each request:
 
 - white
 - black
@@ -20,4 +20,3 @@ The system stores click, lead, payout, event, and campaign data in SQLite and ex
 - step
 - postback settings
 - statistics settings
-

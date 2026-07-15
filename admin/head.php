@@ -4,8 +4,8 @@ require_once __DIR__.'/../paths.php';
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="ie=edge" />
-    <title>Yellow Cloaker</title>
-    <meta name="description" content="Free cloaking script for affiliate marketing" />
+    <title>YellowTDS</title>
+    <meta name="description" content="Traffic distribution system for affiliate marketing" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="shortcut icon" type="image/png" href="<?=get_admin_base_url()?>img/favicon.png" />
     <?php include_once "css.php" ?>

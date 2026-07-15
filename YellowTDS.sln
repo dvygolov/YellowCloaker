@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34511.84
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{13B669BE-BB05-4DDF-9536-439F39A36129}") = "YellowCloaker", "YellowCloaker.phpproj", "{21CE54A4-EFC5-4616-BD3F-2449B944D7B6}"
+Project("{13B669BE-BB05-4DDF-9536-439F39A36129}") = "YellowTDS", "YellowTDS.phpproj", "{21CE54A4-EFC5-4616-BD3F-2449B944D7B6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

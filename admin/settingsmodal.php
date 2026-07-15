@@ -81,8 +81,8 @@
 
                 <section class="settings-tab-panel" data-settings-panel="updates">
                     <div class="settings-update-card">
-                        <div><h6>Yellow Cloaker</h6><div id="cloakerVersion" class="settings-update-meta"></div></div>
-                        <button type="button" class="btn btn-primary" id="updateCloaker"><i class="bi bi-cloud-arrow-down"></i> Check &amp; update</button>
+                        <div><h6>YellowTDS</h6><div id="tdsVersion" class="settings-update-meta"></div></div>
+                        <button type="button" class="btn btn-primary" id="updateTds"><i class="bi bi-cloud-arrow-down"></i> Check &amp; update</button>
                     </div>
                     <div class="settings-update-card">
                         <div><h6>GeoBases</h6><div id="geoBasesVersion" class="settings-update-meta"></div></div>

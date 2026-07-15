@@ -1,6 +1,6 @@
-# YellowCloaker — Project Overview
+# YellowTDS — Project Overview
 
-YellowCloaker — PHP-клоакер для арбитража трафика. Фильтрует входящий трафик: ботов и модераторов отправляет на "белую" страницу, реальных пользователей — на оффер (мультишаговые воронки). Работает на чистом PHP + SQLite, без фреймворков.
+YellowTDS — PHP Traffic Distribution System для арбитража трафика. Фильтрует входящий трафик: нежелательный трафик отправляет на "белую" страницу, реальных пользователей — на оффер (мультишаговые воронки). Работает на чистом PHP + SQLite, без фреймворков.
 
 ## Публикация в GitHub
 
@@ -8,6 +8,7 @@ YellowCloaker — PHP-клоакер для арбитража трафика. �
 - Если пользователь просит отправить готовые изменения на GitHub, коммить изменения задачи непосредственно в `multipleconfigs` и выполняй push в `origin/multipleconfigs`.
 - Не создавай ветки `agent/*`, feature-ветки и pull request, если пользователь явно не попросил отдельную ветку или PR.
 - Перед коммитом всё равно проверь scope через `git status` и diff, не добавляй runtime-файлы, секреты и посторонние пользовательские изменения.
+- Перед коммитом измени версию системы, поставь текущую дату в формате dd.MM.yy
 
 ## Архитектура (request flow)
 
@@ -21,34 +22,33 @@ index.php                     — точка входа, роутинг
   │    │    ├─ htmlprocessing.php    — загрузка и обработка HTML лендингов/вайтов
   │    │    └─ macros.php            — подстановка макросов ({clickid}, {country}, {c.*}, ...)
   │    └─ campaign.php               — все модели настроек кампании (Campaign, WhiteSettings, BlackSettings, FlowSettings, ...)
-  └─ actions.php              — CloakerAction, JsAction, PhpAction — выполнение результата (html/redirect/error)
+  └─ actions.php              — TdsAction, JsAction, PhpAction — выполнение результата (html/redirect/error)
 ```
 
 ## Режимы подключения
 
-- **Прямой (index.php)** — клоакер стоит на домене, трафик идёт напрямую
+- **Прямой (index.php)** — TDS стоит на домене, трафик идёт напрямую
 - **JS Connect (js/index.php → js/connect.js)** — подключение через `<script>` тег на белой странице. Ответ — JS-код, который заменяет контент или показывает iframe
-- **PHP Connect (phpconnect.php)** — серверный API, POST JSON с api_key. Ответ — JSON с действием
+- **PHP Connect (`api/phpconnect.php`)** — серверный API, POST JSON с api_key. Ответ — JSON с действием
 
 ## Структура файлов
 
 ```
 fromfolder/
 ├── index.php              — главная точка входа
-├── settings.php           — конфигурация (пароль, пути кэша, debug-режим)
+├── settings.php           — SettingsManager: defaults + локальная конфигурация, валидация, ревизии и безопасное переименование runtime-путей
 ├── core.php               — FiltrationCore: сбор click_params, матчинг фильтров (GEO, device, OS, ISP, referer, URL params, VPN/proxy)
 ├── tds.php                — Tds: маршрутизация (getAction, getJsAction, processJsCheck, getPhpAction, pick_flow_index)
 ├── main.php               — white(), black(), jscheck(), traficback() — основные действия
 ├── campaign.php           — Модели: Campaign, WhiteSettings, BlackSettings, FlowSettings, PrelandSettings, LandingSettings, JsBotDetection, ScriptsSettings, PostbackSettings, StatisticsSettings, StatisticsTable, S2sPostback, DomainWhiteSettings
-├── actions.php            — CloakerAction (html/redirect/error/die), JsAction (replace/iframe/metaredirect), PhpAction (JSON API)
+├── actions.php            — TdsAction (html/redirect/error/die), JsAction (replace/iframe/metaredirect), PhpAction (JSON API)
 ├── abtest.php             — AbTest: equal/weighted/Thompson Sampling (Beta distribution, Marsaglia & Tsang), compute_win_probabilities (Monte Carlo)
 ├── htmlprocessing.php     — Загрузка и обработка HTML шагов воронки и white-страниц (макросы, backfix, rewrite, sanitize)
 ├── directload.php         — Direct Load режим: раздача статики через 404 catch-all (black шаги через `__dl/<clickid>/<step>/...`, white/white_curl)
 ├── cookies.php            — Работа с cookies и сессиями (set_cookie, get_cookie, session_write/read/remove, userid, clickid, px, conversion dedup)
 ├── macros.php             — MacrosProcessor: подстановка макросов в URL и HTML ({clickid}, {userid}, {domain}, {ip}, {country}, {c.*}, {hash:*}, {random:*})
-├── paths.php              — get_cloaker_path(), is_https(), get_abs_from_rel()
+├── paths.php              — get_tds_path(), admin path helpers, is_https()
 ├── currency.php           — CurrencyConverter: конвертация валют в USD (Frankfurter API + Turkish Central Bank XML), с файловым кэшем
-├── postback.php           — Приём постбэков (clickid + status + payout), конвертация валюты, обновление статуса, отправка S2S постбэков
 ├── send.php               — Отправка формы лендинга на партнёрку (POST proxy), дедупликация, UTP (Universal Thank You Page)
 ├── next.php               — Переход между шагами воронки (`clickid` + `step`)
 ├── redirect.php           — Функция redirect() (301/302/meta/js)
@@ -56,7 +56,12 @@ fromfolder/
 ├── htmlinject.php         — Вставка скриптов в HTML (insert_after_tag, insert_before_tag, insert_file_content)
 ├── logging.php            — add_log(), add_error_log()
 ├── debug.php              — DebugMethods: замер времени, debug-заголовки
-├── updateparams.php       — Обновление параметров клика (cost, params) через API
+│
+├── api/                   — HTTP API
+│   ├── events.php         — события клиентских скриптов
+│   ├── phpconnect.php     — PHP Connect, POST JSON с api_key
+│   ├── postback.php       — входящие статусы и payout, S2S postbacks
+│   └── updateparams.php   — обновление cost и params клика
 │
 ├── js/                    — Клиентские JS-скрипты
 │   ├── index.php          — JS Connect точка входа
@@ -82,6 +87,11 @@ fromfolder/
 │   ├── iputils.php        — IP-утилиты (CIDR matching)
 │   └── language.php       — Определение языка по Accept-Language
 │
+├── plugins/               — Расширяемые источники данных
+│   ├── registry.php       — discovery, enable/disable и конфигурация плагинов
+│   ├── currency/          — Frankfurter и Turkish Central Bank
+│   └── vpn/               — Blackbox и GetIPIntel proxy/VPN проверки
+│
 ├── db/                    — База данных
 │   ├── db.php             — Класс Db (SQLite3): CRUD кампаний, кликов, статистики, постбэков
 │   ├── db.sql             — SQL-схема (таблицы: campaigns, clicks, click_steps, blocked, trafficback, common)
@@ -99,6 +109,8 @@ fromfolder/
 ├── reverse/               — Reverse proxy (для nginx)
 ├── thankyou/              — Universal Thank You Page (UTP)
 ├── admin/                 — Админ-панель (см. admin/agents.md)
+├── docs/                  — Двуязычная документация и UI-скриншоты
+├── tests/                 — PHPUnit: installer, updater, settings, HTTP, plugins, GeoBases
 ├── logs/                  — Логи
 ├── ycclogs/               — Логи YCC
 └── tmp/                   — Временные файлы

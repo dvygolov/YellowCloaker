@@ -8,7 +8,7 @@ require_once __DIR__ . '/cookies.php';
 
 class Tds
 {
-    public static function getAction(): CloakerAction
+    public static function getAction(): TdsAction
     {
         global $db;
         $dbCamp = $db->get_campaign_by_domain();
@@ -71,7 +71,7 @@ class Tds
                 }
             }
         }
-        return JsAction::FromCloakerAction($action);
+        return JsAction::FromTdsAction($action);
     }
 
     public static function processJsCheck(): JsAction
@@ -124,10 +124,10 @@ class Tds
             $flowIndex = self::pick_flow_index($clkr, $c->black->flows);
             if ($flowIndex === null) {
                 $action = traficback($clkr->click_params);
-                $action = JsAction::FromCloakerAction($action);
+                $action = JsAction::FromTdsAction($action);
             } else {
                 $action = black($c, $flowIndex, $clkr->click_params);
-                $action = JsAction::FromCloakerAction($action);
+                $action = JsAction::FromTdsAction($action);
                 if ($c->black->jsconnectAction === 'iframe') {
                     $action->action = 'html_iframe';
                 } else {
@@ -166,7 +166,7 @@ class Tds
                 }
             }
         }
-        return PhpAction::FromCloakerAction($action);
+        return PhpAction::FromTdsAction($action);
     }
 
     public static function pick_flow_index(FiltrationCore $clkr, array $flows): ?int

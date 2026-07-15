@@ -10,7 +10,7 @@ require_once __DIR__ . '/abtest.php';
 require_once __DIR__ . '/requestfunc.php';
 require_once __DIR__ . '/actions.php';
 
-function traficback(array $clickParams): CloakerAction
+function traficback(array $clickParams): TdsAction
 {
     global $db;
     $db->add_trafficback_click($clickParams);
@@ -19,17 +19,17 @@ function traficback(array $clickParams): CloakerAction
     $tbUrl = $mp->replace_url_macros($cs['trafficBackUrl']);
 
     return empty($tbUrl) ?
-        new CloakerAction('traficback', 'die', 'NO CAMPAIGN FOR THIS DOMAIN AND TRAFFICBACK NOT SET!') :
-        new CloakerAction('traficback', 'redirect', $tbUrl);
+        new TdsAction('traficback', 'die', 'NO CAMPAIGN FOR THIS DOMAIN AND TRAFFICBACK NOT SET!') :
+        new TdsAction('traficback', 'redirect', $tbUrl);
 }
 
-function jscheck(Campaign $c): CloakerAction
+function jscheck(Campaign $c): TdsAction
 {
     $page = load_content_with_include('js/jscheck.html');
 
     $detectJs = file_get_contents(__DIR__ . '/js/detect.js');
     $detectJs = str_replace('{DEBUG}', DebugMethods::on() ? 'true' : 'false', $detectJs);
-    $detectJs = str_replace('{DOMAIN}', get_cloaker_path(), $detectJs);
+    $detectJs = str_replace('{DOMAIN}', get_tds_path(), $detectJs);
 
     $jbd = $c->black->jsBotDetection;
     $js_checks_str = implode('", "', $jbd->events);
@@ -53,10 +53,10 @@ function jscheck(Campaign $c): CloakerAction
     $page = insert_after_tag($page, $needle, "<script>{$jscheckui}</script>");
 
     session_write('jscheck_pending', time());
-    return new CloakerAction('jscheck', 'html', $page);
+    return new TdsAction('jscheck', 'html', $page);
 }
 
-function white(Campaign $c): CloakerAction
+function white(Campaign $c): TdsAction
 {
     $ws = $c->white;
     $action = $ws->action;
@@ -94,25 +94,25 @@ function white(Campaign $c): CloakerAction
         case 'error':
             $curcode = $abtest->select_item($error_codes, 'white', false);
             session_write('white', $curcode[0]);
-            return new CloakerAction('white', 'error', $curcode[0]);
+            return new TdsAction('white', 'error', $curcode[0]);
         case 'folder':
             $curfolder = $abtest->select_item($folder_names, 'white', true);
             session_write('white', $curfolder[0]);
-            return new CloakerAction('white', 'html', load_white_content($curfolder[0], $loadModeSource->getLoadMode($curfolder[0])));
+            return new TdsAction('white', 'html', load_white_content($curfolder[0], $loadModeSource->getLoadMode($curfolder[0])));
         case 'curl':
             $cururl = $abtest->select_item($curl_urls, 'white', false);
             session_write('white', $cururl[0]);
-            return new CloakerAction('white', 'html', load_white_curl($cururl[0], $loadModeSource->getLoadMode($cururl[0])));
+            return new TdsAction('white', 'html', load_white_curl($cururl[0], $loadModeSource->getLoadMode($cururl[0])));
         case 'redirect':
             $cururl = $abtest->select_item($redirect_urls, 'white', false);
             session_write('white', $cururl[0]);
-            return new CloakerAction('white', 'redirect', $cururl[0], $redirect_type);
+            return new TdsAction('white', 'redirect', $cururl[0], $redirect_type);
         default:
-            return new CloakerAction('white', 'error', 404);
+            return new TdsAction('white', 'error', 404);
     }
 }
 
-function black(Campaign $c, int $flowIndex, array $clickparams): CloakerAction
+function black(Campaign $c, int $flowIndex, array $clickparams): TdsAction
 {
     global $db;
 
@@ -124,7 +124,7 @@ function black(Campaign $c, int $flowIndex, array $clickparams): CloakerAction
     $steps = $flow->steps;
 
     if (empty($steps)) {
-        return new CloakerAction('black', 'die', "No steps defined in flow: " . $flow->name);
+        return new TdsAction('black', 'die', "No steps defined in flow: " . $flow->name);
     }
 
     $abtest = new AbTest($c);
@@ -163,7 +163,7 @@ function black(Campaign $c, int $flowIndex, array $clickparams): CloakerAction
     }
 
     if (!is_valid_planned_path($plannedPath, $steps)) {
-        return new CloakerAction('black', 'die', "Invalid planned path for flow: " . $flow->name);
+        return new TdsAction('black', 'die', "Invalid planned path for flow: " . $flow->name);
     }
 
     if ($c->saveUserFlow) {
@@ -172,10 +172,10 @@ function black(Campaign $c, int $flowIndex, array $clickparams): CloakerAction
 
     // Record one click per full pass and first entered step.
     if (!$db->add_black_click($userid, $clickid, $clickparams, $plannedPath, $flow->name, $c->campaignId)) {
-        return new CloakerAction('black', 'die', 'Failed to record click');
+        return new TdsAction('black', 'die', 'Failed to record click');
     }
     if (!$db->add_click_step($clickid, 0, $plannedPath[0])) {
-        return new CloakerAction('black', 'die', 'Failed to record step entry');
+        return new TdsAction('black', 'die', 'Failed to record step entry');
     }
 
     // Serve step 0 content
@@ -186,16 +186,16 @@ function black(Campaign $c, int $flowIndex, array $clickparams): CloakerAction
         $url = $step0->getRedirectUrlByLabel($chosenVariant);
         $mp = new MacrosProcessor($c, $clickparams);
         $url = $mp->replace_url_macros($url);
-        return new CloakerAction('black', 'redirect', $url, $step0->redirectType);
+        return new TdsAction('black', 'redirect', $url, $step0->redirectType);
     }
 
     if ($step0->isDirectLoad($chosenVariant)) {
         $dlUrl = get_directload_step_url($clickid, 0);
-        return new CloakerAction('black', 'redirect', $dlUrl, 302);
+        return new TdsAction('black', 'redirect', $dlUrl, 302);
     }
 
     $html = load_step($c, $flow, 0, $chosenVariant, $clickid, false);
-    return new CloakerAction('black', 'html', $html);
+    return new TdsAction('black', 'html', $html);
 }
 
 function get_saved_flow_path(int $campId, string $flowName, array $steps): array

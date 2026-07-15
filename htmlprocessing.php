@@ -39,14 +39,14 @@ function load_content_with_include($url): string
 
 function get_next_step_url(string $clickid, int $stepIndex): string
 {
-    $cloaker = get_cloaker_relative_path();
-    return $cloaker . 'next.php?' . http_build_query(['clickid' => $clickid, 'step' => $stepIndex]);
+    $tds = get_tds_relative_path();
+    return $tds . 'next.php?' . http_build_query(['clickid' => $clickid, 'step' => $stepIndex]);
 }
 
 function get_directload_step_url(string $clickid, int $stepIndex, string $relativePath = ''): string
 {
-    $cloaker = get_cloaker_relative_path();
-    $base = $cloaker . '__dl/' . rawurlencode($clickid) . '/' . $stepIndex . '/';
+    $tds = get_tds_relative_path();
+    $base = $tds . '__dl/' . rawurlencode($clickid) . '/' . $stepIndex . '/';
     $relativePath = ltrim($relativePath, '/');
     if ($relativePath === '') {
         return $base;
@@ -58,16 +58,16 @@ function get_directload_step_url(string $clickid, int $stepIndex, string $relati
 
 function build_send_action_url(string $originalAction, string $clickid, string $folderName): string
 {
-    $cloaker = get_cloaker_relative_path();
+    $tds = get_tds_relative_path();
     $query = http_build_query([
         'original_action' => $originalAction,
         'clickid' => $clickid,
         'folder' => $folderName,
     ]);
-    return $cloaker . 'send.php?' . $query;
+    return $tds . 'send.php?' . $query;
 }
 
-function get_cloaker_relative_path(): string
+function get_tds_relative_path(): string
 {
     $scriptPath = array_values(array_filter(explode('/', (string)($_SERVER['SCRIPT_NAME'] ?? '')), 'strlen'));
     array_pop($scriptPath);
@@ -193,7 +193,7 @@ function add_event_tracking(string $html, ScriptsSettings $scripts, string $clic
         return $html;
     }
 
-    $eventApiUrl = get_cloaker_relative_path() . 'api/events.php';
+    $eventApiUrl = get_tds_relative_path() . 'api/events.php';
     return insert_file_content(
         $html,
         'eventtracking.js',
@@ -225,14 +225,14 @@ function fix_src($html): string
 
 function fix_root_relative_urls(string $html): string
 {
-    $cloakerBase = rtrim(get_cloaker_relative_path(), '/');
+    $tdsBase = rtrim(get_tds_relative_path(), '/');
     $html = preg_replace_callback(
         '/(\s(?:src|href|action)=[\'\"])(\/(?!\/)[^\'\"]*)/i',
-        function ($matches) use ($cloakerBase) {
+        function ($matches) use ($tdsBase) {
             $attrPrefix = $matches[1];
             $url = $matches[2];
 
-            if ($cloakerBase !== '' && str_starts_with($url, $cloakerBase . '/')) {
+            if ($tdsBase !== '' && str_starts_with($url, $tdsBase . '/')) {
                 return $attrPrefix . $url;
             }
 
@@ -296,7 +296,7 @@ function load_white_content($url, string $mode = 'base'): string
             $html = fix_root_relative_urls($html);
             break;
         case 'rewrite':
-            $baseurl = get_cloaker_path() . $path . '/';
+            $baseurl = get_tds_path() . $path . '/';
             $html = rewrite_relative_urls($html, $baseurl);
             break;
         case 'base':
@@ -366,7 +366,7 @@ function load_white_curl(string $url, string $mode = 'rewrite'): string
 function add_backfix(string $html, array $urls): string
 {
     $debug = DebugMethods::On() ? 'true' : 'false';
-    $path = get_cloaker_path(true, false);
+    $path = get_tds_path(true, false);
     $linksJson = htmlspecialchars(json_encode(array_values($urls)), ENT_QUOTES);
     $jsCode = <<<EOT
     <script src='{$path}/scripts/backfix.php' 

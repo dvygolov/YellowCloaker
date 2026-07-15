@@ -15,7 +15,7 @@ if (!empty($clickid)) {
 
 //send to Aff Network only if it's not empty and not a duplicate
 if (empty($_POST) || has_conversion_cookies($_POST)) {
-    redirect(get_cloaker_path());
+    redirect(get_tds_path());
     return;
 }
 

@@ -216,7 +216,7 @@ function send_access_control_headers(): void
 
 function get_abs_from_rel(string $url): string
 {
-    $fullpath = get_cloaker_path() . $url;
+    $fullpath = get_tds_path() . $url;
     if (!str_ends_with($url, '.php')) {
         $fullpath .= '/';
     }

@@ -1,6 +1,6 @@
 # System Settings
 
-The **Settings** button in the header opens instance-wide YellowCloaker settings. These values are separate from campaign settings.
+The **Settings** button in the header opens instance-wide YellowTDS settings. These values are separate from campaign settings.
 
 ![System settings modal](../assets/screenshots/settings-modal-general.png)
 
@@ -9,7 +9,7 @@ The **Settings** button in the header opens instance-wide YellowCloaker settings
 - **General** — new password, admin domain/IP restrictions, admin path, UTP, and debug mode.
 - **Storage** — SQLite file name, cache root, and cache directory names.
 - **Plugins** — currency sources and VPN/proxy detectors, preferred currencies, and `any`/`most` decision mode.
-- **Updates** — check and install a YellowCloaker update or refresh GeoBases.
+- **Updates** — check and install a YellowTDS update or refresh GeoBases.
 
 The server-detected current IP is shown below **Allowed admin IP**. **Add current IP** copies it into the field with one click. On the **Plugins** tab, every plugin has an explicit switch and an **Enabled** or **Disabled** label; options belonging to a disabled plugin are inactive.
 
