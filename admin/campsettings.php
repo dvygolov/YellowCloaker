@@ -16,7 +16,18 @@ global $c, $db, $campId;
     <div class="all-content-wrapper">
         <div class="camp-layout">
             <nav class="camp-sidebar">
-                <div class="camp-name"><?= htmlspecialchars($campName) ?></div>
+                <div class="camp-name">
+                    <span class="camp-name-text"><?= htmlspecialchars($campName) ?></span>
+                    <button
+                        type="button"
+                        class="camp-rename-btn"
+                        id="renameCampaign"
+                        data-campaign-id="<?= (int)$campId ?>"
+                        data-campaign-name="<?= htmlspecialchars($campName, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+                        title="Rename campaign"
+                        aria-label="Rename campaign <?= htmlspecialchars($campName, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"
+                    ><i class="bi bi-pencil-fill" aria-hidden="true"></i></button>
+                </div>
                 <ul>
                     <li><a href="#sec-domains" class="active">Domains</a></li>
                     <li><a href="#sec-safepage">Safe Page</a></li>

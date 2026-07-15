@@ -9,7 +9,8 @@ The campaign settings page includes:
 - Flows
 - Scripts
 - Postbacks
-- Statistics
+
+The campaign name is shown at the top of the sidebar. Use the pencil icon beside it to rename the campaign without returning to the dashboard.
 
 ## White
 
@@ -22,7 +23,3 @@ Defines what blocked or filtered traffic receives.
 Defines the black branch routing for allowed traffic.
 
 ![Flows section in campaign settings](../assets/screenshots/campaign-settings-flows.png)
-
-## Statistics
-
-Defines timezone, click-view columns, and custom statistics tables.

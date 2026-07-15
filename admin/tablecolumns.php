@@ -217,7 +217,7 @@ class Tabulator
                 const name = data.name;
                 if (!id) return name || '';
                 return `<div class="camp-name-cell">
-                    <a href="campsettings.php?campId=\${id}" class="camp-name-link">\${name}</a>
+                    <a href="statistics.php?campId=\${id}\${getStartDateEndDateParams()}" class="camp-name-link" title="Open statistics">\${name}</a>
                     <button class="camp-menu-btn" title="Actions"><i class="bi bi-three-dots-vertical"></i></button>
                 </div>`;
             },

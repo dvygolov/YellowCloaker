@@ -1,9 +1,9 @@
 async function campEditor(action, campId=null, name=null) {
-    let body = `action=${action}`;
-    if (campId)
-        body += `&campId=${campId}`;
-    if (name)
-        body += `&name=${name}`;
+    const body = new URLSearchParams({ action });
+    if (campId !== null)
+        body.set('campId', campId);
+    if (name !== null)
+        body.set('name', name);
 
     let url = new URL(window.location.href);
     let curPath = url.origin + url.pathname;
@@ -18,7 +18,7 @@ async function campEditor(action, campId=null, name=null) {
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: body
+        body: body.toString()
     });
     let js = await res.json();
     if (js.error)
@@ -41,9 +41,8 @@ document.addEventListener('DOMContentLoaded', function() {
     campMenuDropdown = document.createElement('div');
     campMenuDropdown.className = 'camp-menu-dropdown';
     campMenuDropdown.innerHTML = `
-        <div class="camp-menu-item btn-rename"><i class="bi bi-pencil-fill"></i> Rename</div>
+        <div class="camp-menu-item btn-settings"><i class="bi bi-pencil-fill"></i> Settings</div>
         <div class="camp-menu-item btn-clone"><i class="bi bi-copy"></i> Clone</div>
-        <div class="camp-menu-item btn-stats"><i class="bi bi-bar-chart-fill"></i> Statistics</div>
         <div class="camp-menu-item btn-allowed"><i class="bi bi-person-circle"></i> Allowed</div>
         <div class="camp-menu-item btn-blocked"><i class="bi bi-ban"></i> Blocked</div>
         <div class="camp-menu-item btn-leads"><i class="bi bi-coin"></i> Leads</div>
@@ -60,6 +59,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
     document.addEventListener('scroll', closeCampMenu, true);
 
+    document.querySelector('#renameCampaign')?.addEventListener('click', async function() {
+        const campaignId = this.dataset.campaignId;
+        const currentName = this.dataset.campaignName ?? '';
+        const newName = prompt('Enter new campaign name:', currentName);
+        if (newName == null) return;
+        const trimmedName = newName.trim();
+        if (!trimmedName) {
+            alert('Campaign name can not be empty!');
+            return;
+        }
+        await campEditor('ren', campaignId, trimmedName);
+    });
+
     campMenuDropdown.addEventListener('click', async function(e) {
         const menuItem = e.target.closest('.camp-menu-item');
         if (!menuItem || !_campMenuId) return;
@@ -69,16 +81,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const campaignName = _campMenuName;
         closeCampMenu();
 
-        if (menuItem.classList.contains('btn-rename')) {
-            const currentName = campaignName ?? '';
-            const newName = prompt("Enter new campaign name:", currentName);
-            if (newName == null) return;
-            const trimmedName = newName.trim();
-            if (trimmedName) {
-                await campEditor('ren', campaignId, trimmedName);
-            } else {
-                alert('Campaign name can not be empty!');
-            }
+        if (menuItem.classList.contains('btn-settings')) {
+            window.location.href = `campsettings.php?campId=${campaignId}`;
             return;
         }
 
@@ -103,11 +107,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         let startDateEndDateParams = getStartDateEndDateParams();
-        if (menuItem.classList.contains('btn-stats')) {
-            window.location.href = `statistics.php?campId=${campaignId}${startDateEndDateParams}`;
-            return;
-        }
-
         if (menuItem.classList.contains('btn-allowed')) {
             window.location.href = `clicks.php?campId=${campaignId}&view=allowed${startDateEndDateParams}`;
             return;

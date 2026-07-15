@@ -9,7 +9,8 @@
 - Flows
 - Scripts
 - Postbacks
-- Statistics
+
+Название кампании отображается в верхней части бокового меню. Значок карандаша справа от него позволяет переименовать кампанию, не возвращаясь на dashboard.
 
 ## Domains
 
@@ -57,11 +58,3 @@
 
 - inbound status mapping
 - outgoing S2S postbacks
-
-## Statistics
-
-Здесь настраиваются:
-
-- timezone
-- click-table columns
-- custom statistics tables
