@@ -34,9 +34,9 @@ $dataset = $db->get_campaigns(
 <!doctype html>
 <html lang="en">
 <?php include __DIR__ . "/head.php" ?>
-<body>
+<body class="dashboard-page">
     <?php include __DIR__ . "/header.php" ?>
-    <div class="all-content-wrapper">
+    <div class="all-content-wrapper dashboard-content" id="dashboardContent">
         <div class="buttons-block">
             <button id="newCampaign" title="Create new campaign" class="btn btn-primary"><i
                     class="bi bi-plus-circle-fill"></i> New</button>
@@ -53,7 +53,34 @@ $dataset = $db->get_campaigns(
                         class="bi bi-download"></i></button>
             </div>
         </div>
-        <div id="campaigns"></div>
+        <div class="campaign-table-shell">
+            <div id="campaigns"></div>
+        </div>
+        <div class="system-statusbar" id="systemStatus" role="status" aria-live="polite">
+            <span class="system-status-item" id="statusFree" title="Free space on the disk containing YellowTDS">
+                <i class="bi bi-device-hdd" aria-hidden="true"></i>
+                <span class="system-status-label">Free:</span>
+                <span class="system-status-value" id="statusFreeValue">…</span>
+            </span>
+            <span class="system-status-separator" aria-hidden="true"></span>
+            <span class="system-status-item" id="statusDatabase" title="SQLite database including WAL and shared-memory files">
+                <i class="bi bi-database" aria-hidden="true"></i>
+                <span class="system-status-label">DB:</span>
+                <span class="system-status-value" id="statusDatabaseValue">…</span>
+            </span>
+            <span class="system-status-separator" aria-hidden="true"></span>
+            <span class="system-status-item" id="statusCache" title="All files in the configured cache directory, including landing and white pages">
+                <i class="bi bi-folder2-open" aria-hidden="true"></i>
+                <span class="system-status-label">Cache:</span>
+                <span class="system-status-value" id="statusCacheValue">…</span>
+            </span>
+            <span class="system-status-separator" aria-hidden="true"></span>
+            <span class="system-status-item" id="statusLogs" title="All YellowTDS log files">
+                <i class="bi bi-journal-text" aria-hidden="true"></i>
+                <span class="system-status-label">Logs:</span>
+                <span class="system-status-value" id="statusLogsValue">…</span>
+            </span>
+        </div>
     </div>
     <style>
         .buttons-block {
@@ -140,8 +167,81 @@ $dataset = $db->get_campaigns(
             background: #334155;
             margin: 4px 0;
         }
+        .dashboard-page {
+            overflow: hidden;
+        }
+        .dashboard-content {
+            display: flex;
+            flex-direction: column;
+            min-height: 220px;
+        }
+        .campaign-table-shell {
+            flex: 1 1 auto;
+            min-height: 0;
+        }
+        #campaigns {
+            height: 100%;
+        }
+        .system-statusbar {
+            display: flex;
+            flex: 0 0 auto;
+            align-items: center;
+            gap: 12px;
+            min-height: 36px;
+            margin-top: 8px;
+            padding: 6px 12px;
+            overflow-x: auto;
+            color: #94a3b8;
+            background: #1b2a47;
+            border: 1px solid #2f405f;
+            border-radius: 5px;
+            font-size: 13px;
+            line-height: 1;
+            white-space: nowrap;
+            scrollbar-width: thin;
+        }
+        .system-status-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .system-status-item i {
+            color: #60a5fa;
+            font-size: 15px;
+        }
+        .system-status-label {
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+        .system-status-value {
+            color: #f1f5f9;
+            font-variant-numeric: tabular-nums;
+        }
+        .system-status-separator {
+            width: 1px;
+            height: 16px;
+            background: #475569;
+        }
+        .system-status-item.status-warning i,
+        .system-status-item.status-warning .system-status-value {
+            color: #f59e0b;
+        }
+        .system-status-item.status-critical i,
+        .system-status-item.status-critical .system-status-value,
+        .system-status-item.status-unavailable i,
+        .system-status-item.status-unavailable .system-status-value {
+            color: #f87171;
+        }
     </style>
     <script>
+        function resizeDashboard() {
+            const dashboard = document.getElementById('dashboardContent');
+            const top = dashboard.getBoundingClientRect().top;
+            dashboard.style.height = `${Math.max(220, Math.floor(window.innerHeight - top - 5))}px`;
+        }
+
+        resizeDashboard();
+
         let tableData = <?= json_encode($dataset) ?>;
         let tableColumns = <?= Tabulator::get_campaigns_columns($gs['statistics']['table']) ?>;
         let table = new Tabulator('#campaigns', {
@@ -159,6 +259,58 @@ $dataset = $db->get_campaigns(
             }
         });
 
+        let dashboardResizeTimer;
+        window.addEventListener('resize', function () {
+            clearTimeout(dashboardResizeTimer);
+            dashboardResizeTimer = setTimeout(function () {
+                resizeDashboard();
+                table.redraw(true);
+            }, 80);
+        });
+
+        function formatStatusBytes(bytes) {
+            if (!Number.isFinite(bytes) || bytes < 0) return '—';
+            if (bytes === 0) return '0 B';
+            const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
+            const unitIndex = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+            const value = bytes / Math.pow(1024, unitIndex);
+            const maximumFractionDigits = unitIndex === 0 ? 0 : 1;
+            return `${new Intl.NumberFormat(undefined, { maximumFractionDigits }).format(value)} ${units[unitIndex]}`;
+        }
+
+        function setStatusValue(name, metric) {
+            const item = document.getElementById(`status${name}`);
+            const value = document.getElementById(`status${name}Value`);
+            item.classList.toggle('status-unavailable', !metric || metric.available === false);
+            value.textContent = metric && metric.available !== false ? formatStatusBytes(metric.bytes) : '—';
+        }
+
+        async function loadSystemStatus() {
+            const freeItem = document.getElementById('statusFree');
+            const freeValue = document.getElementById('statusFreeValue');
+            try {
+                const response = await fetch('systemstatus.php', { headers: { 'Accept': 'application/json' } });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const status = await response.json();
+                if (status.error) throw new Error(status.error);
+
+                const disk = status.disk || {};
+                freeItem.classList.remove('status-warning', 'status-critical', 'status-unavailable');
+                freeItem.classList.add(`status-${disk.level || 'unavailable'}`);
+                freeValue.textContent = Number.isFinite(disk.freeBytes) && Number.isFinite(disk.freePercent)
+                    ? `${formatStatusBytes(disk.freeBytes)} (${new Intl.NumberFormat(undefined, { maximumFractionDigits: 1 }).format(disk.freePercent)}%)`
+                    : '—';
+
+                setStatusValue('Database', status.database);
+                setStatusValue('Cache', status.cache);
+                setStatusValue('Logs', status.logs);
+            } catch (error) {
+                document.querySelectorAll('.system-status-item').forEach(item => item.classList.add('status-unavailable'));
+                document.querySelectorAll('.system-status-value').forEach(value => value.textContent = '—');
+                document.getElementById('systemStatus').title = `System status unavailable: ${error.message}`;
+            }
+        }
+
         table.on("columnResized", async function (column) {
             let updatedColumn = { field: column.getField(), width: column.getWidth() };
             await fetch("clmnseditor.php?action=width&table=campaigns", {
@@ -173,6 +325,7 @@ $dataset = $db->get_campaigns(
     <?php include __DIR__ . "/clmnspopup.html" ?>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
+            loadSystemStatus();
             document.getElementById("newCampaign").onclick = async () => {
                 let campName = prompt("Enter new campaign name:");
                 if (campName)
