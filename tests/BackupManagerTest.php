@@ -84,6 +84,21 @@ class BackupManagerTest extends TestCase
         $this->assertCount(BackupManager::MAX_BACKUPS - 1, $manager->list());
     }
 
+    public function testExistingReadOnlyLockFileDoesNotBreakBackupListing(): void
+    {
+        mkdir($this->root . '/tmp', 0755, true);
+        $lockPath = $this->root . '/tmp/backups.lock';
+        file_put_contents($lockPath, '');
+        chmod($lockPath, 0444);
+
+        try {
+            $manager = new BackupManager($this->root, $this->settings);
+            $this->assertSame([], $manager->list());
+        } finally {
+            chmod($lockPath, 0666);
+        }
+    }
+
     public function testRestoreReturnsBackupStorageToTheSnapshottedName(): void
     {
         $original = new BackupManager($this->root, $this->settings);

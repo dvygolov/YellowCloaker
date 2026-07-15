@@ -24,6 +24,19 @@
         status.className = `settings-update-status ${kind}`.trim();
     }
 
+    async function readJsonResponse(response, fallbackMessage) {
+        const body = await response.text();
+        let result;
+        try {
+            result = JSON.parse(body);
+        } catch (_error) {
+            const suffix = response.status ? ` (HTTP ${response.status})` : '';
+            throw new Error(`${fallbackMessage}${suffix}. The server returned an invalid response.`);
+        }
+        if (!response.ok) throw new Error(result.error || `${fallbackMessage} (HTTP ${response.status})`);
+        return result;
+    }
+
     function setBusy(busy) {
         ['#saveSettings', '#updateTds', '#updateGeoBases', '#randomizeStorage', '#refreshBackups'].forEach((selector) => {
             const element = node(selector);
@@ -293,8 +306,7 @@
         setBackupsStatus('Loading backups…');
         try {
             const response = await fetch('backups.php', { headers: { Accept: 'application/json' } });
-            const result = await response.json();
-            if (!response.ok) throw new Error(result.error || 'Failed to load backups');
+            const result = await readJsonResponse(response, 'Failed to load backups');
             renderBackups(result.backups || [], result.directory || 'backups', result.limit || 5);
             state.backupsLoaded = true;
             setBackupsStatus('');
@@ -315,8 +327,7 @@
                 headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
                 body: JSON.stringify({ action, id }),
             });
-            const result = await response.json();
-            if (!response.ok) throw new Error(result.error || `Failed to ${action} backup`);
+            const result = await readJsonResponse(response, `Failed to ${action} backup`);
             if (action === 'restore') {
                 setBackupsStatus(result.message, 'success');
                 const destination = result.redirect ? new URL(result.redirect, window.location.href).href : window.location.href;

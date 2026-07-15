@@ -1,5 +1,8 @@
 <?php
 
+// JSON endpoints must never leak PHP warnings into the response body.
+ini_set('display_errors', '0');
+
 require_once __DIR__ . '/../backupmanager.php';
 require_once __DIR__ . '/password.php';
 require_once __DIR__ . '/accesscontrol.php';

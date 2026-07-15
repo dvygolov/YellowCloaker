@@ -653,11 +653,19 @@ final class BackupManager
         if (!is_dir($tmp) && !@mkdir($tmp, 0755, true)) {
             throw new RuntimeException('Failed to create backup lock directory');
         }
-        $lock = fopen($tmp . DIRECTORY_SEPARATOR . 'backups.lock', 'c+');
+        $lockPath = $tmp . DIRECTORY_SEPARATOR . 'backups.lock';
+        $lock = @fopen($lockPath, 'c+');
+        if ($lock === false && is_file($lockPath)) {
+            // Deployments and maintenance checks can run as root while the web
+            // process runs as another user. A readable descriptor is sufficient
+            // for flock() on Unix and avoids breaking the UI on that owner change.
+            $lock = @fopen($lockPath, 'r');
+        }
         if ($lock === false || !flock($lock, LOCK_EX)) {
             if (is_resource($lock)) fclose($lock);
             throw new RuntimeException('Failed to lock backups');
         }
+        @chmod($lockPath, 0666);
         try {
             return $callback();
         } finally {
