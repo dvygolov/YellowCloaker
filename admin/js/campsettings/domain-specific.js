@@ -112,7 +112,7 @@ document.addEventListener('click', function (e) {
             '<div class="form-group-inner dws-redirect-item"><div class="row">' +
             '<div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Redirect URL:</label></div>' +
             '<div class="col-lg-5"><input type="text" class="form-control dws-redirect-url" value="' + url.trim().replace(/"/g, '&quot;') + '" placeholder="https://example.com" /></div>' +
-            '<div class="col-lg-1"><a href="javascript:void(0)" class="btn btn-danger btn-sm dws-remove-redirect"><i class="bi bi-trash"></i></a></div>' +
+            '<div class="col-lg-1"><a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn dws-remove-redirect"><i class="bi bi-trash"></i></a></div>' +
             '</div></div>');
         return;
     }
@@ -126,7 +126,7 @@ document.addEventListener('click', function (e) {
             '<div class="form-group-inner dws-curl-item"><div class="row">' +
             '<div class="col-lg-3"><label class="login2 pull-left pull-left-pro">CURL URL:</label></div>' +
             '<div class="col-lg-5"><input type="text" class="form-control dws-curl-url" value="' + url.trim().replace(/"/g, '&quot;') + '" placeholder="https://example.com" /></div>' +
-            '<div class="col-lg-2"><div class="btn-group btn-group-sm">' +
+            '<div class="col-lg-2"><div class="btn-group campaign-icon-group">' +
             '<a href="javascript:void(0)" class="btn btn-outline-secondary load-mode-btn" data-mode="rewrite" data-modes="rewrite,direct" title="Loading mode"><i class="bi bi-arrow-repeat"></i></a>' +
             '<a href="javascript:void(0)" class="btn btn-danger dws-remove-curl"><i class="bi bi-trash"></i></a>' +
             '</div></div></div></div>');
@@ -142,7 +142,7 @@ document.addEventListener('click', function (e) {
             '<div class="form-group-inner dws-error-item"><div class="row">' +
             '<div class="col-lg-3"><label class="login2 pull-left pull-left-pro">HTTP Code:</label></div>' +
             '<div class="col-lg-2"><input type="text" class="form-control dws-error-code" value="' + code.trim() + '" placeholder="404" /></div>' +
-            '<div class="col-lg-1"><a href="javascript:void(0)" class="btn btn-danger btn-sm dws-remove-error"><i class="bi bi-trash"></i></a></div>' +
+            '<div class="col-lg-1"><a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn dws-remove-error"><i class="bi bi-trash"></i></a></div>' +
             '</div></div>');
         return;
     }
@@ -155,7 +155,7 @@ function buildDwsFolderRow(folderName, mode) {
     return '<div class="form-group-inner dws-folder-item"><div class="row">' +
         '<div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Folder:</label></div>' +
         '<div class="col-lg-3"><input type="text" class="form-control dws-folder-name" value="' + folderName + '" readonly /></div>' +
-        '<div class="col-lg-4"><div class="btn-group btn-group-sm">' +
+        '<div class="col-lg-4"><div class="btn-group campaign-icon-group">' +
         '<a href="javascript:void(0)" class="btn btn-outline-secondary load-mode-btn" data-mode="' + mode + '" data-modes="base,rewrite,direct" title="Loading mode"><i class="bi ' + icon + '"></i></a>' +
         '<a href="javascript:void(0)" class="btn btn-warning dws-edit-folder" title="Edit files"><i class="bi bi-pencil-square"></i></a>' +
         '<a href="javascript:void(0)" class="btn btn-danger dws-remove-folder" title="Delete"><i class="bi bi-trash"></i></a>' +

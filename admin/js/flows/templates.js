@@ -106,9 +106,9 @@ export function buildStepListRow(fi, si) {
     div.innerHTML =
         '<span class="step-list-label">Step ' + (parseInt(si, 10) + 1) + '</span>' +
         '<span class="step-list-info">empty</span>' +
-        '<a href="javascript:void(0)" class="btn btn-primary btn-xs flow-move-step-up" title="Move Up">&uarr;</a> ' +
-        '<a href="javascript:void(0)" class="btn btn-primary btn-xs flow-move-step-down" title="Move Down">&darr;</a> ' +
-        '<a href="javascript:void(0)" class="btn btn-danger btn-xs flow-remove-step" title="Delete"><i class="bi bi-trash"></i></a>';
+        '<a href="javascript:void(0)" class="btn btn-primary campaign-icon-btn flow-move-step-up" title="Move Up">&uarr;</a> ' +
+        '<a href="javascript:void(0)" class="btn btn-primary campaign-icon-btn flow-move-step-down" title="Move Down">&darr;</a> ' +
+        '<a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn flow-remove-step" title="Delete"><i class="bi bi-trash"></i></a>';
     return div;
 }
 

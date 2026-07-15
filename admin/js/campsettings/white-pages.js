@@ -6,7 +6,7 @@ function buildWhiteFolderRow(folderName, mode) {
     return '<div class="form-group-inner white-folder-item"><div class="row">' +
         '<div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Safe page folder:</label></div>' +
         '<div class="col-lg-3"><input type="text" class="form-control white-folder-name" value="' + folderName + '" placeholder="white1" readonly /></div>' +
-        '<div class="col-lg-4"><div class="btn-group btn-group-sm">' +
+        '<div class="col-lg-4"><div class="btn-group campaign-icon-group">' +
         '<a href="javascript:void(0)" class="btn btn-outline-secondary load-mode-btn" data-mode="' + mode + '" data-modes="base,rewrite,direct" title="Loading mode"><i class="bi ' + icon + '"></i></a>' +
         '<a href="javascript:void(0)" class="btn btn-warning white-edit-folder" title="Edit files"><i class="bi bi-pencil-square"></i></a>' +
         '<a href="javascript:void(0)" class="btn btn-danger remove-white-folder-item" title="Delete"><i class="bi bi-trash"></i></a>' +

@@ -350,9 +350,9 @@ export function handleAddFlow() {
     // 1. Add list row
     var rowHtml = '<div class="flow-list-row" data-flow-index="' + fi + '">' +
         '<input type="text" class="form-control flow-name-label" value="' + flowName + '" readonly style="display:inline-block;width:200px;cursor:default;" /> ' +
-        '<a href="javascript:void(0)" class="btn btn-primary btn-sm flow-move-up" title="Move Up">&uarr;</a> ' +
-        '<a href="javascript:void(0)" class="btn btn-primary btn-sm flow-move-down" title="Move Down">&darr;</a> ' +
-        '<a href="javascript:void(0)" class="btn btn-danger btn-sm flow-delete" title="Delete"><i class="bi bi-trash"></i></a>' +
+        '<a href="javascript:void(0)" class="btn btn-primary campaign-icon-btn flow-move-up" title="Move Up">&uarr;</a> ' +
+        '<a href="javascript:void(0)" class="btn btn-primary campaign-icon-btn flow-move-down" title="Move Down">&darr;</a> ' +
+        '<a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn flow-delete" title="Delete"><i class="bi bi-trash"></i></a>' +
         '</div>';
     document.getElementById('flows-list').insertAdjacentHTML('beforeend', rowHtml);
 

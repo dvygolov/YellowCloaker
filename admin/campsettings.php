@@ -60,12 +60,12 @@ global $c, $db, $campId;
                             <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Domain:</label></div>
                             <div class="col-lg-3"><input type="text" class="form-control domain-name" value="<?= htmlspecialchars($dn) ?>" placeholder="domain.com" readonly /></div>
                             <div class="col-lg-1 domain-status-col"><i class="bi bi-hourglass-split domain-status" style="color:#94a3b8" title="Checking..."></i></div>
-                            <div class="col-lg-2 domain-action-col"><a href="javascript:void(0)" class="btn btn-danger btn-sm remove-domain-item" title="Delete"><i class="bi bi-trash"></i></a></div>
+                            <div class="col-lg-2 domain-action-col"><a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn remove-domain-item" title="Delete"><i class="bi bi-trash"></i></a></div>
                         </div>
                     </div>
                     <?php } ?>
                 </div>
-                <a id="add-domain-item" class="btn btn-primary btn-sm" href="javascript:void(0)"><i class="bi bi-plus-circle"></i> Add Domain</a>
+                <a id="add-domain-item" class="btn btn-primary campaign-action-btn" href="javascript:void(0)"><i class="bi bi-plus-circle"></i> Add Domain</a>
             </div>
             </section>
 
@@ -125,13 +125,13 @@ global $c, $db, $campId;
                         <div class="row">
                             <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Safe page folder:</label></div>
                             <div class="col-lg-3"><input type="text" class="form-control white-folder-name" value="<?= htmlspecialchars($fn) ?>" placeholder="white1" readonly /></div>
-                            <div class="col-lg-4"><div class="btn-group btn-group-sm"><a href="javascript:void(0)" class="btn btn-outline-secondary load-mode-btn" data-mode="<?= htmlspecialchars($c->white->getLoadMode($fn)) ?>" data-modes="base,rewrite,direct" title="Loading mode"><i class="bi <?= match($c->white->getLoadMode($fn)) { 'rewrite' => 'bi-arrow-repeat', 'direct' => 'bi-hdd-network', default => 'bi-house-door' } ?>"></i></a><a href="javascript:void(0)" class="btn btn-warning white-edit-folder" title="Edit files"><i class="bi bi-pencil-square"></i></a><a href="javascript:void(0)" class="btn btn-danger remove-white-folder-item" title="Delete"><i class="bi bi-trash"></i></a></div></div>
+                            <div class="col-lg-4"><div class="btn-group campaign-icon-group"><a href="javascript:void(0)" class="btn btn-outline-secondary load-mode-btn" data-mode="<?= htmlspecialchars($c->white->getLoadMode($fn)) ?>" data-modes="base,rewrite,direct" title="Loading mode"><i class="bi <?= match($c->white->getLoadMode($fn)) { 'rewrite' => 'bi-arrow-repeat', 'direct' => 'bi-hdd-network', default => 'bi-house-door' } ?>"></i></a><a href="javascript:void(0)" class="btn btn-warning white-edit-folder" title="Edit files"><i class="bi bi-pencil-square"></i></a><a href="javascript:void(0)" class="btn btn-danger remove-white-folder-item" title="Delete"><i class="bi bi-trash"></i></a></div></div>
                         </div>
                     </div>
                     <?php } ?>
                 </div>
-                <a href="javascript:void(0)" class="btn btn-primary btn-sm white-add-existing"><i class="bi bi-folder-symlink"></i> Add Existing</a>
-                <a href="javascript:void(0)" class="btn btn-info btn-sm white-upload-zip"><i class="bi bi-upload"></i> Upload ZIP</a>
+                <a href="javascript:void(0)" class="btn btn-primary campaign-action-btn white-add-existing"><i class="bi bi-folder-symlink"></i> Add Existing</a>
+                <a href="javascript:void(0)" class="btn btn-info campaign-action-btn white-upload-zip"><i class="bi bi-upload"></i> Upload ZIP</a>
             </div>
             <div id="b_3" style="display:<?= ($c->white->action === 'redirect' ? 'block' : 'none') ?>;">
 
@@ -150,7 +150,7 @@ global $c, $db, $campId;
                                 </div>
                             </div>
                             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
-                                <a href="javascript:void(0)" class="remove-redirect-item btn btn-danger btn-sm" title="Delete"><i class="bi bi-trash"></i></a>
+                                <a href="javascript:void(0)" class="remove-redirect-item btn btn-danger campaign-icon-btn" title="Delete"><i class="bi bi-trash"></i></a>
                             </div>
                         </div>
                     </div>
@@ -182,7 +182,7 @@ global $c, $db, $campId;
                         <div class="row">
                             <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Curl address:</label></div>
                             <div class="col-lg-3"><input type="text" class="form-control white-curl-url" placeholder="https://ya.ru" value="<?=$cu?>" name="white.curls[<?= $i ?>]" /></div>
-                            <div class="col-lg-2"><div class="btn-group btn-group-sm"><a href="javascript:void(0)" class="btn btn-outline-secondary load-mode-btn" data-mode="<?= htmlspecialchars($c->white->getLoadMode($cu)) ?>" data-modes="rewrite,direct" title="Loading mode"><i class="bi <?= $c->white->getLoadMode($cu) === 'direct' ? 'bi-hdd-network' : 'bi-arrow-repeat' ?>"></i></a><a href="javascript:void(0)" class="btn btn-danger remove-curl-item" title="Delete"><i class="bi bi-trash"></i></a></div></div>
+                            <div class="col-lg-2"><div class="btn-group campaign-icon-group"><a href="javascript:void(0)" class="btn btn-outline-secondary load-mode-btn" data-mode="<?= htmlspecialchars($c->white->getLoadMode($cu)) ?>" data-modes="rewrite,direct" title="Loading mode"><i class="bi <?= $c->white->getLoadMode($cu) === 'direct' ? 'bi-hdd-network' : 'bi-arrow-repeat' ?>"></i></a><a href="javascript:void(0)" class="btn btn-danger remove-curl-item" title="Delete"><i class="bi bi-trash"></i></a></div></div>
                         </div>
                     </div>
                     <?php } ?>
@@ -205,7 +205,7 @@ global $c, $db, $campId;
                                 </div>
                             </div>
                             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
-                                <a href="javascript:void(0)" class="remove-errorcode-item btn btn-danger btn-sm" title="Delete"><i class="bi bi-trash"></i></a>
+                                <a href="javascript:void(0)" class="remove-errorcode-item btn btn-danger campaign-icon-btn" title="Delete"><i class="bi bi-trash"></i></a>
                             </div>
                         </div>
                     </div>
@@ -253,7 +253,7 @@ global $c, $db, $campId;
                         <div class="row">
                             <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Folder:</label></div>
                             <div class="col-lg-3"><input type="text" class="form-control dws-folder-name" value="<?= htmlspecialchars($fn) ?>" readonly /></div>
-                            <div class="col-lg-4"><div class="btn-group btn-group-sm">
+                            <div class="col-lg-4"><div class="btn-group campaign-icon-group">
                                 <a href="javascript:void(0)" class="btn btn-outline-secondary load-mode-btn" data-mode="<?= htmlspecialchars($dws->getLoadMode($fn)) ?>" data-modes="base,rewrite,direct" title="Loading mode"><i class="bi <?= match($dws->getLoadMode($fn)) { 'rewrite' => 'bi-arrow-repeat', 'direct' => 'bi-hdd-network', default => 'bi-house-door' } ?>"></i></a>
                                 <a href="javascript:void(0)" class="btn btn-warning dws-edit-folder" title="Edit files"><i class="bi bi-pencil-square"></i></a>
                                 <a href="javascript:void(0)" class="btn btn-danger dws-remove-folder" title="Delete"><i class="bi bi-trash"></i></a>
@@ -262,8 +262,8 @@ global $c, $db, $campId;
                     </div>
                 <?php } ?>
                 </div>
-                <a href="javascript:void(0)" class="btn btn-primary btn-sm dws-add-existing" data-di="<?= $di ?>"><i class="bi bi-folder-symlink"></i> Add Existing</a>
-                <a href="javascript:void(0)" class="btn btn-info btn-sm dws-upload-zip" data-di="<?= $di ?>"><i class="bi bi-upload"></i> Upload ZIP</a>
+                <a href="javascript:void(0)" class="btn btn-primary campaign-action-btn dws-add-existing" data-di="<?= $di ?>"><i class="bi bi-folder-symlink"></i> Add Existing</a>
+                <a href="javascript:void(0)" class="btn btn-info campaign-action-btn dws-upload-zip" data-di="<?= $di ?>"><i class="bi bi-upload"></i> Upload ZIP</a>
             </div>
 
             <div class="dws-redirect-block" data-di="<?= $di ?>" style="display:<?= $dwAction === 'redirect' ? 'block' : 'none' ?>">
@@ -273,12 +273,12 @@ global $c, $db, $campId;
                         <div class="row">
                             <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Redirect URL:</label></div>
                             <div class="col-lg-5"><input type="text" class="form-control dws-redirect-url" value="<?= htmlspecialchars($ru) ?>" placeholder="https://example.com" /></div>
-                            <div class="col-lg-1"><a href="javascript:void(0)" class="btn btn-danger btn-sm dws-remove-redirect"><i class="bi bi-trash"></i></a></div>
+                            <div class="col-lg-1"><a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn dws-remove-redirect"><i class="bi bi-trash"></i></a></div>
                         </div>
                     </div>
                 <?php } ?>
                 </div>
-                <a href="javascript:void(0)" class="btn btn-primary btn-sm dws-add-redirect" data-di="<?= $di ?>">+ Add URL</a>
+                <a href="javascript:void(0)" class="btn btn-primary campaign-action-btn dws-add-redirect" data-di="<?= $di ?>">+ Add URL</a>
                 <div class="form-group-inner" style="margin-top:10px">
                     <div class="row">
                         <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Redirect type:</label></div>
@@ -298,7 +298,7 @@ global $c, $db, $campId;
                         <div class="row">
                             <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">CURL URL:</label></div>
                             <div class="col-lg-5"><input type="text" class="form-control dws-curl-url" value="<?= htmlspecialchars($cu) ?>" placeholder="https://example.com" /></div>
-                            <div class="col-lg-2"><div class="btn-group btn-group-sm">
+                            <div class="col-lg-2"><div class="btn-group campaign-icon-group">
                                 <a href="javascript:void(0)" class="btn btn-outline-secondary load-mode-btn" data-mode="<?= htmlspecialchars($dws->getLoadMode($cu)) ?>" data-modes="rewrite,direct" title="Loading mode"><i class="bi <?= $dws->getLoadMode($cu) === 'direct' ? 'bi-hdd-network' : 'bi-arrow-repeat' ?>"></i></a>
                                 <a href="javascript:void(0)" class="btn btn-danger dws-remove-curl"><i class="bi bi-trash"></i></a>
                             </div></div>
@@ -306,7 +306,7 @@ global $c, $db, $campId;
                     </div>
                 <?php } ?>
                 </div>
-                <a href="javascript:void(0)" class="btn btn-primary btn-sm dws-add-curl" data-di="<?= $di ?>">+ Add CURL</a>
+                <a href="javascript:void(0)" class="btn btn-primary campaign-action-btn dws-add-curl" data-di="<?= $di ?>">+ Add CURL</a>
             </div>
 
             <div class="dws-error-block" data-di="<?= $di ?>" style="display:<?= $dwAction === 'error' ? 'block' : 'none' ?>">
@@ -316,12 +316,12 @@ global $c, $db, $campId;
                         <div class="row">
                             <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">HTTP Code:</label></div>
                             <div class="col-lg-2"><input type="text" class="form-control dws-error-code" value="<?= htmlspecialchars($ec) ?>" placeholder="404" /></div>
-                            <div class="col-lg-1"><a href="javascript:void(0)" class="btn btn-danger btn-sm dws-remove-error"><i class="bi bi-trash"></i></a></div>
+                            <div class="col-lg-1"><a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn dws-remove-error"><i class="bi bi-trash"></i></a></div>
                         </div>
                     </div>
                 <?php } ?>
                 </div>
-                <a href="javascript:void(0)" class="btn btn-primary btn-sm dws-add-error" data-di="<?= $di ?>">+ Add Code</a>
+                <a href="javascript:void(0)" class="btn btn-primary campaign-action-btn dws-add-error" data-di="<?= $di ?>">+ Add Code</a>
             </div>
 
             </section><!-- /sec-dws -->
@@ -334,13 +334,13 @@ global $c, $db, $campId;
                 <?php foreach ($c->black->flows as $fi => $flow) { ?>
                     <div class="flow-list-row" data-flow-index="<?= $fi ?>">
                         <input type="text" class="form-control flow-name-label" value="<?= htmlspecialchars($flow->name) ?>" readonly style="display:inline-block;width:200px;cursor:default;" />
-                        <a href="javascript:void(0)" class="btn btn-primary btn-sm flow-move-up" title="Move Up">&uarr;</a>
-                        <a href="javascript:void(0)" class="btn btn-primary btn-sm flow-move-down" title="Move Down">&darr;</a>
-                        <a href="javascript:void(0)" class="btn btn-danger btn-sm flow-delete" title="Delete"><i class="bi bi-trash"></i></a>
+                        <a href="javascript:void(0)" class="btn btn-primary campaign-icon-btn flow-move-up" title="Move Up">&uarr;</a>
+                        <a href="javascript:void(0)" class="btn btn-primary campaign-icon-btn flow-move-down" title="Move Down">&darr;</a>
+                        <a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn flow-delete" title="Delete"><i class="bi bi-trash"></i></a>
                     </div>
                 <?php } ?>
                 </div>
-                <a id="add-flow-btn" class="btn btn-primary" href="javascript:void(0)" style="margin-top:15px;display:inline-block;">+ Add Flow</a>
+                <a id="add-flow-btn" class="btn btn-primary campaign-action-btn" href="javascript:void(0)" style="margin-top:15px;">+ Add Flow</a>
             </div>
             <hr/>
             <div class="form-group-inner">
@@ -554,14 +554,14 @@ global $c, $db, $campId;
                             echo count($step->folderNames) ? htmlspecialchars(implode(', ', $step->folderNames)) : 'empty';
                         }
                     ?></span>
-                    <a href="javascript:void(0)" class="btn btn-primary btn-xs flow-move-step-up" title="Move Up"<?= $isStepRedirect ? ' style="pointer-events:none;opacity:0.3"' : '' ?>>&uarr;</a>
-                    <a href="javascript:void(0)" class="btn btn-primary btn-xs flow-move-step-down" title="Move Down"<?= $isStepRedirect ? ' style="pointer-events:none;opacity:0.3"' : '' ?>>&darr;</a>
-                    <a href="javascript:void(0)" class="btn btn-danger btn-xs flow-remove-step" title="Delete"><i class="bi bi-trash"></i></a>
+                    <a href="javascript:void(0)" class="btn btn-primary campaign-icon-btn flow-move-step-up" title="Move Up"<?= $isStepRedirect ? ' style="pointer-events:none;opacity:0.3"' : '' ?>>&uarr;</a>
+                    <a href="javascript:void(0)" class="btn btn-primary campaign-icon-btn flow-move-step-down" title="Move Down"<?= $isStepRedirect ? ' style="pointer-events:none;opacity:0.3"' : '' ?>>&darr;</a>
+                    <a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn flow-remove-step" title="Delete"><i class="bi bi-trash"></i></a>
                 </div>
                 <?php } ?>
             </div>
             <div style="margin-top:10px;">
-                <a href="javascript:void(0)" class="btn btn-primary btn-sm flow-add-step" data-fi="<?= $fi ?>"<?= $hasRedirect ? ' style="pointer-events:none;opacity:0.5" aria-disabled="true"' : '' ?>><i class="bi bi-plus-circle"></i> Add Step</a>
+                <a href="javascript:void(0)" class="btn btn-primary campaign-action-btn flow-add-step" data-fi="<?= $fi ?>"<?= $hasRedirect ? ' style="pointer-events:none;opacity:0.5" aria-disabled="true"' : '' ?>><i class="bi bi-plus-circle"></i> Add Step</a>
             </div>
             </div>
             </section>
@@ -599,13 +599,13 @@ global $c, $db, $campId;
                             <div class="col-lg-2 flow-weight-col" style="display:<?= $flow->distribution === 'weighted' ? 'block' : 'none' ?>">
                                 <input type="number" step="1" class="form-control flow-step-weight" value="<?= $step->weights[$ii] ?? '' ?>" placeholder="%" style="width:70px" />
                             </div>
-                            <div class="col-lg-3"><div class="btn-group btn-group-sm"><a href="javascript:void(0)" class="btn btn-outline-secondary load-mode-btn flow-step-mode" data-mode="<?= $step->isDirectLoad($fn) ? 'direct' : 'base' ?>" data-modes="base,direct" title="Loading mode"><i class="bi <?= $step->isDirectLoad($fn) ? 'bi-hdd-network' : 'bi-house-door' ?>"></i></a><a href="javascript:void(0)" class="btn btn-warning flow-edit-folder" title="Edit files"><i class="bi bi-pencil-square"></i></a><a href="javascript:void(0)" class="btn btn-danger flow-remove-step-item" title="Delete"><i class="bi bi-trash"></i></a></div></div>
+                            <div class="col-lg-3"><div class="btn-group campaign-icon-group"><a href="javascript:void(0)" class="btn btn-outline-secondary load-mode-btn flow-step-mode" data-mode="<?= $step->isDirectLoad($fn) ? 'direct' : 'base' ?>" data-modes="base,direct" title="Loading mode"><i class="bi <?= $step->isDirectLoad($fn) ? 'bi-hdd-network' : 'bi-house-door' ?>"></i></a><a href="javascript:void(0)" class="btn btn-warning flow-edit-folder" title="Edit files"><i class="bi bi-pencil-square"></i></a><a href="javascript:void(0)" class="btn btn-danger flow-remove-step-item" title="Delete"><i class="bi bi-trash"></i></a></div></div>
                         </div>
                     </div>
                 <?php } ?>
                 </div>
-                <a href="javascript:void(0)" class="btn btn-primary btn-sm flow-step-add-existing" data-fi="<?= $fi ?>" data-si="<?= $si ?>"><i class="bi bi-folder-symlink"></i> Add Existing</a>
-                <a href="javascript:void(0)" class="btn btn-info btn-sm flow-step-upload-zip" data-fi="<?= $fi ?>" data-si="<?= $si ?>"><i class="bi bi-upload"></i> Upload ZIP</a>
+                <a href="javascript:void(0)" class="btn btn-primary campaign-action-btn flow-step-add-existing" data-fi="<?= $fi ?>" data-si="<?= $si ?>"><i class="bi bi-folder-symlink"></i> Add Existing</a>
+                <a href="javascript:void(0)" class="btn btn-info campaign-action-btn flow-step-upload-zip" data-fi="<?= $fi ?>" data-si="<?= $si ?>"><i class="bi bi-upload"></i> Upload ZIP</a>
             </div>
             </div>
 
@@ -621,12 +621,12 @@ global $c, $db, $campId;
                             <div class="col-lg-2 flow-weight-col" style="display:<?= $flow->distribution === 'weighted' ? 'block' : 'none' ?>">
                                 <input type="number" step="1" class="form-control flow-step-weight" value="<?= $step->weights[$ri] ?? '' ?>" placeholder="%" style="width:70px" />
                             </div>
-                            <div class="col-lg-1"><a href="javascript:void(0)" class="btn btn-danger btn-sm flow-remove-step-item" title="Delete"><i class="bi bi-trash"></i></a></div>
+                            <div class="col-lg-1"><a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn flow-remove-step-item" title="Delete"><i class="bi bi-trash"></i></a></div>
                         </div>
                     </div>
                 <?php } ?>
                 </div>
-                <a href="javascript:void(0)" class="btn btn-primary btn-sm flow-step-add-redirect" data-fi="<?= $fi ?>" data-si="<?= $si ?>">+ Add Redirect</a>
+                <a href="javascript:void(0)" class="btn btn-primary campaign-action-btn flow-step-add-redirect" data-fi="<?= $fi ?>" data-si="<?= $si ?>">+ Add Redirect</a>
                 <div class="form-group-inner" style="margin-top:10px">
                     <div class="row">
                         <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Redirect type:</label></div>
@@ -681,7 +681,7 @@ global $c, $db, $campId;
                                 </div>
                             </div>
                             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
-                                <a href="javascript:void(0)" class="remove-backfix-url-item btn btn-danger btn-sm" title="Delete"><i class="bi bi-trash"></i></a>
+                                <a href="javascript:void(0)" class="remove-backfix-url-item btn btn-danger campaign-icon-btn" title="Delete"><i class="bi bi-trash"></i></a>
                             </div>
                         </div>
                     </div>
@@ -756,9 +756,9 @@ global $c, $db, $campId;
                                 <input type="text" class="form-control" name="scripts.nextredirect.rules[<?= $ri ?>][url]" value="<?= htmlspecialchars($ruleUrl, ENT_QUOTES) ?>" placeholder="https://example.com/path?clickid={clickid}" />
                             </div>
                             <div class="col-lg-1 col-md-1 col-sm-12 col-xs-12 script-rule-remove-col">
-                                <button type="button" class="btn btn-outline-light btn-sm script-rule-move-up" title="Move up"><i class="bi bi-arrow-up"></i></button>
-                                <button type="button" class="btn btn-outline-light btn-sm script-rule-move-down" title="Move down"><i class="bi bi-arrow-down"></i></button>
-                                <a href="javascript:void(0)" class="remove-script-rule-item btn btn-danger btn-sm" title="Delete"><i class="bi bi-trash"></i></a>
+                                <button type="button" class="btn btn-outline-light campaign-icon-btn script-rule-move-up" title="Move up"><i class="bi bi-arrow-up"></i></button>
+                                <button type="button" class="btn btn-outline-light campaign-icon-btn script-rule-move-down" title="Move down"><i class="bi bi-arrow-down"></i></button>
+                                <a href="javascript:void(0)" class="remove-script-rule-item btn btn-danger campaign-icon-btn" title="Delete"><i class="bi bi-trash"></i></a>
                             </div>
                         </div>
                     </div>
@@ -809,9 +809,9 @@ global $c, $db, $campId;
                                 <input type="text" class="form-control" name="scripts.submitredirect.rules[<?= $ri ?>][url]" value="<?= htmlspecialchars($ruleUrl, ENT_QUOTES) ?>" placeholder="https://example.com/path?clickid={clickid}" />
                             </div>
                             <div class="col-lg-1 col-md-1 col-sm-12 col-xs-12 script-rule-remove-col">
-                                <button type="button" class="btn btn-outline-light btn-sm script-rule-move-up" title="Move up"><i class="bi bi-arrow-up"></i></button>
-                                <button type="button" class="btn btn-outline-light btn-sm script-rule-move-down" title="Move down"><i class="bi bi-arrow-down"></i></button>
-                                <a href="javascript:void(0)" class="remove-script-rule-item btn btn-danger btn-sm" title="Delete"><i class="bi bi-trash"></i></a>
+                                <button type="button" class="btn btn-outline-light campaign-icon-btn script-rule-move-up" title="Move up"><i class="bi bi-arrow-up"></i></button>
+                                <button type="button" class="btn btn-outline-light campaign-icon-btn script-rule-move-down" title="Move down"><i class="bi bi-arrow-down"></i></button>
+                                <a href="javascript:void(0)" class="remove-script-rule-item btn btn-danger campaign-icon-btn" title="Delete"><i class="bi bi-trash"></i></a>
                             </div>
                         </div>
                     </div>
@@ -896,9 +896,9 @@ global $c, $db, $campId;
                             <input type="text" class="form-control" name="scripts.__FIELD__.rules[__INDEX__][url]" value="" placeholder="https://example.com/path?clickid={clickid}" />
                         </div>
                         <div class="col-lg-1 col-md-1 col-sm-12 col-xs-12 script-rule-remove-col">
-                            <button type="button" class="btn btn-outline-light btn-sm script-rule-move-up" title="Move up"><i class="bi bi-arrow-up"></i></button>
-                            <button type="button" class="btn btn-outline-light btn-sm script-rule-move-down" title="Move down"><i class="bi bi-arrow-down"></i></button>
-                            <a href="javascript:void(0)" class="remove-script-rule-item btn btn-danger btn-sm" title="Delete"><i class="bi bi-trash"></i></a>
+                            <button type="button" class="btn btn-outline-light campaign-icon-btn script-rule-move-up" title="Move up"><i class="bi bi-arrow-up"></i></button>
+                            <button type="button" class="btn btn-outline-light campaign-icon-btn script-rule-move-down" title="Move down"><i class="bi bi-arrow-down"></i></button>
+                            <a href="javascript:void(0)" class="remove-script-rule-item btn btn-danger campaign-icon-btn" title="Delete"><i class="bi bi-trash"></i></a>
                         </div>
                     </div>
                 </div>
@@ -920,9 +920,9 @@ global $c, $db, $campId;
                             <input type="text" class="form-control" name="scripts.submitredirect.rules[__INDEX__][url]" value="" placeholder="https://example.com/path?clickid={clickid}" />
                         </div>
                         <div class="col-lg-1 col-md-1 col-sm-12 col-xs-12 script-rule-remove-col">
-                            <button type="button" class="btn btn-outline-light btn-sm script-rule-move-up" title="Move up"><i class="bi bi-arrow-up"></i></button>
-                            <button type="button" class="btn btn-outline-light btn-sm script-rule-move-down" title="Move down"><i class="bi bi-arrow-down"></i></button>
-                            <a href="javascript:void(0)" class="remove-script-rule-item btn btn-danger btn-sm" title="Delete"><i class="bi bi-trash"></i></a>
+                            <button type="button" class="btn btn-outline-light campaign-icon-btn script-rule-move-up" title="Move up"><i class="bi bi-arrow-up"></i></button>
+                            <button type="button" class="btn btn-outline-light campaign-icon-btn script-rule-move-down" title="Move down"><i class="bi bi-arrow-down"></i></button>
+                            <a href="javascript:void(0)" class="remove-script-rule-item btn btn-danger campaign-icon-btn" title="Delete"><i class="bi bi-trash"></i></a>
                         </div>
                     </div>
                 </div>
@@ -1055,7 +1055,7 @@ global $c, $db, $campId;
                                 </div>
                             </div>
                             <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
-                                <a class="remove-s2s-item btn btn-danger btn-sm" title="Delete"><i class="bi bi-trash"></i></a>
+                                <a class="remove-s2s-item btn btn-danger campaign-icon-btn" title="Delete"><i class="bi bi-trash"></i></a>
                             </div>
                         </div>
                         <div class="row">
@@ -1449,8 +1449,8 @@ global $c, $db, $campId;
                 <div id="fp-empty" style="display:none;color:#94a3b8;text-align:center;padding:20px 0;">No folders found. Upload a ZIP first.</div>
             </div>
             <div class="fp-modal-footer">
-                <button type="button" class="btn btn-default btn-sm" id="fp-cancel">Cancel</button>
-                <button type="button" class="btn btn-info btn-sm" id="fp-ok">OK</button>
+                <button type="button" class="btn btn-default campaign-action-btn" id="fp-cancel">Cancel</button>
+                <button type="button" class="btn btn-info campaign-action-btn" id="fp-ok">OK</button>
             </div>
         </div>
     </div>
@@ -1478,8 +1478,8 @@ global $c, $db, $campId;
             <div class="fp-modal-header"><h5 style="margin:0;font-size:18px;color:#e2e8f0;">Loading Mode</h5></div>
             <div class="fp-modal-body" id="lm-body"></div>
             <div class="fp-modal-footer">
-                <button type="button" class="btn btn-default btn-sm" id="lm-cancel">Cancel</button>
-                <button type="button" class="btn btn-info btn-sm" id="lm-ok">OK</button>
+                <button type="button" class="btn btn-default campaign-action-btn" id="lm-cancel">Cancel</button>
+                <button type="button" class="btn btn-info campaign-action-btn" id="lm-ok">OK</button>
             </div>
         </div>
     </div>
@@ -1513,7 +1513,7 @@ global $c, $db, $campId;
             <div class="col-lg-3"><input type="text" class="form-control" data-role="folder-input" value="" placeholder="folder" readonly /></div>
             <div class="col-lg-2 flow-weight-col" style="display:none">
                 <input type="number" step="1" class="form-control" data-role="weight-input" value="" placeholder="%" style="width:70px" /></div>
-            <div class="col-lg-3"><div class="btn-group btn-group-sm">
+            <div class="col-lg-3"><div class="btn-group campaign-icon-group">
                 <a href="javascript:void(0)" class="btn btn-outline-secondary load-mode-btn" data-role="mode-btn" data-mode="base" data-modes="base,direct" title="Loading mode"><i class="bi bi-house-door"></i></a>
                 <a href="javascript:void(0)" class="btn btn-warning flow-edit-folder" title="Edit files"><i class="bi bi-pencil-square"></i></a>
                 <a href="javascript:void(0)" class="btn btn-danger" data-role="remove-btn" title="Delete"><i class="bi bi-trash"></i></a>
@@ -1527,7 +1527,7 @@ global $c, $db, $campId;
             <div class="col-lg-4"><input type="text" class="form-control flow-step-redirect" value="" placeholder="https://..." /></div>
             <div class="col-lg-2 flow-weight-col" style="display:none">
                 <input type="number" step="1" class="form-control flow-step-weight" value="" placeholder="%" style="width:70px" /></div>
-            <div class="col-lg-1"><a href="javascript:void(0)" class="btn btn-danger btn-sm flow-remove-step-item" title="Delete"><i class="bi bi-trash"></i></a></div>
+            <div class="col-lg-1"><a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn flow-remove-step-item" title="Delete"><i class="bi bi-trash"></i></a></div>
         </div></div>
     </template>
 
@@ -1561,7 +1561,7 @@ global $c, $db, $campId;
         <div class="flow-group"><span class="flow-group-title">Steps</span>
         <div id="steps-list-__FI__" class="steps-list"></div>
         <div style="margin-top:10px;">
-            <a href="javascript:void(0)" class="btn btn-primary btn-sm flow-add-step" data-fi="__FI__"><i class="bi bi-plus-circle"></i> Add Step</a>
+            <a href="javascript:void(0)" class="btn btn-primary campaign-action-btn flow-add-step" data-fi="__FI__"><i class="bi bi-plus-circle"></i> Add Step</a>
         </div>
         </div>
 
@@ -1587,14 +1587,14 @@ global $c, $db, $campId;
         <div class="flow-step-folders" style="display:block">
         <div class="flow-group"><span class="flow-group-title">Folders</span>
             <div class="flow-step-folder-items"></div>
-            <a href="javascript:void(0)" class="btn btn-primary btn-sm flow-step-add-existing" data-fi="__FI__" data-si="__SI__"><i class="bi bi-folder-symlink"></i> Add Existing</a>
-            <a href="javascript:void(0)" class="btn btn-info btn-sm flow-step-upload-zip" data-fi="__FI__" data-si="__SI__"><i class="bi bi-upload"></i> Upload ZIP</a>
+            <a href="javascript:void(0)" class="btn btn-primary campaign-action-btn flow-step-add-existing" data-fi="__FI__" data-si="__SI__"><i class="bi bi-folder-symlink"></i> Add Existing</a>
+            <a href="javascript:void(0)" class="btn btn-info campaign-action-btn flow-step-upload-zip" data-fi="__FI__" data-si="__SI__"><i class="bi bi-upload"></i> Upload ZIP</a>
         </div></div>
 
         <div class="flow-step-redirects" style="display:none">
         <div class="flow-group"><span class="flow-group-title">Redirects</span>
             <div class="flow-step-redirect-items"></div>
-            <a href="javascript:void(0)" class="btn btn-primary btn-sm flow-step-add-redirect" data-fi="__FI__" data-si="__SI__">+ Add Redirect</a>
+            <a href="javascript:void(0)" class="btn btn-primary campaign-action-btn flow-step-add-redirect" data-fi="__FI__" data-si="__SI__">+ Add Redirect</a>
             <div class="form-group-inner" style="margin-top:10px"><div class="row">
                 <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Redirect type:</label></div>
                 <div class="col-lg-3"><select class="form-select flow-step-redirect-type" data-fi="__FI__" data-si="__SI__">

@@ -47,17 +47,17 @@ function buildDwsSection(domain) {
         '<div class="row"><div class="col-lg-12"><div class="i-checks pull-left"><label><input type="radio" value="error" name="' + actName + '" class="dws-action" /> HTTP Code</label></div></div></div>' +
         '</div></div></div></div>' +
         '<div class="dws-folder-block"><div class="dws-folder-items"></div>' +
-        '<a href="javascript:void(0)" class="btn btn-primary btn-sm dws-add-existing"><i class="bi bi-folder-symlink"></i> Add Existing</a> ' +
-        '<a href="javascript:void(0)" class="btn btn-info btn-sm dws-upload-zip"><i class="bi bi-upload"></i> Upload ZIP</a></div>' +
+        '<a href="javascript:void(0)" class="btn btn-primary campaign-action-btn dws-add-existing"><i class="bi bi-folder-symlink"></i> Add Existing</a> ' +
+        '<a href="javascript:void(0)" class="btn btn-info campaign-action-btn dws-upload-zip"><i class="bi bi-upload"></i> Upload ZIP</a></div>' +
         '<div class="dws-redirect-block" style="display:none"><div class="dws-redirect-items"></div>' +
-        '<a href="javascript:void(0)" class="btn btn-primary btn-sm dws-add-redirect">+ Add URL</a>' +
+        '<a href="javascript:void(0)" class="btn btn-primary campaign-action-btn dws-add-redirect">+ Add URL</a>' +
         '<div class="form-group-inner" style="margin-top:10px"><div class="row">' +
         '<div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Redirect type:</label></div>' +
         '<div class="col-lg-3"><select class="form-select dws-redirect-type"><option value="301">301</option><option value="302" selected>302</option><option value="303">303</option><option value="307">307</option></select></div>' +
         '</div></div></div>' +
         '<div class="dws-curl-block" style="display:none"><div class="dws-curl-items"></div>' +
-        '<a href="javascript:void(0)" class="btn btn-primary btn-sm dws-add-curl">+ Add CURL</a></div>' +
+        '<a href="javascript:void(0)" class="btn btn-primary campaign-action-btn dws-add-curl">+ Add CURL</a></div>' +
         '<div class="dws-error-block" style="display:none"><div class="dws-error-items"></div>' +
-        '<a href="javascript:void(0)" class="btn btn-primary btn-sm dws-add-error">+ Add Code</a></div>' +
+        '<a href="javascript:void(0)" class="btn btn-primary campaign-action-btn dws-add-error">+ Add Code</a></div>' +
         '</section>';
 }

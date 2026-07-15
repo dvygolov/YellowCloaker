@@ -224,6 +224,27 @@
     white-space: nowrap;
 }
 
+/*
+ * Campaign editor actions use the same comfortable Bootstrap button size.
+ * Text actions match Add Flow; icon-only actions match the step controls.
+ */
+.campaign-action-btn,
+.campaign-icon-btn,
+.campaign-icon-group > .btn {
+    --bs-btn-padding-y: 0.375rem;
+    --bs-btn-padding-x: 0.75rem;
+    --bs-btn-font-size: 1rem;
+    --bs-btn-border-radius: var(--bs-border-radius);
+    min-height: 37px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.campaign-action-btn {
+    gap: 0.25rem;
+}
+
 /* Keep text legible in the dark campaign-settings inputs. */
 .camp-content input.form-control,
 .camp-content textarea.form-control {

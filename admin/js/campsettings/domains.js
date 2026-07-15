@@ -4,7 +4,7 @@ function buildDomainRow(domain, statusHtml) {
         '<div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Domain:</label></div>' +
         '<div class="col-lg-3"><input type="text" class="form-control domain-name" value="' + domain + '" placeholder="domain.com" readonly /></div>' +
         '<div class="col-lg-1 domain-status-col">' + statusHtml + '</div>' +
-        '<div class="col-lg-2 domain-action-col"><a href="javascript:void(0)" class="btn btn-danger btn-sm remove-domain-item" title="Delete"><i class="bi bi-trash"></i></a></div>' +
+        '<div class="col-lg-2 domain-action-col"><a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn remove-domain-item" title="Delete"><i class="bi bi-trash"></i></a></div>' +
         '</div></div>';
 }
 
