@@ -58,7 +58,11 @@ if ! command -v apt-get >/dev/null 2>&1; then
     fail "This installer supports Debian/Ubuntu systems only"
 fi
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -n "${BASH_SOURCE[0]:-}" ]; then
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+else
+    SCRIPT_DIR=""
+fi
 OS_ID=""
 OS_CODENAME=""
 OS_VERSION_ID=""
@@ -609,6 +613,7 @@ run_full_install() {
     local domain="${YELLOWTDS_DOMAIN:-}"
     local app_dir
     local public_ip
+    local scheme="https"
 
     echo -e "${GREEN}${PRODUCT_NAME} VPS installer${NC}"
 
@@ -637,8 +642,11 @@ run_full_install() {
 
     configure_domain "$domain" "$app_dir" "$public_ip" "$ADMIN_PATH"
 
-    success "Installation complete: https://${domain}"
-    echo "Open https://${domain}/${ADMIN_PATH}/ and configure admin access in Settings before production traffic."
+    if [ -n "${SKIP_SSL:-}" ]; then
+        scheme="http"
+    fi
+    success "Installation complete: ${scheme}://${domain}"
+    echo "Open ${scheme}://${domain}/${ADMIN_PATH}/ and configure admin access in Settings before production traffic."
 }
 
 run_add_domain() {

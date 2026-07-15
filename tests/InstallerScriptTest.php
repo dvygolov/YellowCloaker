@@ -78,6 +78,25 @@ class InstallerScriptTest extends TestCase
         }
     }
 
+    public function testInstallerHandlesCurlPipeWithoutBashSource(): void
+    {
+        $guardPos = strpos($this->script, 'if [ -n "${BASH_SOURCE[0]:-}" ]; then');
+        $scriptDirPos = strpos($this->script, 'SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"');
+
+        $this->assertNotFalse($guardPos);
+        $this->assertNotFalse($scriptDirPos);
+        $this->assertLessThan($scriptDirPos, $guardPos);
+        $this->assertStringContainsString('SCRIPT_DIR=""', $this->script);
+    }
+
+    public function testSkipSslPrintsHttpUrls(): void
+    {
+        $this->assertStringContainsString('local scheme="https"', $this->script);
+        $this->assertStringContainsString('scheme="http"', $this->script);
+        $this->assertStringContainsString('Installation complete: ${scheme}://${domain}', $this->script);
+        $this->assertStringContainsString('Open ${scheme}://${domain}/${ADMIN_PATH}/', $this->script);
+    }
+
     public function testInstallerGeneratesAndPersistsRandomAdminPath(): void
     {
         $this->assertStringContainsString('YELLOWTDS_ADMIN_PATH', $this->script);
@@ -137,8 +156,8 @@ class InstallerScriptTest extends TestCase
 
     public function testInstallerPrintsGeneratedAdminUrl(): void
     {
-        $this->assertStringContainsString('Open https://${domain}/${ADMIN_PATH}/', $this->script);
-        $this->assertStringNotContainsString('Open https://${domain}/admin/', $this->script);
+        $this->assertStringContainsString('Open ${scheme}://${domain}/${ADMIN_PATH}/', $this->script);
+        $this->assertStringNotContainsString('Open ${scheme}://${domain}/admin/', $this->script);
     }
 
     public function testInstallerSetsCurrencyRefreshCron(): void
