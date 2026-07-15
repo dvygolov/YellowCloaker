@@ -12,6 +12,7 @@
         <div class="settings-tabs" role="tablist">
             <button type="button" class="settings-tab-button active" data-settings-tab="general">General</button>
             <button type="button" class="settings-tab-button" data-settings-tab="storage">Storage</button>
+            <button type="button" class="settings-tab-button" data-settings-tab="backups">Backups</button>
             <button type="button" class="settings-tab-button" data-settings-tab="plugins">Plugins</button>
             <button type="button" class="settings-tab-button" data-settings-tab="updates">Updates</button>
         </div>
@@ -48,9 +49,14 @@
                 </section>
 
                 <section class="settings-tab-panel" data-settings-panel="storage">
+                    <div class="settings-section-heading settings-storage-heading">
+                        <div><h6>Storage names</h6><small>Random names make standard installation paths less predictable.</small></div>
+                        <button type="button" class="btn btn-primary" id="randomizeStorage"><i class="bi bi-shuffle"></i> Randomize all</button>
+                    </div>
                     <div class="settings-notice">Renamed database and cache locations are moved physically. Existing target names are never merged or overwritten.</div>
                     <div class="settings-grid">
                         <label class="settings-field"><span>Database file</span><input type="text" name="dbConnection"></label>
+                        <label class="settings-field"><span>Backup folder</span><input type="text" name="backupDir"><small>Update and restore snapshots are stored here. Only the newest five are kept.</small></label>
                         <label class="settings-field"><span>Cache root</span><input type="text" name="cachingDir"></label>
                         <label class="settings-field"><span>Landings</span><input type="text" name="landingFolder"></label>
                         <label class="settings-field"><span>White pages</span><input type="text" name="whiteFolder"></label>
@@ -59,6 +65,16 @@
                         <label class="settings-field"><span>Currency cache</span><input type="text" name="currencyCache"></label>
                         <label class="settings-field"><span>VPN cache</span><input type="text" name="proxyVpnCache"></label>
                     </div>
+                </section>
+
+                <section class="settings-tab-panel" data-settings-panel="backups">
+                    <div class="settings-notice settings-backup-warning"><i class="bi bi-exclamation-triangle"></i> Restoring a backup replaces the current system files, database, cache and settings with the selected snapshot. A safety backup of the current state is created first.</div>
+                    <div class="settings-section-heading">
+                        <div><h6>System backups</h6><small id="backupsMeta">The newest five backups are retained automatically.</small></div>
+                        <button type="button" class="btn btn-primary" id="refreshBackups"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+                    </div>
+                    <div id="backupsList" class="settings-backup-list"></div>
+                    <div id="backupsStatus" class="settings-update-status" aria-live="polite"></div>
                 </section>
 
                 <section class="settings-tab-panel" data-settings-panel="plugins">

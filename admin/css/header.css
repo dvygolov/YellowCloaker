@@ -62,6 +62,7 @@
 
 .settings-modal-header h5,
 .settings-plugin-section h6,
+.settings-section-heading h6,
 .settings-update-card h6 {
     margin: 0;
     color: #f8fbff;
@@ -342,6 +343,84 @@
     background: #14213b;
 }
 
+.settings-storage-heading {
+    margin-bottom: 14px;
+}
+
+.settings-storage-heading .btn,
+#refreshBackups {
+    display: inline-flex;
+    min-height: 42px;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    white-space: nowrap;
+}
+
+.settings-backup-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    border-color: #755d26;
+    background: #2b271b;
+    color: #f6d88f;
+}
+
+.settings-backup-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.settings-backup-empty {
+    padding: 34px 18px;
+    border: 1px dashed #34507c;
+    border-radius: 8px;
+    color: #8fa6c9;
+    text-align: center;
+}
+
+.settings-backup-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 16px;
+    border: 1px solid #2a416a;
+    border-radius: 9px;
+    background: #14213b;
+}
+
+.settings-backup-row.is-invalid {
+    border-color: #7f3549;
+}
+
+.settings-backup-title {
+    color: #f8fbff;
+    font-weight: 700;
+}
+
+.settings-backup-details {
+    margin-top: 3px;
+    color: #8fa6c9;
+    font-size: 12px;
+}
+
+.settings-backup-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.settings-backup-actions .btn {
+    display: inline-flex;
+    min-height: 42px;
+    min-width: 106px;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+}
+
 .settings-update-action {
     display: inline-flex;
     align-items: center;
@@ -391,6 +470,18 @@
         flex-basis: auto;
         width: 100%;
     }
+
+    .settings-storage-heading,
+    .settings-backup-row {
+        align-items: stretch;
+        grid-template-columns: 1fr;
+    }
+
+    .settings-storage-heading {
+        flex-direction: column;
+    }
+
+    .settings-backup-actions .btn { flex: 1; }
 }
 
 .logo-link {

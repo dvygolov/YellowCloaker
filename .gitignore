@@ -1,5 +1,7 @@
 /backups
+/.playwright-cli/
 /.phpunit.cache
+/settings.local.php
 /temp_update
 /logs
 /ycclogs

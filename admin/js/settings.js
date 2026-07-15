@@ -1,5 +1,5 @@
 (function () {
-    const state = { settings: null, revision: 0, plugins: null };
+    const state = { settings: null, revision: 0, plugins: null, backupsLoaded: false };
 
     function node(selector) { return document.querySelector(selector); }
 
@@ -17,11 +17,19 @@
         status.className = `settings-update-status ${kind}`.trim();
     }
 
+    function setBackupsStatus(message, kind = '') {
+        const status = node('#backupsStatus');
+        if (!status) return;
+        status.textContent = message || '';
+        status.className = `settings-update-status ${kind}`.trim();
+    }
+
     function setBusy(busy) {
-        ['#saveSettings', '#updateTds', '#updateGeoBases'].forEach((selector) => {
+        ['#saveSettings', '#updateTds', '#updateGeoBases', '#randomizeStorage', '#refreshBackups'].forEach((selector) => {
             const element = node(selector);
             if (element) element.disabled = busy;
         });
+        document.querySelectorAll('.settings-backup-actions button').forEach((button) => { button.disabled = busy; });
     }
 
     function clearErrors() {
@@ -45,7 +53,7 @@
     function field(name) { return node(`#settingsForm [name="${name}"]`); }
 
     function fillFields(settings) {
-        ['adminPassword', 'adminDomain', 'adminIp', 'adminPath', 'dbConnection', 'cachingDir', 'landingFolder', 'whiteFolder', 'whiteCurlCache', 'devicesCache', 'currencyCache', 'proxyVpnCache']
+        ['adminPassword', 'adminDomain', 'adminIp', 'adminPath', 'dbConnection', 'backupDir', 'cachingDir', 'landingFolder', 'whiteFolder', 'whiteCurlCache', 'devicesCache', 'currencyCache', 'proxyVpnCache']
             .forEach((name) => { if (field(name)) field(name).value = settings[name] ?? ''; });
         field('adminPassword').value = '';
         field('useUTP').checked = !!settings.useUTP;
@@ -165,7 +173,7 @@
 
     function collectSettings() {
         const settings = { ...state.settings };
-        ['adminPassword', 'adminDomain', 'adminIp', 'adminPath', 'dbConnection', 'cachingDir', 'landingFolder', 'whiteFolder', 'whiteCurlCache', 'devicesCache', 'currencyCache', 'proxyVpnCache']
+        ['adminPassword', 'adminDomain', 'adminIp', 'adminPath', 'dbConnection', 'backupDir', 'cachingDir', 'landingFolder', 'whiteFolder', 'whiteCurlCache', 'devicesCache', 'currencyCache', 'proxyVpnCache']
             .forEach((name) => { settings[name] = field(name).value.trim(); });
         settings.useUTP = field('useUTP').checked;
         settings.debug = field('debug').checked;
@@ -197,6 +205,133 @@
         node('#settingsForm').hidden = false;
     }
 
+    function randomStorageName(used) {
+        const alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
+        let value = '';
+        do {
+            const bytes = new Uint8Array(12);
+            crypto.getRandomValues(bytes);
+            value = String.fromCharCode(97 + (bytes[0] % 26));
+            for (let index = 1; index < bytes.length; index += 1) value += alphabet[bytes[index] % alphabet.length];
+        } while (used.has(value));
+        used.add(value);
+        return value;
+    }
+
+    function randomizeStorage() {
+        const used = new Set(['admin', 'api', 'bases', 'caching', 'db', 'docs', 'js', 'logs', 'plugins', 'scripts', 'tests', 'tmp', 'ycclogs', 'temp_update', String(field('adminPath').value || '').toLowerCase()]);
+        field('dbConnection').value = `${randomStorageName(used)}.db`;
+        ['backupDir', 'cachingDir', 'landingFolder', 'whiteFolder', 'whiteCurlCache', 'devicesCache', 'currencyCache', 'proxyVpnCache']
+            .forEach((name) => { field(name).value = randomStorageName(used); });
+        clearErrors();
+        setStatus('New storage names generated. Save settings to apply them.');
+    }
+
+    function formatBackupSize(bytes) {
+        const size = Number(bytes) || 0;
+        if (size < 1024) return `${size} B`;
+        if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+        if (size < 1024 * 1024 * 1024) return `${(size / 1024 / 1024).toFixed(1)} MB`;
+        return `${(size / 1024 / 1024 / 1024).toFixed(1)} GB`;
+    }
+
+    function backupTypeLabel(type) {
+        return ({ pre_update: 'Before update', pre_restore: 'Before restore', manual: 'Manual' })[type] || type || 'Unknown';
+    }
+
+    function renderBackups(backups, directory, limit) {
+        const container = node('#backupsList');
+        node('#backupsMeta').textContent = `Folder: ${directory}. The newest ${limit} backups are retained automatically.`;
+        container.replaceChildren();
+        if (!backups.length) {
+            const empty = document.createElement('div');
+            empty.className = 'settings-backup-empty';
+            empty.textContent = 'No backups yet. A backup will be created automatically before the next YellowTDS update.';
+            container.append(empty);
+            return;
+        }
+
+        backups.forEach((backup) => {
+            const row = document.createElement('div');
+            row.className = `settings-backup-row${backup.valid ? '' : ' is-invalid'}`;
+            const info = document.createElement('div');
+            const title = document.createElement('div');
+            title.className = 'settings-backup-title';
+            title.textContent = `${backupTypeLabel(backup.type)} · YellowTDS ${backup.version}`;
+            const details = document.createElement('div');
+            details.className = 'settings-backup-details';
+            const when = backup.createdAt ? new Date(backup.createdAt).toLocaleString() : 'Unknown date';
+            details.textContent = backup.valid
+                ? `${when} · ${formatBackupSize(backup.size)}`
+                : `${when} · Invalid backup: ${backup.error || 'unknown error'}`;
+            info.append(title, details);
+
+            const actions = document.createElement('div');
+            actions.className = 'settings-backup-actions';
+            if (backup.valid) {
+                const restore = document.createElement('button');
+                restore.type = 'button';
+                restore.className = 'btn btn-warning';
+                restore.dataset.backupAction = 'restore';
+                restore.dataset.backupId = backup.id;
+                restore.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i> Restore';
+                actions.append(restore);
+            }
+            const remove = document.createElement('button');
+            remove.type = 'button';
+            remove.className = 'btn btn-danger';
+            remove.dataset.backupAction = 'delete';
+            remove.dataset.backupId = backup.id;
+            remove.innerHTML = '<i class="bi bi-trash"></i> Delete';
+            actions.append(remove);
+            row.append(info, actions);
+            container.append(row);
+        });
+    }
+
+    async function loadBackups() {
+        setBackupsStatus('Loading backups…');
+        try {
+            const response = await fetch('backups.php', { headers: { Accept: 'application/json' } });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error || 'Failed to load backups');
+            renderBackups(result.backups || [], result.directory || 'backups', result.limit || 5);
+            state.backupsLoaded = true;
+            setBackupsStatus('');
+        } catch (error) {
+            setBackupsStatus(error.message, 'error');
+        }
+    }
+
+    async function runBackupAction(action, id) {
+        if (action === 'delete' && !window.confirm('Delete this backup permanently?')) return;
+        if (action === 'restore' && !window.confirm('Restore this backup? All current files, database, cache and settings will be replaced with the selected previous state. Changes made after that backup will be lost. A safety backup of the current state will be created first.')) return;
+
+        setBusy(true);
+        setBackupsStatus(action === 'restore' ? 'Restoring system…' : 'Deleting backup…');
+        try {
+            const response = await fetch('backups.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                body: JSON.stringify({ action, id }),
+            });
+            const result = await response.json();
+            if (!response.ok) throw new Error(result.error || `Failed to ${action} backup`);
+            if (action === 'restore') {
+                setBackupsStatus(result.message, 'success');
+                const destination = result.redirect ? new URL(result.redirect, window.location.href).href : window.location.href;
+                window.location.assign(destination);
+                return;
+            }
+            setBackupsStatus(result.message, 'success');
+            await loadBackups();
+        } catch (error) {
+            setBackupsStatus(error.message, 'error');
+        } finally {
+            setBusy(false);
+        }
+    }
+
     async function openSettings(event) {
         event?.preventDefault();
         $('#settingsModal').modal({
@@ -205,6 +340,7 @@
             showClose: false,
         });
         try {
+            state.backupsLoaded = false;
             await loadSettings();
         } catch (error) {
             node('#settingsLoading').textContent = error.message;
@@ -304,6 +440,7 @@
     function activateTab(name) {
         document.querySelectorAll('.settings-tab-button').forEach((button) => button.classList.toggle('active', button.dataset.settingsTab === name));
         document.querySelectorAll('.settings-tab-panel').forEach((panel) => panel.classList.toggle('active', panel.dataset.settingsPanel === name));
+        if (name === 'backups' && !state.backupsLoaded) loadBackups();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -311,6 +448,12 @@
         node('#saveSettings')?.addEventListener('click', saveSettings);
         node('#updateGeoBases')?.addEventListener('click', updateGeoBases);
         node('#updateTds')?.addEventListener('click', updateTds);
+        node('#randomizeStorage')?.addEventListener('click', randomizeStorage);
+        node('#refreshBackups')?.addEventListener('click', loadBackups);
+        node('#backupsList')?.addEventListener('click', (event) => {
+            const button = event.target.closest('[data-backup-action]');
+            if (button) runBackupAction(button.dataset.backupAction, button.dataset.backupId);
+        });
         node('#addCurrentAdminDomain')?.addEventListener('click', () => {
             const button = node('#addCurrentAdminDomain');
             if (!button.dataset.domain) return;

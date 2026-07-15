@@ -32,6 +32,7 @@ final class SettingsManager
             'adminIp' => '',
             'adminPath' => 'admin',
             'dbConnection' => 'clicks.db',
+            'backupDir' => 'backups',
             'useUTP' => false,
             'debug' => true,
             'cachingDir' => 'caching',
@@ -73,7 +74,7 @@ final class SettingsManager
         if (is_file($this->localPath())) {
             return;
         }
-        $this->writeLocalPayload(['_revision' => max(1, $revision)] + self::mergeSettings(self::defaults(), $settings), false);
+        $this->writeLocalPayload(['_revision' => max(1, $revision)] + self::mergeSettings(self::defaults(), $settings));
     }
 
     /**
@@ -123,7 +124,7 @@ final class SettingsManager
                 }
 
                 $payload = ['_revision' => $newRevision] + $next;
-                $this->writeLocalPayload($payload, true);
+                $this->writeLocalPayload($payload);
                 $journal['committed'] = true;
                 $this->writeJournal($journal);
                 @unlink($this->journalPath());
@@ -221,7 +222,7 @@ final class SettingsManager
         }
 
         $errors = [];
-        foreach (['adminPassword', 'adminDomain', 'adminIp', 'adminPath', 'dbConnection', 'cachingDir', 'landingFolder', 'whiteFolder', 'whiteCurlCache', 'devicesCache', 'currencyCache', 'proxyVpnCache'] as $field) {
+        foreach (['adminPassword', 'adminDomain', 'adminIp', 'adminPath', 'dbConnection', 'backupDir', 'cachingDir', 'landingFolder', 'whiteFolder', 'whiteCurlCache', 'devicesCache', 'currencyCache', 'proxyVpnCache'] as $field) {
             if (!is_string($next[$field] ?? null)) {
                 $errors[$field] = 'Must be a string';
             } else {
@@ -243,6 +244,15 @@ final class SettingsManager
         }
         if (!$this->isSafeName((string)($next['dbConnection'] ?? ''), 128)) {
             $errors['dbConnection'] = 'Use a file name without directories';
+        }
+        if (!$this->isSafeName((string)($next['backupDir'] ?? ''), 64)) {
+            $errors['backupDir'] = 'Use a directory name without slashes';
+        }
+        $reservedBackupNames = ['admin', 'api', 'bases', 'caching', 'db', 'docs', 'js', 'logs', 'plugins', 'scripts', 'tests', 'tmp', 'ycclogs', 'temp_update'];
+        $reservedBackupNames[] = (string)($next['adminPath'] ?? 'admin');
+        $reservedBackupNames[] = (string)($next['cachingDir'] ?? 'caching');
+        if (in_array(strtolower((string)($next['backupDir'] ?? '')), array_map('strtolower', $reservedBackupNames), true)) {
+            $errors['backupDir'] = 'Use a name that does not overlap system, admin or cache directories';
         }
 
         $directoryFields = ['cachingDir', 'landingFolder', 'whiteFolder', 'whiteCurlCache', 'devicesCache', 'currencyCache', 'proxyVpnCache'];
@@ -397,6 +407,20 @@ final class SettingsManager
             }
         }
 
+        $oldBackup = $this->rootPath((string)$current['backupDir']);
+        $newBackup = $this->rootPath((string)$next['backupDir']);
+        if ($oldBackup !== $newBackup) {
+            if (file_exists($newBackup)) {
+                $errors['backupDir'] = 'Target backup directory already exists';
+            } elseif (is_dir($oldBackup)) {
+                $operations[] = ['type' => 'rename', 'from' => $oldBackup, 'to' => $newBackup];
+            } elseif (file_exists($oldBackup)) {
+                $errors['backupDir'] = 'Current backup path is not a directory';
+            } else {
+                $operations[] = ['type' => 'mkdir', 'path' => $newBackup];
+            }
+        }
+
         if ($errors !== []) {
             throw new SettingsValidationException($errors);
         }
@@ -445,16 +469,9 @@ final class SettingsManager
     }
 
     /** @param array<string, mixed> $payload */
-    private function writeLocalPayload(array $payload, bool $backup): void
+    private function writeLocalPayload(array $payload): void
     {
         $content = "<?php\n\nreturn " . var_export($payload, true) . ";\n";
-        if ($backup && is_file($this->localPath())) {
-            $backupDir = $this->rootPath('backups');
-            if (!is_dir($backupDir)) {
-                @mkdir($backupDir, 0755, true);
-            }
-            @copy($this->localPath(), $backupDir . DIRECTORY_SEPARATOR . 'settings_local_' . date('Y-m-d_H-i-s') . '.php');
-        }
         $this->writeRawLocal($content);
         try {
             $loaded = include $this->localPath();

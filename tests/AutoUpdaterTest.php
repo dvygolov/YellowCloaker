@@ -8,6 +8,7 @@ $GLOBALS['cloSettings'] = [
     'adminIp' => '',
     'adminPath' => 'admin',
     'dbConnection' => 'test_dummy.db',
+    'backupDir' => 'backups',
     'useUTP' => false,
     'debug' => false,
     'cachingDir' => 'caching',
@@ -142,6 +143,25 @@ class AutoUpdaterTest extends TestCase
         $local = include $target . DIRECTORY_SEPARATOR . 'settings.local.php';
         $this->assertSame(7, $local['_revision']);
         $this->assertSame('e3c80abc', $local['adminPath']);
+    }
+
+    public function testUpdateSkipsConfiguredBackupDirectory(): void
+    {
+        $target = $this->tempRoot . DIRECTORY_SEPARATOR . 'target';
+        $source = $this->tempRoot . DIRECTORY_SEPARATOR . 'source';
+        mkdir($target . DIRECTORY_SEPARATOR . 'e3c80abc', 0755, true);
+        mkdir($source . DIRECTORY_SEPARATOR . 'admin', 0755, true);
+        mkdir($source . DIRECTORY_SEPARATOR . 'restore-points', 0755, true);
+        file_put_contents($target . DIRECTORY_SEPARATOR . 'settings.php', '<?php $cloSettings = ["adminPath" => "admin"];');
+        file_put_contents($target . DIRECTORY_SEPARATOR . 'settings.local.php', '<?php return ["_revision" => 1, "adminPath" => "e3c80abc", "backupDir" => "restore-points"];');
+        foreach (['autoupdate.php', 'version.txt', 'login.php', 'index.php'] as $file) {
+            file_put_contents($source . DIRECTORY_SEPARATOR . 'admin' . DIRECTORY_SEPARATOR . $file, $file);
+        }
+        file_put_contents($source . DIRECTORY_SEPARATOR . 'restore-points' . DIRECTORY_SEPARATOR . 'should-not-copy.zip', 'backup');
+
+        (new AutoUpdater())->applyExtractedUpdate($source, $target);
+
+        $this->assertDirectoryDoesNotExist($target . DIRECTORY_SEPARATOR . 'restore-points');
     }
 
     private function removeDir(string $dir): void

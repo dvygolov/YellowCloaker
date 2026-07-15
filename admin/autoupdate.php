@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../settings.php';
+require_once __DIR__ . '/../backupmanager.php';
 require_once __DIR__ . '/../paths.php';
 require_once __DIR__ . '/../requestfunc.php';
 require_once __DIR__ . '/password.php';
@@ -9,13 +10,13 @@ class AutoUpdater {
     private const GITHUB_BRANCH = 'multipleconfigs';
     private const GITHUB_API_URL = 'https://api.github.com/repos/dvygolov/YellowTDS/contents/admin/version.txt?ref=multipleconfigs';
     private const VERSION_FILE = __DIR__ . '/version.txt';
-    private const SETTINGS_FILE = __DIR__ . '/../settings.php';
-    private const BACKUP_DIR = __DIR__ . '/../backups';
     private const UPDATE_DIR = __DIR__ . '/../temp_update';
 
     private string $currentVersion;
     private string $latestVersion = '';
     private string $downloadUrl = '';
+    /** @var array<int, string> */
+    private array $protectedRootDirectories = ['backups', 'temp_update', 'logs', 'ycclogs', 'tmp'];
 
     public function __construct() {
         $this->currentVersion = trim((string)file_get_contents(self::VERSION_FILE));
@@ -67,28 +68,22 @@ class AutoUpdater {
     public function update(): array {
         $result = ['success' => false, 'message' => ''];
         $targetRoot = dirname(__DIR__);
+        $backupManager = null;
+        $backup = null;
 
         try {
-            if (!file_exists(self::BACKUP_DIR)) {
-                mkdir(self::BACKUP_DIR, 0755, true);
+            if ($this->latestVersion === '') {
+                $this->checkForUpdates();
             }
+            $settings = (new SettingsManager($targetRoot))->load();
+            $backupManager = new BackupManager($targetRoot, $settings);
+            $backup = $backupManager->create('pre_update', [
+                'fromVersion' => $this->currentVersion,
+                'toVersion' => $this->latestVersion !== '' ? $this->latestVersion : 'unknown',
+            ]);
             if (!file_exists(self::UPDATE_DIR)) {
                 mkdir(self::UPDATE_DIR, 0755, true);
             }
-
-            $stamp = date('Y-m-d_H-i-s');
-            $settingsBackup = self::BACKUP_DIR . '/settings_' . $stamp . '.php';
-            if (!copy(self::SETTINGS_FILE, $settingsBackup)) {
-                throw new Exception("Failed to backup settings.php");
-            }
-
-            $adminPath = $this->getActiveAdminPath($targetRoot);
-            $adminDir = $targetRoot . DIRECTORY_SEPARATOR . $adminPath;
-            $adminBackup = self::BACKUP_DIR . '/admin_' . $stamp;
-            if (!is_dir($adminDir)) {
-                throw new Exception("Current admin directory not found: " . $adminDir);
-            }
-            $this->recursiveCopy($adminDir, $adminBackup);
 
             $zipFile = self::UPDATE_DIR . '/update.zip';
 
@@ -115,18 +110,18 @@ class AutoUpdater {
             $this->recursiveDelete(self::UPDATE_DIR);
 
             $result['success'] = true;
-            $result['message'] = "Successfully updated to version " . $this->latestVersion;
-        } catch (Exception $e) {
+            $result['message'] = "Successfully updated to version " . $this->latestVersion . ". Backup created: " . $backup['id'];
+        } catch (Throwable $e) {
             $result['message'] = "Update failed: " . $e->getMessage();
-            if (isset($settingsBackup) && file_exists($settingsBackup)) {
-                copy($settingsBackup, self::SETTINGS_FILE);
-            }
-            if (isset($adminBackup, $adminDir) && is_dir($adminBackup)) {
-                if (is_dir($adminDir)) {
-                    $this->recursiveDelete($adminDir);
+            if ($backupManager instanceof BackupManager && is_array($backup)) {
+                try {
+                    $backupManager->restore((string)$backup['id'], false);
+                    $result['message'] .= ' The previous system state was restored.';
+                } catch (Throwable $restoreError) {
+                    $result['message'] .= ' Automatic rollback failed: ' . $restoreError->getMessage();
                 }
-                $this->recursiveCopy($adminBackup, $adminDir);
             }
+            $this->recursiveDelete(self::UPDATE_DIR);
         }
 
         return $result;
@@ -136,6 +131,12 @@ class AutoUpdater {
         $targetRoot = $targetRoot ?? dirname(__DIR__);
         $adminPath = $this->getActiveAdminPath($targetRoot);
         $this->ensureLocalSettings($targetRoot, $adminPath);
+
+        $settings = (new SettingsManager($targetRoot))->load();
+        $backupDir = (string)($settings['backupDir'] ?? 'backups');
+        if (preg_match('/^[A-Za-z0-9._-]{1,64}$/', $backupDir) === 1) {
+            $this->protectedRootDirectories = array_values(array_unique(array_merge($this->protectedRootDirectories, [$backupDir])));
+        }
 
         $this->recursiveCopyUpdate($extractedDir, $targetRoot, $adminPath);
         $this->assertAdminUpdateComplete($targetRoot, $adminPath);
@@ -257,7 +258,7 @@ class AutoUpdater {
         }
 
         $first = explode('/', $relativePath, 2)[0];
-        if (in_array($first, ['backups', 'temp_update', 'logs', 'ycclogs', 'tmp'], true)) {
+        if (in_array($first, $this->protectedRootDirectories, true)) {
             return true;
         }
 
@@ -285,36 +286,6 @@ class AutoUpdater {
             userAgent: 'YellowTDS Updater',
         ));
         return $response->isOk() && file_put_contents($path, (string)$response->content) !== false;
-    }
-
-    private function recursiveCopy(string $src, string $dst): void {
-        if (is_dir($src)) {
-            if (!file_exists($dst) && !mkdir($dst, 0755, true)) {
-                throw new Exception("Failed to create directory: " . $dst);
-            }
-
-            $dir = opendir($src);
-            if ($dir === false) {
-                throw new Exception("Failed to open directory: " . $src);
-            }
-
-            while (($file = readdir($dir)) !== false) {
-                if ($file === '.' || $file === '..') {
-                    continue;
-                }
-                $this->recursiveCopy($src . DIRECTORY_SEPARATOR . $file, $dst . DIRECTORY_SEPARATOR . $file);
-            }
-            closedir($dir);
-            return;
-        }
-
-        $dstDir = dirname($dst);
-        if (!is_dir($dstDir) && !mkdir($dstDir, 0755, true)) {
-            throw new Exception("Failed to create directory: " . $dstDir);
-        }
-        if (!copy($src, $dst)) {
-            throw new Exception("Failed to copy file: " . $src);
-        }
     }
 
     private function recursiveDelete(string $dir): void {

@@ -19,6 +19,8 @@ class SettingsManagerTest extends TestCase
         mkdir($this->root . '/admin', 0755, true);
         mkdir($this->root . '/db', 0755, true);
         mkdir($this->root . '/tmp', 0755, true);
+        mkdir($this->root . '/backups', 0755, true);
+        file_put_contents($this->root . '/backups/keep.zip', 'backup');
         foreach (['landings', 'whites', 'whites_curl', 'devices', 'currency', 'proxyvpn'] as $dir) {
             mkdir($this->root . '/caching/' . $dir, 0755, true);
         }
@@ -69,6 +71,7 @@ class SettingsManagerTest extends TestCase
         $settings = $this->manager->load();
         $settings['adminPath'] = 'secret-admin';
         $settings['dbConnection'] = 'events.sqlite';
+        $settings['backupDir'] = 'restore-points';
         $settings['cachingDir'] = 'runtime-cache';
         $settings['landingFolder'] = 'offers';
         $saved = $this->manager->save($settings, 0, $this->catalog);
@@ -78,6 +81,8 @@ class SettingsManagerTest extends TestCase
         $this->assertFileExists($this->root . '/db/events.sqlite');
         $this->assertFileExists($this->root . '/db/events.sqlite-wal');
         $this->assertFileExists($this->root . '/db/events.sqlite-shm');
+        $this->assertFileExists($this->root . '/restore-points/keep.zip');
+        $this->assertDirectoryDoesNotExist($this->root . '/backups');
         $this->assertDirectoryExists($this->root . '/runtime-cache/offers');
         $this->assertSame('../secret-admin/', $saved['redirect']);
     }
@@ -97,6 +102,20 @@ class SettingsManagerTest extends TestCase
         }
         $this->assertFileExists($this->root . '/db/clicks.db');
         $this->assertFileDoesNotExist($this->root . '/db/renamed.db');
+    }
+
+    public function testBackupDirectoryCannotOverlapSystemStorage(): void
+    {
+        $settings = $this->manager->load();
+        $settings['backupDir'] = 'caching';
+
+        try {
+            $this->manager->save($settings, 0, $this->catalog);
+            $this->fail('Expected validation exception');
+        } catch (SettingsValidationException $e) {
+            $this->assertArrayHasKey('backupDir', $e->errors);
+        }
+        $this->assertDirectoryExists($this->root . '/backups');
     }
 
     public function testRemovedPluginSettingsArePrunedOnReconcile(): void
