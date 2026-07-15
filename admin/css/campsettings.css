@@ -516,6 +516,66 @@
     margin-right: 6px;
 }
 
+.flow-group-title-with-help {
+    display: inline-flex;
+    align-items: center;
+}
+
+.setting-help-icon {
+    position: relative;
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    cursor: help;
+}
+
+.flow-group-title .setting-help-icon {
+    margin-right: 6px;
+}
+
+.setting-help-icon::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 1000;
+    width: max-content;
+    max-width: min(320px, 80vw);
+    padding: 8px 10px;
+    border: 1px solid #3f5f91;
+    border-radius: 6px;
+    background: #101a30;
+    color: #e8f0ff;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.32);
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.4;
+    letter-spacing: normal;
+    text-align: left;
+    white-space: normal;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-4px);
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s ease;
+}
+
+.setting-help-icon:hover::after,
+.setting-help-icon:focus::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.setting-help-icon:focus-visible {
+    outline: 2px solid rgba(96, 165, 250, 0.7);
+    outline-offset: 2px;
+    border-radius: 50%;
+}
+
 .script-rules-container {
     display: flex;
     flex-direction: column;

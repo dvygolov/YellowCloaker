@@ -71,11 +71,11 @@ global $c, $db, $campId;
 
             <section id="sec-safepage" class="camp-section">
             <div class="flow-group">
-            <span class="flow-group-title">Filters</span>
+            <span class="flow-group-title flow-group-title-with-help">
+                <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Traffic matching these filters will be shown the safe page. Everyone else goes to the Flows section." data-tooltip="Traffic matching these filters will be shown the safe page. Everyone else goes to the Flows section."></i>
+                Filters
+            </span>
             <div class="form-group-inner">
-                <p>
-                Traffic matching these filters will be shown the <strong>safe page</strong>. Everyone else goes to the Flows section.
-                </p>
                 <div class="row">
                     <div id="filtersbuilder"></div>
                 </div>
@@ -89,8 +89,8 @@ global $c, $db, $campId;
                     <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">White page mode:</label></div>
                     <div class="col-lg-9">
                         <div class="ywb-radios">
-                            <label class="ywb-radio-label"><input type="radio" <?= !$c->white->domainFilterEnabled ? 'checked' : '' ?> value="false" name="white.domainfilter.use" class="white-scope-radio" /> Global (same white page for all domains)</label>
-                            <label class="ywb-radio-label"><input type="radio" <?= $c->white->domainFilterEnabled ? 'checked' : '' ?> value="true" name="white.domainfilter.use" class="white-scope-radio" /> Domain-Specific (each domain gets its own config)</label>
+                            <label class="ywb-radio-label"><input type="radio" <?= !$c->white->domainFilterEnabled ? 'checked' : '' ?> value="false" name="white.domainfilter.use" class="white-scope-radio" /> Global <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Uses the same white page configuration for every campaign domain." data-tooltip="Uses the same white page configuration for every campaign domain."></i></label>
+                            <label class="ywb-radio-label"><input type="radio" <?= $c->white->domainFilterEnabled ? 'checked' : '' ?> value="true" name="white.domainfilter.use" class="white-scope-radio" /> Domain-Specific <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Creates an independent white page configuration for each campaign domain." data-tooltip="Creates an independent white page configuration for each campaign domain."></i></label>
                         </div>
                     </div>
                 </div>
@@ -111,7 +111,7 @@ global $c, $db, $campId;
                             <label class="ywb-radio-label"><input type="radio" <?= $c->white->action === 'folder' ? 'checked' : '' ?> value="folder" name="white.action" onclick="(document.getElementById('b_2').style.display = 'block'); (document.getElementById('b_3').style.display = 'none'); (document.getElementById('b_4').style.display = 'none'); (document.getElementById('b_5').style.display = 'none')" /> Local safe page from folder</label>
                             <label class="ywb-radio-label"><input type="radio" <?= $c->white->action === 'redirect' ? 'checked' : '' ?> value="redirect" name="white.action" onclick="(document.getElementById('b_2').style.display = 'none'); (document.getElementById('b_3').style.display = 'block'); (document.getElementById('b_4').style.display = 'none'); (document.getElementById('b_5').style.display = 'none')" /> Redirect</label>
                             <label class="ywb-radio-label"><input type="radio" <?= $c->white->action === 'curl' ? 'checked' : '' ?> value="curl" name="white.action" onclick="(document.getElementById('b_2').style.display = 'none'); (document.getElementById('b_3').style.display = 'none'); (document.getElementById('b_4').style.display = 'block'); (document.getElementById('b_5').style.display = 'none')" /> Load a website using CURL</label>
-                            <label class="ywb-radio-label"><input type="radio" <?= $c->white->action === 'error' ? 'checked' : '' ?> value="error" name="white.action" onclick="(document.getElementById('b_2').style.display = 'none'); (document.getElementById('b_3').style.display = 'none'); (document.getElementById('b_4').style.display = 'none'); (document.getElementById('b_5').style.display = 'block')" /> Return HTTP-code <small>(404 NotFound, 200 OK)</small></label>
+                            <label class="ywb-radio-label"><input type="radio" <?= $c->white->action === 'error' ? 'checked' : '' ?> value="error" name="white.action" onclick="(document.getElementById('b_2').style.display = 'none'); (document.getElementById('b_3').style.display = 'none'); (document.getElementById('b_4').style.display = 'none'); (document.getElementById('b_5').style.display = 'block')" /> Return HTTP-code <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Examples: 404 Not Found or 200 OK." data-tooltip="Examples: 404 Not Found or 200 OK."></i></label>
                         </div>
                     </div>
                 </div>

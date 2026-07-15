@@ -4,6 +4,8 @@
 
 White settings define what to do with traffic that should not enter the black funnel.
 
+Short explanations for filters, Global/Domain-Specific scope, and HTTP codes are available from the `i` icons. Hover an icon or focus it with the keyboard to show its hint.
+
 ## Available Actions
 
 - local safe page from folder
