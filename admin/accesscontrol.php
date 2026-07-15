@@ -1,6 +1,17 @@
 <?php
 require_once __DIR__ . '/../bases/ipcountry.php';
 
+function get_admin_request_domain(array $server): string
+{
+    $serverName = trim((string)($server['SERVER_NAME'] ?? ''));
+    if ($serverName === '') {
+        return '';
+    }
+
+    $domain = parse_url('http://' . $serverName, PHP_URL_HOST);
+    return is_string($domain) ? $domain : $serverName;
+}
+
 function get_admin_request_ip(array $server, ?callable $isCloudflareIp = null): string
 {
     $remoteAddr = trim((string)($server['REMOTE_ADDR'] ?? ''));
@@ -49,7 +60,7 @@ function get_admin_access_error(array $server, array $settings, ?callable $isClo
 {
     $adminDomain = trim((string)($settings['adminDomain'] ?? ''));
     if ($adminDomain !== '') {
-        $currentDomain = (string)($server['SERVER_NAME'] ?? '');
+        $currentDomain = get_admin_request_domain($server);
         if ($currentDomain !== $adminDomain) {
             return "Admin Domain $adminDomain is set, but your domain is $currentDomain. You are not allowed to access this page!";
         }

@@ -163,7 +163,7 @@
 .settings-field input.is-invalid { border-color: #f87171; }
 .settings-field-error { color: #fca5a5 !important; }
 
-.settings-current-ip {
+.settings-current-value {
     align-self: flex-start;
     border: 0;
     background: transparent;
@@ -175,7 +175,7 @@
     text-underline-offset: 3px;
 }
 
-.settings-current-ip:hover { color: #9bd1ff; }
+.settings-current-value:hover { color: #9bd1ff; }
 
 .settings-switches {
     display: flex;
@@ -342,6 +342,17 @@
     background: #14213b;
 }
 
+.settings-update-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    flex: 0 0 190px;
+    width: 190px;
+    min-height: 42px;
+    white-space: nowrap;
+}
+
 .settings-update-card + .settings-update-card { margin-top: 14px; }
 .settings-update-status:empty { display: none; }
 .settings-update-status.success { background: #14372b; color: #a7f3d0; }
@@ -368,6 +379,18 @@
     .settings-grid { grid-template-columns: 1fr; }
     .settings-plugin-row { grid-template-columns: 1fr; }
     .settings-modal-body { max-height: 68vh; }
+}
+
+@media (max-width: 560px) {
+    .settings-update-card {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .settings-update-action {
+        flex-basis: auto;
+        width: 100%;
+    }
 }
 
 .logo-link {

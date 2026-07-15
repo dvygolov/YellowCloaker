@@ -39,6 +39,7 @@ function settingseditor_handle_request(): void
             settingseditor_send([
                 'settings' => $manager->adminPayload($reconciled['settings']),
                 'revision' => $reconciled['revision'],
+                'currentDomain' => get_admin_request_domain($_SERVER),
                 'currentIp' => get_admin_request_ip($_SERVER),
                 'plugins' => $catalog,
                 'updates' => [

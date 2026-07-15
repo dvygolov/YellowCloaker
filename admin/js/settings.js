@@ -60,6 +60,14 @@
         button.textContent = currentIp === '' ? '' : `Add current IP: ${currentIp}`;
     }
 
+    function renderCurrentDomain(domain) {
+        const button = node('#addCurrentAdminDomain');
+        const currentDomain = String(domain || '').trim();
+        button.hidden = currentDomain === '';
+        button.dataset.domain = currentDomain;
+        button.textContent = currentDomain === '' ? '' : `Add current domain: ${currentDomain}`;
+    }
+
     function createPluginRow(type, id, meta, config) {
         const row = document.createElement('div');
         row.className = 'settings-plugin-row';
@@ -180,6 +188,7 @@
         state.revision = result.revision;
         state.plugins = result.plugins;
         fillFields(result.settings);
+        renderCurrentDomain(result.currentDomain);
         renderCurrentIp(result.currentIp);
         renderPlugins(result.settings, result.plugins);
         node('#tdsVersion').textContent = `Installed version: ${result.updates?.currentVersion || 'unknown'}`;
@@ -302,6 +311,13 @@
         node('#saveSettings')?.addEventListener('click', saveSettings);
         node('#updateGeoBases')?.addEventListener('click', updateGeoBases);
         node('#updateTds')?.addEventListener('click', updateTds);
+        node('#addCurrentAdminDomain')?.addEventListener('click', () => {
+            const button = node('#addCurrentAdminDomain');
+            if (!button.dataset.domain) return;
+            field('adminDomain').value = button.dataset.domain;
+            field('adminDomain').classList.remove('is-invalid');
+            field('adminDomain').focus();
+        });
         node('#addCurrentAdminIp')?.addEventListener('click', () => {
             const button = node('#addCurrentAdminIp');
             if (!button.dataset.ip) return;

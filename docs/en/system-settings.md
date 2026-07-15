@@ -11,7 +11,7 @@ The **Settings** button in the header opens instance-wide YellowTDS settings. Th
 - **Plugins** — currency sources and VPN/proxy detectors, preferred currencies, and `any`/`most` decision mode.
 - **Updates** — check and install a YellowTDS update or refresh GeoBases.
 
-The server-detected current IP is shown below **Allowed admin IP**. **Add current IP** copies it into the field with one click. On the **Plugins** tab, every plugin has an explicit switch and an **Enabled** or **Disabled** label; options belonging to a disabled plugin are inactive.
+The server-detected current domain and IP are shown below **Allowed admin domain** and **Allowed admin IP**. **Add current domain** and **Add current IP** copy the corresponding value into the field with one click; the domain is inserted without a port number. On the **Plugins** tab, every plugin has an explicit switch and an **Enabled** or **Disabled** label; options belonging to a disabled plugin are inactive.
 
 Changing the admin path, database file name, or cache directory names physically renames the corresponding files and directories. Existing destinations are treated as conflicts and are never overwritten or merged. After an admin path change, the browser automatically redirects to the new URL.
 

@@ -33,11 +33,12 @@
                         <label class="settings-field">
                             <span>Allowed admin domain</span>
                             <input type="text" name="adminDomain" placeholder="Empty means any domain">
+                            <button type="button" class="settings-current-value" id="addCurrentAdminDomain" hidden></button>
                         </label>
                         <label class="settings-field">
                             <span>Allowed admin IP</span>
                             <input type="text" name="adminIp" placeholder="Empty means any IP">
-                            <button type="button" class="settings-current-ip" id="addCurrentAdminIp" hidden></button>
+                            <button type="button" class="settings-current-value" id="addCurrentAdminIp" hidden></button>
                         </label>
                     </div>
                     <div class="settings-switches">
@@ -82,11 +83,11 @@
                 <section class="settings-tab-panel" data-settings-panel="updates">
                     <div class="settings-update-card">
                         <div><h6>YellowTDS</h6><div id="tdsVersion" class="settings-update-meta"></div></div>
-                        <button type="button" class="btn btn-primary" id="updateTds"><i class="bi bi-cloud-arrow-down"></i> Check &amp; update</button>
+                        <button type="button" class="btn btn-primary settings-update-action" id="updateTds"><i class="bi bi-cloud-arrow-down"></i> Check &amp; update</button>
                     </div>
                     <div class="settings-update-card">
                         <div><h6>GeoBases</h6><div id="geoBasesVersion" class="settings-update-meta"></div></div>
-                        <button type="button" class="btn btn-primary" id="updateGeoBases"><i class="bi bi-globe2"></i> Update GeoBases</button>
+                        <button type="button" class="btn btn-primary settings-update-action" id="updateGeoBases"><i class="bi bi-globe2"></i> Update GeoBases</button>
                     </div>
                     <div id="settingsUpdateStatus" class="settings-update-status" aria-live="polite"></div>
                 </section>
