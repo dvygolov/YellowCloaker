@@ -57,9 +57,25 @@ class InstallerScriptTest extends TestCase
     public function testInstallerSupportsCurlPipeRepositoryDownload(): void
     {
         $this->assertStringContainsString('YELLOWTDS_REPO_ZIP', $this->script);
-        $this->assertStringContainsString('https://github.com/dvygolov/YellowTDS/archive/refs/heads/main.zip', $this->script);
+        $this->assertStringContainsString('https://github.com/dvygolov/YellowTDS/archive/refs/heads/multipleconfigs.zip', $this->script);
         $this->assertStringContainsString('Installer was not run from a YellowTDS checkout; downloading repository ZIP', $this->script);
         $this->assertStringContainsString('Downloaded repository ZIP does not look like YellowTDS', $this->script);
+    }
+
+    public function testPublishedInstallerLinksUsePrimaryBranch(): void
+    {
+        $canonicalUrl = 'https://raw.githubusercontent.com/dvygolov/YellowTDS/refs/heads/multipleconfigs/install.sh';
+
+        foreach ([
+            __DIR__ . '/../README.md',
+            __DIR__ . '/../README.en.md',
+            __DIR__ . '/../docs/ru/installation.md',
+            __DIR__ . '/../docs/en/installation.md',
+        ] as $path) {
+            $contents = (string) file_get_contents($path);
+            $this->assertStringContainsString($canonicalUrl, $contents, $path);
+            $this->assertStringNotContainsString('/YellowTDS/main/install.sh', $contents, $path);
+        }
     }
 
     public function testInstallerGeneratesAndPersistsRandomAdminPath(): void

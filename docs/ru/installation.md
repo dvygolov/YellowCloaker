@@ -5,7 +5,7 @@ YellowTDS можно установить на чистый Debian/Ubuntu VPS ч
 ## Короткая команда
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/main/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/refs/heads/multipleconfigs/install.sh | sudo bash
 ```
 
 Скрипт спросит основной домен. До выпуска сертификата он проверит, что DNS домена указывает на публичный IP этого VPS. Если домен ещё не привязан, установка остановится с сообщением, какой IP ожидался и какие IP сейчас резолвятся.
@@ -24,7 +24,7 @@ curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/main/install.sh 
 Чтобы добавить домены к уже установленному инстансу без создания новой БД:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/main/install.sh | sudo bash -s -- --add-domain
+curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/refs/heads/multipleconfigs/install.sh | sudo bash -s -- --add-domain
 ```
 
 Скрипт спросит путь к существующей установке YellowTDS и домены через запятую:
@@ -40,14 +40,14 @@ tds1.example.com,tds2.example.com,track.example.net
 Для автоматизации можно передать значения без интерактивного ввода:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/main/install.sh \
+curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/refs/heads/multipleconfigs/install.sh \
   | sudo YELLOWTDS_DOMAIN=tds.example.com bash
 ```
 
 Для batch-добавления доменов:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/main/install.sh \
+curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/refs/heads/multipleconfigs/install.sh \
   | sudo YELLOWTDS_APP_DIR=/var/www/tds.example.com YELLOWTDS_DOMAINS=tds1.example.com,tds2.example.com bash -s -- --add-domain
 ```
 

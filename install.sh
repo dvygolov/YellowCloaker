@@ -369,7 +369,7 @@ install_maxmind_extension() {
 
 copy_application() {
     local app_dir="$1"
-    local repo_zip="${YELLOWTDS_REPO_ZIP:-https://github.com/dvygolov/YellowTDS/archive/refs/heads/main.zip}"
+    local repo_zip="${YELLOWTDS_REPO_ZIP:-https://github.com/dvygolov/YellowTDS/archive/refs/heads/multipleconfigs.zip}"
     local temp_dir
     local source_dir
 
