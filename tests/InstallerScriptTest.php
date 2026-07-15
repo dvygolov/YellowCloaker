@@ -64,7 +64,7 @@ class InstallerScriptTest extends TestCase
 
     public function testPublishedInstallerLinksUsePrimaryBranch(): void
     {
-        $canonicalUrl = 'https://raw.githubusercontent.com/dvygolov/YellowTDS/refs/heads/multipleconfigs/install.sh';
+        $canonicalUrl = 'https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/install.sh';
 
         foreach ([
             __DIR__ . '/../README.md',

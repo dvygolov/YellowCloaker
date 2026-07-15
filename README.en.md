@@ -44,7 +44,7 @@ Key capabilities:
 For a clean Debian/Ubuntu VPS, use the auto-installer:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/refs/heads/multipleconfigs/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/install.sh | sudo bash
 ```
 
 The script asks for a domain, verifies DNS points to the VPS, installs nginx/PHP/HTTPS, the MMDB C extension, and downloads geobases from `sapics/ip-location-db`.
@@ -52,7 +52,7 @@ The script asks for a domain, verifies DNS points to the VPS, installs nginx/PHP
 To add multiple domains to an existing instance:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/refs/heads/multipleconfigs/install.sh | sudo bash -s -- --add-domain
+curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/install.sh | sudo bash -s -- --add-domain
 ```
 
 Enter domains comma-separated, for example: `tds1.example.com,tds2.example.com`.

@@ -48,7 +48,7 @@ Yellow TDS — TDS для маршрутизации трафика по пра�
 Для чистого Debian/Ubuntu VPS можно использовать автоустановщик:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/refs/heads/multipleconfigs/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/install.sh | sudo bash
 ```
 
 Скрипт спросит домен, проверит DNS-привязку к VPS, поставит nginx/PHP/HTTPS, C-расширение MMDB и скачает геобазы из `sapics/ip-location-db`.
@@ -56,7 +56,7 @@ curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/refs/heads/multi
 Чтобы добавить к уже установленному инстансу несколько новых доменов:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/refs/heads/multipleconfigs/install.sh | sudo bash -s -- --add-domain
+curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/install.sh | sudo bash -s -- --add-domain
 ```
 
 Домены можно вводить через запятую: `tds1.example.com,tds2.example.com`.
