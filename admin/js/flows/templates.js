@@ -133,7 +133,7 @@ export function renumberSteps(fi) {
         var a = item.querySelector('a');
         if (a) {
             a.setAttribute('href', '#sec-step-' + fi + '-' + idx);
-            a.innerHTML = '&nbsp;&nbsp;&nbsp;&nbsp;Step ' + (idx + 1);
+            a.textContent = 'Step ' + (idx + 1);
         }
     });
 

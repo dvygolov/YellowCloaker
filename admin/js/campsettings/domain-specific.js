@@ -5,16 +5,9 @@ document.querySelectorAll('.white-scope-radio').forEach(function (radio) {
         document.getElementById('global-white-config').style.display = isDomainSpecific ? 'none' : 'block';
         // Ensure sections + nav items exist for all domains
         if (isDomainSpecific && window.syncDomainWhiteSections) window.syncDomainWhiteSections();
-        // Show/hide sidebar nav items for domain-specific sections
-        document.querySelectorAll('.dws-nav-item').forEach(function (li) {
-            li.style.display = isDomainSpecific ? '' : 'none';
-        });
+        if (window.refreshCampaignNavTree) window.refreshCampaignNavTree();
     });
 });
-// Hide dws nav items on load if global mode
-if (!document.querySelector('.white-scope-radio[value="true"]:checked')) {
-    document.querySelectorAll('.dws-nav-item').forEach(function (li) { li.style.display = 'none'; });
-}
 
 // ── Domain-specific: method radio toggle ──
 document.addEventListener('change', function (e) {
@@ -110,9 +103,9 @@ document.addEventListener('click', function (e) {
         var section = btn.closest('.dws-section');
         section.querySelector('.dws-redirect-items').insertAdjacentHTML('beforeend',
             '<div class="form-group-inner dws-redirect-item"><div class="row">' +
-            '<div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Redirect URL:</label></div>' +
-            '<div class="col-lg-5"><input type="text" class="form-control dws-redirect-url" value="' + url.trim().replace(/"/g, '&quot;') + '" placeholder="https://example.com" /></div>' +
-            '<div class="col-lg-1"><a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn dws-remove-redirect"><i class="bi bi-trash"></i></a></div>' +
+            '<div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Redirect address:</label></div>' +
+            '<div class="col-lg-3"><input type="text" class="form-control dws-redirect-url" value="' + escapeHtml(url.trim()) + '" placeholder="https://example.com" /></div>' +
+            '<div class="col-lg-1"><a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn dws-remove-redirect" title="Delete"><i class="bi bi-trash"></i></a></div>' +
             '</div></div>');
         return;
     }
@@ -124,11 +117,11 @@ document.addEventListener('click', function (e) {
         var section = btn.closest('.dws-section');
         section.querySelector('.dws-curl-items').insertAdjacentHTML('beforeend',
             '<div class="form-group-inner dws-curl-item"><div class="row">' +
-            '<div class="col-lg-3"><label class="login2 pull-left pull-left-pro">CURL URL:</label></div>' +
-            '<div class="col-lg-5"><input type="text" class="form-control dws-curl-url" value="' + url.trim().replace(/"/g, '&quot;') + '" placeholder="https://example.com" /></div>' +
+            '<div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Curl address:</label></div>' +
+            '<div class="col-lg-3"><input type="text" class="form-control dws-curl-url" value="' + escapeHtml(url.trim()) + '" placeholder="https://example.com" /></div>' +
             '<div class="col-lg-2"><div class="btn-group campaign-icon-group">' +
             '<a href="javascript:void(0)" class="btn btn-outline-secondary load-mode-btn" data-mode="rewrite" data-modes="rewrite,direct" title="Loading mode"><i class="bi bi-arrow-repeat"></i></a>' +
-            '<a href="javascript:void(0)" class="btn btn-danger dws-remove-curl"><i class="bi bi-trash"></i></a>' +
+            '<a href="javascript:void(0)" class="btn btn-danger dws-remove-curl" title="Delete"><i class="bi bi-trash"></i></a>' +
             '</div></div></div></div>');
         return;
     }
@@ -140,9 +133,9 @@ document.addEventListener('click', function (e) {
         var section = btn.closest('.dws-section');
         section.querySelector('.dws-error-items').insertAdjacentHTML('beforeend',
             '<div class="form-group-inner dws-error-item"><div class="row">' +
-            '<div class="col-lg-3"><label class="login2 pull-left pull-left-pro">HTTP Code:</label></div>' +
-            '<div class="col-lg-2"><input type="text" class="form-control dws-error-code" value="' + code.trim() + '" placeholder="404" /></div>' +
-            '<div class="col-lg-1"><a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn dws-remove-error"><i class="bi bi-trash"></i></a></div>' +
+            '<div class="col-lg-3"><label class="login2 pull-left pull-left-pro">HTTP code:</label></div>' +
+            '<div class="col-lg-3"><input type="text" class="form-control dws-error-code" value="' + escapeHtml(code.trim()) + '" placeholder="404" /></div>' +
+            '<div class="col-lg-1"><a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn dws-remove-error" title="Delete"><i class="bi bi-trash"></i></a></div>' +
             '</div></div>');
         return;
     }
@@ -153,13 +146,22 @@ function buildDwsFolderRow(folderName, mode) {
     var info = window.LOAD_MODE_INFO || {};
     var icon = (info[mode] || {}).icon || 'bi-house-door';
     return '<div class="form-group-inner dws-folder-item"><div class="row">' +
-        '<div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Folder:</label></div>' +
-        '<div class="col-lg-3"><input type="text" class="form-control dws-folder-name" value="' + folderName + '" readonly /></div>' +
+        '<div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Safe page folder:</label></div>' +
+        '<div class="col-lg-3"><input type="text" class="form-control dws-folder-name" value="' + escapeHtml(folderName) + '" readonly /></div>' +
         '<div class="col-lg-4"><div class="btn-group campaign-icon-group">' +
         '<a href="javascript:void(0)" class="btn btn-outline-secondary load-mode-btn" data-mode="' + mode + '" data-modes="base,rewrite,direct" title="Loading mode"><i class="bi ' + icon + '"></i></a>' +
         '<a href="javascript:void(0)" class="btn btn-warning dws-edit-folder" title="Edit files"><i class="bi bi-pencil-square"></i></a>' +
         '<a href="javascript:void(0)" class="btn btn-danger dws-remove-folder" title="Delete"><i class="bi bi-trash"></i></a>' +
         '</div></div></div></div>';
+}
+
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }
 
 // ── Collect domain-specific white data for save ──

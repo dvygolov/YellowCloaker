@@ -22,12 +22,14 @@ The **Domains list** group contains every campaign domain. Each row shows its ch
 
 ## White
 
-Defines what blocked or filtered traffic receives.
+Defines what blocked or filtered traffic receives. The `−/+` control beside **Safe Page** collapses or expands the domain-specific pages in the sidebar. It appears as soon as Domain-Specific mode is selected, and navigating to a domain page expands the branch automatically.
 
 ## Flows
 
 Defines the black branch routing for allowed traffic.
 
 Flows and steps use the same drag handle to the left of their names. The previous up/down arrow controls are no longer used.
+
+Use the `−/+` control beside **Flows** to collapse or expand the whole tree. The same control beside an individual flow affects only its steps. Tree state is saved per campaign, and navigating to a hidden step expands its branch automatically.
 
 ![Flows section in campaign settings](../assets/screenshots/campaign-settings-flows.png)

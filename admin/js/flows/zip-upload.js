@@ -1,5 +1,5 @@
-import { getFlowDist, redistributeWeights } from './weights.js?v=16072601';
-import { buildFolderRow } from './templates.js?v=16072601';
+import { getFlowDist, redistributeWeights } from './weights.js?v=16072602';
+import { buildFolderRow } from './templates.js?v=16072602';
 
 // ── Upload ZIP: pick file, prompt folder name, upload, insert row ──
 export function handleZipUpload(btn) {

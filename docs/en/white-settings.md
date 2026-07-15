@@ -20,3 +20,7 @@ Short explanations for filters, Global/Domain-Specific scope, and HTTP codes are
 You can use one shared white configuration or an independent configuration for each campaign domain.
 
 When you switch to **Domain-Specific**, the domain links appear in the editor sidebar immediately. Saving or reloading the page is not required, and adding or removing a domain updates those links right away.
+
+Each domain page uses the same **Method** panel as the global configuration, with matching action names, hints, fields, and controls.
+
+![Domain-specific safe page tree](../assets/screenshots/white-settings-domain-specific.png)

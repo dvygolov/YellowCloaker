@@ -1,8 +1,8 @@
-import { getFlowDist, redistributeWeights, redistributeWeightsAfterDelete } from './weights.js?v=16072601';
-import { buildFolderRow, buildRedirectRow, buildFlowSection, buildStepSection, buildStepListRow, renumberSteps, updateStepListInfo, updateAllStepListInfo, updateStepControls } from './templates.js?v=16072601';
-import { openFolderPicker } from './folder-picker.js?v=16072601';
-import { handleZipUpload } from './zip-upload.js?v=16072601';
-import { initializeStepSortable } from './reordering.js?v=16072601';
+import { getFlowDist, redistributeWeights, redistributeWeightsAfterDelete } from './weights.js?v=16072602';
+import { buildFolderRow, buildRedirectRow, buildFlowSection, buildStepSection, buildStepListRow, renumberSteps, updateStepListInfo, updateAllStepListInfo, updateStepControls } from './templates.js?v=16072602';
+import { openFolderPicker } from './folder-picker.js?v=16072602';
+import { handleZipUpload } from './zip-upload.js?v=16072602';
+import { initializeStepSortable } from './reordering.js?v=16072602';
 
 // ── State ──
 var flowCounter = 0;
@@ -162,13 +162,20 @@ export function handleAddStep(e) {
     listContainer.appendChild(buildStepListRow(fi, si));
 
     // 2. Add sidebar nav item (after last step-nav-item for this flow, or after flow-nav-item)
-    var navHtml = '<li class="step-nav-item" data-flow-index="' + fi + '" data-step-index="' + si + '"><a href="#sec-step-' + fi + '-' + si + '">&nbsp;&nbsp;&nbsp;&nbsp;Step ' + (si + 1) + '</a></li>';
+    var stepNav = document.createElement('li');
+    stepNav.className = 'step-nav-item';
+    stepNav.dataset.flowIndex = fi;
+    stepNav.dataset.stepIndex = si;
+    var stepNavLink = document.createElement('a');
+    stepNavLink.href = '#sec-step-' + fi + '-' + si;
+    stepNavLink.textContent = 'Step ' + (si + 1);
+    stepNav.appendChild(stepNavLink);
     var existingStepNavs = document.querySelectorAll('.step-nav-item[data-flow-index="' + fi + '"]');
     if (existingStepNavs.length > 0) {
-        existingStepNavs[existingStepNavs.length - 1].insertAdjacentHTML('afterend', navHtml);
+        existingStepNavs[existingStepNavs.length - 1].insertAdjacentElement('afterend', stepNav);
     } else {
         var flowNav = document.querySelector('.flow-nav-item[data-flow-index="' + fi + '"]');
-        if (flowNav) flowNav.insertAdjacentHTML('afterend', navHtml);
+        if (flowNav) flowNav.insertAdjacentElement('afterend', stepNav);
     }
 
     // 3. Add step section (before sec-scripts or next flow section)
@@ -182,6 +189,7 @@ export function handleAddStep(e) {
 
     // 4. Renumber and update toggles
     renumberSteps(fi);
+    if (window.refreshCampaignNavTree) window.refreshCampaignNavTree();
 
     // 5. Navigate to new step
     if (window.showSection) window.showSection('sec-step-' + fi + '-' + si);
@@ -227,6 +235,7 @@ export function handleRemoveStep(e) {
 
     // Renumber
     renumberSteps(fi);
+    if (window.refreshCampaignNavTree) window.refreshCampaignNavTree();
 }
 
 // ── Flow list: Delete ──
@@ -248,6 +257,7 @@ export function handleDeleteFlow(e) {
     if (nav) nav.remove();
     // Remove list row
     row.remove();
+    if (window.refreshCampaignNavTree) window.refreshCampaignNavTree();
 }
 
 // ── Add Flow ──
@@ -281,16 +291,32 @@ export function handleAddFlow() {
     document.getElementById('flows-list').appendChild(row);
 
     // 2. Add sidebar nav item (after last step-nav-item or flow-nav-item, or after sec-flows)
-    var navHtml = '<li class="flow-nav-item" data-flow-index="' + fi + '"><a href="#sec-flow-' + fi + '">&nbsp;&nbsp;' + flowName + '</a></li>';
+    var flowNavItem = document.createElement('li');
+    flowNavItem.className = 'flow-nav-item nav-tree-parent';
+    flowNavItem.dataset.flowIndex = fi;
+    flowNavItem.dataset.flowKey = flowName;
+    var flowToggle = document.createElement('button');
+    flowToggle.type = 'button';
+    flowToggle.className = 'campaign-nav-toggle';
+    flowToggle.dataset.treeToggle = 'steps';
+    flowToggle.setAttribute('aria-expanded', 'true');
+    flowToggle.setAttribute('aria-label', 'Collapse steps for ' + flowName);
+    flowToggle.title = 'Collapse steps';
+    flowToggle.innerHTML = '<i class="bi bi-dash-square" aria-hidden="true"></i>';
+    var flowNavLink = document.createElement('a');
+    flowNavLink.href = '#sec-flow-' + fi;
+    flowNavLink.textContent = flowName;
+    flowNavItem.appendChild(flowToggle);
+    flowNavItem.appendChild(flowNavLink);
     var allStepNavs = document.querySelectorAll('.step-nav-item');
     var allFlowNavs = document.querySelectorAll('.flow-nav-item');
     if (allStepNavs.length > 0) {
-        allStepNavs[allStepNavs.length - 1].insertAdjacentHTML('afterend', navHtml);
+        allStepNavs[allStepNavs.length - 1].insertAdjacentElement('afterend', flowNavItem);
     } else if (allFlowNavs.length > 0) {
-        allFlowNavs[allFlowNavs.length - 1].insertAdjacentHTML('afterend', navHtml);
+        allFlowNavs[allFlowNavs.length - 1].insertAdjacentElement('afterend', flowNavItem);
     } else {
         var flowsNavLink = document.querySelector('a[href="#sec-flows"]');
-        if (flowsNavLink) flowsNavLink.closest('li').insertAdjacentHTML('afterend', navHtml);
+        if (flowsNavLink) flowsNavLink.closest('li').insertAdjacentElement('afterend', flowNavItem);
     }
 
     // 3. Add flow section from template
@@ -305,6 +331,7 @@ export function handleAddFlow() {
     }
 
     initializeStepSortable(fi);
+    if (window.refreshCampaignNavTree) window.refreshCampaignNavTree();
 
     // 4. Init QueryBuilder for the new flow's filters
     if (typeof $ !== 'undefined' && typeof $.fn.queryBuilder !== 'undefined') {

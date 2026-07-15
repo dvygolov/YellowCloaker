@@ -4,7 +4,6 @@ var _dwsCounter = window._dwsCounterInit || 0;
 
 window.syncDomainWhiteSections = function () {
     var currentDomains = window.collectDomainsData ? window.collectDomainsData() : [];
-    var isDomainSpecific = !!document.querySelector('.white-scope-radio[value="true"]:checked');
 
     function findSection(domain) {
         return Array.from(document.querySelectorAll('section.dws-section')).find(function (section) {
@@ -53,42 +52,55 @@ window.syncDomainWhiteSections = function () {
 
         var link = navItem.querySelector('a');
         link.href = '#' + section.id;
-        link.textContent = '\u00a0\u00a0' + domain;
-        navItem.style.display = isDomainSpecific ? '' : 'none';
+        link.textContent = domain;
 
         if (previousNavItem) {
             previousNavItem.insertAdjacentElement('afterend', navItem);
         }
         previousNavItem = navItem;
     });
+
+    if (window.refreshCampaignNavTree) window.refreshCampaignNavTree();
 };
 
 function buildDwsSection(domain) {
     var n = _dwsCounter++;
     var secId = 'sec-dws-d' + n;
     var actName = 'dws_action_d' + n;
-    return '<section id="' + secId + '" class="camp-section dws-section" data-domain="' + domain.replace(/"/g, '&quot;') + '">' +
-        '<h5>' + domain.replace(/</g, '&lt;') + ' — Safe Page</h5>' +
+    var safeDomain = escapeHtml(domain);
+    return '<section id="' + secId + '" class="camp-section dws-section" data-domain="' + safeDomain + '">' +
+        '<h5 class="dws-page-title"><i class="bi bi-globe2" aria-hidden="true"></i>' + safeDomain + ' — Safe Page</h5>' +
+        '<div class="flow-group dws-method-group"><span class="flow-group-title">Method</span>' +
         '<div class="form-group-inner"><div class="row">' +
-        '<div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Method:</label></div>' +
-        '<div class="col-lg-9"><div class="bt-df-checkbox pull-left">' +
-        '<div class="row"><div class="col-lg-12"><div class="i-checks pull-left"><label><input type="radio" checked value="folder" name="' + actName + '" class="dws-action" /> Local folder</label></div></div></div>' +
-        '<div class="row"><div class="col-lg-12"><div class="i-checks pull-left"><label><input type="radio" value="redirect" name="' + actName + '" class="dws-action" /> Redirect</label></div></div></div>' +
-        '<div class="row"><div class="col-lg-12"><div class="i-checks pull-left"><label><input type="radio" value="curl" name="' + actName + '" class="dws-action" /> CURL</label></div></div></div>' +
-        '<div class="row"><div class="col-lg-12"><div class="i-checks pull-left"><label><input type="radio" value="error" name="' + actName + '" class="dws-action" /> HTTP Code</label></div></div></div>' +
+        '<div class="col-lg-3 col-md-6 col-sm-6 col-xs-12"><label class="login2 pull-left pull-left-pro">Choose method:</label></div>' +
+        '<div class="col-lg-9 col-md-6 col-sm-6 col-xs-12"><div class="ywb-radios">' +
+        '<label class="ywb-radio-label"><input type="radio" checked value="folder" name="' + actName + '" class="dws-action" /> Local safe page from folder</label>' +
+        '<label class="ywb-radio-label"><input type="radio" value="redirect" name="' + actName + '" class="dws-action" /> Redirect</label>' +
+        '<label class="ywb-radio-label"><input type="radio" value="curl" name="' + actName + '" class="dws-action" /> Load a website using CURL</label>' +
+        '<label class="ywb-radio-label"><input type="radio" value="error" name="' + actName + '" class="dws-action" /> Return HTTP-code <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Examples: 404 Not Found or 200 OK." data-tooltip="Examples: 404 Not Found or 200 OK."></i></label>' +
         '</div></div></div></div>' +
         '<div class="dws-folder-block"><div class="dws-folder-items"></div>' +
         '<a href="javascript:void(0)" class="btn btn-primary campaign-action-btn dws-add-existing"><i class="bi bi-folder-symlink"></i> Add Existing</a> ' +
         '<a href="javascript:void(0)" class="btn btn-info campaign-action-btn dws-upload-zip"><i class="bi bi-upload"></i> Upload ZIP</a></div>' +
         '<div class="dws-redirect-block" style="display:none"><div class="dws-redirect-items"></div>' +
-        '<a href="javascript:void(0)" class="btn btn-primary campaign-action-btn dws-add-redirect">+ Add URL</a>' +
+        '<a href="javascript:void(0)" class="btn btn-primary campaign-action-btn dws-add-redirect">+ Add Redirect</a>' +
         '<div class="form-group-inner" style="margin-top:10px"><div class="row">' +
         '<div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Redirect type:</label></div>' +
         '<div class="col-lg-3"><select class="form-select dws-redirect-type"><option value="301">301</option><option value="302" selected>302</option><option value="303">303</option><option value="307">307</option></select></div>' +
         '</div></div></div>' +
         '<div class="dws-curl-block" style="display:none"><div class="dws-curl-items"></div>' +
-        '<a href="javascript:void(0)" class="btn btn-primary campaign-action-btn dws-add-curl">+ Add CURL</a></div>' +
+        '<a href="javascript:void(0)" class="btn btn-primary campaign-action-btn dws-add-curl">+ Add Curl</a></div>' +
         '<div class="dws-error-block" style="display:none"><div class="dws-error-items"></div>' +
-        '<a href="javascript:void(0)" class="btn btn-primary campaign-action-btn dws-add-error">+ Add Code</a></div>' +
+        '<a href="javascript:void(0)" class="btn btn-primary campaign-action-btn dws-add-error">+ Add HTTP Code</a></div>' +
+        '</div>' +
         '</section>';
+}
+
+function escapeHtml(value) {
+    return String(value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
 }

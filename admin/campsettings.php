@@ -15,7 +15,7 @@ global $c, $db, $campId;
     <?php include __DIR__.'/header.php' ?>
     <div class="all-content-wrapper">
         <div class="camp-layout">
-            <nav class="camp-sidebar">
+            <nav class="camp-sidebar" data-campaign-id="<?= (int)$campId ?>">
                 <div class="camp-name">
                     <span class="camp-name-text"><?= htmlspecialchars($campName) ?></span>
                     <button
@@ -30,15 +30,24 @@ global $c, $db, $campId;
                 </div>
                 <ul>
                     <li><a href="#sec-domains" class="active">Domains</a></li>
-                    <li><a href="#sec-safepage">Safe Page</a></li>
+                    <li class="safepage-nav-root nav-tree-parent">
+                        <button type="button" class="campaign-nav-toggle" data-tree-toggle="safe-pages" aria-expanded="true" aria-label="Collapse domain-specific safe pages" title="Collapse domain-specific safe pages"><i class="bi bi-dash-square" aria-hidden="true"></i></button>
+                        <a href="#sec-safepage">Safe Page</a>
+                    </li>
                     <?php if ($c->white->domainFilterEnabled) foreach ($c->domains as $di => $domainName) { ?>
-                    <li class="dws-nav-item" data-domain="<?= htmlspecialchars($domainName) ?>"><a href="#sec-dws-<?= $di ?>">&nbsp;&nbsp;<?= htmlspecialchars($domainName) ?></a></li>
+                    <li class="dws-nav-item" data-domain="<?= htmlspecialchars($domainName) ?>"><a href="#sec-dws-<?= $di ?>"><?= htmlspecialchars($domainName) ?></a></li>
                     <?php } ?>
-                    <li><a href="#sec-flows">Flows</a></li>
+                    <li class="flows-nav-root nav-tree-parent">
+                        <button type="button" class="campaign-nav-toggle" data-tree-toggle="flows" aria-expanded="true" aria-label="Collapse flows" title="Collapse flows"><i class="bi bi-dash-square" aria-hidden="true"></i></button>
+                        <a href="#sec-flows">Flows</a>
+                    </li>
                     <?php foreach ($c->black->flows as $fi => $flow) { ?>
-                    <li class="flow-nav-item" data-flow-index="<?= $fi ?>"><a href="#sec-flow-<?= $fi ?>">&nbsp;&nbsp;<?= htmlspecialchars($flow->name) ?></a></li>
+                    <li class="flow-nav-item nav-tree-parent" data-flow-index="<?= $fi ?>" data-flow-key="<?= htmlspecialchars($flow->name, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+                        <button type="button" class="campaign-nav-toggle" data-tree-toggle="steps" aria-expanded="true" aria-label="Collapse steps for <?= htmlspecialchars($flow->name, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" title="Collapse steps"><i class="bi bi-dash-square" aria-hidden="true"></i></button>
+                        <a href="#sec-flow-<?= $fi ?>"><?= htmlspecialchars($flow->name) ?></a>
+                    </li>
                     <?php foreach ($flow->steps as $si => $step) { ?>
-                    <li class="step-nav-item" data-flow-index="<?= $fi ?>" data-step-index="<?= $si ?>"><a href="#sec-step-<?= $fi ?>-<?= $si ?>">&nbsp;&nbsp;&nbsp;&nbsp;Step <?= $si + 1 ?></a></li>
+                    <li class="step-nav-item" data-flow-index="<?= $fi ?>" data-step-index="<?= $si ?>"><a href="#sec-step-<?= $fi ?>-<?= $si ?>">Step <?= $si + 1 ?></a></li>
                     <?php } ?>
                     <?php } ?>
                     <li><a href="#sec-scripts">Scripts</a></li>
@@ -230,17 +239,21 @@ global $c, $db, $campId;
                 $dwAction = $dws ? $dws->action : 'folder';
             ?>
             <section id="sec-dws-<?= $di ?>" class="camp-section dws-section" data-domain="<?= htmlspecialchars($domainName) ?>">
-            <h5><?= htmlspecialchars($domainName) ?> — Safe Page</h5>
+            <h5 class="dws-page-title"><i class="bi bi-globe2" aria-hidden="true"></i><?= htmlspecialchars($domainName) ?> — Safe Page</h5>
 
+            <div class="flow-group dws-method-group">
+            <span class="flow-group-title">Method</span>
             <div class="form-group-inner">
                 <div class="row">
-                    <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Method:</label></div>
-                    <div class="col-lg-9">
+                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
+                        <label class="login2 pull-left pull-left-pro">Choose method:</label>
+                    </div>
+                    <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
                         <div class="ywb-radios">
-                            <label class="ywb-radio-label"><input type="radio" <?= $dwAction === 'folder' ? 'checked' : '' ?> value="folder" name="dws_action_<?= $di ?>" class="dws-action" data-di="<?= $di ?>" /> Local folder</label>
+                            <label class="ywb-radio-label"><input type="radio" <?= $dwAction === 'folder' ? 'checked' : '' ?> value="folder" name="dws_action_<?= $di ?>" class="dws-action" data-di="<?= $di ?>" /> Local safe page from folder</label>
                             <label class="ywb-radio-label"><input type="radio" <?= $dwAction === 'redirect' ? 'checked' : '' ?> value="redirect" name="dws_action_<?= $di ?>" class="dws-action" data-di="<?= $di ?>" /> Redirect</label>
-                            <label class="ywb-radio-label"><input type="radio" <?= $dwAction === 'curl' ? 'checked' : '' ?> value="curl" name="dws_action_<?= $di ?>" class="dws-action" data-di="<?= $di ?>" /> CURL</label>
-                            <label class="ywb-radio-label"><input type="radio" <?= $dwAction === 'error' ? 'checked' : '' ?> value="error" name="dws_action_<?= $di ?>" class="dws-action" data-di="<?= $di ?>" /> HTTP Code</label>
+                            <label class="ywb-radio-label"><input type="radio" <?= $dwAction === 'curl' ? 'checked' : '' ?> value="curl" name="dws_action_<?= $di ?>" class="dws-action" data-di="<?= $di ?>" /> Load a website using CURL</label>
+                            <label class="ywb-radio-label"><input type="radio" <?= $dwAction === 'error' ? 'checked' : '' ?> value="error" name="dws_action_<?= $di ?>" class="dws-action" data-di="<?= $di ?>" /> Return HTTP-code <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Examples: 404 Not Found or 200 OK." data-tooltip="Examples: 404 Not Found or 200 OK."></i></label>
                         </div>
                     </div>
                 </div>
@@ -251,7 +264,7 @@ global $c, $db, $campId;
                 <?php if ($dws) foreach ($dws->folderNames as $fn) { ?>
                     <div class="form-group-inner dws-folder-item">
                         <div class="row">
-                            <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Folder:</label></div>
+                            <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Safe page folder:</label></div>
                             <div class="col-lg-3"><input type="text" class="form-control dws-folder-name" value="<?= htmlspecialchars($fn) ?>" readonly /></div>
                             <div class="col-lg-4"><div class="btn-group campaign-icon-group">
                                 <a href="javascript:void(0)" class="btn btn-outline-secondary load-mode-btn" data-mode="<?= htmlspecialchars($dws->getLoadMode($fn)) ?>" data-modes="base,rewrite,direct" title="Loading mode"><i class="bi <?= match($dws->getLoadMode($fn)) { 'rewrite' => 'bi-arrow-repeat', 'direct' => 'bi-hdd-network', default => 'bi-house-door' } ?>"></i></a>
@@ -271,14 +284,14 @@ global $c, $db, $campId;
                 <?php if ($dws) foreach ($dws->redirectUrls as $ru) { ?>
                     <div class="form-group-inner dws-redirect-item">
                         <div class="row">
-                            <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Redirect URL:</label></div>
-                            <div class="col-lg-5"><input type="text" class="form-control dws-redirect-url" value="<?= htmlspecialchars($ru) ?>" placeholder="https://example.com" /></div>
-                            <div class="col-lg-1"><a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn dws-remove-redirect"><i class="bi bi-trash"></i></a></div>
+                            <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Redirect address:</label></div>
+                            <div class="col-lg-3"><input type="text" class="form-control dws-redirect-url" value="<?= htmlspecialchars($ru) ?>" placeholder="https://example.com" /></div>
+                            <div class="col-lg-1"><a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn dws-remove-redirect" title="Delete"><i class="bi bi-trash"></i></a></div>
                         </div>
                     </div>
                 <?php } ?>
                 </div>
-                <a href="javascript:void(0)" class="btn btn-primary campaign-action-btn dws-add-redirect" data-di="<?= $di ?>">+ Add URL</a>
+                <a href="javascript:void(0)" class="btn btn-primary campaign-action-btn dws-add-redirect" data-di="<?= $di ?>">+ Add Redirect</a>
                 <div class="form-group-inner" style="margin-top:10px">
                     <div class="row">
                         <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Redirect type:</label></div>
@@ -296,17 +309,17 @@ global $c, $db, $campId;
                 <?php if ($dws) foreach ($dws->curlUrls as $cu) { ?>
                     <div class="form-group-inner dws-curl-item">
                         <div class="row">
-                            <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">CURL URL:</label></div>
-                            <div class="col-lg-5"><input type="text" class="form-control dws-curl-url" value="<?= htmlspecialchars($cu) ?>" placeholder="https://example.com" /></div>
+                            <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Curl address:</label></div>
+                            <div class="col-lg-3"><input type="text" class="form-control dws-curl-url" value="<?= htmlspecialchars($cu) ?>" placeholder="https://example.com" /></div>
                             <div class="col-lg-2"><div class="btn-group campaign-icon-group">
                                 <a href="javascript:void(0)" class="btn btn-outline-secondary load-mode-btn" data-mode="<?= htmlspecialchars($dws->getLoadMode($cu)) ?>" data-modes="rewrite,direct" title="Loading mode"><i class="bi <?= $dws->getLoadMode($cu) === 'direct' ? 'bi-hdd-network' : 'bi-arrow-repeat' ?>"></i></a>
-                                <a href="javascript:void(0)" class="btn btn-danger dws-remove-curl"><i class="bi bi-trash"></i></a>
+                                <a href="javascript:void(0)" class="btn btn-danger dws-remove-curl" title="Delete"><i class="bi bi-trash"></i></a>
                             </div></div>
                         </div>
                     </div>
                 <?php } ?>
                 </div>
-                <a href="javascript:void(0)" class="btn btn-primary campaign-action-btn dws-add-curl" data-di="<?= $di ?>">+ Add CURL</a>
+                <a href="javascript:void(0)" class="btn btn-primary campaign-action-btn dws-add-curl" data-di="<?= $di ?>">+ Add Curl</a>
             </div>
 
             <div class="dws-error-block" data-di="<?= $di ?>" style="display:<?= $dwAction === 'error' ? 'block' : 'none' ?>">
@@ -314,15 +327,16 @@ global $c, $db, $campId;
                 <?php if ($dws) foreach ($dws->errorCodes as $ec) { ?>
                     <div class="form-group-inner dws-error-item">
                         <div class="row">
-                            <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">HTTP Code:</label></div>
-                            <div class="col-lg-2"><input type="text" class="form-control dws-error-code" value="<?= htmlspecialchars($ec) ?>" placeholder="404" /></div>
-                            <div class="col-lg-1"><a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn dws-remove-error"><i class="bi bi-trash"></i></a></div>
+                            <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">HTTP code:</label></div>
+                            <div class="col-lg-3"><input type="text" class="form-control dws-error-code" value="<?= htmlspecialchars($ec) ?>" placeholder="404" /></div>
+                            <div class="col-lg-1"><a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn dws-remove-error" title="Delete"><i class="bi bi-trash"></i></a></div>
                         </div>
                     </div>
                 <?php } ?>
                 </div>
-                <a href="javascript:void(0)" class="btn btn-primary campaign-action-btn dws-add-error" data-di="<?= $di ?>">+ Add Code</a>
+                <a href="javascript:void(0)" class="btn btn-primary campaign-action-btn dws-add-error" data-di="<?= $di ?>">+ Add HTTP Code</a>
             </div>
+            </div><!-- /.dws-method-group -->
 
             </section><!-- /sec-dws -->
             <?php } ?>
@@ -1406,9 +1420,9 @@ global $c, $db, $campId;
     </script>
     <script type="module" src="js/campsettings/load-mode.js"></script>
     <script type="module" src="js/campsettings/white-pages.js"></script>
-    <script type="module" src="js/campsettings/domain-specific.js"></script>
+    <script type="module" src="js/campsettings/domain-specific.js?v=<?= filemtime(__DIR__ . '/js/campsettings/domain-specific.js') ?>"></script>
     <script>window._dwsCounterInit = <?= count($c->domains) ?>;</script>
-    <script type="module" src="js/campsettings/dws-sync.js"></script>
+    <script type="module" src="js/campsettings/dws-sync.js?v=<?= filemtime(__DIR__ . '/js/campsettings/dws-sync.js') ?>"></script>
     <script type="module" src="js/campsettings/domains.js"></script>
     <script type="module" src="js/campsettings/form-submit.js"></script>
     <script src="js/filters.js"></script>
@@ -1508,7 +1522,7 @@ global $c, $db, $campId;
     }
     ?>
     <script type="module" src="js/flows/index.js?v=<?= $flowModuleVersion ?>"></script>
-    <script type="module" src="js/campsettings-nav.js"></script>
+    <script type="module" src="js/campsettings-nav.js?v=<?= filemtime(__DIR__ . '/js/campsettings-nav.js') ?>"></script>
 
     <!-- ── Flow templates (used by js/flows/ modules) ── -->
     <template id="tpl-folder-row">
