@@ -40,6 +40,31 @@ $dataset = $db->get_campaigns(
         <div class="buttons-block">
             <button id="newCampaign" title="Create new campaign" class="btn btn-primary"><i
                     class="bi bi-plus-circle-fill"></i> New</button>
+            <div class="system-status-inline" id="systemStatus" role="status" aria-live="polite">
+                <span class="system-status-item" id="statusFree" title="Free space on the disk containing YellowTDS">
+                    <i class="bi bi-device-hdd" aria-hidden="true"></i>
+                    <span class="system-status-label">Free:</span>
+                    <span class="system-status-value" id="statusFreeValue">…</span>
+                </span>
+                <span class="system-status-separator" aria-hidden="true"></span>
+                <span class="system-status-item" id="statusDatabase" title="SQLite database including WAL and shared-memory files">
+                    <i class="bi bi-database" aria-hidden="true"></i>
+                    <span class="system-status-label">DB:</span>
+                    <span class="system-status-value" id="statusDatabaseValue">…</span>
+                </span>
+                <span class="system-status-separator" aria-hidden="true"></span>
+                <span class="system-status-item" id="statusCache" title="All files in the configured cache directory, including landing and white pages">
+                    <i class="bi bi-folder2-open" aria-hidden="true"></i>
+                    <span class="system-status-label">Cache:</span>
+                    <span class="system-status-value" id="statusCacheValue">…</span>
+                </span>
+                <span class="system-status-separator" aria-hidden="true"></span>
+                <span class="system-status-item" id="statusLogs" title="All YellowTDS log files">
+                    <i class="bi bi-journal-text" aria-hidden="true"></i>
+                    <span class="system-status-label">Logs:</span>
+                    <span class="system-status-value" id="statusLogsValue">…</span>
+                </span>
+            </div>
             <div class="buttons-right">
                 <button id="resetFilters" title="Reset all filters" class="btn btn-outline-danger" style="<?= $hasActiveFilters ? '' : 'display:none;' ?>"><i
                         class="bi bi-funnel"></i> Reset Filters</button>
@@ -56,38 +81,15 @@ $dataset = $db->get_campaigns(
         <div class="campaign-table-shell">
             <div id="campaigns"></div>
         </div>
-        <div class="system-statusbar" id="systemStatus" role="status" aria-live="polite">
-            <span class="system-status-item" id="statusFree" title="Free space on the disk containing YellowTDS">
-                <i class="bi bi-device-hdd" aria-hidden="true"></i>
-                <span class="system-status-label">Free:</span>
-                <span class="system-status-value" id="statusFreeValue">…</span>
-            </span>
-            <span class="system-status-separator" aria-hidden="true"></span>
-            <span class="system-status-item" id="statusDatabase" title="SQLite database including WAL and shared-memory files">
-                <i class="bi bi-database" aria-hidden="true"></i>
-                <span class="system-status-label">DB:</span>
-                <span class="system-status-value" id="statusDatabaseValue">…</span>
-            </span>
-            <span class="system-status-separator" aria-hidden="true"></span>
-            <span class="system-status-item" id="statusCache" title="All files in the configured cache directory, including landing and white pages">
-                <i class="bi bi-folder2-open" aria-hidden="true"></i>
-                <span class="system-status-label">Cache:</span>
-                <span class="system-status-value" id="statusCacheValue">…</span>
-            </span>
-            <span class="system-status-separator" aria-hidden="true"></span>
-            <span class="system-status-item" id="statusLogs" title="All YellowTDS log files">
-                <i class="bi bi-journal-text" aria-hidden="true"></i>
-                <span class="system-status-label">Logs:</span>
-                <span class="system-status-value" id="statusLogsValue">…</span>
-            </span>
-        </div>
     </div>
     <style>
         .buttons-block {
             display: flex;
-            justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
+        }
+        .buttons-block > #newCampaign {
+            flex: 0 0 auto;
         }
         .buttons-right {
             display: flex;
@@ -182,23 +184,31 @@ $dataset = $db->get_campaigns(
         #campaigns {
             height: 100%;
         }
-        .system-statusbar {
+        .system-status-inline {
             display: flex;
-            flex: 0 0 auto;
+            flex: 1 1 auto;
             align-items: center;
+            justify-content: center;
             gap: 12px;
-            min-height: 36px;
-            margin-top: 8px;
-            padding: 6px 12px;
+            min-width: 0;
+            margin: 0 16px;
+            padding: 4px 0;
             overflow-x: auto;
             color: #94a3b8;
-            background: #1b2a47;
-            border: 1px solid #2f405f;
-            border-radius: 5px;
             font-size: 13px;
             line-height: 1;
             white-space: nowrap;
-            scrollbar-width: thin;
+            scrollbar-width: none;
+        }
+        .system-status-inline::-webkit-scrollbar {
+            display: none;
+        }
+        @media (max-width: 1000px) {
+            .system-status-inline {
+                justify-content: flex-start;
+                gap: 8px;
+                margin: 0 10px;
+            }
         }
         .system-status-item {
             display: inline-flex;

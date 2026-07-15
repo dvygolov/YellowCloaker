@@ -15,7 +15,7 @@
 - inspect click data
 - manage folders and files
 - scroll the campaign list within the available dashboard height
-- view free disk space and the SQLite database, cache, and log sizes in the status bar below the table
+- view free disk space and the SQLite database, cache, and log sizes in the action bar above the table
 
 ![Campaign dashboard](../assets/screenshots/admin-dashboard-campaigns.png)
 
