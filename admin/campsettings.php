@@ -49,29 +49,24 @@ global $c, $db, $campId;
             <div class="camp-content">
         <form id="campsettings" autocomplete="off">
             <section id="sec-domains" class="camp-section active">
-            <div class="form-group-inner">
-            <div class="row">
-                <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                    <label class="login2 pull-left pull-left-pro"> 
-                        <i class="bi bi-info-circle admin-info-icon" title="Add all of the campaign's domains WITHOUT HTTP(S)! You can use *.xxx.com to match ALL subdomains."></i> Domains list
-                </label>
-                </div>
-            </div>
-            </div>
-
-            <div id="domains_container">
-                <?php foreach ($c->domains as $dn) { ?>
-                <div class="form-group-inner domain-item">
-                    <div class="row">
-                        <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Domain:</label></div>
-                        <div class="col-lg-3"><input type="text" class="form-control domain-name" value="<?= htmlspecialchars($dn) ?>" placeholder="domain.com" readonly /></div>
-                        <div class="col-lg-1 domain-status-col"><i class="bi bi-hourglass-split domain-status" style="color:#94a3b8" title="Checking..."></i></div>
-                        <div class="col-lg-2"><a href="javascript:void(0)" class="btn btn-danger btn-sm remove-domain-item" title="Delete"><i class="bi bi-trash"></i></a></div>
+            <div class="flow-group domains-group">
+                <span class="flow-group-title">
+                    <i class="bi bi-info-circle admin-info-icon" title="Add all of the campaign's domains WITHOUT HTTP(S)! You can use *.xxx.com to match ALL subdomains."></i>Domains list
+                </span>
+                <div id="domains_container">
+                    <?php foreach ($c->domains as $dn) { ?>
+                    <div class="form-group-inner domain-item">
+                        <div class="row">
+                            <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Domain:</label></div>
+                            <div class="col-lg-3"><input type="text" class="form-control domain-name" value="<?= htmlspecialchars($dn) ?>" placeholder="domain.com" readonly /></div>
+                            <div class="col-lg-1 domain-status-col"><i class="bi bi-hourglass-split domain-status" style="color:#94a3b8" title="Checking..."></i></div>
+                            <div class="col-lg-2 domain-action-col"><a href="javascript:void(0)" class="btn btn-danger btn-sm remove-domain-item" title="Delete"><i class="bi bi-trash"></i></a></div>
+                        </div>
                     </div>
+                    <?php } ?>
                 </div>
-                <?php } ?>
+                <a id="add-domain-item" class="btn btn-primary btn-sm" href="javascript:void(0)"><i class="bi bi-plus-circle"></i> Add Domain</a>
             </div>
-            <a id="add-domain-item" class="btn btn-primary btn-sm" href="javascript:void(0)"><i class="bi bi-plus-circle"></i> Add Domain</a>
             </section>
 
             <section id="sec-safepage" class="camp-section">

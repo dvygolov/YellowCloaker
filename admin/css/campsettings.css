@@ -324,6 +324,30 @@
     letter-spacing: 0.3px;
 }
 
+.domains-group {
+    padding-top: 20px;
+    padding-bottom: 14px;
+}
+
+.domains-group .flow-group-title {
+    display: inline-flex;
+    align-items: center;
+}
+
+.domains-group .flow-group-title .admin-info-icon {
+    margin-right: 6px;
+}
+
+.domain-item > .row {
+    align-items: stretch;
+}
+
+.domain-action-col {
+    display: flex;
+    align-items: flex-end;
+    min-height: 34px;
+}
+
 /* Win Probability display */
 .flow-winprob {
     margin-top: 14px;
