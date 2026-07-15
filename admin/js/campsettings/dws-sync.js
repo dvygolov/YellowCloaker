@@ -5,6 +5,19 @@ var _dwsCounter = window._dwsCounterInit || 0;
 window.syncDomainWhiteSections = function () {
     var currentDomains = window.collectDomainsData ? window.collectDomainsData() : [];
     var isDomainSpecific = !!document.querySelector('.white-scope-radio[value="true"]:checked');
+
+    function findSection(domain) {
+        return Array.from(document.querySelectorAll('section.dws-section')).find(function (section) {
+            return section.dataset.domain === domain;
+        });
+    }
+
+    function findNavItem(domain) {
+        return Array.from(document.querySelectorAll('.dws-nav-item')).find(function (item) {
+            return item.dataset.domain === domain;
+        });
+    }
+
     // Remove sections + nav items for domains that no longer exist
     document.querySelectorAll('section.dws-section').forEach(function (sec) {
         if (currentDomains.indexOf(sec.dataset.domain) === -1) sec.remove();
@@ -12,23 +25,41 @@ window.syncDomainWhiteSections = function () {
     document.querySelectorAll('.dws-nav-item').forEach(function (li) {
         if (currentDomains.indexOf(li.dataset.domain) === -1) li.remove();
     });
-    // Add sections + nav items for new domains
+    // Keep sections and sidebar items in sync independently. Sections are
+    // rendered server-side even in Global mode, while their nav items are not.
     var flowsSection = document.getElementById('sec-flows');
+    var safePageNav = document.querySelector('a[href="#sec-safepage"]');
+    var previousNavItem = safePageNav ? safePageNav.closest('li') : null;
+
     currentDomains.forEach(function (domain) {
-        if (!document.querySelector('section.dws-section[data-domain="' + CSS.escape(domain) + '"]')) {
-            // Insert section before sec-flows
+        var section = findSection(domain);
+        if (!section) {
             var secHtml = buildDwsSection(domain);
             flowsSection.insertAdjacentHTML('beforebegin', secHtml);
-            // Insert sidebar nav item
-            var navHtml = '<li class="dws-nav-item" data-domain="' + domain.replace(/"/g, '&quot;') + '" style="' + (isDomainSpecific ? '' : 'display:none') + '"><a href="#sec-dws-d' + (_dwsCounter - 1) + '">&nbsp;&nbsp;' + domain.replace(/</g, '&lt;') + '</a></li>';
-            var lastDwsNav = document.querySelectorAll('.dws-nav-item');
-            if (lastDwsNav.length > 0) {
-                lastDwsNav[lastDwsNav.length - 1].insertAdjacentHTML('afterend', navHtml);
-            } else {
-                var safePageNav = document.querySelector('a[href="#sec-safepage"]');
-                if (safePageNav) safePageNav.closest('li').insertAdjacentHTML('afterend', navHtml);
-            }
+            section = findSection(domain);
+        } else {
+            // Moving the existing node preserves unsaved form values and keeps
+            // domain-specific sections in the same order as the Domains list.
+            flowsSection.insertAdjacentElement('beforebegin', section);
         }
+
+        var navItem = findNavItem(domain);
+        if (!navItem) {
+            navItem = document.createElement('li');
+            navItem.className = 'dws-nav-item';
+            navItem.dataset.domain = domain;
+            navItem.appendChild(document.createElement('a'));
+        }
+
+        var link = navItem.querySelector('a');
+        link.href = '#' + section.id;
+        link.textContent = '\u00a0\u00a0' + domain;
+        navItem.style.display = isDomainSpecific ? '' : 'none';
+
+        if (previousNavItem) {
+            previousNavItem.insertAdjacentElement('afterend', navItem);
+        }
+        previousNavItem = navItem;
     });
 };
 

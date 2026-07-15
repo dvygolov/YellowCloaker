@@ -14,3 +14,9 @@ Short explanations for filters, Global/Domain-Specific scope, and HTTP codes are
 - return HTTP code
 
 ![White settings section](../assets/screenshots/white-settings-overview.png)
+
+## Global vs domain-specific
+
+You can use one shared white configuration or an independent configuration for each campaign domain.
+
+When you switch to **Domain-Specific**, the domain links appear in the editor sidebar immediately. Saving or reloading the page is not required, and adding or removing a domain updates those links right away.
