@@ -16,3 +16,8 @@ A flow contains:
 - distribution
 - optimization settings
 
+Flows are evaluated in order. Drag the handle to the left of a flow name to reorder it. When the handle has keyboard focus, `↑` and `↓` provide the same control.
+
+## Steps
+
+Steps use the same handle to keep ordering consistent. A redirect is a terminal action, so its step remains locked in the last position.

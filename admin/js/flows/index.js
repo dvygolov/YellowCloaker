@@ -11,14 +11,11 @@ import {
     handleEditFolder,
     handleAddStep,
     handleRemoveStep,
-    handleMoveStepUp,
-    handleMoveStepDown,
-    handleMoveUp,
-    handleMoveDown,
     handleDeleteFlow,
     handleAddFlow,
     handleRedirectUrlChange
 } from './handlers.js';
+import { initializeFlowReordering } from './reordering.js';
 
 // ── Window exports for backward compat with inline scripts ──
 window.collectFlowsData = collectFlowsData;
@@ -33,10 +30,6 @@ var clickSelectors = [
     { sel: '.flow-edit-folder', fn: handleEditFolder },
     { sel: '.flow-add-step', fn: handleAddStep },
     { sel: '.flow-remove-step', fn: handleRemoveStep },
-    { sel: '.flow-move-step-up', fn: handleMoveStepUp },
-    { sel: '.flow-move-step-down', fn: handleMoveStepDown },
-    { sel: '.flow-move-up', fn: handleMoveUp },
-    { sel: '.flow-move-down', fn: handleMoveDown },
     { sel: '.flow-delete', fn: handleDeleteFlow }
 ];
 
@@ -74,6 +67,7 @@ document.addEventListener('input', function (e) {
 
 // ── Init ──
 initFlowCounter();
+initializeFlowReordering();
 
 // ── Add Flow button ──
 var addFlowBtn = document.getElementById('add-flow-btn');

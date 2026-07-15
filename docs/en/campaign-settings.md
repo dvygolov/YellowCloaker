@@ -28,4 +28,6 @@ Defines what blocked or filtered traffic receives.
 
 Defines the black branch routing for allowed traffic.
 
+Flows and steps use the same drag handle to the left of their names. The previous up/down arrow controls are no longer used.
+
 ![Flows section in campaign settings](../assets/screenshots/campaign-settings-flows.png)

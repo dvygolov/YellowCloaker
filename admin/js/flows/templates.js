@@ -104,10 +104,9 @@ export function buildStepListRow(fi, si) {
     div.dataset.flowIndex = fi;
     div.dataset.stepIndex = si;
     div.innerHTML =
+        '<button type="button" class="reorder-handle step-drag-handle" title="Drag to reorder" aria-label="Reorder Step ' + (parseInt(si, 10) + 1) + '. Drag or use the arrow keys."><i class="bi bi-grip-vertical" aria-hidden="true"></i></button>' +
         '<span class="step-list-label">Step ' + (parseInt(si, 10) + 1) + '</span>' +
         '<span class="step-list-info">empty</span>' +
-        '<a href="javascript:void(0)" class="btn btn-primary campaign-icon-btn flow-move-step-up" title="Move Up">&uarr;</a> ' +
-        '<a href="javascript:void(0)" class="btn btn-primary campaign-icon-btn flow-move-step-down" title="Move Down">&darr;</a> ' +
         '<a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn flow-remove-step" title="Delete"><i class="bi bi-trash"></i></a>';
     return div;
 }
@@ -122,6 +121,8 @@ export function renumberSteps(fi) {
             row.dataset.stepIndex = idx;
             var label = row.querySelector('.step-list-label');
             if (label) label.textContent = 'Step ' + (idx + 1);
+            var handle = row.querySelector('.step-drag-handle');
+            if (handle) handle.setAttribute('aria-label', 'Reorder Step ' + (idx + 1) + '. Drag or use the arrow keys.');
         });
     }
 
@@ -165,7 +166,7 @@ export function renumberSteps(fi) {
     // 4. Update action radio disabled state (only last step can use redirect)
     updateLastStepToggle(fi);
 
-    // 5. Update step controls (Add Step button, move buttons)
+    // 5. Update step controls (Add Step button, drag handle state)
     updateStepControls(fi);
 
     // 6. Update optimize mode visibility (show only if 2+ steps)
@@ -249,7 +250,7 @@ export function updateAllStepListInfo(fi) {
     });
 }
 
-// ── Update step controls: disable Add Step if any step is redirect, disable move on redirect step ──
+// ── Update step controls: disable Add Step if any step is redirect, lock redirect in last position ──
 export function updateStepControls(fi) {
     var sections = document.querySelectorAll('.step-section[data-flow-index="' + fi + '"]');
     var hasRedirect = false;
@@ -274,7 +275,7 @@ export function updateStepControls(fi) {
         }
     }
 
-    // Disable move up/down on redirect step rows
+    // A redirect is terminal and must stay last, so its drag handle is disabled.
     var listContainer = document.getElementById('steps-list-' + fi);
     if (!listContainer) return;
     listContainer.querySelectorAll('.step-list-row').forEach(function (row) {
@@ -285,15 +286,15 @@ export function updateStepControls(fi) {
             var checked = stepSec.querySelector('.flow-step-action:checked');
             isRedirect = checked && checked.value === 'redirect';
         }
-        var upBtn = row.querySelector('.flow-move-step-up');
-        var downBtn = row.querySelector('.flow-move-step-down');
-        if (upBtn) {
-            upBtn.style.pointerEvents = isRedirect ? 'none' : '';
-            upBtn.style.opacity = isRedirect ? '0.3' : '';
-        }
-        if (downBtn) {
-            downBtn.style.pointerEvents = isRedirect ? 'none' : '';
-            downBtn.style.opacity = isRedirect ? '0.3' : '';
+        var handle = row.querySelector('.step-drag-handle');
+        if (handle) {
+            handle.classList.toggle('is-disabled', isRedirect);
+            handle.title = isRedirect ? 'Redirect must remain the last step' : 'Drag to reorder';
+            if (isRedirect) {
+                handle.setAttribute('aria-disabled', 'true');
+            } else {
+                handle.removeAttribute('aria-disabled');
+            }
         }
     });
 }

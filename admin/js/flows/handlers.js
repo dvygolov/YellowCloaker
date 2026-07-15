@@ -2,6 +2,7 @@ import { getFlowDist, redistributeWeights, redistributeWeightsAfterDelete } from
 import { buildFolderRow, buildRedirectRow, buildFlowSection, buildStepSection, buildStepListRow, renumberSteps, updateStepListInfo, updateAllStepListInfo, updateStepControls } from './templates.js';
 import { openFolderPicker } from './folder-picker.js';
 import { handleZipUpload } from './zip-upload.js';
+import { initializeStepSortable } from './reordering.js';
 
 // ── State ──
 var flowCounter = 0;
@@ -228,86 +229,6 @@ export function handleRemoveStep(e) {
     renumberSteps(fi);
 }
 
-// ── Move step up ──
-export function handleMoveStepUp(e) {
-    var btn = e.target.closest('.flow-move-step-up');
-    if (!btn) return;
-    var listRow = btn.closest('.step-list-row');
-    if (!listRow) return;
-    var prev = listRow.previousElementSibling;
-    if (!prev || !prev.classList.contains('step-list-row')) return;
-
-    var fi = listRow.dataset.flowIndex;
-    var si = parseInt(listRow.dataset.stepIndex, 10);
-    var prevSi = parseInt(prev.dataset.stepIndex, 10);
-
-    // Swap list rows
-    listRow.parentNode.insertBefore(listRow, prev);
-
-    // Swap step sections
-    var secA = document.getElementById('sec-step-' + fi + '-' + si);
-    var secB = document.getElementById('sec-step-' + fi + '-' + prevSi);
-    if (secA && secB) secA.parentNode.insertBefore(secA, secB);
-
-    // Swap nav items
-    var navA = document.querySelector('.step-nav-item[data-flow-index="' + fi + '"][data-step-index="' + si + '"]');
-    var navB = document.querySelector('.step-nav-item[data-flow-index="' + fi + '"][data-step-index="' + prevSi + '"]');
-    if (navA && navB) navA.parentNode.insertBefore(navA, navB);
-
-    renumberSteps(fi);
-}
-
-// ── Move step down ──
-export function handleMoveStepDown(e) {
-    var btn = e.target.closest('.flow-move-step-down');
-    if (!btn) return;
-    var listRow = btn.closest('.step-list-row');
-    if (!listRow) return;
-    var next = listRow.nextElementSibling;
-    if (!next || !next.classList.contains('step-list-row')) return;
-
-    var fi = listRow.dataset.flowIndex;
-    var si = parseInt(listRow.dataset.stepIndex, 10);
-    var nextSi = parseInt(next.dataset.stepIndex, 10);
-
-    // Swap list rows
-    listRow.parentNode.insertBefore(next, listRow);
-
-    // Swap step sections
-    var secA = document.getElementById('sec-step-' + fi + '-' + si);
-    var secB = document.getElementById('sec-step-' + fi + '-' + nextSi);
-    if (secA && secB) secB.parentNode.insertBefore(secB, secA);
-
-    // Swap nav items
-    var navA = document.querySelector('.step-nav-item[data-flow-index="' + fi + '"][data-step-index="' + si + '"]');
-    var navB = document.querySelector('.step-nav-item[data-flow-index="' + fi + '"][data-step-index="' + nextSi + '"]');
-    if (navA && navB) navB.parentNode.insertBefore(navB, navA);
-
-    renumberSteps(fi);
-}
-
-// ── Flow list: Move Up ──
-export function handleMoveUp(e) {
-    var btn = e.target.closest('.flow-move-up');
-    if (!btn) return;
-    var row = btn.closest('.flow-list-row');
-    var prev = row.previousElementSibling;
-    if (prev && prev.classList.contains('flow-list-row')) {
-        row.parentNode.insertBefore(row, prev);
-    }
-}
-
-// ── Flow list: Move Down ──
-export function handleMoveDown(e) {
-    var btn = e.target.closest('.flow-move-down');
-    if (!btn) return;
-    var row = btn.closest('.flow-list-row');
-    var next = row.nextElementSibling;
-    if (next && next.classList.contains('flow-list-row')) {
-        row.parentNode.insertBefore(next, row);
-    }
-}
-
 // ── Flow list: Delete ──
 export function handleDeleteFlow(e) {
     var btn = e.target.closest('.flow-delete');
@@ -348,13 +269,16 @@ export function handleAddFlow() {
     flowCounter++;
 
     // 1. Add list row
-    var rowHtml = '<div class="flow-list-row" data-flow-index="' + fi + '">' +
-        '<input type="text" class="form-control flow-name-label" value="' + flowName + '" readonly style="display:inline-block;width:200px;cursor:default;" /> ' +
-        '<a href="javascript:void(0)" class="btn btn-primary campaign-icon-btn flow-move-up" title="Move Up">&uarr;</a> ' +
-        '<a href="javascript:void(0)" class="btn btn-primary campaign-icon-btn flow-move-down" title="Move Down">&darr;</a> ' +
-        '<a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn flow-delete" title="Delete"><i class="bi bi-trash"></i></a>' +
-        '</div>';
-    document.getElementById('flows-list').insertAdjacentHTML('beforeend', rowHtml);
+    var row = document.createElement('div');
+    row.className = 'flow-list-row';
+    row.dataset.flowIndex = fi;
+    row.innerHTML =
+        '<button type="button" class="reorder-handle flow-drag-handle" title="Drag to reorder"><i class="bi bi-grip-vertical" aria-hidden="true"></i></button>' +
+        '<input type="text" class="form-control flow-name-label" readonly />' +
+        '<a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn flow-delete" title="Delete"><i class="bi bi-trash"></i></a>';
+    row.querySelector('.flow-name-label').value = flowName;
+    row.querySelector('.flow-drag-handle').setAttribute('aria-label', 'Reorder ' + flowName + '. Drag or use the arrow keys.');
+    document.getElementById('flows-list').appendChild(row);
 
     // 2. Add sidebar nav item (after last step-nav-item or flow-nav-item, or after sec-flows)
     var navHtml = '<li class="flow-nav-item" data-flow-index="' + fi + '"><a href="#sec-flow-' + fi + '">&nbsp;&nbsp;' + flowName + '</a></li>';
@@ -379,6 +303,8 @@ export function handleAddFlow() {
     } else {
         document.querySelector('.camp-content').appendChild(sectionFrag);
     }
+
+    initializeStepSortable(fi);
 
     // 4. Init QueryBuilder for the new flow's filters
     if (typeof $ !== 'undefined' && typeof $.fn.queryBuilder !== 'undefined') {

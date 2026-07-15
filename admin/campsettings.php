@@ -333,9 +333,8 @@ global $c, $db, $campId;
                 <div id="flows-list">
                 <?php foreach ($c->black->flows as $fi => $flow) { ?>
                     <div class="flow-list-row" data-flow-index="<?= $fi ?>">
-                        <input type="text" class="form-control flow-name-label" value="<?= htmlspecialchars($flow->name) ?>" readonly style="display:inline-block;width:200px;cursor:default;" />
-                        <a href="javascript:void(0)" class="btn btn-primary campaign-icon-btn flow-move-up" title="Move Up">&uarr;</a>
-                        <a href="javascript:void(0)" class="btn btn-primary campaign-icon-btn flow-move-down" title="Move Down">&darr;</a>
+                        <button type="button" class="reorder-handle flow-drag-handle" title="Drag to reorder" aria-label="Reorder <?= htmlspecialchars($flow->name) ?>. Drag or use the arrow keys."><i class="bi bi-grip-vertical" aria-hidden="true"></i></button>
+                        <input type="text" class="form-control flow-name-label" value="<?= htmlspecialchars($flow->name) ?>" readonly />
                         <a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn flow-delete" title="Delete"><i class="bi bi-trash"></i></a>
                     </div>
                 <?php } ?>
@@ -540,6 +539,7 @@ global $c, $db, $campId;
             <div id="steps-list-<?= $fi ?>" class="steps-list">
                 <?php $lastSi = count($flow->steps) - 1; foreach ($flow->steps as $si => $step) { $isStepRedirect = ($step->action === 'redirect'); ?>
                 <div class="step-list-row" data-flow-index="<?= $fi ?>" data-step-index="<?= $si ?>">
+                    <button type="button" class="reorder-handle step-drag-handle<?= $isStepRedirect ? ' is-disabled' : '' ?>" title="<?= $isStepRedirect ? 'Redirect must remain the last step' : 'Drag to reorder' ?>" aria-label="Reorder Step <?= $si + 1 ?>. Drag or use the arrow keys."<?= $isStepRedirect ? ' aria-disabled="true"' : '' ?>><i class="bi bi-grip-vertical" aria-hidden="true"></i></button>
                     <span class="step-list-label">Step <?= $si + 1 ?></span>
                     <span class="step-list-info"><?php
                         if ($step->action === 'redirect' && !empty($step->redirectUrls)) {
@@ -554,8 +554,6 @@ global $c, $db, $campId;
                             echo count($step->folderNames) ? htmlspecialchars(implode(', ', $step->folderNames)) : 'empty';
                         }
                     ?></span>
-                    <a href="javascript:void(0)" class="btn btn-primary campaign-icon-btn flow-move-step-up" title="Move Up"<?= $isStepRedirect ? ' style="pointer-events:none;opacity:0.3"' : '' ?>>&uarr;</a>
-                    <a href="javascript:void(0)" class="btn btn-primary campaign-icon-btn flow-move-step-down" title="Move Down"<?= $isStepRedirect ? ' style="pointer-events:none;opacity:0.3"' : '' ?>>&darr;</a>
                     <a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn flow-remove-step" title="Delete"><i class="bi bi-trash"></i></a>
                 </div>
                 <?php } ?>

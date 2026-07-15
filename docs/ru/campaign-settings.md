@@ -44,6 +44,8 @@
 - optimize_for
 - optimize_mode
 
+Flows и steps сортируются перетаскиванием за одинаковую ручку слева от названия. Стрелки вверх/вниз для этого больше не используются.
+
 ![Раздел Flows в настройках кампании](../assets/screenshots/campaign-settings-flows.png)
 
 ## Scripts
