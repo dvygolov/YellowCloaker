@@ -1,7 +1,17 @@
-import { renumberSteps } from './templates.js';
+import { renumberSteps } from './templates.js?v=16072601';
 
 var flowSortable = null;
 var stepSortables = new Map();
+var keyboardListenerBound = false;
+
+function getPointerOptions() {
+    return {
+        forceFallback: true,
+        fallbackOnBody: true,
+        fallbackTolerance: 3,
+        fallbackClass: 'flow-order-fallback'
+    };
+}
 
 function getStepSection(row) {
     return document.getElementById('sec-step-' + row.dataset.flowIndex + '-' + row.dataset.stepIndex);
@@ -90,7 +100,7 @@ export function initializeStepSortable(fi) {
     var list = document.getElementById('steps-list-' + fi);
     if (!list || typeof Sortable === 'undefined' || stepSortables.has(String(fi))) return;
 
-    var sortable = new Sortable(list, {
+    var sortable = new Sortable(list, Object.assign(getPointerOptions(), {
         animation: 160,
         draggable: '.step-list-row',
         handle: '.step-drag-handle:not(.is-disabled)',
@@ -105,7 +115,7 @@ export function initializeStepSortable(fi) {
             evt.item.querySelector('.step-drag-handle')?.removeAttribute('aria-grabbed');
             if (evt.oldIndex !== evt.newIndex) syncStepOrder(fi);
         }
-    });
+    }));
     stepSortables.set(String(fi), sortable);
 }
 
@@ -149,7 +159,7 @@ function handleReorderKeydown(event) {
 export function initializeFlowReordering() {
     var list = document.getElementById('flows-list');
     if (list && typeof Sortable !== 'undefined' && !flowSortable) {
-        flowSortable = new Sortable(list, {
+        flowSortable = new Sortable(list, Object.assign(getPointerOptions(), {
             animation: 160,
             draggable: '.flow-list-row',
             handle: '.flow-drag-handle',
@@ -163,11 +173,14 @@ export function initializeFlowReordering() {
                 evt.item.querySelector('.flow-drag-handle')?.removeAttribute('aria-grabbed');
                 if (evt.oldIndex !== evt.newIndex) syncFlowOrder();
             }
-        });
+        }));
     }
 
     document.querySelectorAll('.steps-list').forEach(function (stepList) {
         initializeStepSortable(stepList.id.replace('steps-list-', ''));
     });
-    document.addEventListener('keydown', handleReorderKeydown);
+    if (!keyboardListenerBound) {
+        document.addEventListener('keydown', handleReorderKeydown);
+        keyboardListenerBound = true;
+    }
 }

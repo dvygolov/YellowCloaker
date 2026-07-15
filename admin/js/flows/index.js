@@ -1,5 +1,5 @@
-import { collectFlowsData } from './collectors.js';
-import { openFolderPicker } from './folder-picker.js';
+import { collectFlowsData } from './collectors.js?v=16072601';
+import { openFolderPicker } from './folder-picker.js?v=16072601';
 import {
     initFlowCounter,
     handleStepActionChange,
@@ -14,8 +14,8 @@ import {
     handleDeleteFlow,
     handleAddFlow,
     handleRedirectUrlChange
-} from './handlers.js';
-import { initializeFlowReordering } from './reordering.js';
+} from './handlers.js?v=16072601';
+import { initializeFlowReordering } from './reordering.js?v=16072601';
 
 // ── Window exports for backward compat with inline scripts ──
 window.collectFlowsData = collectFlowsData;

@@ -1501,7 +1501,13 @@ global $c, $db, $campId;
     <script src="js/cm6/php.min.js"></script>
     <script>window.CM6_PHP = cm6;</script>
     <script type="module" src="js/fileeditor.js"></script>
-    <script type="module" src="js/flows/index.js"></script>
+    <?php
+    $flowModuleVersion = 0;
+    foreach (glob(__DIR__ . '/js/flows/*.js') ?: [] as $flowModuleFile) {
+        $flowModuleVersion = max($flowModuleVersion, (int) filemtime($flowModuleFile));
+    }
+    ?>
+    <script type="module" src="js/flows/index.js?v=<?= $flowModuleVersion ?>"></script>
     <script type="module" src="js/campsettings-nav.js"></script>
 
     <!-- ── Flow templates (used by js/flows/ modules) ── -->

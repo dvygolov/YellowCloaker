@@ -577,8 +577,14 @@
     background: rgba(37, 99, 235, 0.12);
 }
 
-.flow-order-drag {
+.flow-order-drag,
+.flow-order-fallback {
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+.flow-order-fallback {
+    opacity: 0.96;
+    background: #17243b;
 }
 
 .script-toggle-label {
