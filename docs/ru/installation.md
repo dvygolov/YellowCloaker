@@ -10,6 +10,8 @@ curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/
 
 Скрипт спросит основной домен. До выпуска сертификата он проверит, что DNS домена указывает на публичный IP этого VPS. Если домен ещё не привязан, установка остановится с сообщением, какой IP ожидался и какие IP сейчас резолвятся.
 
+Полный сценарий установки проверен на чистых Ubuntu 22.04 и 24.04. Ошибка `sites-enabled: No such file or directory` на Ubuntu 22.04 означает, как правило, что структуру nginx уже заменила панель управления; актуальный установщик распознаёт распространённые панели и останавливается до изменений.
+
 ## Что делает автоустановщик
 
 - ставит nginx, PHP 8.4 FPM/CLI, SQLite, curl, mbstring, zip/xml и certbot;
@@ -18,6 +20,12 @@ curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/
 - скачивает `country.mmdb` и `asn.mmdb` из `sapics/ip-location-db` GitHub Releases в `bases/`;
 - настраивает права на `db/`, `logs/`, `ycclogs/`, `tmp/`, `caching/`, `bases/`;
 - создаёт nginx-конфиг и выпускает HTTPS-сертификат через certbot.
+
+## Панели управления хостингом
+
+Автоустановщик предназначен для чистого VPS и не должен использоваться поверх FastPanel, Plesk, cPanel/WHM, DirectAdmin, HestiaCP, VestaCP, aaPanel, ISPmanager, CyberPanel или CloudPanel. Такие панели сами управляют виртуальными хостами nginx/Apache, PHP-FPM, SSL-сертификатами и каталогами сайтов. Если поддерживаемая панель обнаружена, `install.sh` остановится до изменения серверной конфигурации.
+
+YellowTDS работает на сервере с панелью, но сайт, PHP, rewrite, права, защиту приватных файлов и SSL нужно настраивать штатными средствами самой панели. Используйте отдельную инструкцию [Установка через панели управления](hosting-panels.md): в ней есть проверенные сценарии для FastPanel, HestiaCP, aaPanel, CloudPanel и CyberPanel, а также рекомендации для Plesk, cPanel/WHM, DirectAdmin, ISPmanager и VestaCP.
 
 ## Добавление доменов
 

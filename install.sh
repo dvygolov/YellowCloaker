@@ -23,6 +23,46 @@ success() {
     echo -e "${GREEN}$1${NC}"
 }
 
+detect_control_panel() {
+    local panel
+    local marker
+
+    while IFS='|' read -r panel marker; do
+        if [ -e "$marker" ]; then
+            printf '%s' "$panel"
+            return 0
+        fi
+    done <<'EOF'
+FastPanel|/usr/local/fastpanel2
+Plesk|/etc/psa/psa.conf
+cPanel/WHM|/usr/local/cpanel/cpanel
+DirectAdmin|/usr/local/directadmin/directadmin
+HestiaCP|/usr/local/hestia/bin/v-list-sys-info
+VestaCP|/usr/local/vesta/bin/v-list-sys-info
+aaPanel|/www/server/panel/BT-Panel
+ISPmanager|/usr/local/mgr5/etc/ispmgr.conf
+CyberPanel|/usr/local/CyberCP
+CloudPanel|/usr/bin/clpctl
+EOF
+
+    return 1
+}
+
+abort_if_control_panel_installed() {
+    local panel
+
+    panel="$(detect_control_panel || true)"
+    [ -n "$panel" ] || return 0
+
+    echo -e "\n${RED}ERROR: ${panel} is installed.${NC}" >&2
+    cat >&2 <<EOF
+The automatic YellowTDS VPS installer will not continue because hosting panels manage the web server, PHP, SSL, and website directories.
+To use YellowTDS with ${panel}, create the domain/website in the panel and deploy YellowTDS manually into that website's document root.
+Manual setup: https://github.com/dvygolov/YellowTDS/blob/multipleconfigs/docs/en/hosting-panels.md
+EOF
+    exit 1
+}
+
 usage() {
     cat <<EOF
 Usage:
@@ -53,6 +93,8 @@ fi
 if [[ $EUID -ne 0 ]]; then
     fail "Run this script as root: sudo bash install.sh"
 fi
+
+abort_if_control_panel_installed
 
 if ! command -v apt-get >/dev/null 2>&1; then
     fail "This installer supports Debian/Ubuntu systems only"
@@ -528,6 +570,9 @@ write_nginx_config() {
     local app_dir="$2"
     local admin_path="${3:-admin}"
     local config_file="/etc/nginx/sites-available/${domain}"
+
+    install -d -m 0755 /etc/nginx/sites-available /etc/nginx/sites-enabled \
+        || fail "Failed to prepare nginx site directories"
 
     cat > "$config_file" <<EOF
 server {

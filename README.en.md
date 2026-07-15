@@ -49,6 +49,8 @@ curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/
 
 The script asks for a domain, verifies DNS points to the VPS, installs nginx/PHP/HTTPS, the MMDB C extension, and downloads geobases from `sapics/ip-location-db`.
 
+The automatic installer is intended for a clean VPS without a hosting control panel. If FastPanel, Plesk, cPanel/WHM, DirectAdmin, HestiaCP, VestaCP, aaPanel, ISPmanager, CyberPanel, or CloudPanel is detected, it stops before changing the server configuration. On such servers, follow [Installing with Hosting Control Panels](docs/en/hosting-panels.md).
+
 To add multiple domains to an existing instance:
 
 ```bash

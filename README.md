@@ -53,6 +53,8 @@ curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/
 
 Скрипт спросит домен, проверит DNS-привязку к VPS, поставит nginx/PHP/HTTPS, C-расширение MMDB и скачает геобазы из `sapics/ip-location-db`.
 
+Автоустановщик предназначен для чистого VPS без панели управления хостингом. Если обнаружена FastPanel, Plesk, cPanel/WHM, DirectAdmin, HestiaCP, VestaCP, aaPanel, ISPmanager, CyberPanel или CloudPanel, скрипт остановится до изменения конфигурации сервера. Для такого сервера используйте отдельную инструкцию [Установка через панели управления](docs/ru/hosting-panels.md).
+
 Чтобы добавить к уже установленному инстансу несколько новых доменов:
 
 ```bash

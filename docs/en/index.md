@@ -6,6 +6,7 @@ This is the main product, admin, and runtime documentation for YellowCloaker.
 
 - [Overview](overview.md)
 - [VPS Installation](installation.md)
+- [Installing with Hosting Control Panels](hosting-panels.md)
 - [How It Works](how-it-works.md)
 - [Admin Login](admin-login.md)
 - [Admin Panel](admin-panel.md)

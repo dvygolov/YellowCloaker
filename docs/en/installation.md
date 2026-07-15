@@ -10,6 +10,8 @@ curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/
 
 The script asks for the primary domain. Before issuing the certificate, it verifies that the domain DNS points to the VPS public IP. If the domain is not pointed yet, installation stops and shows the expected IP and currently resolved IPs.
 
+The full installation path has been verified on clean Ubuntu 22.04 and 24.04 systems. An Ubuntu 22.04 `sites-enabled: No such file or directory` error usually means that a hosting panel has replaced the standard nginx layout; the current installer detects common panels and stops before making changes.
+
 ## What the Installer Does
 
 - installs nginx, PHP 8.4 FPM/CLI, SQLite, curl, mbstring, zip/xml, and certbot;
@@ -18,6 +20,12 @@ The script asks for the primary domain. Before issuing the certificate, it verif
 - downloads `country.mmdb` and `asn.mmdb` from `sapics/ip-location-db` GitHub Releases into `bases/`;
 - configures writable permissions for `db/`, `logs/`, `ycclogs/`, `tmp/`, `caching/`, and `bases/`;
 - creates the nginx config and issues an HTTPS certificate with certbot.
+
+## Hosting Control Panels
+
+The automatic installer is intended for a clean VPS and must not be run on top of FastPanel, Plesk, cPanel/WHM, DirectAdmin, HestiaCP, VestaCP, aaPanel, ISPmanager, CyberPanel, or CloudPanel. These panels manage nginx/Apache virtual hosts, PHP-FPM, SSL certificates, and website directories themselves. When a supported panel is detected, `install.sh` stops before changing the server configuration.
+
+YellowTDS works on a panel-managed server, but the website, PHP version, rewrite, permissions, private-file protection, and SSL must be configured through the panel itself. Follow [Installing with Hosting Control Panels](hosting-panels.md) for tested FastPanel, HestiaCP, aaPanel, CloudPanel, and CyberPanel procedures, plus analogous guidance for Plesk, cPanel/WHM, DirectAdmin, ISPmanager, and VestaCP.
 
 ## Adding Domains
 

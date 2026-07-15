@@ -97,6 +97,42 @@ class InstallerScriptTest extends TestCase
         $this->assertStringContainsString('Open ${scheme}://${domain}/${ADMIN_PATH}/', $this->script);
     }
 
+    public function testInstallerStopsWhenHostingPanelIsDetected(): void
+    {
+        foreach ([
+            'FastPanel|/usr/local/fastpanel2',
+            'Plesk|/etc/psa/psa.conf',
+            'cPanel/WHM|/usr/local/cpanel/cpanel',
+            'DirectAdmin|/usr/local/directadmin/directadmin',
+            'HestiaCP|/usr/local/hestia/bin/v-list-sys-info',
+            'VestaCP|/usr/local/vesta/bin/v-list-sys-info',
+            'aaPanel|/www/server/panel/BT-Panel',
+            'ISPmanager|/usr/local/mgr5/etc/ispmgr.conf',
+            'CyberPanel|/usr/local/CyberCP',
+            'CloudPanel|/usr/bin/clpctl',
+        ] as $marker) {
+            $this->assertStringContainsString($marker, $this->script);
+        }
+
+        $this->assertStringContainsString('abort_if_control_panel_installed', $this->script);
+        $this->assertStringContainsString('ERROR: ${panel} is installed.', $this->script);
+        $this->assertStringContainsString('The automatic YellowTDS VPS installer will not continue', $this->script);
+        $this->assertStringContainsString('docs/en/hosting-panels.md', $this->script);
+        $this->assertStringContainsString(
+            "abort_if_control_panel_installed\n\nif ! command -v apt-get",
+            $this->script
+        );
+    }
+
+    public function testInstallerPreparesStandardNginxSiteDirectories(): void
+    {
+        $this->assertStringContainsString(
+            'install -d -m 0755 /etc/nginx/sites-available /etc/nginx/sites-enabled',
+            $this->script
+        );
+        $this->assertStringContainsString('Failed to prepare nginx site directories', $this->script);
+    }
+
     public function testInstallerGeneratesAndPersistsRandomAdminPath(): void
     {
         $this->assertStringContainsString('YELLOWTDS_ADMIN_PATH', $this->script);
