@@ -7,6 +7,7 @@ The campaign settings page includes:
 - Domains
 - White
 - Flows
+- Integration
 - Scripts
 - Postbacks
 
@@ -28,8 +29,21 @@ Defines what blocked or filtered traffic receives. The `−/+` control beside **
 
 Defines the black branch routing for allowed traffic.
 
+**Save user flow (Sticky)** and **JS Bot Detection** use explicit On/Off switches. JS Bot Detection settings appear only while its switch is On; the extra framed group is no longer used.
+
 Flows and steps use the same drag handle to the left of their names. The previous up/down arrow controls are no longer used.
 
 Use the `−/+` control beside **Flows** to collapse or expand the whole tree. The same control beside an individual flow affects only its steps. Tree state is saved per campaign, and navigating to a hidden step expands its branch automatically.
 
 ![Flows section in campaign settings](../assets/screenshots/campaign-settings-flows.png)
+
+## Integration
+
+Campaign launch methods are collected on one screen:
+
+- **PHP Connect** shows the `api/phpconnect.php` URL and the campaign API key used by the bundled `phpclient.php`.
+- **JavaScript Connect** shows the ready-to-embed `<script>` tag and controls whether the routed page replaces the current content, opens in an iframe, or redirects the browser.
+
+JavaScript Connect Action is a campaign-wide integration setting and is no longer shown under Flows.
+
+![Campaign integration settings](../assets/screenshots/campaign-settings-integration.png)

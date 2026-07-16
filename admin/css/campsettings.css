@@ -422,6 +422,208 @@
     letter-spacing: 0.3px;
 }
 
+/* Campaign-wide boolean settings use an explicit On/Off switch. */
+.campaign-setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    min-height: 58px;
+    padding: 8px 0;
+}
+
+.campaign-setting-row-separated {
+    margin-top: 8px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(76, 104, 158, 0.28);
+}
+
+.campaign-setting-label,
+.integration-action-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    color: #f0f4fb;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.campaign-switch {
+    position: relative;
+    display: inline-flex;
+    flex: 0 0 auto;
+    margin: 0;
+    cursor: pointer;
+}
+
+.campaign-switch-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.campaign-switch-track {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    width: 112px;
+    height: 42px;
+    padding: 3px;
+    overflow: hidden;
+    border: 1px solid #496188;
+    border-radius: 21px;
+    background: #111b31;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.campaign-switch-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 52px;
+    height: 34px;
+    border-radius: 17px;
+    background: #52647f;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.campaign-switch-option {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    color: #8292ad;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    transition: color 0.18s ease;
+}
+
+.campaign-switch-option-off {
+    color: #fff;
+}
+
+.campaign-switch-input:checked + .campaign-switch-track {
+    border-color: #4099ff;
+}
+
+.campaign-switch-input:checked + .campaign-switch-track .campaign-switch-thumb {
+    transform: translateX(54px);
+    background: #0d6efd;
+}
+
+.campaign-switch-input:checked + .campaign-switch-track .campaign-switch-option-off {
+    color: #8292ad;
+}
+
+.campaign-switch-input:checked + .campaign-switch-track .campaign-switch-option-on {
+    color: #fff;
+}
+
+.campaign-switch-input:focus-visible + .campaign-switch-track {
+    border-color: #77b2ff;
+    box-shadow: 0 0 0 3px rgba(64, 153, 255, 0.25);
+}
+
+.campaign-dependent-settings {
+    margin: 4px 0 12px 24px;
+    padding: 10px 0 2px 18px;
+    border-left: 2px solid rgba(64, 153, 255, 0.34);
+}
+
+.campaign-dependent-settings[hidden] {
+    display: none !important;
+}
+
+/* Integration keeps launch methods together instead of mixing them with flows. */
+.integration-heading {
+    margin-bottom: 24px;
+}
+
+.integration-heading h5 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0 0 6px;
+    color: #f4f7fc;
+    font-size: 22px;
+}
+
+.integration-heading h5 .bi {
+    color: #4099ff;
+}
+
+.integration-heading p,
+.integration-description {
+    color: #9bb0d2;
+}
+
+.integration-heading p {
+    margin: 0;
+}
+
+.integration-group {
+    padding-top: 24px;
+    padding-bottom: 18px;
+}
+
+.integration-description {
+    margin: 0 0 16px;
+    font-size: 14px;
+}
+
+.integration-description code {
+    color: #dbeafe;
+}
+
+.integration-field {
+    display: grid;
+    grid-template-columns: minmax(150px, 210px) minmax(0, 1fr);
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 14px;
+}
+
+.integration-field label {
+    margin: 0;
+    color: #f0f4fb;
+    font-weight: 500;
+}
+
+.camp-content .integration-code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    font-size: 13px;
+}
+
+.integration-action-row {
+    display: grid;
+    grid-template-columns: minmax(150px, 210px) minmax(0, 1fr);
+    align-items: start;
+    gap: 18px;
+    padding-top: 6px;
+}
+
+.integration-action-options {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+}
+
+@media (max-width: 767px) {
+    .campaign-setting-row {
+        align-items: flex-start;
+    }
+
+    .integration-field,
+    .integration-action-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+}
+
 .dws-page-title {
     display: flex;
     align-items: center;

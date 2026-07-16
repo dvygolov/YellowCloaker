@@ -50,9 +50,9 @@ global $c, $db, $campId;
                     <li class="step-nav-item" data-flow-index="<?= $fi ?>" data-step-index="<?= $si ?>"><a href="#sec-step-<?= $fi ?>-<?= $si ?>">Step <?= $si + 1 ?></a></li>
                     <?php } ?>
                     <?php } ?>
+                    <li><a href="#sec-api">Integration</a></li>
                     <li><a href="#sec-scripts">Scripts</a></li>
                     <li><a href="#sec-postbacks">Postbacks</a></li>
-                    <li><a href="#sec-api">API</a></li>
                 </ul>
             </nav>
             <div class="camp-content">
@@ -356,43 +356,55 @@ global $c, $db, $campId;
                 <a id="add-flow-btn" class="btn btn-primary campaign-action-btn" href="javascript:void(0)" style="margin-top:15px;">+ Add Flow</a>
             </div>
             <hr/>
-            <div class="form-group-inner">
-                <div class="row">
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                        <label class="login2 pull-left pull-left-pro">
-                            <i class="bi bi-info-circle admin-info-icon" title="If Yes then the user will always be shown the same content on every visit"></i>
-                            Save user flow (Sticky):
-                        </label>
-                    </div>
-                    <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                        <div class="ywb-radios">
-                            <label class="ywb-radio-label"><input type="radio" <?= $c->saveUserFlow === false ? 'checked' : '' ?> value="false" name="saveuserflow" /> No</label>
-                            <label class="ywb-radio-label"><input type="radio" <?= $c->saveUserFlow === true ? 'checked' : '' ?> value="true" name="saveuserflow" /> Yes</label>
-                        </div>
-                    </div>
+            <div class="campaign-setting-row">
+                <div class="campaign-setting-label">
+                    <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Keeps the visitor in the same flow on future visits." data-tooltip="Keeps the visitor in the same flow on future visits."></i>
+                    <span>Save user flow (Sticky)</span>
                 </div>
+                <input type="hidden" id="save-user-flow-value" name="saveuserflow" value="<?= $c->saveUserFlow ? 'true' : 'false' ?>" />
+                <label class="campaign-switch" for="save-user-flow-toggle">
+                    <input
+                        type="checkbox"
+                        id="save-user-flow-toggle"
+                        class="campaign-switch-input"
+                        data-value-target="save-user-flow-value"
+                        aria-label="Save user flow"
+                        <?= $c->saveUserFlow ? 'checked' : '' ?>
+                    />
+                    <span class="campaign-switch-track" aria-hidden="true">
+                        <span class="campaign-switch-option campaign-switch-option-off">Off</span>
+                        <span class="campaign-switch-option campaign-switch-option-on">On</span>
+                        <span class="campaign-switch-thumb"></span>
+                    </span>
+                </label>
             </div>
 
             <?php $jbd = $c->black->jsBotDetection; ?>
-            <div class="flow-group">
-            <span class="flow-group-title">JS Bot Detection</span>
-            <div class="form-group-inner">
-                <div class="row">
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                        <label class="login2 pull-left pull-left-pro">
-                            <i class="bi bi-info-circle admin-info-icon" title="If enabled, the user will first see a safe page. Only after browser-side checks confirm a real human will they see the money page."></i>
-                            Enable JS Bot Detection:
-                        </label>
-                    </div>
-                    <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                        <div class="ywb-radios">
-                            <label class="ywb-radio-label"><input type="radio" <?= !$jbd->enabled ? 'checked' : '' ?> value="false" name="black.jsbotdetection.enabled" onclick="(document.getElementById('jbd-settings').style.display = 'none')" /> No</label>
-                            <label class="ywb-radio-label"><input type="radio" <?= $jbd->enabled ? 'checked' : '' ?> value="true" name="black.jsbotdetection.enabled" onclick="(document.getElementById('jbd-settings').style.display = 'block')" /> Yes</label>
-                        </div>
-                    </div>
+            <div class="campaign-setting-row campaign-setting-row-separated">
+                <div class="campaign-setting-label">
+                    <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Shows the safe page first, then opens the routed page only after browser-side checks confirm a real visitor." data-tooltip="Shows the safe page first, then opens the routed page only after browser-side checks confirm a real visitor."></i>
+                    <span>JS Bot Detection</span>
                 </div>
+                <input type="hidden" id="js-bot-detection-value" name="black.jsbotdetection.enabled" value="<?= $jbd->enabled ? 'true' : 'false' ?>" />
+                <label class="campaign-switch" for="js-bot-detection-toggle">
+                    <input
+                        type="checkbox"
+                        id="js-bot-detection-toggle"
+                        class="campaign-switch-input"
+                        data-value-target="js-bot-detection-value"
+                        data-controls="jbd-settings"
+                        aria-label="Enable JS Bot Detection"
+                        aria-controls="jbd-settings"
+                        <?= $jbd->enabled ? 'checked' : '' ?>
+                    />
+                    <span class="campaign-switch-track" aria-hidden="true">
+                        <span class="campaign-switch-option campaign-switch-option-off">Off</span>
+                        <span class="campaign-switch-option campaign-switch-option-on">On</span>
+                        <span class="campaign-switch-thumb"></span>
+                    </span>
+                </label>
             </div>
-            <div id="jbd-settings" style="display:<?= $jbd->enabled ? 'block' : 'none' ?>;">
+            <div id="jbd-settings" class="campaign-dependent-settings" <?= $jbd->enabled ? '' : 'hidden' ?>>
                 <div class="form-group-inner">
                     <div class="row">
                         <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Timeout (msec):</label></div>
@@ -417,25 +429,6 @@ global $c, $db, $campId;
                     <div class="row">
                         <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Maximum allowed timezone</label></div>
                         <div class="col-lg-3"><input type="text" class="form-control" placeholder="3" name="black.jsbotdetection.timezone.max" value="<?= $jbd->tzMax ?>" /></div>
-                    </div>
-                </div>
-            </div>
-            </div>
-
-            <div class="form-group-inner">
-                <div class="row">
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                        <label class="login2 pull-left pull-left-pro">
-                            <i class="bi bi-info-circle admin-info-icon" title="You can connect any website to YellowTDS using &lt;script src='https://yourwebsite.com/js/index.php'&gt;&lt;/script&gt;"></i>
-                            Javascript Connect Action:
-                        </label>
-                    </div>
-                    <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                        <div class="ywb-radios">
-                            <label class="ywb-radio-label"><input type="radio" <?= $c->black->jsconnectAction === 'replace' ? 'checked' : '' ?> value="replace" name="black.jsconnect" /> Content replace</label>
-                            <label class="ywb-radio-label"><input type="radio" <?= $c->black->jsconnectAction === 'iframe' ? 'checked' : '' ?> value="iframe" name="black.jsconnect" /> IFrame</label>
-                            <label class="ywb-radio-label"><input type="radio" <?= $c->black->jsconnectAction === 'redirect' ? 'checked' : '' ?> value="redirect" name="black.jsconnect" /> Redirect</label>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -1114,22 +1107,49 @@ global $c, $db, $campId;
             </section>
 
             <section id="sec-api" class="camp-section">
-            <div class="form-group-inner">
-                <div class="row">
-                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                        <label class="login2 pull-left pull-left-pro">
-                        <i class="bi bi-info-circle admin-info-icon" title="API methods are described in docs"></i>
-                        This campaign's API URL:
-                    </label>
-                    </div>
-                    <div class="col-lg-7 col-md-7 col-sm-7 col-xs-12">
-                        <div class="input-group custom-go-button">
-                            <input type="text" readonly class="form-control" value="<?= $tdsRoot ?>/api/phpconnect.php?apikey=<?= $c->apiKey ?>"/>
-                        </div>
-                    </div>
+            <?php
+                $tdsRoot = rtrim(get_tds_path(), '/');
+                $phpConnectUrl = $tdsRoot . '/api/phpconnect.php';
+                $jsConnectUrl = $tdsRoot . '/js/index.php';
+                $jsConnectSnippet = '<script src="' . $jsConnectUrl . '"></script>';
+            ?>
+            <div class="integration-heading">
+                <h5><i class="bi bi-plug" aria-hidden="true"></i> Integration</h5>
+                <p>Choose how an external website connects to this campaign.</p>
+            </div>
+
+            <div class="flow-group integration-group">
+            <span class="flow-group-title">PHP Connect</span>
+                <p class="integration-description">Use the bundled <code>phpclient.php</code> on a PHP website. Set its API URL and API key to the values below.</p>
+                <div class="integration-field">
+                    <label for="php-connect-url">API URL</label>
+                    <input id="php-connect-url" type="text" readonly class="form-control integration-code" value="<?= htmlspecialchars($phpConnectUrl, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" />
+                </div>
+                <div class="integration-field">
+                    <label for="php-connect-key">Campaign API key</label>
+                    <input id="php-connect-key" type="text" readonly class="form-control integration-code" value="<?= htmlspecialchars($c->apiKey, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" />
                 </div>
             </div>
 
+            <div class="flow-group integration-group">
+            <span class="flow-group-title">JavaScript Connect</span>
+                <p class="integration-description">Add this script before the closing <code>&lt;/body&gt;</code> tag of the external website.</p>
+                <div class="integration-field">
+                    <label for="js-connect-code">Embed code</label>
+                    <input id="js-connect-code" type="text" readonly class="form-control integration-code" value="<?= htmlspecialchars($jsConnectSnippet, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" />
+                </div>
+                <div class="integration-action-row">
+                    <div class="integration-action-label">
+                        <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Controls how JavaScript Connect opens the routed page." data-tooltip="Controls how JavaScript Connect opens the routed page."></i>
+                        <span>JavaScript Connect Action</span>
+                    </div>
+                    <div class="ywb-radios integration-action-options">
+                        <label class="ywb-radio-label"><input type="radio" <?= $c->black->jsconnectAction === 'replace' ? 'checked' : '' ?> value="replace" name="black.jsconnect" /> Content replace</label>
+                        <label class="ywb-radio-label"><input type="radio" <?= $c->black->jsconnectAction === 'iframe' ? 'checked' : '' ?> value="iframe" name="black.jsconnect" /> IFrame</label>
+                        <label class="ywb-radio-label"><input type="radio" <?= $c->black->jsconnectAction === 'redirect' ? 'checked' : '' ?> value="redirect" name="black.jsconnect" /> Redirect</label>
+                    </div>
+                </div>
+            </div>
             </section>
 
             <div class="camp-save-bar">
@@ -1424,6 +1444,7 @@ global $c, $db, $campId;
     <script>window._dwsCounterInit = <?= count($c->domains) ?>;</script>
     <script type="module" src="js/campsettings/dws-sync.js?v=<?= filemtime(__DIR__ . '/js/campsettings/dws-sync.js') ?>"></script>
     <script type="module" src="js/campsettings/domains.js"></script>
+    <script type="module" src="js/campsettings/toggles.js?v=<?= filemtime(__DIR__ . '/js/campsettings/toggles.js') ?>"></script>
     <script type="module" src="js/campsettings/form-submit.js"></script>
     <script src="js/filters.js"></script>
     <script>
