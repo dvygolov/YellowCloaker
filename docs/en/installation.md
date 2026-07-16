@@ -2,6 +2,8 @@
 
 YellowTDS can be installed on a clean Debian/Ubuntu VPS with `install.sh`. The script installs nginx, PHP-FPM, an HTTPS certificate, the MMDB C extension for faster geobase reads, and blocks external access to private runtime files such as SQLite databases, logs, temp files, settings, MMDB databases, and repository metadata.
 
+We recommend [FriendHosting](https://yellowweb.top/friendhosting) for a VPS. For the automatic installer, choose a clean Debian or Ubuntu server without a hosting control panel.
+
 ## Short Command
 
 ```bash

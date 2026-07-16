@@ -6,6 +6,7 @@ This is the main product, admin, and runtime documentation for YellowTDS.
 
 - [Overview](overview.md)
 - [VPS Installation](installation.md)
+- [Shared Hosting Installation](shared-hosting.md)
 - [Installing with Hosting Control Panels](hosting-panels.md)
 - [How It Works](how-it-works.md)
 - [Admin Login](admin-login.md)
