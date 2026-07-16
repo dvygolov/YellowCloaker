@@ -47,3 +47,7 @@ Campaign launch methods are collected on one screen:
 JavaScript Connect Action is a campaign-wide integration setting and is no longer shown under Flows.
 
 ![Campaign integration settings](../assets/screenshots/campaign-settings-integration.png)
+
+## Scripts
+
+Backfix, redirects, event tracking and image lazy loading use the same explicit **Off/On** switches as the campaign-wide flow options. Feature-specific fields appear only while the corresponding switch is On.

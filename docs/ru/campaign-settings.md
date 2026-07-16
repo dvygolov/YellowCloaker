@@ -74,6 +74,8 @@ JavaScript Connect Action относится ко всей кампании, п�
 - redirect rules
 - event tracking thresholds
 
+Backfix, redirect-правила, event tracking и ленивая загрузка изображений используют такие же явные переключатели **Off/On**, как общие параметры flow. Зависимые поля показываются только во включённом состоянии.
+
 ## Postbacks
 
 Здесь находятся:

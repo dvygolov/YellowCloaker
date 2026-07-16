@@ -6,11 +6,12 @@ The Scripts section controls additional page and funnel behavior.
 
 ## Main Options
 
-- backfix
-- replace prelanding
-- replace landing
-- images lazy load
-- redirect rules
-- event tracking
+- **Backfix** — optionally opens one of the configured fallback URLs when the visitor tries to return to the previous page.
+- **Next Step Redirect** — redirects the current tab after opening the next step in a new tab.
+- **Form Submit Redirect** — redirects the current tab after a terminal-step form is submitted.
+- **Event Tracking** — records configured scroll-depth and visible-time thresholds.
+- **Page Loading** — optionally enables lazy loading for images.
+
+Every binary setting uses the same **Off/On** switch. Fields that belong to a feature are shown only while its switch is On. Saving still writes one boolean value for each setting.
 
 ![Scripts section](../assets/screenshots/scripts-settings-overview.png)

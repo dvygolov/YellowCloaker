@@ -653,22 +653,22 @@ global $c, $db, $campId;
             <section id="sec-scripts" class="camp-section">
             <div class="flow-group">
             <span class="flow-group-title">Backfix</span>
-            <div class="form-group-inner">
-                <div class="row">
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                        <label class="login2 pull-left pull-left-pro"> 
-                            <i class="bi bi-info-circle admin-info-icon" title="Backfix is a script that will prevent the user from going back from out site. Instead the user fill be shown another money page that you'll choose."></i>
-                            Should we use backfix?</label>
-                    </div>
-                    <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                        <div class="ywb-radios">
-                            <label class="ywb-radio-label"><input type="radio" <?= $c->scripts->backfix === false ? 'checked' : '' ?> value="false" name="scripts.backfix.use" onclick="(document.getElementById('b_backfix').style.display = 'none')" /> No</label>
-                            <label class="ywb-radio-label"><input type="radio" <?= $c->scripts->backfix ? 'checked' : '' ?> value="true" name="scripts.backfix.use" onclick="(document.getElementById('b_backfix').style.display = 'block')" /> Yes</label>
-                        </div>
-                    </div>
+            <div class="campaign-setting-row script-switch-row">
+                <div class="campaign-setting-label">
+                    <i class="bi bi-info-circle admin-info-icon" title="Backfix prevents the visitor from returning to the previous page and shows another configured page instead."></i>
+                    <span>Use Backfix</span>
                 </div>
+                <input type="hidden" id="scripts-backfix-use" name="scripts.backfix.use" value="<?= $c->scripts->backfix ? 'true' : 'false' ?>" />
+                <label class="campaign-switch" for="scripts-backfix-toggle">
+                    <input type="checkbox" id="scripts-backfix-toggle" class="campaign-switch-input" data-value-target="scripts-backfix-use" data-controls="b_backfix" aria-controls="b_backfix" aria-label="Use Backfix" <?= $c->scripts->backfix ? 'checked' : '' ?> />
+                    <span class="campaign-switch-track" aria-hidden="true">
+                        <span class="campaign-switch-option campaign-switch-option-off">Off</span>
+                        <span class="campaign-switch-option campaign-switch-option-on">On</span>
+                        <span class="campaign-switch-thumb"></span>
+                    </span>
+                </label>
             </div>
-            <div id="b_backfix" style="display:<?= $c->scripts->backfix? 'block' : 'none' ?>;">
+            <div id="b_backfix" class="campaign-dependent-settings script-dependent-settings" <?= $c->scripts->backfix ? '' : 'hidden' ?>>
                 <div id="backfix_urls_container">
                     <?php
                     $bfCount = max(count($c->scripts->backfixUrls), 1);
@@ -718,22 +718,22 @@ global $c, $db, $campId;
 
             <div class="flow-group">
             <span class="flow-group-title">Next Step Redirect</span>
-            <div class="form-group-inner">
-                <div class="row">
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                        <label class="login2 pull-left pull-left-pro script-toggle-label">
-                            <i class="bi bi-info-circle script-info-icon" title="If a rule matches the current flow and step, the next step opens in a new tab and the current tab is redirected to the rule URL."></i>
-                            Enable Next Step Redirect?</label>
-                    </div>
-                    <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                        <div class="ywb-radios">
-                            <label class="ywb-radio-label"><input type="radio" <?= $c->scripts->nextRedirectUse === false ? 'checked' : '' ?> value="false" name="scripts.nextredirect.use" data-toggle-target="next_redirect_rules_block" /> No</label>
-                            <label class="ywb-radio-label"><input type="radio" <?= $c->scripts->nextRedirectUse === true ? 'checked' : '' ?> value="true" name="scripts.nextredirect.use" data-toggle-target="next_redirect_rules_block" /> Yes</label>
-                        </div>
-                    </div>
+            <div class="campaign-setting-row script-switch-row">
+                <div class="campaign-setting-label">
+                    <i class="bi bi-info-circle script-info-icon" title="If a rule matches the current flow and step, the next step opens in a new tab and the current tab is redirected to the rule URL."></i>
+                    <span>Enable Next Step Redirect</span>
                 </div>
+                <input type="hidden" id="scripts-next-redirect-use" name="scripts.nextredirect.use" value="<?= $c->scripts->nextRedirectUse ? 'true' : 'false' ?>" />
+                <label class="campaign-switch" for="scripts-next-redirect-toggle">
+                    <input type="checkbox" id="scripts-next-redirect-toggle" class="campaign-switch-input" data-value-target="scripts-next-redirect-use" data-controls="next_redirect_rules_block" aria-controls="next_redirect_rules_block" aria-label="Enable Next Step Redirect" <?= $c->scripts->nextRedirectUse ? 'checked' : '' ?> />
+                    <span class="campaign-switch-track" aria-hidden="true">
+                        <span class="campaign-switch-option campaign-switch-option-off">Off</span>
+                        <span class="campaign-switch-option campaign-switch-option-on">On</span>
+                        <span class="campaign-switch-thumb"></span>
+                    </span>
+                </label>
             </div>
-            <div id="next_redirect_rules_block" style="display:<?= $c->scripts->nextRedirectUse ? 'block' : 'none' ?>;">
+            <div id="next_redirect_rules_block" class="campaign-dependent-settings script-dependent-settings" <?= $c->scripts->nextRedirectUse ? '' : 'hidden' ?>>
                 <div id="next_redirect_rules_container" class="script-rules-container">
                     <?php foreach ($nextRedirectRules as $ri => $rule) {
                         $ruleFlow = (string)($rule['flow'] ?? '*');
@@ -775,22 +775,22 @@ global $c, $db, $campId;
 
             <div class="flow-group">
             <span class="flow-group-title">Form Submit Redirect</span>
-            <div class="form-group-inner">
-                <div class="row">
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                        <label class="login2 pull-left pull-left-pro script-toggle-label">
-                            <i class="bi bi-info-circle script-info-icon" title="If a rule matches the current flow and terminal step, form submit opens in a new tab and the current tab is redirected to the rule URL."></i>
-                            Enable Form Submit Redirect?</label>
-                    </div>
-                    <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                        <div class="ywb-radios">
-                            <label class="ywb-radio-label"><input type="radio" <?= $c->scripts->submitRedirectUse === false ? 'checked' : '' ?> value="false" name="scripts.submitredirect.use" data-toggle-target="submit_redirect_rules_block" /> No</label>
-                            <label class="ywb-radio-label"><input type="radio" <?= $c->scripts->submitRedirectUse === true ? 'checked' : '' ?> value="true" name="scripts.submitredirect.use" data-toggle-target="submit_redirect_rules_block" /> Yes</label>
-                        </div>
-                    </div>
+            <div class="campaign-setting-row script-switch-row">
+                <div class="campaign-setting-label">
+                    <i class="bi bi-info-circle script-info-icon" title="If a rule matches the current flow and terminal step, form submit opens in a new tab and the current tab is redirected to the rule URL."></i>
+                    <span>Enable Form Submit Redirect</span>
                 </div>
+                <input type="hidden" id="scripts-submit-redirect-use" name="scripts.submitredirect.use" value="<?= $c->scripts->submitRedirectUse ? 'true' : 'false' ?>" />
+                <label class="campaign-switch" for="scripts-submit-redirect-toggle">
+                    <input type="checkbox" id="scripts-submit-redirect-toggle" class="campaign-switch-input" data-value-target="scripts-submit-redirect-use" data-controls="submit_redirect_rules_block" aria-controls="submit_redirect_rules_block" aria-label="Enable Form Submit Redirect" <?= $c->scripts->submitRedirectUse ? 'checked' : '' ?> />
+                    <span class="campaign-switch-track" aria-hidden="true">
+                        <span class="campaign-switch-option campaign-switch-option-off">Off</span>
+                        <span class="campaign-switch-option campaign-switch-option-on">On</span>
+                        <span class="campaign-switch-thumb"></span>
+                    </span>
+                </label>
             </div>
-            <div id="submit_redirect_rules_block" style="display:<?= $c->scripts->submitRedirectUse ? 'block' : 'none' ?>;">
+            <div id="submit_redirect_rules_block" class="campaign-dependent-settings script-dependent-settings" <?= $c->scripts->submitRedirectUse ? '' : 'hidden' ?>>
                 <div id="submit_redirect_rules_container" class="script-rules-container">
                     <?php foreach ($submitRedirectRules as $ri => $rule) {
                         $ruleFlow = (string)($rule['flow'] ?? '*');
@@ -828,20 +828,21 @@ global $c, $db, $campId;
 
             <div class="flow-group">
             <span class="flow-group-title">Event Tracking</span>
-            <div class="form-group-inner">
-                <div class="row">
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                        <label class="login2 pull-left pull-left-pro">Track scroll depth?</label>
-                    </div>
-                    <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                        <div class="ywb-radios">
-                            <label class="ywb-radio-label"><input type="radio" <?= $c->scripts->scrollTrackingUse === false ? 'checked' : '' ?> value="false" name="scripts.events.scroll.use" data-toggle-target="scroll_tracking_block" /> No</label>
-                            <label class="ywb-radio-label"><input type="radio" <?= $c->scripts->scrollTrackingUse === true ? 'checked' : '' ?> value="true" name="scripts.events.scroll.use" data-toggle-target="scroll_tracking_block" /> Yes</label>
-                        </div>
-                    </div>
+            <div class="campaign-setting-row script-switch-row">
+                <div class="campaign-setting-label">
+                    <span>Track scroll depth</span>
                 </div>
+                <input type="hidden" id="scripts-scroll-tracking-use" name="scripts.events.scroll.use" value="<?= $c->scripts->scrollTrackingUse ? 'true' : 'false' ?>" />
+                <label class="campaign-switch" for="scripts-scroll-tracking-toggle">
+                    <input type="checkbox" id="scripts-scroll-tracking-toggle" class="campaign-switch-input" data-value-target="scripts-scroll-tracking-use" data-controls="scroll_tracking_block" aria-controls="scroll_tracking_block" aria-label="Track scroll depth" <?= $c->scripts->scrollTrackingUse ? 'checked' : '' ?> />
+                    <span class="campaign-switch-track" aria-hidden="true">
+                        <span class="campaign-switch-option campaign-switch-option-off">Off</span>
+                        <span class="campaign-switch-option campaign-switch-option-on">On</span>
+                        <span class="campaign-switch-thumb"></span>
+                    </span>
+                </label>
             </div>
-            <div id="scroll_tracking_block" style="display:<?= $c->scripts->scrollTrackingUse ? 'block' : 'none' ?>;">
+            <div id="scroll_tracking_block" class="campaign-dependent-settings script-dependent-settings" <?= $c->scripts->scrollTrackingUse ? '' : 'hidden' ?>>
                 <div class="form-group-inner">
                     <div class="row">
                         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
@@ -853,20 +854,21 @@ global $c, $db, $campId;
                     </div>
                 </div>
             </div>
-            <div class="form-group-inner">
-                <div class="row">
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                        <label class="login2 pull-left pull-left-pro">Track visible time on page?</label>
-                    </div>
-                    <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                        <div class="ywb-radios">
-                            <label class="ywb-radio-label"><input type="radio" <?= $c->scripts->timeTrackingUse === false ? 'checked' : '' ?> value="false" name="scripts.events.time.use" data-toggle-target="time_tracking_block" /> No</label>
-                            <label class="ywb-radio-label"><input type="radio" <?= $c->scripts->timeTrackingUse === true ? 'checked' : '' ?> value="true" name="scripts.events.time.use" data-toggle-target="time_tracking_block" /> Yes</label>
-                        </div>
-                    </div>
+            <div class="campaign-setting-row campaign-setting-row-separated script-switch-row">
+                <div class="campaign-setting-label">
+                    <span>Track visible time on page</span>
                 </div>
+                <input type="hidden" id="scripts-time-tracking-use" name="scripts.events.time.use" value="<?= $c->scripts->timeTrackingUse ? 'true' : 'false' ?>" />
+                <label class="campaign-switch" for="scripts-time-tracking-toggle">
+                    <input type="checkbox" id="scripts-time-tracking-toggle" class="campaign-switch-input" data-value-target="scripts-time-tracking-use" data-controls="time_tracking_block" aria-controls="time_tracking_block" aria-label="Track visible time on page" <?= $c->scripts->timeTrackingUse ? 'checked' : '' ?> />
+                    <span class="campaign-switch-track" aria-hidden="true">
+                        <span class="campaign-switch-option campaign-switch-option-off">Off</span>
+                        <span class="campaign-switch-option campaign-switch-option-on">On</span>
+                        <span class="campaign-switch-thumb"></span>
+                    </span>
+                </label>
             </div>
-            <div id="time_tracking_block" style="display:<?= $c->scripts->timeTrackingUse ? 'block' : 'none' ?>;">
+            <div id="time_tracking_block" class="campaign-dependent-settings script-dependent-settings" <?= $c->scripts->timeTrackingUse ? '' : 'hidden' ?>>
                 <div class="form-group-inner">
                     <div class="row">
                         <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
@@ -932,19 +934,22 @@ global $c, $db, $campId;
                     </div>
                 </div>
             </template>
-            <div class="form-group-inner">
-                <div class="row">
-                    <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                        <label class="login2 pull-left pull-left-pro"> Use lazy loading for images?
-                        </label>
-                    </div>
-                    <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                        <div class="ywb-radios">
-                            <label class="ywb-radio-label"><input type="radio" <?= $c->scripts->imagesLazyLoad === false ? 'checked' : '' ?> value="false" name="scripts.imageslazyload" /> No</label>
-                            <label class="ywb-radio-label"><input type="radio" <?= $c->scripts->imagesLazyLoad === true ? 'checked' : '' ?> value="true" name="scripts.imageslazyload" /> Yes</label>
-                        </div>
-                    </div>
+            <div class="flow-group">
+            <span class="flow-group-title">Page Loading</span>
+            <div class="campaign-setting-row script-switch-row">
+                <div class="campaign-setting-label">
+                    <span>Lazy-load images</span>
                 </div>
+                <input type="hidden" id="scripts-images-lazy-load" name="scripts.imageslazyload" value="<?= $c->scripts->imagesLazyLoad ? 'true' : 'false' ?>" />
+                <label class="campaign-switch" for="scripts-images-lazy-load-toggle">
+                    <input type="checkbox" id="scripts-images-lazy-load-toggle" class="campaign-switch-input" data-value-target="scripts-images-lazy-load" aria-label="Lazy-load images" <?= $c->scripts->imagesLazyLoad ? 'checked' : '' ?> />
+                    <span class="campaign-switch-track" aria-hidden="true">
+                        <span class="campaign-switch-option campaign-switch-option-off">Off</span>
+                        <span class="campaign-switch-option campaign-switch-option-on">On</span>
+                        <span class="campaign-switch-thumb"></span>
+                    </span>
+                </label>
+            </div>
             </div>
             </section>
 
@@ -1316,12 +1321,6 @@ global $c, $db, $campId;
             initializeScriptRuleSelects(kind);
         }
 
-        function toggleScriptRulesBlock(targetId, enabled) {
-            const block = document.getElementById(targetId);
-            if (!block) return;
-            block.style.display = enabled ? 'block' : 'none';
-        }
-
         function collectRulesForKind(kind) {
             return Array.from(document.querySelectorAll(`.script-rule-item[data-rule-kind="${kind}"]`)).map((item) => {
                 const flow = item.querySelector('.script-rule-flow')?.value || '*';
@@ -1342,21 +1341,6 @@ global $c, $db, $campId;
                 submit: collectRulesForKind('submit'),
             };
         };
-
-        function syncToggleTarget(targetId) {
-            const checkedRadio = document.querySelector(`input[data-toggle-target="${targetId}"]:checked`);
-            toggleScriptRulesBlock(targetId, checkedRadio?.value === 'true');
-        }
-
-        const toggleTargets = new Set();
-        document.querySelectorAll('input[data-toggle-target]').forEach((radio) => {
-            radio.checked = radio.defaultChecked;
-            toggleTargets.add(radio.dataset.toggleTarget);
-            radio.addEventListener('change', () => {
-                syncToggleTarget(radio.dataset.toggleTarget);
-            });
-        });
-        toggleTargets.forEach(syncToggleTarget);
 
         document.getElementById('add-next-redirect-rule')?.addEventListener('click', () => addScriptRule('next'));
         document.getElementById('add-submit-redirect-rule')?.addEventListener('click', () => addScriptRule('submit'));
