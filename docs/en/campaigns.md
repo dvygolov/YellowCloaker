@@ -5,7 +5,7 @@
 A campaign is the top-level configuration unit. It contains:
 
 - domains
-- white settings
+- Safe Page settings
 - black settings
 - scripts
 - postbacks

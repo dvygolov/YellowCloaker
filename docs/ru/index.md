@@ -13,7 +13,7 @@
 - [Системные настройки](system-settings.md)
 - [Кампании](campaigns.md)
 - [Настройки кампании](campaign-settings.md)
-- [White settings](white-settings.md)
+- [Настройки Safe Page](white-settings.md)
 - [Black settings и flows](black-settings-and-flows.md)
 - [Scripts](scripts.md)
 - [Postbacks](postbacks.md)

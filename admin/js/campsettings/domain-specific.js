@@ -9,13 +9,13 @@ document.querySelectorAll('.white-scope-radio').forEach(function (radio) {
     });
 });
 
-// ── Domain-specific: method radio toggle ──
+// ── Domain-specific: method dropdown toggle ──
 document.addEventListener('change', function (e) {
-    var radio = e.target.closest('.dws-action');
-    if (!radio) return;
-    var section = radio.closest('.dws-section');
+    var actionSelect = e.target.closest('.dws-action');
+    if (!actionSelect) return;
+    var section = actionSelect.closest('.dws-section');
     if (!section) return;
-    var action = radio.value;
+    var action = actionSelect.value;
     section.querySelector('.dws-folder-block').style.display = action === 'folder' ? 'block' : 'none';
     section.querySelector('.dws-redirect-block').style.display = action === 'redirect' ? 'block' : 'none';
     section.querySelector('.dws-curl-block').style.display = action === 'curl' ? 'block' : 'none';
@@ -52,7 +52,7 @@ document.addEventListener('click', function (e) {
         fetch('listfolders.php?type=white').then(function (r) { return r.json(); }).then(function (data) {
             btn.disabled = false;
             if (data.error) { alert(data.result); return; }
-            if (!data.folders.length) { alert('No white page folders found. Upload a ZIP first.'); return; }
+            if (!data.folders.length) { alert('No safe page folders found. Upload a ZIP first.'); return; }
             if (window.openFolderPicker) {
                 window.openFolderPicker(data.folders).then(function (choices) {
                     if (!choices || !choices.length) return;
@@ -73,7 +73,7 @@ document.addEventListener('click', function (e) {
         document.body.appendChild(fileInput);
         fileInput.addEventListener('change', function () {
             if (!fileInput.files.length) { fileInput.remove(); return; }
-            var folderName = prompt('Enter folder name for this white page:', fileInput.files[0].name.replace(/\.zip$/i, ''));
+            var folderName = prompt('Enter folder name for this safe page:', fileInput.files[0].name.replace(/\.zip$/i, ''));
             if (!folderName || !folderName.trim()) { fileInput.remove(); return; }
             var fd = new FormData();
             fd.append('zipfile', fileInput.files[0]);
@@ -135,7 +135,7 @@ document.addEventListener('click', function (e) {
         var section = btn.closest('.dws-section');
         section.querySelector('.dws-error-items').insertAdjacentHTML('beforeend',
             '<div class="form-group-inner dws-error-item"><div class="row">' +
-            '<div class="col-lg-3"><label class="login2 pull-left pull-left-pro">HTTP code:</label></div>' +
+            '<div class="col-lg-3"><label class="login2 pull-left pull-left-pro">HTTP code: <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Examples: 404 Not Found or 200 OK." data-tooltip="Examples: 404 Not Found or 200 OK."></i></label></div>' +
             '<div class="col-lg-3"><input type="text" class="form-control dws-error-code" value="' + escapeHtml(code.trim()) + '" placeholder="404" /></div>' +
             '<div class="col-lg-1"><a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn dws-remove-error" title="Delete"><i class="bi bi-trash"></i></a></div>' +
             '</div></div>');
@@ -171,8 +171,8 @@ window.collectDomainSpecificData = function () {
     var result = [];
     document.querySelectorAll('section.dws-section').forEach(function (section) {
         var domain = section.dataset.domain;
-        var action = 'folder';
-        section.querySelectorAll('.dws-action').forEach(function (r) { if (r.checked) action = r.value; });
+        var actionSelect = section.querySelector('.dws-action');
+        var action = actionSelect ? actionSelect.value : 'folder';
 
         var folders = [];
         var loadmode = {};

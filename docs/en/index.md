@@ -13,7 +13,7 @@ This is the main product, admin, and runtime documentation for YellowTDS.
 - [System Settings](system-settings.md)
 - [Campaigns](campaigns.md)
 - [Campaign Settings](campaign-settings.md)
-- [White Settings](white-settings.md)
+- [Safe Page Settings](white-settings.md)
 - [Black Settings and Flows](black-settings-and-flows.md)
 - [Scripts](scripts.md)
 - [Postbacks](postbacks.md)

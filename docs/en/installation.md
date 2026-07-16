@@ -77,6 +77,6 @@ The installer nginx config denies direct access to:
 - `bases/*.mmdb`, `bases/*.phar`, `bases/*.txt`;
 - `composer.json`, `composer.lock`, `phpunit.xml`, `agents.md`, `AGENTS.md`.
 
-Public entrypoints, admin assets, JS assets, landing/white static assets, thank-you assets, and direct-load routing remain available.
+Public entrypoints, admin assets, JS assets, landing and safe-page static assets, thank-you assets, and direct-load routing remain available.
 
 The installer creates `settings.local.php` next to `settings.php`. No separate nginx deny rule is added for it: it is a PHP script that returns an array and emits no output when requested directly. Further system configuration is managed through **Settings** in the admin panel.

@@ -95,11 +95,11 @@ global $c, $db, $campId;
             <span class="flow-group-title">Scope</span>
             <div class="form-group-inner">
                 <div class="row">
-                    <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">White page mode:</label></div>
+                    <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Safe page mode:</label></div>
                     <div class="col-lg-9">
                         <div class="ywb-radios">
-                            <label class="ywb-radio-label"><input type="radio" <?= !$c->white->domainFilterEnabled ? 'checked' : '' ?> value="false" name="white.domainfilter.use" class="white-scope-radio" /> Global <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Uses the same white page configuration for every campaign domain." data-tooltip="Uses the same white page configuration for every campaign domain."></i></label>
-                            <label class="ywb-radio-label"><input type="radio" <?= $c->white->domainFilterEnabled ? 'checked' : '' ?> value="true" name="white.domainfilter.use" class="white-scope-radio" /> Domain-Specific <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Creates an independent white page configuration for each campaign domain." data-tooltip="Creates an independent white page configuration for each campaign domain."></i></label>
+                            <label class="ywb-radio-label"><input type="radio" <?= !$c->white->domainFilterEnabled ? 'checked' : '' ?> value="false" name="white.domainfilter.use" class="white-scope-radio" /> Global <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Uses the same safe page configuration for every campaign domain." data-tooltip="Uses the same safe page configuration for every campaign domain."></i></label>
+                            <label class="ywb-radio-label"><input type="radio" <?= $c->white->domainFilterEnabled ? 'checked' : '' ?> value="true" name="white.domainfilter.use" class="white-scope-radio" /> Domain-Specific <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Creates an independent safe page configuration for each campaign domain." data-tooltip="Creates an independent safe page configuration for each campaign domain."></i></label>
                         </div>
                     </div>
                 </div>
@@ -112,16 +112,16 @@ global $c, $db, $campId;
             <div class="form-group-inner">
                 <div class="row">
                     <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                        <label class="login2 pull-left pull-left-pro">Choose
+                        <label for="white-action-select" class="login2 pull-left pull-left-pro">Choose
                             method:</label>
                     </div>
-                    <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                        <div class="ywb-radios">
-                            <label class="ywb-radio-label"><input type="radio" <?= $c->white->action === 'folder' ? 'checked' : '' ?> value="folder" name="white.action" onclick="(document.getElementById('b_2').style.display = 'block'); (document.getElementById('b_3').style.display = 'none'); (document.getElementById('b_4').style.display = 'none'); (document.getElementById('b_5').style.display = 'none')" /> Local safe page from folder</label>
-                            <label class="ywb-radio-label"><input type="radio" <?= $c->white->action === 'redirect' ? 'checked' : '' ?> value="redirect" name="white.action" onclick="(document.getElementById('b_2').style.display = 'none'); (document.getElementById('b_3').style.display = 'block'); (document.getElementById('b_4').style.display = 'none'); (document.getElementById('b_5').style.display = 'none')" /> Redirect</label>
-                            <label class="ywb-radio-label"><input type="radio" <?= $c->white->action === 'curl' ? 'checked' : '' ?> value="curl" name="white.action" onclick="(document.getElementById('b_2').style.display = 'none'); (document.getElementById('b_3').style.display = 'none'); (document.getElementById('b_4').style.display = 'block'); (document.getElementById('b_5').style.display = 'none')" /> Load a website using CURL</label>
-                            <label class="ywb-radio-label"><input type="radio" <?= $c->white->action === 'error' ? 'checked' : '' ?> value="error" name="white.action" onclick="(document.getElementById('b_2').style.display = 'none'); (document.getElementById('b_3').style.display = 'none'); (document.getElementById('b_4').style.display = 'none'); (document.getElementById('b_5').style.display = 'block')" /> Return HTTP-code <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Examples: 404 Not Found or 200 OK." data-tooltip="Examples: 404 Not Found or 200 OK."></i></label>
-                        </div>
+                    <div class="col-lg-5 col-md-6 col-sm-6 col-xs-12">
+                        <select id="white-action-select" class="form-select white-action-select" name="white.action">
+                            <option value="folder" <?= $c->white->action === 'folder' ? 'selected' : '' ?>>Local safe page from folder</option>
+                            <option value="redirect" <?= $c->white->action === 'redirect' ? 'selected' : '' ?>>Redirect</option>
+                            <option value="curl" <?= $c->white->action === 'curl' ? 'selected' : '' ?>>Load a website using CURL</option>
+                            <option value="error" <?= $c->white->action === 'error' ? 'selected' : '' ?>>Return HTTP-code</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -133,7 +133,7 @@ global $c, $db, $campId;
                     <div class="form-group-inner white-folder-item">
                         <div class="row">
                             <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Safe page folder:</label></div>
-                            <div class="col-lg-3"><input type="text" class="form-control folder-value-input white-folder-name" value="<?= htmlspecialchars($fn) ?>" placeholder="white1" readonly tabindex="-1" /></div>
+                            <div class="col-lg-3"><input type="text" class="form-control folder-value-input white-folder-name" value="<?= htmlspecialchars($fn) ?>" placeholder="safe1" readonly tabindex="-1" /></div>
                             <div class="col-lg-4"><div class="btn-group campaign-icon-group"><a href="javascript:void(0)" class="btn btn-outline-secondary load-mode-btn" data-mode="<?= htmlspecialchars($c->white->getLoadMode($fn)) ?>" data-modes="base,rewrite,direct" title="Loading mode"><i class="bi <?= match($c->white->getLoadMode($fn)) { 'rewrite' => 'bi-arrow-repeat', 'direct' => 'bi-hdd-network', default => 'bi-house-door' } ?>"></i></a><a href="javascript:void(0)" class="btn btn-warning white-edit-folder" title="Edit files"><i class="bi bi-pencil-square"></i></a><a href="javascript:void(0)" class="btn btn-danger remove-white-folder-item" title="Delete"><i class="bi bi-trash"></i></a></div></div>
                         </div>
                     </div>
@@ -206,7 +206,7 @@ global $c, $db, $campId;
                     <div class="form-group-inner errorcode-item">
                         <div class="row">
                             <div class="col-lg-3 col-md-12 col-sm-12 col-xs-12">
-                                <label class="login2 pull-left pull-left-pro">HTTP code:</label>
+                                <label class="login2 pull-left pull-left-pro">HTTP code: <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Examples: 404 Not Found or 200 OK." data-tooltip="Examples: 404 Not Found or 200 OK."></i></label>
                             </div>
                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                                 <div class="input-group">
@@ -246,15 +246,15 @@ global $c, $db, $campId;
             <div class="form-group-inner">
                 <div class="row">
                     <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                        <label class="login2 pull-left pull-left-pro">Choose method:</label>
+                        <label for="dws-action-<?= $di ?>" class="login2 pull-left pull-left-pro">Choose method:</label>
                     </div>
-                    <div class="col-lg-9 col-md-6 col-sm-6 col-xs-12">
-                        <div class="ywb-radios">
-                            <label class="ywb-radio-label"><input type="radio" <?= $dwAction === 'folder' ? 'checked' : '' ?> value="folder" name="dws_action_<?= $di ?>" class="dws-action" data-di="<?= $di ?>" /> Local safe page from folder</label>
-                            <label class="ywb-radio-label"><input type="radio" <?= $dwAction === 'redirect' ? 'checked' : '' ?> value="redirect" name="dws_action_<?= $di ?>" class="dws-action" data-di="<?= $di ?>" /> Redirect</label>
-                            <label class="ywb-radio-label"><input type="radio" <?= $dwAction === 'curl' ? 'checked' : '' ?> value="curl" name="dws_action_<?= $di ?>" class="dws-action" data-di="<?= $di ?>" /> Load a website using CURL</label>
-                            <label class="ywb-radio-label"><input type="radio" <?= $dwAction === 'error' ? 'checked' : '' ?> value="error" name="dws_action_<?= $di ?>" class="dws-action" data-di="<?= $di ?>" /> Return HTTP-code <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Examples: 404 Not Found or 200 OK." data-tooltip="Examples: 404 Not Found or 200 OK."></i></label>
-                        </div>
+                    <div class="col-lg-5 col-md-6 col-sm-6 col-xs-12">
+                        <select id="dws-action-<?= $di ?>" name="dws_action_<?= $di ?>" class="form-select dws-action" data-di="<?= $di ?>">
+                            <option value="folder" <?= $dwAction === 'folder' ? 'selected' : '' ?>>Local safe page from folder</option>
+                            <option value="redirect" <?= $dwAction === 'redirect' ? 'selected' : '' ?>>Redirect</option>
+                            <option value="curl" <?= $dwAction === 'curl' ? 'selected' : '' ?>>Load a website using CURL</option>
+                            <option value="error" <?= $dwAction === 'error' ? 'selected' : '' ?>>Return HTTP-code</option>
+                        </select>
                     </div>
                 </div>
             </div>
@@ -327,7 +327,7 @@ global $c, $db, $campId;
                 <?php if ($dws) foreach ($dws->errorCodes as $ec) { ?>
                     <div class="form-group-inner dws-error-item">
                         <div class="row">
-                            <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">HTTP code:</label></div>
+                            <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">HTTP code: <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Examples: 404 Not Found or 200 OK." data-tooltip="Examples: 404 Not Found or 200 OK."></i></label></div>
                             <div class="col-lg-3"><input type="text" class="form-control dws-error-code" value="<?= htmlspecialchars($ec) ?>" placeholder="404" /></div>
                             <div class="col-lg-1"><a href="javascript:void(0)" class="btn btn-danger campaign-icon-btn dws-remove-error" title="Delete"><i class="bi bi-trash"></i></a></div>
                         </div>

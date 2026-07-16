@@ -53,7 +53,7 @@ $dataset = $db->get_campaigns(
                     <span class="system-status-value" id="statusDatabaseValue">…</span>
                 </span>
                 <span class="system-status-separator" aria-hidden="true"></span>
-                <span class="system-status-item" id="statusCache" title="All files in the configured cache directory, including landing and white pages">
+                <span class="system-status-item" id="statusCache" title="All files in the configured cache directory, including landing and safe pages">
                     <i class="bi bi-folder2-open" aria-hidden="true"></i>
                     <span class="system-status-label">Cache:</span>
                     <span class="system-status-value" id="statusCacheValue">…</span>

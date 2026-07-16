@@ -1,11 +1,32 @@
 // ── White folder management ──
+var whiteActionSelect = document.querySelector('.white-action-select');
+
+function updateWhiteActionBlocks(action) {
+    var blocks = {
+        folder: document.getElementById('b_2'),
+        redirect: document.getElementById('b_3'),
+        curl: document.getElementById('b_4'),
+        error: document.getElementById('b_5')
+    };
+    Object.keys(blocks).forEach(function (key) {
+        if (blocks[key]) blocks[key].style.display = key === action ? 'block' : 'none';
+    });
+}
+
+if (whiteActionSelect) {
+    whiteActionSelect.addEventListener('change', function () {
+        updateWhiteActionBlocks(this.value);
+    });
+    updateWhiteActionBlocks(whiteActionSelect.value);
+}
+
 function buildWhiteFolderRow(folderName, mode) {
     mode = mode || 'base';
     var info = window.LOAD_MODE_INFO || {};
     var icon = (info[mode] || {}).icon || 'bi-house-door';
     return '<div class="form-group-inner white-folder-item"><div class="row">' +
         '<div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Safe page folder:</label></div>' +
-        '<div class="col-lg-3"><input type="text" class="form-control folder-value-input white-folder-name" value="' + folderName + '" placeholder="white1" readonly tabindex="-1" /></div>' +
+        '<div class="col-lg-3"><input type="text" class="form-control folder-value-input white-folder-name" value="' + folderName + '" placeholder="safe1" readonly tabindex="-1" /></div>' +
         '<div class="col-lg-4"><div class="btn-group campaign-icon-group">' +
         '<a href="javascript:void(0)" class="btn btn-outline-secondary load-mode-btn" data-mode="' + mode + '" data-modes="base,rewrite,direct" title="Loading mode"><i class="bi ' + icon + '"></i></a>' +
         '<a href="javascript:void(0)" class="btn btn-warning white-edit-folder" title="Edit files"><i class="bi bi-pencil-square"></i></a>' +
@@ -38,7 +59,7 @@ document.querySelector('.white-add-existing')?.addEventListener('click', functio
     fetch('listfolders.php?type=white').then(function (r) { return r.json(); }).then(function (data) {
         btn.disabled = false;
         if (data.error) { alert(data.result); return; }
-        if (!data.folders.length) { alert('No white page folders found. Upload a ZIP first.'); return; }
+        if (!data.folders.length) { alert('No safe page folders found. Upload a ZIP first.'); return; }
         if (window.openFolderPicker) {
             window.openFolderPicker(data.folders).then(function (choices) {
                 if (!choices || !choices.length) return;
@@ -62,7 +83,7 @@ document.querySelector('.white-upload-zip')?.addEventListener('click', function 
     fileInput.addEventListener('change', function () {
         if (!fileInput.files.length) { fileInput.remove(); return; }
         var file = fileInput.files[0];
-        var folderName = prompt('Enter folder name for the new white page:');
+        var folderName = prompt('Enter folder name for the new safe page:');
         if (!folderName || !folderName.trim()) { fileInput.remove(); return; }
         folderName = folderName.trim();
         if (!/^[a-zA-Z0-9_\-\.]+$/.test(folderName)) {

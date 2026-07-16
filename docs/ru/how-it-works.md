@@ -7,19 +7,19 @@
 1. Запрос приходит в `index.php`.
 2. Проект определяет кампанию по домену.
 3. `core.php` собирает параметры клика и проверяет фильтры.
-4. `tds.php` выбирает white, black или trafficback.
+4. `tds.php` выбирает Safe Page, offer funnel или trafficback.
 5. Выбранный action выполняется через `main.php`, `actions.php`, `htmlprocessing.php` и связанные части.
 
-## White branch
+## Ветка Safe Page
 
-White-ветка используется для нежелательного трафика. Возможные действия:
+Ветка Safe Page используется для нежелательного трафика. Возможные действия:
 
 - local safe page from folder
 - redirect
 - curl-loaded page
 - HTTP error code
 
-White-настройки могут быть глобальными или domain-specific.
+Настройки Safe Page могут быть глобальными или domain-specific.
 
 ## Black branch
 

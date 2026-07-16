@@ -26,14 +26,14 @@ YellowTDS — TDS для маршрутизации трафика по прав
 
 Система принимает входящий трафик и для каждого запроса решает, что нужно отдать пользователю:
 
-- white-ветку для нежелательного или отфильтрованного трафика
-- black-ветку для целевого трафика
+- Safe Page для нежелательного или отфильтрованного трафика
+- offer funnel для целевого трафика
 - trafficback, если кампания не найдена или не подходит
 
 Ключевые возможности:
 
 - кампании с привязкой по доменам
-- white и black логика
+- Safe Page и offer-funnel логика
 - multi-step funnels и flows
 - equal, weighted и Thompson Sampling distribution
 - JS bot detection
@@ -79,7 +79,7 @@ curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/
    - `logs/`
    - `caching/`
 4. Откройте `/admin/`.
-5. Создайте кампанию, добавьте домены, настройте white/black, сохраните.
+5. Создайте кампанию, добавьте домены, настройте Safe Page и Flows, сохраните.
 
 ## Основные точки входа
 

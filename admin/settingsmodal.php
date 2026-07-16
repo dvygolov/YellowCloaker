@@ -59,8 +59,8 @@
                         <label class="settings-field"><span>Backup folder</span><input type="text" name="backupDir"><small>Update and restore snapshots are stored here. Only the newest five are kept.</small></label>
                         <label class="settings-field"><span>Cache root</span><input type="text" name="cachingDir"></label>
                         <label class="settings-field"><span>Landings</span><input type="text" name="landingFolder"></label>
-                        <label class="settings-field"><span>White pages</span><input type="text" name="whiteFolder"></label>
-                        <label class="settings-field"><span>White CURL cache</span><input type="text" name="whiteCurlCache"></label>
+                        <label class="settings-field"><span>Safe pages</span><input type="text" name="whiteFolder"></label>
+                        <label class="settings-field"><span>Safe Page CURL cache</span><input type="text" name="whiteCurlCache"></label>
                         <label class="settings-field"><span>Device cache</span><input type="text" name="devicesCache"></label>
                         <label class="settings-field"><span>Currency cache</span><input type="text" name="currencyCache"></label>
                         <label class="settings-field"><span>VPN cache</span><input type="text" name="proxyVpnCache"></label>

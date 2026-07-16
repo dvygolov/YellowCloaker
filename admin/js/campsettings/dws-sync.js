@@ -72,13 +72,14 @@ function buildDwsSection(domain) {
         '<h5 class="dws-page-title"><i class="bi bi-globe2" aria-hidden="true"></i>' + safeDomain + ' — Safe Page</h5>' +
         '<div class="flow-group dws-method-group"><span class="flow-group-title">Method</span>' +
         '<div class="form-group-inner"><div class="row">' +
-        '<div class="col-lg-3 col-md-6 col-sm-6 col-xs-12"><label class="login2 pull-left pull-left-pro">Choose method:</label></div>' +
-        '<div class="col-lg-9 col-md-6 col-sm-6 col-xs-12"><div class="ywb-radios">' +
-        '<label class="ywb-radio-label"><input type="radio" checked value="folder" name="' + actName + '" class="dws-action" /> Local safe page from folder</label>' +
-        '<label class="ywb-radio-label"><input type="radio" value="redirect" name="' + actName + '" class="dws-action" /> Redirect</label>' +
-        '<label class="ywb-radio-label"><input type="radio" value="curl" name="' + actName + '" class="dws-action" /> Load a website using CURL</label>' +
-        '<label class="ywb-radio-label"><input type="radio" value="error" name="' + actName + '" class="dws-action" /> Return HTTP-code <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Examples: 404 Not Found or 200 OK." data-tooltip="Examples: 404 Not Found or 200 OK."></i></label>' +
-        '</div></div></div></div>' +
+        '<div class="col-lg-3 col-md-6 col-sm-6 col-xs-12"><label for="' + actName + '" class="login2 pull-left pull-left-pro">Choose method:</label></div>' +
+        '<div class="col-lg-5 col-md-6 col-sm-6 col-xs-12">' +
+        '<select id="' + actName + '" name="' + actName + '" class="form-select dws-action">' +
+        '<option value="folder" selected>Local safe page from folder</option>' +
+        '<option value="redirect">Redirect</option>' +
+        '<option value="curl">Load a website using CURL</option>' +
+        '<option value="error">Return HTTP-code</option>' +
+        '</select></div></div></div>' +
         '<div class="dws-folder-block"><div class="dws-folder-items"></div>' +
         '<a href="javascript:void(0)" class="btn btn-primary campaign-action-btn dws-add-existing"><i class="bi bi-folder-symlink"></i> Add Existing</a> ' +
         '<a href="javascript:void(0)" class="btn btn-info campaign-action-btn dws-upload-zip"><i class="bi bi-upload"></i> Upload ZIP</a></div>' +

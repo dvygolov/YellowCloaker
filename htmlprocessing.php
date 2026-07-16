@@ -284,7 +284,7 @@ function add_images_lazy_load($html)
     return $html;
 }
 
-//load white page from FOLDER
+//load safe page from FOLDER
 function load_white_content($url, string $mode = 'base'): string
 {
     $path = get_cache_path('whiteFolder') . '/' . $url;
@@ -313,7 +313,7 @@ function load_white_content($url, string $mode = 'base'): string
     return $html;
 }
 
-//sanitize white page HTML: remove trackers, og:url, canonical, noscript; add noindex/nofollow
+//sanitize safe page HTML: remove trackers, og:url, canonical, noscript; add noindex/nofollow
 function sanitize_white_html(string $html): string
 {
     //remove everything unneeded
@@ -348,7 +348,7 @@ function sanitize_white_html(string $html): string
     return $html;
 }
 
-//loading white page with CURL
+//loading safe page with CURL
 function load_white_curl(string $url, string $mode = 'rewrite'): string
 {
     $res = get($url);

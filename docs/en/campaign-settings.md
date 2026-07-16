@@ -5,7 +5,7 @@
 The campaign settings page includes:
 
 - Domains
-- White
+- Safe Page
 - Flows
 - Integration
 - Scripts
@@ -21,7 +21,7 @@ The **Domains list** group contains every campaign domain. Each row shows its ch
 
 ![Campaign settings overview](../assets/screenshots/campaign-settings-overview.png)
 
-## White
+## Safe Page
 
 Defines what blocked or filtered traffic receives. The `−/+` control beside **Safe Page** collapses or expands the domain-specific pages in the sidebar. It appears as soon as Domain-Specific mode is selected, and navigating to a domain page expands the branch automatically.
 

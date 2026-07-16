@@ -5,7 +5,7 @@
 Кампания — это верхний уровень настройки. Внутри кампании хранятся:
 
 - domains
-- white settings
+- настройки Safe Page
 - black settings
 - scripts
 - postbacks
