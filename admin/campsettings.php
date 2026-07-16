@@ -133,7 +133,7 @@ global $c, $db, $campId;
                     <div class="form-group-inner white-folder-item">
                         <div class="row">
                             <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Safe page folder:</label></div>
-                            <div class="col-lg-3"><input type="text" class="form-control white-folder-name" value="<?= htmlspecialchars($fn) ?>" placeholder="white1" readonly /></div>
+                            <div class="col-lg-3"><input type="text" class="form-control folder-value-input white-folder-name" value="<?= htmlspecialchars($fn) ?>" placeholder="white1" readonly tabindex="-1" /></div>
                             <div class="col-lg-4"><div class="btn-group campaign-icon-group"><a href="javascript:void(0)" class="btn btn-outline-secondary load-mode-btn" data-mode="<?= htmlspecialchars($c->white->getLoadMode($fn)) ?>" data-modes="base,rewrite,direct" title="Loading mode"><i class="bi <?= match($c->white->getLoadMode($fn)) { 'rewrite' => 'bi-arrow-repeat', 'direct' => 'bi-hdd-network', default => 'bi-house-door' } ?>"></i></a><a href="javascript:void(0)" class="btn btn-warning white-edit-folder" title="Edit files"><i class="bi bi-pencil-square"></i></a><a href="javascript:void(0)" class="btn btn-danger remove-white-folder-item" title="Delete"><i class="bi bi-trash"></i></a></div></div>
                         </div>
                     </div>
@@ -265,7 +265,7 @@ global $c, $db, $campId;
                     <div class="form-group-inner dws-folder-item">
                         <div class="row">
                             <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Safe page folder:</label></div>
-                            <div class="col-lg-3"><input type="text" class="form-control dws-folder-name" value="<?= htmlspecialchars($fn) ?>" readonly /></div>
+                            <div class="col-lg-3"><input type="text" class="form-control folder-value-input dws-folder-name" value="<?= htmlspecialchars($fn) ?>" readonly tabindex="-1" /></div>
                             <div class="col-lg-4"><div class="btn-group campaign-icon-group">
                                 <a href="javascript:void(0)" class="btn btn-outline-secondary load-mode-btn" data-mode="<?= htmlspecialchars($dws->getLoadMode($fn)) ?>" data-modes="base,rewrite,direct" title="Loading mode"><i class="bi <?= match($dws->getLoadMode($fn)) { 'rewrite' => 'bi-arrow-repeat', 'direct' => 'bi-hdd-network', default => 'bi-house-door' } ?>"></i></a>
                                 <a href="javascript:void(0)" class="btn btn-warning dws-edit-folder" title="Edit files"><i class="bi bi-pencil-square"></i></a>
@@ -607,7 +607,7 @@ global $c, $db, $campId;
                     <div class="form-group-inner flow-path-item">
                         <div class="row">
                             <div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Folder:</label></div>
-                            <div class="col-lg-3"><input type="text" class="form-control flow-step-folder" value="<?= htmlspecialchars($fn) ?>" placeholder="folder1" readonly /></div>
+                            <div class="col-lg-3"><input type="text" class="form-control folder-value-input flow-step-folder" value="<?= htmlspecialchars($fn) ?>" placeholder="folder1" readonly tabindex="-1" /></div>
                             <div class="col-lg-2 flow-weight-col" style="display:<?= $flow->distribution === 'weighted' ? 'block' : 'none' ?>">
                                 <input type="number" step="1" class="form-control flow-step-weight" value="<?= $step->weights[$ii] ?? '' ?>" placeholder="%" style="width:70px" />
                             </div>
@@ -1419,7 +1419,7 @@ global $c, $db, $campId;
         
     </script>
     <script type="module" src="js/campsettings/load-mode.js"></script>
-    <script type="module" src="js/campsettings/white-pages.js"></script>
+    <script type="module" src="js/campsettings/white-pages.js?v=<?= filemtime(__DIR__ . '/js/campsettings/white-pages.js') ?>"></script>
     <script type="module" src="js/campsettings/domain-specific.js?v=<?= filemtime(__DIR__ . '/js/campsettings/domain-specific.js') ?>"></script>
     <script>window._dwsCounterInit = <?= count($c->domains) ?>;</script>
     <script type="module" src="js/campsettings/dws-sync.js?v=<?= filemtime(__DIR__ . '/js/campsettings/dws-sync.js') ?>"></script>
@@ -1454,33 +1454,37 @@ global $c, $db, $campId;
     <!-- Folder Picker Modal -->
     <div id="folderPickerModal" class="ywbmodal" style="max-width:420px !important;">
         <div class="fp-modal-content">
-            <div class="fp-modal-header"><h5 style="margin:0;font-size:18px;color:#e2e8f0;">Select Folder</h5></div>
+            <div class="fp-modal-header"><h5 style="margin:0;font-size:18px;color:#e2e8f0;">Select Folders</h5></div>
             <div class="fp-modal-body">
                 <input type="text" id="fp-search" placeholder="Search..." class="fp-search-input">
                 <div id="fp-list" class="fp-list-wrap"></div>
                 <div id="fp-empty" style="display:none;color:#94a3b8;text-align:center;padding:20px 0;">No folders found. Upload a ZIP first.</div>
             </div>
             <div class="fp-modal-footer">
-                <button type="button" class="btn btn-default campaign-action-btn" id="fp-cancel">Cancel</button>
-                <button type="button" class="btn btn-info campaign-action-btn" id="fp-ok">OK</button>
+                <button type="button" class="btn btn-secondary campaign-action-btn" id="fp-cancel">Cancel</button>
+                <button type="button" class="btn btn-info campaign-action-btn" id="fp-ok" disabled>Add selected</button>
             </div>
         </div>
     </div>
     <style>
         #folderPickerModal{background:#151b2d !important;padding:0 !important;border-radius:12px !important;overflow:hidden !important;}
-        .fp-modal-content{display:flex;flex-direction:column;max-height:80vh;}
+        .fp-modal-content{display:grid;grid-template-rows:auto minmax(0,1fr) auto;max-height:80vh;min-height:0;}
         .fp-modal-header{padding:12px 16px;border-bottom:1px solid #2a3245;}
-        .fp-modal-body{padding:12px 16px;flex:1;overflow:hidden;display:flex;flex-direction:column;}
+        .fp-modal-body{padding:12px 16px;min-height:0;overflow:hidden;display:flex;flex-direction:column;}
         .fp-search-input{width:100%;padding:6px 12px;background:#1a2235;border:1px solid #2a3245;border-radius:6px;color:#e2e8f0;font-size:14px;margin-bottom:10px;}
         .fp-search-input:focus{outline:none;border-color:#0084ff;}
-        .fp-list-wrap{max-height:45vh;overflow-y:auto;}
+        .fp-list-wrap{min-height:0;max-height:min(480px,50vh);overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding-right:4px;}
         .fp-list-wrap::-webkit-scrollbar{width:8px;}
         .fp-list-wrap::-webkit-scrollbar-track{background:#1a2235;border-radius:4px;}
         .fp-list-wrap::-webkit-scrollbar-thumb{background:#2d3748;border-radius:4px;}
         .fp-modal-footer{padding:12px 16px;border-top:1px solid #2a3245;display:flex;justify-content:flex-end;gap:8px;}
-        #fp-list label{display:block;padding:8px 12px;margin:0;border-radius:6px;cursor:pointer;color:#e2e8f0;font-size:14px;transition:background .15s}
+        #fp-list label{display:flex;align-items:center;gap:10px;padding:8px 12px;margin:0;border-radius:6px;cursor:pointer;color:#e2e8f0;font-size:14px;transition:background .15s}
         #fp-list label:hover{background:#1e2a3f}
-        #fp-list input[type=radio]{margin-right:10px;accent-color:#0084ff}
+        #fp-list input[type=checkbox]{appearance:none;-webkit-appearance:none;position:relative;flex:0 0 auto;width:18px;height:18px;margin:0;border:2px solid #667a9b;border-radius:4px;background:transparent;cursor:pointer}
+        #fp-list input[type=checkbox]:checked{border-color:#0084ff;background:#0084ff}
+        #fp-list input[type=checkbox]:checked::after{content:"";position:absolute;left:5px;top:1px;width:5px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+        #fp-list input[type=checkbox]:focus-visible{outline:2px solid rgba(64,153,255,.65);outline-offset:2px}
+        .fp-folder-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
         #fp-list label.fp-selected{background:#1a2a45}
     </style>
 
@@ -1528,7 +1532,7 @@ global $c, $db, $campId;
     <template id="tpl-folder-row">
         <div class="form-group-inner flow-path-item"><div class="row">
             <div class="col-lg-3"><label class="login2 pull-left pull-left-pro" data-role="folder-label">Folder:</label></div>
-            <div class="col-lg-3"><input type="text" class="form-control" data-role="folder-input" value="" placeholder="folder" readonly /></div>
+            <div class="col-lg-3"><input type="text" class="form-control folder-value-input" data-role="folder-input" value="" placeholder="folder" readonly tabindex="-1" /></div>
             <div class="col-lg-2 flow-weight-col" style="display:none">
                 <input type="number" step="1" class="form-control" data-role="weight-input" value="" placeholder="%" style="width:70px" /></div>
             <div class="col-lg-3"><div class="btn-group campaign-icon-group">

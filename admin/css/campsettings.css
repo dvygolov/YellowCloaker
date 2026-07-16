@@ -300,6 +300,16 @@
     justify-content: center;
 }
 
+/* modal-common.css adds spacing above generic button groups; campaign row
+ * actions sit beside an input and must share its top/bottom alignment. */
+.camp-content .campaign-icon-group {
+    margin-top: 0;
+}
+
+.campaign-icon-group > .btn {
+    min-height: 40px;
+}
+
 .campaign-action-btn {
     gap: 0.25rem;
 }
@@ -321,6 +331,14 @@
 .camp-content textarea.form-control::placeholder {
     color: #8ea0bf;
     opacity: 1;
+}
+
+/* Folder names are identifiers selected from the picker, not editable fields. */
+.camp-content input.folder-value-input[readonly] {
+    pointer-events: none;
+    caret-color: transparent;
+    cursor: default;
+    user-select: none;
 }
 
 /* Query builder: make Add rule / Add group buttons blue instead of green */

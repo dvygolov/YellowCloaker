@@ -54,7 +54,8 @@ export function buildFolderRow(folderName, showWeight) {
     var folderInput = frag.querySelector('[data-role="folder-input"]');
     if (folderInput) {
         folderInput.value = folderName;
-        folderInput.className = 'form-control flow-step-folder';
+        folderInput.className = 'form-control folder-value-input flow-step-folder';
+        folderInput.tabIndex = -1;
     }
 
     var weightCol = frag.querySelector('.flow-weight-col');

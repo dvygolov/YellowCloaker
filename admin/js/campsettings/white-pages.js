@@ -5,7 +5,7 @@ function buildWhiteFolderRow(folderName, mode) {
     var icon = (info[mode] || {}).icon || 'bi-house-door';
     return '<div class="form-group-inner white-folder-item"><div class="row">' +
         '<div class="col-lg-3"><label class="login2 pull-left pull-left-pro">Safe page folder:</label></div>' +
-        '<div class="col-lg-3"><input type="text" class="form-control white-folder-name" value="' + folderName + '" placeholder="white1" readonly /></div>' +
+        '<div class="col-lg-3"><input type="text" class="form-control folder-value-input white-folder-name" value="' + folderName + '" placeholder="white1" readonly tabindex="-1" /></div>' +
         '<div class="col-lg-4"><div class="btn-group campaign-icon-group">' +
         '<a href="javascript:void(0)" class="btn btn-outline-secondary load-mode-btn" data-mode="' + mode + '" data-modes="base,rewrite,direct" title="Loading mode"><i class="bi ' + icon + '"></i></a>' +
         '<a href="javascript:void(0)" class="btn btn-warning white-edit-folder" title="Edit files"><i class="bi bi-pencil-square"></i></a>' +
@@ -40,9 +40,11 @@ document.querySelector('.white-add-existing')?.addEventListener('click', functio
         if (data.error) { alert(data.result); return; }
         if (!data.folders.length) { alert('No white page folders found. Upload a ZIP first.'); return; }
         if (window.openFolderPicker) {
-            window.openFolderPicker(data.folders).then(function (choice) {
-                if (!choice) return;
-                document.getElementById('white_folder_container').insertAdjacentHTML('beforeend', buildWhiteFolderRow(choice));
+            window.openFolderPicker(data.folders).then(function (choices) {
+                if (!choices || !choices.length) return;
+                choices.forEach(function (folder) {
+                    document.getElementById('white_folder_container').insertAdjacentHTML('beforeend', buildWhiteFolderRow(folder));
+                });
             });
         }
     }).catch(function (err) { btn.disabled = false; alert('Error: ' + err); });

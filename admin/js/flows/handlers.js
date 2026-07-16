@@ -1,6 +1,6 @@
 import { getFlowDist, redistributeWeights, redistributeWeightsAfterDelete } from './weights.js?v=16072602';
-import { buildFolderRow, buildRedirectRow, buildFlowSection, buildStepSection, buildStepListRow, renumberSteps, updateStepListInfo, updateAllStepListInfo, updateStepControls } from './templates.js?v=16072602';
-import { openFolderPicker } from './folder-picker.js?v=16072602';
+import { buildFolderRow, buildRedirectRow, buildFlowSection, buildStepSection, buildStepListRow, renumberSteps, updateStepListInfo, updateAllStepListInfo, updateStepControls } from './templates.js?v=16072603';
+import { openFolderPicker } from './folder-picker.js?v=16072603';
 import { handleZipUpload } from './zip-upload.js?v=16072602';
 import { initializeStepSortable } from './reordering.js?v=16072602';
 
@@ -81,9 +81,11 @@ export function handleStepAddExisting(e) {
         if (data.error) { alert(data.result); return; }
         if (!data.folders.length) { alert('No folders found. Upload a ZIP first.'); return; }
 
-        openFolderPicker(data.folders).then(function (choice) {
-            if (!choice) return;
-            container.appendChild(buildFolderRow(choice, showWeight));
+        openFolderPicker(data.folders).then(function (choices) {
+            if (!choices || !choices.length) return;
+            choices.forEach(function (folder) {
+                container.appendChild(buildFolderRow(folder, showWeight));
+            });
             if (showWeight) {
                 redistributeWeights(container.querySelectorAll('.flow-step-weight'));
             }
