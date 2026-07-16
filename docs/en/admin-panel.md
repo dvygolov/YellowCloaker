@@ -21,7 +21,7 @@
 
 The **DB** size includes the main SQLite file and its WAL/SHM sidecar files. **Cache** covers the complete configured cache directory, including uploaded landing and safe pages. Values are recalculated at most once per minute so large directories do not slow down the Dashboard. Free disk space is highlighted in yellow below 15% and red below 5%.
 
-The **Settings** button opens [system settings](system-settings.md), plugin controls, and update actions. The GeoBases date in the header is informational.
+The **Settings** button opens [system settings](system-settings.md), plugin controls, and update actions. The **Logs** status item opens the [server log viewer](testing-and-diagnostics.md#server-logs). The GeoBases date in the header is informational.
 
 ## File Management
 

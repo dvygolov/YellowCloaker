@@ -52,7 +52,7 @@ class AutoUpdater {
 
             return $latestTimestamp > $currentTimestamp;
         } catch (Exception $e) {
-            error_log("Update check failed: " . $e->getMessage());
+            ytds_log('error', 'admin', $e->getMessage(), ['action' => 'update-check']);
             return false;
         }
     }

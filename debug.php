@@ -41,8 +41,7 @@ class DebugMethods
     {
         set_exception_handler(function (\Throwable $exception) {
             $msg = "Unhandled exception: " . $exception->getMessage() . " in " . $exception->getFile() . " on line " . $exception->getLine();
-            error_log($msg);
-            add_error_log($msg);
+            ytds_log('error', 'application', $msg);
 
             if ($exception instanceof RuntimeException && str_starts_with($exception->getMessage(), 'Configuration error:')) {
                 http_response_code(500);

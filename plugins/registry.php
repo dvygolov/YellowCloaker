@@ -120,6 +120,8 @@ final class PluginRegistry
     private static function addError(string $type, string $file, string $error): void
     {
         self::$errors[] = ['type' => $type, 'file' => basename($file), 'error' => $error];
-        error_log("[plugins:$type] " . basename($file) . ': ' . $error);
+        if (function_exists('ytds_log')) {
+            ytds_log('error', 'plugins', $error, ['type' => $type, 'file' => basename($file)]);
+        }
     }
 }

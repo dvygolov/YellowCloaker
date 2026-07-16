@@ -70,7 +70,7 @@ function backups_handle_request(): void
 
         backups_send(['error' => 'Invalid action'], 422);
     } catch (Throwable $e) {
-        error_log('[backups] ' . $e->getMessage());
+        ytds_log('error', 'admin', $e->getMessage(), ['action' => 'backups']);
         backups_send(['error' => $e->getMessage()], 500);
     }
 }

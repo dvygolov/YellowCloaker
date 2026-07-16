@@ -39,6 +39,7 @@ class SettingsManagerTest extends TestCase
     {
         $settings = $this->manager->load();
         $this->assertSame('admin', $settings['adminPath']);
+        $this->assertSame(30, $settings['logRetentionDays']);
         $this->assertSame(0, $this->manager->revision());
         $this->assertFileDoesNotExist($this->root . '/settings.local.php');
     }
@@ -102,6 +103,18 @@ class SettingsManagerTest extends TestCase
         }
         $this->assertFileExists($this->root . '/db/clicks.db');
         $this->assertFileDoesNotExist($this->root . '/db/renamed.db');
+    }
+
+    public function testLogRetentionMustBeWithinSupportedRange(): void
+    {
+        $settings = $this->manager->load();
+        $settings['logRetentionDays'] = 0;
+        try {
+            $this->manager->save($settings, 0, $this->catalog);
+            $this->fail('Expected validation exception');
+        } catch (SettingsValidationException $e) {
+            $this->assertArrayHasKey('logRetentionDays', $e->errors);
+        }
     }
 
     public function testBackupDirectoryCannotOverlapSystemStorage(): void

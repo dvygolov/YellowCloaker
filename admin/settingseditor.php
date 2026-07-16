@@ -72,7 +72,7 @@ function settingseditor_handle_request(): void
     } catch (SettingsValidationException $e) {
         settingseditor_send(['error' => $e->getMessage(), 'fields' => $e->errors], 422);
     } catch (Throwable $e) {
-        error_log('[settings] ' . $e->getMessage());
+        ytds_log('error', 'admin', $e->getMessage(), ['action' => 'settings']);
         settingseditor_send(['error' => $e->getMessage()], 500);
     }
 }

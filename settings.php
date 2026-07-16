@@ -35,6 +35,7 @@ final class SettingsManager
             'backupDir' => 'backups',
             'useUTP' => false,
             'debug' => true,
+            'logRetentionDays' => 30,
             'cachingDir' => 'caching',
             'landingFolder' => 'landings',
             'whiteFolder' => 'whites',
@@ -404,6 +405,14 @@ final class SettingsManager
                 $errors['adminPath'] = 'Target admin directory already exists';
             } else {
                 $operations[] = ['type' => 'rename', 'from' => $oldAdmin, 'to' => $newAdmin];
+            }
+        }
+        if (!is_int($next['logRetentionDays'] ?? null) && !is_numeric($next['logRetentionDays'] ?? null)) {
+            $errors['logRetentionDays'] = 'Must be a whole number';
+        } else {
+            $next['logRetentionDays'] = (int)$next['logRetentionDays'];
+            if ($next['logRetentionDays'] < 1 || $next['logRetentionDays'] > 3650) {
+                $errors['logRetentionDays'] = 'Use a value from 1 to 3650 days';
             }
         }
 

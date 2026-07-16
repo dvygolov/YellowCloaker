@@ -46,6 +46,13 @@
                         <label><input type="checkbox" name="useUTP"> Use Universal Thank You Page</label>
                         <label><input type="checkbox" name="debug"> Debug mode</label>
                     </div>
+                    <div class="settings-grid" style="margin-top: 14px;">
+                        <label class="settings-field">
+                            <span>Log retention (days)</span>
+                            <input type="number" name="logRetentionDays" min="1" max="3650" step="1">
+                            <small>Structured server logs older than this are removed automatically.</small>
+                        </label>
+                    </div>
                 </section>
 
                 <section class="settings-tab-panel" data-settings-panel="storage">

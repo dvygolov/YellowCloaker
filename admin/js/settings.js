@@ -71,6 +71,7 @@
         field('adminPassword').value = '';
         field('useUTP').checked = !!settings.useUTP;
         field('debug').checked = !!settings.debug;
+        field('logRetentionDays').value = settings.logRetentionDays ?? 30;
     }
 
     function renderCurrentIp(ip) {
@@ -190,6 +191,7 @@
             .forEach((name) => { settings[name] = field(name).value.trim(); });
         settings.useUTP = field('useUTP').checked;
         settings.debug = field('debug').checked;
+        settings.logRetentionDays = Number.parseInt(field('logRetentionDays').value, 10);
         settings.plugins = {
             currency: { items: collectPluginItems('currency') },
             vpn: { mode: node('#vpnMode').value, items: collectPluginItems('vpn') },

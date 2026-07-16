@@ -11,7 +11,7 @@ try {
     $status = (new SystemStatus(dirname(__DIR__), $cloSettings))->get();
     echo json_encode($status, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 } catch (Throwable $exception) {
-    error_log('[system-status] ' . $exception->getMessage());
+    ytds_log('error', 'admin', $exception->getMessage(), ['action' => 'system-status']);
     http_response_code(500);
     echo json_encode(['error' => 'Unable to read system status']);
 }

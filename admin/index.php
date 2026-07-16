@@ -59,11 +59,11 @@ $dataset = $db->get_campaigns(
                     <span class="system-status-value" id="statusCacheValue">…</span>
                 </span>
                 <span class="system-status-separator" aria-hidden="true"></span>
-                <span class="system-status-item" id="statusLogs" title="All YellowTDS log files">
+                <a class="system-status-item" id="statusLogs" href="logs.php" title="Open YellowTDS server logs">
                     <i class="bi bi-journal-text" aria-hidden="true"></i>
                     <span class="system-status-label">Logs:</span>
                     <span class="system-status-value" id="statusLogsValue">…</span>
-                </span>
+                </a>
             </div>
             <div class="buttons-right">
                 <button id="resetFilters" title="Reset all filters" class="btn btn-outline-danger" style="<?= $hasActiveFilters ? '' : 'display:none;' ?>"><i

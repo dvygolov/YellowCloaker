@@ -1,0 +1,39 @@
+.logs-page { min-height: 100vh; background: #111d35; color: #d7dce2; }
+.logs-content { padding: 8px 30px 40px; }
+.logs-filters { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 18px; margin-bottom: 18px; background: #1d2a48; border: 1px solid #2a3f6a; border-radius: 8px; }
+.logs-filters > label, .logs-filter-group { display: flex; flex-direction: column; gap: 6px; color: #aeb6c0; }
+.logs-filters input, .logs-filters select { background: #111b31; border-color: #2a3f6a; color: #e8ebef; }
+.logs-search { min-width: 0; }
+.logs-filter-top { display: flex; align-items: end; justify-content: space-between; gap: 18px; }
+.logs-filter-top .logs-search { flex: 0 1 520px; }
+.logs-filter-bar { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; align-items: end; }
+.logs-chip-filter { min-width: 0; }
+.logs-filter-label { display: block; margin-bottom: 6px; color: #aeb6c0; }
+.logs-chip-row { display: flex; align-items: flex-start; min-height: 42px; padding: 5px 6px 5px 8px; background: #111b31; border: 1px solid #2a3f6a; border-radius: 5px; }
+.logs-chips { display: flex; flex: 1 1 auto; flex-wrap: wrap; min-width: 0; gap: 5px; align-items: center; overflow: visible; }
+.logs-chip { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 5px; padding: 4px 5px 4px 9px; border: 1px solid #3a5f9a; border-radius: 14px; background: #203457; color: #e3e7ec; font-size: 13px; line-height: 1; }
+.logs-chip small { color: #9da7b2; }
+.logs-chip button { width: 18px; height: 18px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: #aeb7c2; font-size: 17px; line-height: 16px; cursor: pointer; }
+.logs-chip button:hover { background: rgba(255,255,255,.12); color: #fff; }
+.logs-chip-empty { color: #737e8a; font-size: 13px; white-space: nowrap; }
+.chip-trace { border-color: #68727d; } .chip-info { border-color: #397fbe; } .chip-warning { border-color: #a98731; } .chip-error { border-color: #a84850; }
+.logs-chip-add { flex: 0 0 auto; align-self: flex-start; width: 78px; margin-left: 6px; padding: 4px 22px 4px 7px; border: 0 !important; background-color: #17243b !important; color: #c7d5e8 !important; font-size: 13px; cursor: pointer; }
+.logs-filter-actions { display: flex; gap: 8px; align-items: center; justify-content: flex-end; white-space: nowrap; }
+.logs-stream { display: flex; flex-direction: column; gap: 7px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.log-entry { padding: 11px 14px; background: #17243b; border-left: 4px solid #697582; border-radius: 5px; overflow-wrap: anywhere; }
+.log-entry.log-trace { border-left-color: #697582; opacity: .82; }
+.log-entry.log-info { border-left-color: #4ba3ff; }
+.log-entry.log-warning { border-left-color: #f0c24b; }
+.log-entry.log-error { border-left-color: #ef6262; background: #281f35; }
+.log-meta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 5px; font-size: 12px; color: #8f99a6; }
+.log-level { font-weight: 700; }
+.log-info .log-level { color: #73b9ff; } .log-warning .log-level { color: #f0c24b; } .log-error .log-level { color: #ff7979; }
+.log-source { padding: 1px 7px; border-radius: 10px; background: #2a3f6a; color: #d8e4f3; }
+.log-message { white-space: normal; color: #e3e7ec; }
+.log-entry details { margin-top: 8px; color: #9ea8b4; }
+.log-entry pre { margin: 7px 0 0; padding: 9px; background: #0d1830; color: #b9c7d9; border-radius: 4px; white-space: pre-wrap; }
+.logs-empty { padding: 40px; text-align: center; color: #8f9fb5; background: #152036; border-radius: 6px; }
+.logs-more { display: flex; justify-content: center; margin-top: 18px; }
+@media (max-width: 900px) { .logs-filter-top { align-items: stretch; flex-direction: column; } .logs-filter-top .logs-search { flex-basis: auto; } .logs-filter-actions { justify-content: flex-start; } }
+@media (max-width: 800px) { .logs-filter-bar { grid-template-columns: 1fr; } }
+@media (max-width: 620px) { .logs-content { padding: 8px 12px 30px; } .logs-filter-actions { flex-wrap: wrap; } }
