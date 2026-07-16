@@ -29,7 +29,7 @@ Defines what blocked or filtered traffic receives. The `−/+` control beside **
 
 Defines the black branch routing for allowed traffic.
 
-**Save user flow (Sticky)** and **JS Bot Detection** use explicit On/Off switches. JS Bot Detection settings appear only while its switch is On; the extra framed group is no longer used.
+**Save user path (Sticky)** and **JS Bot Detection** use explicit On/Off switches. Save user path reuses the same step variants when the visitor returns to a previously visited flow; flow matching itself still runs on every visit. JS Bot Detection settings appear only while its switch is On; the extra framed group is no longer used.
 
 Flows and steps use the same drag handle to the left of their names. The previous up/down arrow controls are no longer used.
 

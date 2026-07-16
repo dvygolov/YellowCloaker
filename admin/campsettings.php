@@ -358,8 +358,8 @@ global $c, $db, $campId;
             <hr/>
             <div class="campaign-setting-row">
                 <div class="campaign-setting-label">
-                    <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Keeps the visitor in the same flow on future visits." data-tooltip="Keeps the visitor in the same flow on future visits."></i>
-                    <span>Save user flow (Sticky)</span>
+                    <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Keeps the same step variants when the visitor returns to the same flow." data-tooltip="Keeps the same step variants when the visitor returns to the same flow."></i>
+                    <span>Save user path (Sticky)</span>
                 </div>
                 <input type="hidden" id="save-user-flow-value" name="saveuserflow" value="<?= $c->saveUserFlow ? 'true' : 'false' ?>" />
                 <label class="campaign-switch" for="save-user-flow-toggle">
@@ -368,7 +368,7 @@ global $c, $db, $campId;
                         id="save-user-flow-toggle"
                         class="campaign-switch-input"
                         data-value-target="save-user-flow-value"
-                        aria-label="Save user flow"
+                        aria-label="Save user path"
                         <?= $c->saveUserFlow ? 'checked' : '' ?>
                     />
                     <span class="campaign-switch-track" aria-hidden="true">
