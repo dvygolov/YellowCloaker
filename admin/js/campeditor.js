@@ -38,6 +38,9 @@ function closeCampMenu() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    // The campaign action menu is shared through scripts.php, but only campaign
+    // pages provide its trigger and styles. Do not inject the template elsewhere.
+    if (!document.querySelector('#campaigns, #renameCampaign')) return;
     campMenuDropdown = document.createElement('div');
     campMenuDropdown.className = 'camp-menu-dropdown';
     campMenuDropdown.innerHTML = `
