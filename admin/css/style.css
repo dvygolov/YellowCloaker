@@ -201,6 +201,13 @@ body {
     min-width: 100%;
 }
 
+/* The outer wrapper owns horizontal scrolling, so the TOTAL row must span all columns too. */
+.tabulator-scroll-wrapper .tabulator .tabulator-footer .tabulator-calcs-holder {
+    width: max-content;
+    min-width: 100%;
+    overflow: visible;
+}
+
 .buttons-block {
     margin-bottom: 5px;
 }
