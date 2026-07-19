@@ -37,23 +37,41 @@ function get_cookie($name): string
 
 function get_userid(): string
 {
-    return get_cookie('userid');
+    return isset($_COOKIE['userid']) && is_string($_COOKIE['userid']) ? $_COOKIE['userid'] : '';
 }
 
 function set_userid(): string
 {
     $uid = get_userid();
     if (empty($uid)) {
-        $uid = uniqid();
+        $uid = generate_userid();
     }
-    set_cookie('userid', $uid);
+    set_userid_cookie($uid);
     return $uid;
 }
 
-function generate_clickid(string $userid): string
+function generate_userid(): string
 {
-    $raw = hash('xxh128', $userid . microtime(true), true);
-    return substr(strtr(rtrim(base64_encode($raw), '='), '+/', '-_'), 0, 12);
+    return rtrim(strtr(base64_encode(random_bytes(16)), '+/', '-_'), '=');
+}
+
+function set_userid_cookie(string $userid): void
+{
+    $isSecure = function_exists('is_https')
+        ? is_https()
+        : (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+    setcookie('userid', $userid, [
+        'expires' => time() + 30 * 24 * 60 * 60,
+        'path' => '/',
+        'secure' => $isSecure,
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+}
+
+function generate_clickid(string $userid = ''): string
+{
+    return rtrim(strtr(base64_encode(random_bytes(16)), '+/', '-_'), '=');
 }
 
 function set_clickid(string $clickid): void

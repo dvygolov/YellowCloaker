@@ -17,3 +17,17 @@ document.querySelectorAll('.campaign-switch-input').forEach((toggle) => {
     syncBooleanSwitch(toggle);
     toggle.addEventListener('change', () => syncBooleanSwitch(toggle));
 });
+
+const uniquenessMethod = document.getElementById('uniqueness-method');
+const uniquenessGetRow = document.getElementById('uniqueness-get-row');
+
+function syncUniquenessMethodVisibility() {
+    if (!uniquenessMethod || !uniquenessGetRow) {
+        return;
+    }
+
+    uniquenessGetRow.hidden = uniquenessMethod.value !== 'get';
+}
+
+uniquenessMethod?.addEventListener('change', syncUniquenessMethodVisibility);
+syncUniquenessMethodVisibility();

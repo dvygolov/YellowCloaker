@@ -141,6 +141,14 @@ document.getElementById("campsettings")?.addEventListener("submit", async (e) =>
     payload.white.domainfilter = payload.white.domainfilter || {};
     payload.white.filters = rules;
     payload.black.flows = JSON.parse(flowsJson);
+    if ((payload.uniqueness?.enabled === false || payload.uniqueness?.enabled === 'false')
+        && typeof getUniquenessRuleFlowNames === 'function') {
+        const affectedFlows = getUniquenessRuleFlowNames();
+        if (affectedFlows.length) {
+            showToast('Remove uniqueness rules from: ' + affectedFlows.join(', '), true);
+            return false;
+        }
+    }
     payload.white.folders = whiteData.folders;
     payload.white.loadmode = whiteData.loadmode;
     payload.domains = domainsData;
@@ -167,7 +175,7 @@ document.getElementById("campsettings")?.addEventListener("submit", async (e) =>
         });
         let js = await res.json();
         if (js.error) {
-            showToast("Error!", true);
+            showToast(js.result || "Error!", true);
         } else {
             showToast("Settings Saved", false);
         }

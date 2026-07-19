@@ -36,3 +36,7 @@
 ## Timezone
 
 Date grouping зависит от timezone, заданного в statistics settings кампании.
+
+## Уникальные клики
+
+**Uniques** считает Campaign unique, а **Flow uniques** — уникальные входы по flows и доступен без Group by Flow. **U/C**, **EPuC** и **CPuC** используют Campaign uniques. Старые строки не пересчитываются; для полностью старых и смешанных групп отображается `—`. Подробнее: [Подсчёт уникальности](uniqueness.md).

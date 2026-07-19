@@ -104,6 +104,7 @@ class AvailableColumns
     static $statsColumns = [
         "clicks",
         "uniques",
+        "flow_uniques",
         "uniques_ratio",
         "cra",
         "crs",
@@ -398,7 +399,17 @@ class TableColumns
             "field" => "uniques",
             "sorter" => "number",
             "hozAlign" => "right",
-            "bottomCalc" => "sum"
+            "formatter" => "FSTARTfunction(cell){var v=cell.getValue();return v===null||v===undefined?'—':v;}FEND",
+            "bottomCalc" => "FSTARTfunction(v,d){if(d.some(function(r){return r.uniques===null||r.uniques===undefined;}))return '—';return v.reduce(function(a,b){return a+(Number(b)||0);},0);}FEND"
+        ],
+        'flow_uniques' => [
+            "title" => "Flow uniques",
+            "headerTooltip" => "Sum of unique entries into flows",
+            "field" => "flow_uniques",
+            "sorter" => "number",
+            "hozAlign" => "right",
+            "formatter" => "FSTARTfunction(cell){var v=cell.getValue();return v===null||v===undefined?'—':v;}FEND",
+            "bottomCalc" => "FSTARTfunction(v,d){if(d.some(function(r){return r.flow_uniques===null||r.flow_uniques===undefined;}))return '—';return v.reduce(function(a,b){return a+(Number(b)||0);},0);}FEND"
         ],
         'uniques_ratio' => [
             "title" => "U/C",
@@ -407,7 +418,7 @@ class TableColumns
             "sorter" => "number",
             "hozAlign" => "right",
             "width" => 76,
-            "formatter" => "money",
+            "formatter" => "FSTARTfunction(cell){var v=cell.getValue();return v===null||v===undefined?'—':Number(v).toFixed(2)+'%';}FEND",
             "formatterParams" => [
                 "decimal" => ".",
                 "thousand" => ",",
@@ -415,8 +426,8 @@ class TableColumns
                 "symbolAfter" => true,
                 "precision" => 2,
             ],
-            "bottomCalc" => "FSTARTfunction(v,d){var u=0,c=0;d.forEach(function(r){u+=r.uniques||0;c+=r.clicks||0;});return c===0?0:Math.round(u/c*10000)/100;}FEND",
-            "bottomCalcFormatter" => "money",
+            "bottomCalc" => "FSTARTfunction(v,d){if(d.some(function(r){return r.uniques===null||r.uniques===undefined;}))return '—';var u=0,c=0;d.forEach(function(r){u+=r.uniques||0;c+=r.clicks||0;});return c===0?0:Math.round(u/c*10000)/100;}FEND",
+            "bottomCalcFormatter" => "FSTARTfunction(cell){var v=cell.getValue();return v==='—'?'—':Number(v).toFixed(2)+'%';}FEND",
             "bottomCalcFormatterParams" => [
                 "decimal" => ".",
                 "thousand" => ",",
@@ -593,14 +604,14 @@ class TableColumns
             "sorter" => "number",
             "hozAlign" => "right",
             "width" => 85,
-            "formatter" => "money",
+            "formatter" => "FSTARTfunction(cell){var v=cell.getValue();return v===null||v===undefined?'—':Number(v).toFixed(5);}FEND",
             "formatterParams" => [
                 "decimal" => ".",
                 "thousand" => ",",
                 "precision" => 5,
             ],
-            "bottomCalc" => "FSTARTfunction(v,d){var co=0,u=0;d.forEach(function(r){co+=r.costs||0;u+=r.uniques||0;});return u===0?0:Math.round(co/u*100000)/100000;}FEND",
-            "bottomCalcFormatter" => "money",
+            "bottomCalc" => "FSTARTfunction(v,d){if(d.some(function(r){return r.uniques===null||r.uniques===undefined;}))return '—';var co=0,u=0;d.forEach(function(r){co+=r.costs||0;u+=r.uniques||0;});return u===0?0:Math.round(co/u*100000)/100000;}FEND",
+            "bottomCalcFormatter" => "FSTARTfunction(cell){var v=cell.getValue();return v==='—'?'—':Number(v).toFixed(5);}FEND",
             "bottomCalcFormatterParams" => [
                 "decimal" => ".",
                 "thousand" => ",",
@@ -695,14 +706,14 @@ class TableColumns
             "sorter" => "number",
             "hozAlign" => "right",
             "width" => 85,
-            "formatter" => "money",
+            "formatter" => "FSTARTfunction(cell){var v=cell.getValue();return v===null||v===undefined?'—':Number(v).toFixed(5);}FEND",
             "formatterParams" => [
                 "decimal" => ".",
                 "thousand" => ",",
                 "precision" => 5,
             ],
-            "bottomCalc" => "FSTARTfunction(v,d){var rv=0,u=0;d.forEach(function(r){rv+=r.revenue||0;u+=r.uniques||0;});return u===0?0:Math.round(rv/u*100000)/100000;}FEND",
-            "bottomCalcFormatter" => "money",
+            "bottomCalc" => "FSTARTfunction(v,d){if(d.some(function(r){return r.uniques===null||r.uniques===undefined;}))return '—';var rv=0,u=0;d.forEach(function(r){rv+=r.revenue||0;u+=r.uniques||0;});return u===0?0:Math.round(rv/u*100000)/100000;}FEND",
+            "bottomCalcFormatter" => "FSTARTfunction(cell){var v=cell.getValue();return v==='—'?'—':Number(v).toFixed(5);}FEND",
             "bottomCalcFormatterParams" => [
                 "decimal" => ".",
                 "thousand" => ",",

@@ -340,7 +340,7 @@ export function handleAddFlow() {
         try {
             $('#flow-filters-' + fi).queryBuilder({
                 operators: $.fn.queryBuilder.constructor.DEFAULTS.operators.concat(typeof paramOperators !== 'undefined' ? paramOperators : []),
-                filters: typeof tdsFilters !== 'undefined' ? tdsFilters : []
+                filters: typeof getFlowTdsFilters !== 'undefined' ? getFlowTdsFilters() : (typeof tdsFilters !== 'undefined' ? tdsFilters : [])
             });
         } catch (e) { console.warn('Could not init QueryBuilder for flow ' + fi, e); }
     }

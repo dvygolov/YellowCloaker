@@ -24,6 +24,8 @@ CREATE TABLE IF NOT EXISTS clicks (
 	clientver REAL,
 	ua TEXT,
 	userid TEXT NOT NULL,
+	unique_hash BLOB NULL,
+	unique_flags INTEGER NULL CHECK (unique_flags IS NULL OR unique_flags BETWEEN 0 AND 3),
 	clickid TEXT NOT NULL,
 	flow TEXT,
 	path TEXT DEFAULT '[]',
@@ -45,6 +47,14 @@ CREATE INDEX IF NOT EXISTS idx_userid ON clicks (userid);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_clickid ON clicks (clickid);
 CREATE INDEX IF NOT EXISTS idx_camp_flow ON clicks (campaign_id,flow);
 CREATE INDEX IF NOT EXISTS idx_camp_flow_step ON clicks (campaign_id,flow,step);
+CREATE INDEX IF NOT EXISTS idx_unique_campaign_hash ON clicks (campaign_id,unique_hash,time DESC)
+    WHERE unique_flags IS NOT NULL AND unique_hash IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_unique_flow_hash ON clicks (campaign_id,flow,unique_hash,time DESC)
+    WHERE unique_flags IS NOT NULL AND unique_hash IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_unique_campaign_cookie ON clicks (campaign_id,userid,time DESC)
+    WHERE unique_flags IS NOT NULL AND userid <> '';
+CREATE INDEX IF NOT EXISTS idx_unique_flow_cookie ON clicks (campaign_id,flow,userid,time DESC)
+    WHERE unique_flags IS NOT NULL AND userid <> '';
 
 CREATE TABLE IF NOT EXISTS click_event_log (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,

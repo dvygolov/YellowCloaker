@@ -116,8 +116,8 @@ function black(Campaign $c, int $flowIndex, array $clickparams): TdsAction
 {
     global $db;
 
-    $userid = set_userid();
-    $clickid = generate_clickid($userid);
+    $userid = '';
+    $clickid = generate_clickid();
     set_clickid($clickid);
 
     $flow = $c->black->flows[$flowIndex];
@@ -127,40 +127,7 @@ function black(Campaign $c, int $flowIndex, array $clickparams): TdsAction
         return new TdsAction('black', 'die', "No steps defined in flow: " . $flow->name);
     }
 
-    $abtest = new AbTest($c);
-    $isThompson = $flow->distribution === 'thompson';
-
-    $plannedPath = [];
-    if ($c->saveUserFlow) {
-        $plannedPath = get_saved_flow_path($c->campaignId, $flow->name, $steps);
-    }
-
-    if (empty($plannedPath)) {
-        // Select variant for each step -> build planned path
-        if ($isThompson && $flow->optimize_mode === 'funnels') {
-            $allStepItems = [];
-            foreach ($steps as $step) {
-                $allStepItems[] = $step->getItems();
-            }
-            $plannedPath = $abtest->select_thompson_funnel_multi($allStepItems, $flow->name, $flow->optimize_for);
-        } else {
-            foreach ($steps as $si => $step) {
-                $items = $step->getItems();
-                if (empty($items)) {
-                    add_error_log("No items found for step $si in flow {$flow->name}, campaign {$c->campaignId}!", false, true);
-                }
-
-                if ($isThompson) {
-                    $chosen = $abtest->select_thompson_variant($items, $si, $flow->name, $flow->optimize_for);
-                } else {
-                    $isFolder = $step->isFolder();
-                    $res = $abtest->select_distributed($items, "step_$si", $isFolder, $flow->distribution, $step->weights);
-                    $chosen = $res[0];
-                }
-                $plannedPath[] = $chosen;
-            }
-        }
-    }
+    $plannedPath = build_black_path($c, $flow);
 
     if (!is_valid_planned_path($plannedPath, $steps)) {
         return new TdsAction('black', 'die', "Invalid planned path for flow: " . $flow->name);
@@ -178,13 +145,313 @@ function black(Campaign $c, int $flowIndex, array $clickparams): TdsAction
         return new TdsAction('black', 'die', 'Failed to record step entry');
     }
 
-    // Serve step 0 content
+    return render_black_action($c, $flow, $clickparams, $plannedPath, $clickid, $userid);
+}
+
+final class NoMatchingFlowException extends RuntimeException
+{
+}
+
+function black_unique(Campaign $c, FiltrationCore $clkr): ?TdsAction
+{
+    global $db;
+
+    $settings = $c->uniqueness;
+    $incomingUserid = get_userid();
+    $identity = UniquenessService::prepareIdentity($settings, $clkr->click_params, $incomingUserid);
+    $clickid = generate_clickid();
+    $preparedClick = $db->prepare_black_click_for_transaction($clkr->click_params, $c->campaignId);
+    $stage = 'begin';
+    $flowName = '';
+    $filtersNeedUniqueness = flows_use_uniqueness_filter($c->black->flows);
+    $preselectedFlowIndex = null;
+    $preselectedPath = null;
+
+    try {
+        if (!$filtersNeedUniqueness) {
+            $stage = 'flow_selection';
+            foreach ($c->black->flows as $index => $candidate) {
+                if ($clkr->click_matches_filters($candidate->filters)) {
+                    $preselectedFlowIndex = $index;
+                    break;
+                }
+            }
+            if ($preselectedFlowIndex === null) {
+                throw new NoMatchingFlowException('No matching flow');
+            }
+
+            $preselectedFlow = $c->black->flows[$preselectedFlowIndex];
+            $flowName = $preselectedFlow->name;
+            $stage = 'path';
+            $preselectedPath = build_black_path($c, $preselectedFlow);
+            if (!is_valid_planned_path($preselectedPath, $preselectedFlow->steps)) {
+                throw new RuntimeException('Invalid planned path for flow: ' . $preselectedFlow->name);
+            }
+        }
+
+        $result = $db->immediate_transaction(function (SQLite3 $connection) use (
+            $c,
+            $clkr,
+            $settings,
+            $identity,
+            $clickid,
+            $preparedClick,
+            $filtersNeedUniqueness,
+            $preselectedFlowIndex,
+            $preselectedPath,
+            &$stage,
+            &$flowName,
+            $db
+        ): array {
+            $now = time();
+            $ttlCutoff = $now - $settings->ttlHours * 3600;
+
+            $selectedFlowIndex = $preselectedFlowIndex;
+            $plannedPath = $preselectedPath;
+            $flowUniqueByName = [];
+            $campaignUnique = null;
+
+            if ($filtersNeedUniqueness) {
+                $stage = 'campaign_unique';
+                $campaignUnique = UniquenessService::isUnique(
+                    $connection,
+                    $c->campaignId,
+                    null,
+                    $identity,
+                    $ttlCutoff
+                );
+
+                $stage = 'flow_selection';
+                foreach ($c->black->flows as $index => $candidate) {
+                    $resolver = function (string $scope) use (
+                        $campaignUnique,
+                        $connection,
+                        $c,
+                        $candidate,
+                        $identity,
+                        $ttlCutoff,
+                        &$flowUniqueByName
+                    ): bool {
+                        if ($scope === 'campaign') {
+                            return $campaignUnique;
+                        }
+                        if (!array_key_exists($candidate->name, $flowUniqueByName)) {
+                            $flowUniqueByName[$candidate->name] = UniquenessService::isUnique(
+                                $connection,
+                                $c->campaignId,
+                                $candidate->name,
+                                $identity,
+                                $ttlCutoff
+                            );
+                        }
+                        return $flowUniqueByName[$candidate->name];
+                    };
+
+                    if ($clkr->click_matches_filters($candidate->filters, $resolver)) {
+                        $selectedFlowIndex = $index;
+                        break;
+                    }
+                }
+            }
+
+            if ($selectedFlowIndex === null) {
+                throw new NoMatchingFlowException('No matching flow');
+            }
+
+            $flow = $c->black->flows[$selectedFlowIndex];
+            $flowName = $flow->name;
+            $stage = 'flow_unique';
+            if (!$filtersNeedUniqueness) {
+                [$campaignUnique, $flowUniqueByName[$flow->name]] = UniquenessService::bothScopesAreUnique(
+                    $connection,
+                    $c->campaignId,
+                    $flow->name,
+                    $identity,
+                    $ttlCutoff
+                );
+            } elseif (!array_key_exists($flow->name, $flowUniqueByName)) {
+                $flowUniqueByName[$flow->name] = UniquenessService::isUnique(
+                    $connection,
+                    $c->campaignId,
+                    $flow->name,
+                    $identity,
+                    $ttlCutoff
+                );
+            }
+            $flowUnique = $flowUniqueByName[$flow->name];
+
+            if ($filtersNeedUniqueness) {
+                $stage = 'path';
+                $plannedPath = build_black_path($c, $flow);
+                if (!is_valid_planned_path($plannedPath, $flow->steps)) {
+                    throw new RuntimeException('Invalid planned path for flow: ' . $flow->name);
+                }
+            }
+
+            $uniqueFlags = ($campaignUnique ? 2 : 0) | ($flowUnique ? 1 : 0);
+
+            $stage = 'click_insert';
+            $db->insert_black_click_in_transaction(
+                $connection,
+                $identity->userid,
+                $clickid,
+                $preparedClick,
+                $plannedPath,
+                $flow->name,
+                $c->campaignId,
+                $identity->hash,
+                $uniqueFlags,
+                $now
+            );
+
+            $stage = 'click_step_insert';
+            $db->insert_click_step_in_transaction($connection, $clickid, 0, $plannedPath[0], $now);
+
+            return [
+                'flow_index' => $selectedFlowIndex,
+                'path' => $plannedPath,
+                'clickid' => $clickid,
+            ];
+        });
+    } catch (NoMatchingFlowException) {
+        return null;
+    } catch (Throwable $e) {
+        $query = is_array($clkr->click_params['qs'] ?? null) ? $clkr->click_params['qs'] : [];
+        $getName = $settings->getParameter;
+        $rawGet = array_key_exists($getName, $query) ? $query[$getName] : '[missing]';
+        ytds_log('error', 'uniqueness', 'Failed to record click with uniqueness', [
+            'stage' => $stage,
+            'campaign' => $c->campaignId,
+            'flow' => $flowName,
+            'method' => $settings->method,
+            'sqlite_code' => $db->last_write_error_code(),
+            'sqlite_message' => $db->last_write_error_message(),
+            'reason' => $e->getMessage(),
+            'ip' => (string)($clkr->click_params['ip'] ?? ''),
+            'ua' => (string)($clkr->click_params['ua'] ?? ''),
+            'userid' => $incomingUserid,
+            'get_parameter' => $getName,
+            'get_value' => $rawGet,
+        ]);
+        return new TdsAction('black', 'error', '500');
+    }
+
+    $flow = $c->black->flows[$result['flow_index']];
+    $clickid = $result['clickid'];
+    $plannedPath = $result['path'];
+    set_clickid($clickid);
+    if ($settings->usesCookie()) {
+        set_userid_cookie($identity->userid);
+    }
+    if ($c->saveUserFlow) {
+        save_flow_path($c->campaignId, $flow->name, $plannedPath);
+    }
+
+    return render_black_action(
+        $c,
+        $flow,
+        $clkr->click_params,
+        $plannedPath,
+        $clickid,
+        $identity->userid
+    );
+}
+
+function flows_use_uniqueness_filter(array $flows): bool
+{
+    foreach ($flows as $flow) {
+        if (rules_use_uniqueness_filter($flow->filters ?? [])) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function rules_use_uniqueness_filter(mixed $node): bool
+{
+    if (!is_array($node)) {
+        return false;
+    }
+    if (($node['id'] ?? null) === 'uniqueness' || ($node['field'] ?? null) === 'uniqueness') {
+        return true;
+    }
+    foreach ($node as $value) {
+        if (is_array($value) && rules_use_uniqueness_filter($value)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function build_black_path(Campaign $c, FlowSettings $flow): array
+{
+    $steps = $flow->steps;
+    if (empty($steps)) {
+        return [];
+    }
+
+    $abtest = new AbTest($c);
+    $isThompson = $flow->distribution === 'thompson';
+    $plannedPath = [];
+    if ($c->saveUserFlow) {
+        $plannedPath = get_saved_flow_path($c->campaignId, $flow->name, $steps);
+    }
+
+    if (!empty($plannedPath)) {
+        return $plannedPath;
+    }
+
+    if ($isThompson && $flow->optimize_mode === 'funnels') {
+        $allStepItems = [];
+        foreach ($steps as $step) {
+            $allStepItems[] = $step->getItems();
+        }
+        return $abtest->select_thompson_funnel_multi($allStepItems, $flow->name, $flow->optimize_for);
+    }
+
+    foreach ($steps as $stepIndex => $step) {
+        $items = $step->getItems();
+        if (empty($items)) {
+            return [];
+        }
+
+        if ($isThompson) {
+            $chosen = $abtest->select_thompson_variant(
+                $items,
+                $stepIndex,
+                $flow->name,
+                $flow->optimize_for
+            );
+        } else {
+            $result = $abtest->select_distributed(
+                $items,
+                "step_$stepIndex",
+                $step->isFolder(),
+                $flow->distribution,
+                $step->weights
+            );
+            $chosen = $result[0];
+        }
+        $plannedPath[] = $chosen;
+    }
+    return $plannedPath;
+}
+
+function render_black_action(
+    Campaign $c,
+    FlowSettings $flow,
+    array $clickparams,
+    array $plannedPath,
+    string $clickid,
+    string $userid
+): TdsAction {
+    $steps = $flow->steps;
     $step0 = $steps[0];
     $chosenVariant = $plannedPath[0];
 
     if ($step0->isRedirect()) {
         $url = $step0->getRedirectUrlByLabel($chosenVariant);
-        $mp = new MacrosProcessor($c, $clickparams);
+        $mp = new MacrosProcessor($c, $clickparams, $clickid, $userid);
         $url = $mp->replace_url_macros($url);
         return new TdsAction('black', 'redirect', $url, $step0->redirectType);
     }

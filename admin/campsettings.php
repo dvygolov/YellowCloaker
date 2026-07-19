@@ -52,6 +52,7 @@ global $c, $db, $campId;
                     <?php } ?>
                     <li><a href="#sec-api">Integration</a></li>
                     <li><a href="#sec-scripts">Scripts</a></li>
+                    <li><a href="#sec-misc">Misc</a></li>
                     <li><a href="#sec-postbacks">Postbacks</a></li>
                 </ul>
             </nav>
@@ -953,6 +954,54 @@ global $c, $db, $campId;
             </div>
             </section>
 
+            <?php $uniqueness = $c->uniqueness; ?>
+            <section id="sec-misc" class="camp-section">
+            <div class="flow-group">
+                <span class="flow-group-title">Uniqueness counting</span>
+                <div class="campaign-setting-row">
+                    <div class="campaign-setting-label">
+                        <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Calculates campaign and flow uniqueness for every recorded flow click. Remove uniqueness rules from flows before switching this off." data-tooltip="Calculates campaign and flow uniqueness for every recorded flow click. Remove uniqueness rules from flows before switching this off."></i>
+                        <span>Uniqueness counting</span>
+                    </div>
+                    <input type="hidden" id="uniqueness-enabled-value" name="uniqueness.enabled" value="<?= $uniqueness->enabled ? 'true' : 'false' ?>" />
+                    <label class="campaign-switch" for="uniqueness-counting-toggle">
+                        <input type="checkbox" id="uniqueness-counting-toggle" class="campaign-switch-input" data-value-target="uniqueness-enabled-value" data-controls="uniqueness-settings" aria-label="Enable uniqueness counting" aria-controls="uniqueness-settings" <?= $uniqueness->enabled ? 'checked' : '' ?> />
+                        <span class="campaign-switch-track" aria-hidden="true">
+                            <span class="campaign-switch-option campaign-switch-option-off">Off</span>
+                            <span class="campaign-switch-option campaign-switch-option-on">On</span>
+                            <span class="campaign-switch-thumb"></span>
+                        </span>
+                    </label>
+                </div>
+                <div id="uniqueness-settings" class="campaign-dependent-settings" <?= $uniqueness->enabled ? '' : 'hidden' ?>>
+                    <div class="form-group-inner">
+                        <div class="row">
+                            <div class="col-lg-3"><label class="login2 pull-left pull-left-pro" for="uniqueness-method">Method:</label></div>
+                            <div class="col-lg-4">
+                                <select id="uniqueness-method" name="uniqueness.method" class="form-select">
+                                    <?php foreach (['ip' => 'IP', 'ip_ua' => 'IP + UserAgent', 'cookie' => 'Cookie', 'cookie_ip' => 'Cookie / IP', 'cookie_ip_ua' => 'Cookie / IP + UserAgent', 'get' => 'GET parameter'] as $methodValue => $methodLabel) { ?>
+                                    <option value="<?= $methodValue ?>" <?= $uniqueness->method === $methodValue ? 'selected' : '' ?>><?= $methodLabel ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group-inner" id="uniqueness-get-row" <?= $uniqueness->method === 'get' ? '' : 'hidden' ?>>
+                        <div class="row">
+                            <div class="col-lg-3"><label class="login2 pull-left pull-left-pro" for="uniqueness-get-parameter">GET parameter:</label></div>
+                            <div class="col-lg-4"><input id="uniqueness-get-parameter" type="text" name="uniqueness.get_parameter" class="form-control" value="<?= htmlspecialchars($uniqueness->getParameter, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" /></div>
+                        </div>
+                    </div>
+                    <div class="form-group-inner">
+                        <div class="row">
+                            <div class="col-lg-3"><label class="login2 pull-left pull-left-pro" for="uniqueness-ttl">TTL (hours):</label></div>
+                            <div class="col-lg-2"><input id="uniqueness-ttl" type="number" min="1" max="720" step="1" required name="uniqueness.ttl_hours" class="form-control" value="<?= $uniqueness->ttlHours ?>" /></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </section>
+
             <section id="sec-postbacks" class="camp-section">
             <div class="flow-group">
             <span class="flow-group-title">Postback</span>
@@ -1438,7 +1487,7 @@ global $c, $db, $campId;
             operators: $.fn.queryBuilder.constructor.DEFAULTS.operators.concat(paramOperators),
             filters: tdsFilters,
             <?php
-            if (!empty($c->white->filters)) {
+            if (!empty($c->white->filters['rules']) && is_array($c->white->filters['rules'])) {
                 echo 'rules: rules_basic,';
             }
             ?>
@@ -1446,14 +1495,23 @@ global $c, $db, $campId;
 
         <?php foreach ($c->black->flows as $fi => $flow) { ?>
         var flow_rules_<?= $fi ?> = <?= json_encode($flow->filters) ?>;
-        $('#flow-filters-<?= $fi ?>').queryBuilder({
-            operators: $.fn.queryBuilder.constructor.DEFAULTS.operators.concat(paramOperators),
-            filters: tdsFilters,
-            <?php if (!empty($flow->filters) && isset($flow->filters['rules'])) { ?>
-            rules: flow_rules_<?= $fi ?>,
-            <?php } ?>
-        });
+        initFlowFilterBuilder('#flow-filters-<?= $fi ?>', flow_rules_<?= $fi ?>);
         <?php } ?>
+
+        const uniquenessToggle = document.getElementById('uniqueness-counting-toggle');
+        uniquenessToggle?.addEventListener('change', function () {
+            if (!this.checked) {
+                const affected = getUniquenessRuleFlowNames();
+                if (affected.length) {
+                    this.checked = true;
+                    document.getElementById('uniqueness-enabled-value').value = 'true';
+                    document.getElementById('uniqueness-settings').hidden = false;
+                    alert('Remove uniqueness rules before disabling uniqueness counting. Affected flows: ' + affected.join(', '));
+                    return;
+                }
+            }
+            refreshFlowFilterBuilders();
+        });
 
     </script>
     <!-- Folder Picker Modal -->

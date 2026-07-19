@@ -26,6 +26,8 @@ class Db
     private $dbPath;
     private ?SQLite3 $readDb = null;
     private ?SQLite3 $writeDb = null;
+    private int $lastTransactionErrorCode = 0;
+    private string $lastTransactionErrorMessage = '';
 
     public function __construct()
     {
@@ -53,6 +55,38 @@ class Db
         if (!in_array('events', $columns, true)) {
             $db->exec("ALTER TABLE clicks ADD COLUMN events TEXT DEFAULT '{}'");
         }
+        if (!in_array('unique_hash', $columns, true)) {
+            $db->exec('ALTER TABLE clicks ADD COLUMN unique_hash BLOB NULL');
+        }
+        if (!in_array('unique_flags', $columns, true)) {
+            $db->exec(
+                'ALTER TABLE clicks ADD COLUMN unique_flags INTEGER NULL '
+                . 'CHECK (unique_flags IS NULL OR unique_flags BETWEEN 0 AND 3)'
+            );
+        }
+
+        $db->exec('CREATE INDEX IF NOT EXISTS idx_userid ON clicks (userid)');
+
+        $db->exec(
+            "CREATE INDEX IF NOT EXISTS idx_unique_campaign_hash
+             ON clicks (campaign_id,unique_hash,time DESC)
+             WHERE unique_flags IS NOT NULL AND unique_hash IS NOT NULL"
+        );
+        $db->exec(
+            "CREATE INDEX IF NOT EXISTS idx_unique_flow_hash
+             ON clicks (campaign_id,flow,unique_hash,time DESC)
+             WHERE unique_flags IS NOT NULL AND unique_hash IS NOT NULL"
+        );
+        $db->exec(
+            "CREATE INDEX IF NOT EXISTS idx_unique_campaign_cookie
+             ON clicks (campaign_id,userid,time DESC)
+             WHERE unique_flags IS NOT NULL AND userid <> ''"
+        );
+        $db->exec(
+            "CREATE INDEX IF NOT EXISTS idx_unique_flow_cookie
+             ON clicks (campaign_id,flow,userid,time DESC)
+             WHERE unique_flags IS NOT NULL AND userid <> ''"
+        );
 
         $db->exec(
             "CREATE TABLE IF NOT EXISTS click_event_log (
@@ -72,6 +106,9 @@ class Db
 
     private static function decode_click_row(array &$click): void
     {
+        if (array_key_exists('unique_hash', $click) && is_string($click['unique_hash'])) {
+            $click['unique_hash'] = bin2hex($click['unique_hash']);
+        }
         if (array_key_exists('path', $click) && is_string($click['path']) && $click['path'] !== '') {
             $decodedPath = json_decode($click['path'], true);
             $click['path'] = is_array($decodedPath) ? $decodedPath : [];
@@ -578,6 +615,52 @@ class Db
 
         return $db;
     }
+
+    public function immediate_transaction(callable $callback): mixed
+    {
+        $db = $this->open_db();
+        $this->lastTransactionErrorCode = 0;
+        $this->lastTransactionErrorMessage = '';
+        if (!@$db->exec('BEGIN IMMEDIATE')) {
+            $this->capture_transaction_error($db);
+            throw new RuntimeException('Failed to begin immediate transaction: ' . $db->lastErrorMsg());
+        }
+
+        try {
+            $result = $callback($db);
+            if (!@$db->exec('COMMIT')) {
+                $this->capture_transaction_error($db);
+                throw new RuntimeException('Failed to commit immediate transaction: ' . $db->lastErrorMsg());
+            }
+            return $result;
+        } catch (Throwable $e) {
+            if ($this->lastTransactionErrorCode === 0) {
+                $this->capture_transaction_error($db);
+            }
+            @$db->exec('ROLLBACK');
+            throw $e;
+        }
+    }
+
+    private function capture_transaction_error(SQLite3 $db): void
+    {
+        $this->lastTransactionErrorCode = $db->lastErrorCode();
+        $this->lastTransactionErrorMessage = $db->lastErrorMsg();
+    }
+
+    public function last_write_error_code(): int
+    {
+        return $this->lastTransactionErrorCode !== 0
+            ? $this->lastTransactionErrorCode
+            : ($this->writeDb?->lastErrorCode() ?? 0);
+    }
+
+    public function last_write_error_message(): string
+    {
+        return $this->lastTransactionErrorMessage !== ''
+            ? $this->lastTransactionErrorMessage
+            : ($this->writeDb?->lastErrorMsg() ?? '');
+    }
     public function __destruct()
     {
         if ($this->readDb !== null) {
@@ -743,10 +826,19 @@ class Db
                     $selectParts[] = "COUNT(c.id) AS clicks";
                     break;
                 case 'uniques':
-                    $selectParts[] = "COUNT(DISTINCT userid) AS uniques";
+                    $selectParts[] = "CASE WHEN COUNT(c.id) = COUNT(c.unique_flags)
+                        THEN COALESCE(SUM(CASE WHEN (c.unique_flags & 2) != 0 THEN 1 ELSE 0 END), 0)
+                        ELSE NULL END AS uniques";
+                    break;
+                case 'flow_uniques':
+                    $selectParts[] = "CASE WHEN COUNT(c.id) = COUNT(c.unique_flags)
+                        THEN COALESCE(SUM(CASE WHEN (c.unique_flags & 1) != 0 THEN 1 ELSE 0 END), 0)
+                        ELSE NULL END AS flow_uniques";
                     break;
                 case 'uniques_ratio':
-                    $selectParts[] = "(COUNT(DISTINCT userid)*1.0/COUNT(*) * 100.0) AS uniques_ratio";
+                    $selectParts[] = "CASE WHEN COUNT(c.id) = COUNT(c.unique_flags)
+                        THEN COALESCE(SUM(CASE WHEN (c.unique_flags & 2) != 0 THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(c.id), 0), 0)
+                        ELSE NULL END AS uniques_ratio";
                     break;
                 case 'cra':
                     $selectParts[] = "(COUNT(DISTINCT CASE WHEN status IS NOT NULL THEN c.id END) * 100.0 / COUNT(*)) AS cra";
@@ -758,13 +850,23 @@ class Db
                     $selectParts[] = "(SUM(payout) * 1.0 / COUNT(c.id)) AS epc";
                     break;
                 case 'uepc':
-                    $selectParts[] = "(SUM(payout) * 1.0 / COUNT(DISTINCT(userid))) AS uepc";
+                    $selectParts[] = "CASE WHEN COUNT(c.id) = COUNT(c.unique_flags)
+                        THEN COALESCE(SUM(payout) * 1.0 / NULLIF(SUM(CASE WHEN (c.unique_flags & 2) != 0 THEN 1 ELSE 0 END), 0), 0)
+                        ELSE NULL END AS uepc";
                     break;
                 case 'cpc':
                     $selectParts[] = "(SUM(cost) * 1.0 / COUNT(c.id)) AS cpc";
                     break;
                 case 'ucpc':
-                    $selectParts[] = "(SUM(cost) * 1.0 / COUNT(DISTINCT(userid))) AS ucpc";
+                    $selectParts[] = "CASE WHEN COUNT(c.id) = COUNT(c.unique_flags)
+                        THEN COALESCE(SUM(cost) * 1.0 / NULLIF(SUM(CASE WHEN (c.unique_flags & 2) != 0 THEN 1 ELSE 0 END), 0), 0)
+                        ELSE NULL END AS ucpc";
+                    break;
+                case '_uniqueness_counted':
+                    $selectParts[] = 'COUNT(c.unique_flags) AS _uniqueness_counted';
+                    break;
+                case '_uniqueness_total':
+                    $selectParts[] = 'COUNT(c.id) AS _uniqueness_total';
                     break;
                 case 'appt':
                     $selectParts[] = "CASE
@@ -932,6 +1034,11 @@ class Db
             }
         }
         $queryFields = self::expand_stats_dependencies($queryFields);
+        if (array_intersect(['uniques', 'flow_uniques', 'uniques_ratio', 'uepc', 'ucpc'], $queryFields) !== []) {
+            $queryFields[] = '_uniqueness_counted';
+            $queryFields[] = '_uniqueness_total';
+            $queryFields = array_values(array_unique($queryFields));
+        }
 
         $baseQuery =
             "SELECT %s FROM clicks c WHERE campaign_id = :campid AND time BETWEEN :startDate AND :endDate";
@@ -1096,10 +1203,17 @@ class Db
             }
         }
 
+        $hasUniquenessState = in_array('_uniqueness_counted', $selectedFields, true)
+            && in_array('_uniqueness_total', $selectedFields, true);
+        $uniquenessComplete = !$hasUniquenessState
+            || (int)$totals['_uniqueness_counted'] === (int)$totals['_uniqueness_total'];
+
         // Recalculate derived (non-additive) fields from summed base metrics
         // Percentage metrics: round to 4 decimals (frontend trims to 2)
         if (in_array('uniques_ratio', $selectedFields))
-            $totals['uniques_ratio'] = $totals['clicks'] === 0 ? 0 : round($totals['uniques'] * 100.0 / $totals['clicks'], 4);
+            $totals['uniques_ratio'] = !$uniquenessComplete
+                ? null
+                : ($totals['clicks'] === 0 ? 0 : round($totals['uniques'] * 100.0 / $totals['clicks'], 4));
         if (in_array('cra', $selectedFields))
             $totals['cra'] = $totals['clicks'] === 0 ? 0 : round($totals['conversion'] * 100.0 / $totals['clicks'], 4);
         if (in_array('crs', $selectedFields))
@@ -1117,11 +1231,15 @@ class Db
         if (in_array('epc', $selectedFields))
             $totals['epc'] = $totals['clicks'] === 0 ? 0 : round($totals['revenue'] * 1.0 / $totals['clicks'], 6);
         if (in_array('uepc', $selectedFields))
-            $totals['uepc'] = $totals['uniques'] === 0 ? 0 : round($totals['revenue'] * 1.0 / $totals['uniques'], 6);
+            $totals['uepc'] = !$uniquenessComplete
+                ? null
+                : ($totals['uniques'] === 0 ? 0 : round($totals['revenue'] * 1.0 / $totals['uniques'], 6));
         if (in_array('cpc', $selectedFields))
             $totals['cpc'] = $totals['clicks'] === 0 ? 0 : round($totals['costs'] * 1.0 / $totals['clicks'], 6);
         if (in_array('ucpc', $selectedFields))
-            $totals['ucpc'] = $totals['uniques'] === 0 ? 0 : round($totals['costs'] * 1.0 / $totals['uniques'], 6);
+            $totals['ucpc'] = !$uniquenessComplete
+                ? null
+                : ($totals['uniques'] === 0 ? 0 : round($totals['costs'] * 1.0 / $totals['uniques'], 6));
         if (in_array('ec', $selectedFields))
             $totals['ec'] = $totals['conversion'] === 0 ? 0 : round($totals['revenue'] * 1.0 / $totals['conversion'], 6);
         if (in_array('cpa', $selectedFields))
@@ -1130,6 +1248,14 @@ class Db
         // Composite additive metrics: recalculate from base to avoid stale SQL values
         if (in_array('profit', $selectedFields))
             $totals['profit'] = round($totals['revenue'] - $totals['costs'], 6);
+
+        if (!$uniquenessComplete) {
+            foreach (['uniques', 'flow_uniques'] as $field) {
+                if (in_array($field, $selectedFields, true)) {
+                    $totals[$field] = null;
+                }
+            }
+        }
 
         return $totals;
     }
@@ -1193,6 +1319,87 @@ class Db
         $query = "INSERT INTO clicks (campaign_id, time, ip, country, lang, os, osver, client, clientver, device, brand, model, isp, ua, userid, clickid, flow, path, step, params, cost, status) VALUES (:campaign_id, :time, :ip, :country, :lang, :os, :osver, :client, :clientver, :device, :brand, :model, :isp, :ua, :userid, :clickid, :flow, :path, :step, :params, :cpc, NULL)";
 
         return $this->add_click($query, $click);
+    }
+
+    public function insert_black_click_in_transaction(
+        SQLite3 $db,
+        string $userid,
+        string $clickid,
+        array $click,
+        array $path,
+        string $flow,
+        int $campId,
+        ?string $uniqueHash,
+        int $uniqueFlags,
+        int $time
+    ): void {
+        $click['time'] = $time;
+        $pathJson = json_encode(array_values($path));
+        if ($pathJson === false) {
+            throw new RuntimeException('Failed to encode click path');
+        }
+
+        $query = "INSERT INTO clicks (
+                    campaign_id, time, ip, country, lang, os, osver, client, clientver,
+                    device, brand, model, isp, ua, userid, unique_hash, unique_flags,
+                    clickid, flow, path, step, params, cost, status
+                  ) VALUES (
+                    :campaign_id, :time, :ip, :country, :lang, :os, :osver, :client, :clientver,
+                    :device, :brand, :model, :isp, :ua, :userid, :unique_hash, :unique_flags,
+                    :clickid, :flow, :path, 0, :params, :cpc, NULL
+                  )";
+        $stmt = @$db->prepare($query);
+        if ($stmt === false) {
+            throw new RuntimeException('Failed to prepare atomic click insert: ' . $db->lastErrorMsg());
+        }
+
+        $textFields = [
+            'ip', 'country', 'lang', 'os', 'osver', 'client', 'clientver', 'device',
+            'brand', 'model', 'isp', 'ua', 'params'
+        ];
+        $stmt->bindValue(':campaign_id', $campId, SQLITE3_INTEGER);
+        $stmt->bindValue(':time', $time, SQLITE3_INTEGER);
+        foreach ($textFields as $field) {
+            $stmt->bindValue(':' . $field, (string)($click[$field] ?? ''), SQLITE3_TEXT);
+        }
+        $stmt->bindValue(':userid', $userid, SQLITE3_TEXT);
+        $stmt->bindValue(':unique_hash', $uniqueHash, $uniqueHash === null ? SQLITE3_NULL : SQLITE3_BLOB);
+        $stmt->bindValue(':unique_flags', $uniqueFlags, SQLITE3_INTEGER);
+        $stmt->bindValue(':clickid', $clickid, SQLITE3_TEXT);
+        $stmt->bindValue(':flow', $flow === '' ? 'unknown' : $flow, SQLITE3_TEXT);
+        $stmt->bindValue(':path', $pathJson, SQLITE3_TEXT);
+        $stmt->bindValue(':cpc', (float)($click['cpc'] ?? 0), SQLITE3_FLOAT);
+        if (@$stmt->execute() === false) {
+            throw new RuntimeException('Failed to insert atomic click: ' . $db->lastErrorMsg());
+        }
+    }
+
+    public function prepare_black_click_for_transaction(array $data, int $campId): array
+    {
+        return $this->prepare_click_data($data, $campId);
+    }
+
+    public function insert_click_step_in_transaction(
+        SQLite3 $db,
+        string $clickid,
+        int $step,
+        string $variant,
+        int $time
+    ): void {
+        $stmt = @$db->prepare(
+            'INSERT INTO click_steps (clickid, step, variant, time) '
+            . 'VALUES (:clickid, :step, :variant, :time)'
+        );
+        if ($stmt === false) {
+            throw new RuntimeException('Failed to prepare atomic click step insert: ' . $db->lastErrorMsg());
+        }
+        $stmt->bindValue(':clickid', $clickid, SQLITE3_TEXT);
+        $stmt->bindValue(':step', $step, SQLITE3_INTEGER);
+        $stmt->bindValue(':variant', $variant, SQLITE3_TEXT);
+        $stmt->bindValue(':time', $time, SQLITE3_INTEGER);
+        if (@$stmt->execute() === false) {
+            throw new RuntimeException('Failed to insert atomic click step: ' . $db->lastErrorMsg());
+        }
     }
 
     public function add_click_step(string $clickid, int $step, string $variant): bool

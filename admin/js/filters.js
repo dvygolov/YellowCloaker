@@ -156,6 +156,67 @@ var tdsFilters = [
     }
 ];
 
+var uniquenessFilter = {
+    id: 'uniqueness',
+    field: 'uniqueness',
+    label: 'Uniqueness',
+    type: 'string',
+    input: 'radio',
+    values: {
+        campaign: 'Campaign',
+        flow: 'Flow'
+    },
+    operators: ['is_unique', 'is_not_unique']
+};
+
+function getFlowTdsFilters() {
+    var enabled = document.getElementById('uniqueness-counting-toggle')?.checked === true;
+    return enabled ? tdsFilters.concat([uniquenessFilter]) : tdsFilters.slice();
+}
+
+function initFlowFilterBuilder(selector, rules) {
+    var options = {
+        operators: $.fn.queryBuilder.constructor.DEFAULTS.operators.concat(paramOperators),
+        filters: getFlowTdsFilters()
+    };
+    if (rules && Array.isArray(rules.rules)) {
+        options.rules = rules;
+    }
+    $(selector).queryBuilder(options);
+}
+
+function rulesContainUniqueness(node) {
+    if (!node || typeof node !== 'object') return false;
+    if (node.id === 'uniqueness' || node.field === 'uniqueness') return true;
+    return Object.values(node).some(function (value) {
+        if (Array.isArray(value)) return value.some(rulesContainUniqueness);
+        return value && typeof value === 'object' && rulesContainUniqueness(value);
+    });
+}
+
+function getUniquenessRuleFlowNames() {
+    var names = [];
+    document.querySelectorAll('.flow-list-row').forEach(function (row) {
+        var index = row.dataset.flowIndex;
+        var builder = $('#flow-filters-' + index);
+        var rules = {};
+        try { rules = builder.queryBuilder('getRules') || {}; } catch (e) {}
+        if (!rulesContainUniqueness(rules)) return;
+        names.push(row.querySelector('.flow-name-label')?.value || ('Flow ' + (Number(index) + 1)));
+    });
+    return names;
+}
+
+function refreshFlowFilterBuilders() {
+    document.querySelectorAll('[id^="flow-filters-"]').forEach(function (element) {
+        var builder = $('#' + element.id);
+        var rules = {};
+        try { rules = builder.queryBuilder('getRules') || {}; } catch (e) {}
+        try { builder.queryBuilder('destroy'); } catch (e) {}
+        initFlowFilterBuilder('#' + element.id, rules);
+    });
+}
+
 var paramOperators = [
   {
     type: 'param_in',
@@ -184,5 +245,19 @@ var paramOperators = [
     multiple: false,
     apply_to: ['string'],
     label: 'not exists'
+  },
+  {
+    type: 'is_unique',
+    nb_inputs: 1,
+    multiple: false,
+    apply_to: ['string'],
+    label: 'is unique'
+  },
+  {
+    type: 'is_not_unique',
+    nb_inputs: 1,
+    multiple: false,
+    apply_to: ['string'],
+    label: 'is not unique'
   }
 ];

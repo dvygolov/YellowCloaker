@@ -16,6 +16,7 @@ This is the main product, admin, and runtime documentation for YellowTDS.
 - [Campaign Settings](campaign-settings.md)
 - [Safe Page Settings](white-settings.md)
 - [Black Settings and Flows](black-settings-and-flows.md)
+- [Uniqueness Counting](uniqueness.md)
 - [Scripts](scripts.md)
 - [Postbacks](postbacks.md)
 - [Statistics](statistics.md)

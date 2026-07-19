@@ -26,11 +26,11 @@ class Tds
                 if ($c->black->jsBotDetection->enabled && is_null($jscheck_passed)) {
                     $action = jscheck($c);
                 } else {
-                    $flowIndex = self::pick_flow_index($clkr, $c->black->flows);
-                    if ($flowIndex === null) {
+                    $flowAction = self::get_flow_action($c, $clkr);
+                    if ($flowAction === null) {
                         $action = traficback($clkr->click_params);
                     } else {
-                        $action = black($c, $flowIndex, $clkr->click_params);
+                        $action = $flowAction;
                     }
                 }
             }
@@ -57,15 +57,17 @@ class Tds
                     $action = jscheck($c);
                     $action->action = 'html_content';
                 } else {
-                    $flowIndex = self::pick_flow_index($clkr, $c->black->flows);
-                    if ($flowIndex === null) {
+                    $flowAction = self::get_flow_action($c, $clkr);
+                    if ($flowAction === null) {
                         $action = traficback($clkr->click_params);
                     } else {
-                        $action = black($c, $flowIndex, $clkr->click_params);
-                        if ($c->black->jsconnectAction === 'iframe') {
-                            $action->action = 'html_iframe';
-                        } else {
-                            $action->action = 'html_content';
+                        $action = $flowAction;
+                        if ($action->action !== 'error') {
+                            if ($c->black->jsconnectAction === 'iframe') {
+                                $action->action = 'html_iframe';
+                            } else {
+                                $action->action = 'html_content';
+                            }
                         }
                     }
                 }
@@ -121,17 +123,19 @@ class Tds
             session_remove('jscheck_pending');
             session_write('jscheck_passed', true);
             $clkr = new FiltrationCore();
-            $flowIndex = self::pick_flow_index($clkr, $c->black->flows);
-            if ($flowIndex === null) {
+            $flowAction = self::get_flow_action($c, $clkr);
+            if ($flowAction === null) {
                 $action = traficback($clkr->click_params);
                 $action = JsAction::FromTdsAction($action);
             } else {
-                $action = black($c, $flowIndex, $clkr->click_params);
+                $action = $flowAction;
                 $action = JsAction::FromTdsAction($action);
-                if ($c->black->jsconnectAction === 'iframe') {
-                    $action->action = 'html_iframe';
-                } else {
-                    $action->action = 'html_content';
+                if ($action->action !== 'error') {
+                    if ($c->black->jsconnectAction === 'iframe') {
+                        $action->action = 'html_iframe';
+                    } else {
+                        $action->action = 'html_content';
+                    }
                 }
             }
         }
@@ -157,11 +161,11 @@ class Tds
                 if ($c->black->jsBotDetection->enabled && is_null($jscheck_passed)) {
                     $action = jscheck($c);
                 } else {
-                    $flowIndex = self::pick_flow_index($clkr, $c->black->flows);
-                    if ($flowIndex === null) {
+                    $flowAction = self::get_flow_action($c, $clkr);
+                    if ($flowAction === null) {
                         $action = traficback($clkr->click_params);
                     } else {
-                        $action = black($c, $flowIndex, $clkr->click_params);
+                        $action = $flowAction;
                     }
                 }
             }
@@ -169,10 +173,26 @@ class Tds
         return PhpAction::FromTdsAction($action);
     }
 
-    public static function pick_flow_index(FiltrationCore $clkr, array $flows): ?int
+    private static function get_flow_action(Campaign $campaign, FiltrationCore $clkr): ?TdsAction
+    {
+        if ($campaign->uniqueness->enabled) {
+            return black_unique($campaign, $clkr);
+        }
+
+        $flowIndex = self::pick_flow_index($clkr, $campaign->black->flows);
+        return $flowIndex === null
+            ? null
+            : black($campaign, $flowIndex, $clkr->click_params);
+    }
+
+    public static function pick_flow_index(
+        FiltrationCore $clkr,
+        array $flows,
+        ?callable $runtimeFilterResolver = null
+    ): ?int
     {
         for ($i = 0; $i < count($flows); $i++) {
-            if ($clkr->click_matches_filters($flows[$i]->filters)) {
+            if ($clkr->click_matches_filters($flows[$i]->filters, $runtimeFilterResolver)) {
                 return $i;
             }
         }

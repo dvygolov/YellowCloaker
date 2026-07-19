@@ -16,6 +16,7 @@
 - [Настройки кампании](campaign-settings.md)
 - [Настройки Safe Page](white-settings.md)
 - [Black settings и flows](black-settings-and-flows.md)
+- [Подсчёт уникальности](uniqueness.md)
 - [Scripts](scripts.md)
 - [Postbacks](postbacks.md)
 - [Статистика](statistics.md)

@@ -37,6 +37,7 @@ class FiltrationCore
     public string $block_reason = "";
     public array $matched_filters = [];
     public array $click_params = [];
+    private ?Closure $runtimeFilterResolver = null;
 
     public function __construct(array $prefill = [])
     {
@@ -170,6 +171,21 @@ class FiltrationCore
                         return true;
                     }
                     break;
+                case 'uniqueness':
+                    $scope = in_array($val, ['campaign', 'flow'], true) ? $val : 'campaign';
+                    $isUnique = $this->runtimeFilterResolver === null
+                        ? true
+                        : (bool)($this->runtimeFilterResolver)($scope);
+                    $matches = match ($filter['operator'] ?? '') {
+                        'is_unique' => $isUnique,
+                        'is_not_unique' => !$isUnique,
+                        default => false,
+                    };
+                    if ($matches) {
+                        $this->matched_filters[] = $curParamName;
+                        return true;
+                    }
+                    break;
                 default:
                     die("No operator defined for '$curParamName' check!");
             }
@@ -279,12 +295,15 @@ class FiltrationCore
         return $this->operator($pValues, $operator, (string) $clickQS[$pName]);
     }
 
-    public function click_matches_filters(array $filters): bool
+    public function click_matches_filters(array $filters, ?callable $runtimeFilterResolver = null): bool
     {
         try {
             DebugMethods::start("YWBCoreCheck");
             $this->matched_filters = [];
             $this->block_reason = '';
+            $this->runtimeFilterResolver = $runtimeFilterResolver === null
+                ? null
+                : Closure::fromCallable($runtimeFilterResolver);
 
             if (
                 empty($filters) ||
@@ -301,6 +320,7 @@ class FiltrationCore
             $this->block_reason = implode(', ', array_unique($this->matched_filters));
             return $result;
         } finally {
+            $this->runtimeFilterResolver = null;
             DebugMethods::stop("YWBCoreCheck");
         }
     }

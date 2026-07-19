@@ -4,6 +4,7 @@ require_once __DIR__ . '/../settings.php';
 require_once __DIR__ . '/../db/db.php';
 require_once __DIR__ . '/../campaign.php';
 require_once __DIR__ . '/../logging.php';
+require_once __DIR__ . '/campaignvalidation.php';
 
 $passOk = check_password(false);
 if (!$passOk)
@@ -50,6 +51,10 @@ switch ($action) {
         if (!is_array($input)) {
             return send_camp_result("Error: invalid JSON body!", true);
         }
+        $uniquenessError = normalize_uniqueness_input($input);
+        if ($uniquenessError !== null) {
+            return send_camp_result($uniquenessError, true);
+        }
         if (isset($input['black']['flows']) && is_array($input['black']['flows'])) {
             foreach ($input['black']['flows'] as &$flow) {
                 foreach (($flow['steps'] ?? []) as &$step) {
@@ -60,6 +65,16 @@ switch ($action) {
             unset($flow);
         }
         $s = mergeSettingsRecursive($s, $input);
+        if (empty($s['uniqueness']['enabled'])) {
+            $affectedFlows = find_uniqueness_rule_flows($s['black']['flows'] ?? []);
+            if ($affectedFlows !== []) {
+                return send_camp_result(
+                    'Remove uniqueness rules before disabling uniqueness counting. Affected flows: '
+                    . implode(', ', $affectedFlows),
+                    true
+                );
+            }
+        }
         $saveRes = $db->save_campaign_settings($campId, $s);
         if($saveRes===false)
             return send_camp_result("Error saving campaign!",true);

@@ -9,6 +9,7 @@
 - Flows
 - Integration
 - Scripts
+- Misc
 - Postbacks
 
 Название кампании отображается в верхней части бокового меню. Значок карандаша справа от него позволяет переименовать кампанию, не возвращаясь на dashboard.
@@ -82,3 +83,7 @@ Backfix, redirect-правила, event tracking и ленивая загруз�
 
 - inbound status mapping
 - outgoing S2S postbacks
+
+## Misc
+
+В разделе **Misc** находится переключатель **Uniqueness counting**, выбор метода и TTL. Подробное описание идентификаторов, скользящего окна, flow-фильтра и статистики: [Подсчёт уникальности](uniqueness.md).

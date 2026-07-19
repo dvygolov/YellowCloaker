@@ -73,6 +73,11 @@ class JsAction extends TdsAction
             echo $jq['content'];
             return;
         }
+
+        if ($this->action === 'error') {
+            http_response_code((int)$this->value);
+            return;
+        }
         
         switch ($this->action){
             case 'html_content':
@@ -107,6 +112,12 @@ class PhpAction extends TdsAction
     
     public function perform(){
         header('Content-Type: application/json');
+
+        if ($this->action === 'error') {
+            http_response_code((int)$this->value);
+            echo json_encode(['action' => 'error']);
+            return;
+        }
 
         //for white clicks we just send action='none'
         if ($this->click_type === 'white') {

@@ -9,6 +9,7 @@ The campaign settings page includes:
 - Flows
 - Integration
 - Scripts
+- Misc
 - Postbacks
 
 The campaign name is shown at the top of the sidebar. Use the pencil icon beside it to rename the campaign without returning to the dashboard.
@@ -51,3 +52,7 @@ JavaScript Connect Action is a campaign-wide integration setting and is no longe
 ## Scripts
 
 Backfix, redirects, event tracking and image lazy loading use the same explicit **Off/On** switches as the campaign-wide flow options. Feature-specific fields appear only while the corresponding switch is On.
+
+## Misc
+
+The **Misc** section contains **Uniqueness counting**, its identifier method, and sliding TTL. See [Uniqueness Counting](uniqueness.md) for identifier, flow-filter, cookie, GET-array, and statistics behavior.

@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/db/db.php';
 require_once __DIR__ . '/logging.php';
+require_once __DIR__ . '/uniqueness.php';
 
 class Campaign implements JsonSerializable
 {
@@ -15,6 +16,7 @@ class Campaign implements JsonSerializable
     public ScriptsSettings $scripts;
     public PostbackSettings $postback;
     public StatisticsSettings $statistics;
+    public UniquenessSettings $uniqueness;
 
     public function __construct(int $campId, array $s)
     {
@@ -30,6 +32,7 @@ class Campaign implements JsonSerializable
         $this->scripts = ScriptsSettings::fromArray($s['scripts']);
         $this->postback = PostbackSettings::fromArray($s['postback']);
         $this->statistics = StatisticsSettings::fromArray($s['statistics']);
+        $this->uniqueness = UniquenessSettings::fromArray($s['uniqueness'] ?? []);
     }
 
     function jsonSerialize(): array
@@ -42,7 +45,8 @@ class Campaign implements JsonSerializable
             "black" => $this->black,
             "statistics" => $this->statistics,
             "postback" => $this->postback,
-            "scripts" => $this->scripts
+            "scripts" => $this->scripts,
+            "uniqueness" => $this->uniqueness
         ];
     }
 }

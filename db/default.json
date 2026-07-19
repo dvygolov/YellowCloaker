@@ -6,6 +6,12 @@
   ],
   "apikey": "test",
   "saveuserflow": false,
+  "uniqueness": {
+    "enabled": false,
+    "method": "cookie_ip_ua",
+    "ttl_hours": 24,
+    "get_parameter": ""
+  },
   "white": {
     "action": "error",
     "folders": [
