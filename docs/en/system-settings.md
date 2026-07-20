@@ -7,20 +7,22 @@ The **Settings** button in the header opens instance-wide YellowTDS settings. Th
 ## Tabs
 
 - **General** — new password, admin domain/IP restrictions, admin path, UTP, and debug mode.
-- **Storage** — SQLite file name, backup folder, cache root, and cache directory names. **Randomize all** generates new unpredictable names for all of these paths; the rename is applied after **Save settings**.
-- **Backups** — the five most recent full-system snapshots, with restore and delete actions.
+- **Storage** — SQLite file name, backup folder, and cache root. Cache subfolders use fixed system names and are not shown in the UI. **Randomize main paths** generates new unpredictable names for the database, backup folder, and cache root; the rename is applied after **Save settings**.
+- **Backups** — create Full snapshots with SQLite or faster Quick snapshots without SQLite, then view, restore, or delete them.
 - **Plugins** — currency sources and VPN/proxy detectors, preferred currencies, and `any`/`most` decision mode.
 - **Updates** — check and install a YellowTDS update or refresh GeoBases.
 
 The server-detected current domain and IP are shown below **Allowed admin domain** and **Allowed admin IP**. **Add current domain** and **Add current IP** copy the corresponding value into the field with one click; the domain is inserted without a port number. On the **Plugins** tab, every plugin has an explicit switch and an **Enabled** or **Disabled** label; options belonging to a disabled plugin are inactive.
 
-Changing the admin path, database file name, backup folder, or cache directory names physically renames the corresponding files and directories. Existing destinations are treated as conflicts and are never overwritten or merged. After an admin path change, the browser automatically redirects to the new URL.
+Changing the admin path, database file name, backup folder, or cache root physically renames the corresponding files and directories. Existing destinations are treated as conflicts and are never overwritten or merged. After an admin path change, the browser automatically redirects to the new URL.
 
 ## Backups and updates
 
-YellowTDS automatically creates a ZIP snapshot before installing every update. It includes the application code, `settings.local.php`, a consistent SQLite snapshot, campaigns, and runtime/cache content. Backup archives, temporary files, logs, and operational directories are not nested inside the archive.
+**Full backup** includes the application code, `settings.local.php`, uploaded landing and safe pages, runtime/cache content, and a consistent SQLite snapshot. **Quick backup** includes the same system files and cache but excludes only SQLite. The buttons show explanatory tooltips, and every archive row is marked with a Full database icon or a Quick lightning icon.
 
-The archive location is configured with **Backup folder** on the **Storage** tab. YellowTDS automatically retains only the five newest archives. The **Backups** tab can delete or restore any snapshot. Restore shows a warning that every file, database value, and setting will return to the selected state, and first creates a safety backup of the current state. If an update fails, automatic rollback uses the snapshot created before that update.
+The archive location is configured with **Backup folder** on the **Storage** tab. YellowTDS retains the five newest Full and five newest Quick archives independently. Restoring a Full backup replaces SQLite; restoring a Quick backup restores files, settings, and cache while preserving the current SQLite database. Before restore, YellowTDS creates a matching safety backup: Full before Full restore and Quick before Quick restore. Updates use Quick backups because application updates do not modify SQLite.
+
+Large Full backups may outlive a shared hosting HTTP timeout. YellowTDS records the operation state on disk and automatically checks it after a gateway or network error instead of reporting an immediate failure. If PHP stops without publishing an archive, the operation is reported as interrupted. After five minutes, the UI warns that creation is taking unusually long but continues checking while the backup lock remains active.
 
 ![Backups tab](../assets/screenshots/settings-modal-backups.png)
 

@@ -3,6 +3,7 @@
 use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . '/../backupmanager.php';
+require_once __DIR__ . '/../admin/backups.php';
 
 class BackupManagerTest extends TestCase
 {
@@ -68,20 +69,138 @@ class BackupManagerTest extends TestCase
         $this->assertSame('before', $database->querySingle('SELECT value FROM markers'));
         $database->close();
         $this->assertSame('pre_restore', $result['safetyBackup']['type']);
+        $this->assertSame(BackupManager::MODE_FULL, $result['safetyBackup']['mode']);
+        $this->assertTrue($result['backup']['includesDatabase']);
         $this->assertCount(2, $manager->list());
+    }
+
+    public function testQuickBackupRestoresFilesButPreservesCurrentDatabase(): void
+    {
+        $manager = new BackupManager($this->root, $this->settings);
+        $backup = $manager->create('manual', [], BackupManager::MODE_QUICK);
+        $zip = new ZipArchive();
+        $this->assertTrue($zip->open($this->root . '/restore-points/' . $backup['id']) === true);
+        $this->assertFalse($zip->locateName('snapshot/db/clicks.db'));
+        $this->assertNotFalse($zip->locateName('snapshot/caching/landings/page.html'));
+        $zip->close();
+
+        file_put_contents($this->root . '/app.txt', 'after');
+        file_put_contents($this->root . '/caching/landings/page.html', 'landing-after');
+        $database = new SQLite3($this->root . '/db/clicks.db');
+        $database->exec("UPDATE markers SET value = 'after'");
+        $database->close();
+
+        $result = $manager->restore((string)$backup['id']);
+
+        $this->assertSame('before', file_get_contents($this->root . '/app.txt'));
+        $this->assertSame('landing-before', file_get_contents($this->root . '/caching/landings/page.html'));
+        $database = new SQLite3($this->root . '/db/clicks.db', SQLITE3_OPEN_READONLY);
+        $this->assertSame('after', $database->querySingle('SELECT value FROM markers'));
+        $database->close();
+        $this->assertFalse($result['backup']['includesDatabase']);
+        $this->assertSame(BackupManager::MODE_QUICK, $result['safetyBackup']['mode']);
+        $this->assertFalse($result['safetyBackup']['includesDatabase']);
+    }
+
+    public function testQuickRestorePreservesCurrentDatabaseUnderTheRestoredDatabaseName(): void
+    {
+        $original = new BackupManager($this->root, $this->settings);
+        $backup = $original->create('manual', [], BackupManager::MODE_QUICK);
+        rename($this->root . '/db/clicks.db', $this->root . '/db/current.db');
+        $currentSettings = $this->settings;
+        $currentSettings['dbConnection'] = 'current.db';
+        $database = new SQLite3($this->root . '/db/current.db');
+        $database->exec("UPDATE markers SET value = 'current-content'");
+        $database->close();
+
+        $manager = new BackupManager($this->root, $currentSettings);
+        $manager->restore((string)$backup['id']);
+
+        $this->assertFileExists($this->root . '/db/clicks.db');
+        $this->assertFileDoesNotExist($this->root . '/db/current.db');
+        $database = new SQLite3($this->root . '/db/clicks.db', SQLITE3_OPEN_READONLY);
+        $this->assertSame('current-content', $database->querySingle('SELECT value FROM markers'));
+        $database->close();
     }
 
     public function testRetentionKeepsOnlyNewestFiveAndDeleteRemovesSelectedBackup(): void
     {
         $manager = new BackupManager($this->root, $this->settings);
-        for ($index = 0; $index < 7; $index++) {
-            $manager->create('manual', ['sequence' => $index]);
+        foreach ([BackupManager::MODE_FULL, BackupManager::MODE_QUICK] as $mode) {
+            for ($index = 0; $index < 7; $index++) {
+                $manager->create('manual', ['sequence' => $index], $mode);
+            }
         }
 
         $backups = $manager->list();
-        $this->assertCount(BackupManager::MAX_BACKUPS, $backups);
+        $this->assertCount(BackupManager::MAX_BACKUPS_PER_MODE * 2, $backups);
+        $this->assertCount(
+            BackupManager::MAX_BACKUPS_PER_MODE,
+            array_filter($backups, static fn(array $backup): bool => $backup['mode'] === BackupManager::MODE_FULL),
+        );
+        $this->assertCount(
+            BackupManager::MAX_BACKUPS_PER_MODE,
+            array_filter($backups, static fn(array $backup): bool => $backup['mode'] === BackupManager::MODE_QUICK),
+        );
         $manager->delete((string)$backups[0]['id']);
-        $this->assertCount(BackupManager::MAX_BACKUPS - 1, $manager->list());
+        $this->assertCount((BackupManager::MAX_BACKUPS_PER_MODE * 2) - 1, $manager->list());
+    }
+
+    public function testCreateEndpointActionCreatesManualBackupWithoutAnId(): void
+    {
+        $manager = new BackupManager($this->root, $this->settings);
+
+        $result = backups_execute_action($manager, 'create', '', BackupManager::MODE_QUICK, 'manual-operation-0001');
+
+        $this->assertTrue($result['success']);
+        $this->assertSame('Backup created successfully.', $result['message']);
+        $this->assertSame('manual', $result['backup']['type']);
+        $this->assertSame(BackupManager::MODE_QUICK, $result['backup']['mode']);
+        $this->assertFalse($result['backup']['includesDatabase']);
+        $this->assertTrue($result['backup']['valid']);
+        $this->assertCount(1, $manager->list());
+        $this->assertSame('completed', $manager->operationStatus('manual-operation-0001')['status']);
+    }
+
+    public function testRunningOperationWithoutALockIsReportedAsInterrupted(): void
+    {
+        mkdir($this->root . '/tmp', 0755, true);
+        $operationId = 'interrupted-operation-0001';
+        file_put_contents($this->root . '/tmp/backup-operation.json', json_encode([
+            'id' => $operationId,
+            'action' => 'create',
+            'mode' => BackupManager::MODE_FULL,
+            'status' => 'running',
+            'stage' => 'finalizing',
+            'message' => 'Finalizing the backup archive.',
+            'startedAt' => time() - 600,
+            'updatedAt' => time() - 600,
+        ], JSON_THROW_ON_ERROR));
+
+        $manager = new BackupManager($this->root, $this->settings);
+        $operation = $manager->operationStatus($operationId);
+
+        $this->assertSame('failed', $operation['status']);
+        $this->assertStringContainsString('interrupted', $operation['error']);
+    }
+
+    public function testSchemaOneBackupIsUnsupported(): void
+    {
+        $manager = new BackupManager($this->root, $this->settings);
+        $backup = $manager->create('manual', [], BackupManager::MODE_FULL);
+        $archivePath = $this->root . '/restore-points/' . $backup['id'];
+        $zip = new ZipArchive();
+        $this->assertTrue($zip->open($archivePath) === true);
+        $manifest = json_decode((string)$zip->getFromName('manifest.json'), true, 512, JSON_THROW_ON_ERROR);
+        $manifest['schema'] = 1;
+        $zip->addFromString('manifest.json', json_encode($manifest, JSON_THROW_ON_ERROR));
+        $zip->close();
+
+        $listed = $manager->list();
+
+        $this->assertCount(1, $listed);
+        $this->assertFalse($listed[0]['valid']);
+        $this->assertSame('unsupported', $listed[0]['mode']);
     }
 
     public function testExistingReadOnlyLockFileDoesNotBreakBackupListing(): void

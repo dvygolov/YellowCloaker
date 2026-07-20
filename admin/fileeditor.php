@@ -13,8 +13,8 @@ function fe_error(string $msg): void
 function get_lcache_dir(): string
 {
     $type = $_REQUEST['type'] ?? 'landing';
-    $subKey = $type === 'white' ? 'whiteFolder' : 'landingFolder';
-    $dir = realpath(__DIR__ . '/../' . get_cache_path($subKey));
+    $subdirectory = $type === 'white' ? 'whites' : 'landings';
+    $dir = realpath(__DIR__ . '/../' . get_cache_path($subdirectory));
     if ($dir === false) {
         fe_error('Target folder does not exist');
     }

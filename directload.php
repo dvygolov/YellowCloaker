@@ -173,7 +173,7 @@ function dl_handle_black_step_route(string $reqPath, array $mimeTypes): bool
         dl_not_found('Step is not a folder');
     }
 
-    $landingBase = __DIR__ . '/' . get_cache_path('landingFolder') . '/' . $variant;
+    $landingBase = __DIR__ . '/' . get_cache_path('landings') . '/' . $variant;
     $realBase = realpath($landingBase);
     if ($realBase === false) {
         dl_not_found('Folder not found');
@@ -234,11 +234,11 @@ if ($reqPath !== '' && !is_admin_request_path($reqPath) && !str_starts_with($req
         $folder = session_read('white');
         if (!empty($folder)) {
             dl_serve_local(
-                __DIR__ . '/' . get_cache_path('whiteFolder'),
+                __DIR__ . '/' . get_cache_path('whites'),
                 $folder,
                 $reqPath,
                 $dlMimeTypes,
-                get_cache_path('whiteFolder'),
+                get_cache_path('whites'),
                 true
             );
         }
@@ -248,7 +248,7 @@ if ($reqPath !== '' && !is_admin_request_path($reqPath) && !str_starts_with($req
     if ($dlMode === 'white_curl') {
         $baseUrl = rtrim(session_read('white') ?: '', '/');
         if (!empty($baseUrl)) {
-            $cacheDir = __DIR__ . '/' . get_cache_path('whiteCurlCache') . '/' . md5($baseUrl);
+            $cacheDir = __DIR__ . '/' . get_cache_path('whites_curl') . '/' . md5($baseUrl);
             $cachePath = $cacheDir . '/' . str_replace('/', DIRECTORY_SEPARATOR, $reqPath);
 
             // Try serving from cache first

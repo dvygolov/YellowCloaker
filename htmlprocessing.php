@@ -10,7 +10,7 @@ require_once __DIR__ . '/settings.php';
 
 function get_landing_path(string $folderName): string
 {
-    return get_cache_path('landingFolder') . '/' . $folderName;
+    return get_cache_path('landings') . '/' . $folderName;
 }
 function load_content_with_include($url): string
 {
@@ -287,7 +287,7 @@ function add_images_lazy_load($html)
 //load safe page from FOLDER
 function load_white_content($url, string $mode = 'base'): string
 {
-    $path = get_cache_path('whiteFolder') . '/' . $url;
+    $path = get_cache_path('whites') . '/' . $url;
     $html = load_content_with_include($path);
 
     switch ($mode) {

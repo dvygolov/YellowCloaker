@@ -1571,7 +1571,7 @@ global $c, $db, $campId;
         .lm-desc{display:block;margin-left:26px;font-size:12px;color:#94a3b8;margin-top:2px}
     </style>
 
-    <script>window.LANDING_FOLDER = <?= json_encode(get_cache_path('landingFolder')) ?>;window.WHITE_FOLDER = <?= json_encode(get_cache_path('whiteFolder')) ?>;</script>
+    <script>window.LANDING_FOLDER = <?= json_encode(get_cache_path('landings')) ?>;window.WHITE_FOLDER = <?= json_encode(get_cache_path('whites')) ?>;</script>
     <!-- CodeMirror 6 local bundles -->
     <script src="js/cm6/html.min.js"></script>
     <script>window.CM6_HTML = cm6;</script>

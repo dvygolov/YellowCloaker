@@ -59,7 +59,7 @@ class FiltrationCore
         $dd = new DeviceDetector($a['ua'], $clientHints);
 
         DebugMethods::start("YWBCoreDeviceDetector");
-        $cachePath = get_cache_path('devicesCache');
+        $cachePath = get_cache_path('devices');
         $cacheDir = (DIRECTORY_SEPARATOR === '\\' ? preg_match('/^[A-Za-z]:/', $cachePath) : str_starts_with($cachePath, '/'))
             ? $cachePath . '/'
             : __DIR__ . '/' . $cachePath . '/';

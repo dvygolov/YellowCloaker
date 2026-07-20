@@ -80,7 +80,7 @@ class AutoUpdater {
             $backup = $backupManager->create('pre_update', [
                 'fromVersion' => $this->currentVersion,
                 'toVersion' => $this->latestVersion !== '' ? $this->latestVersion : 'unknown',
-            ]);
+            ], BackupManager::MODE_QUICK);
             if (!file_exists(self::UPDATE_DIR)) {
                 mkdir(self::UPDATE_DIR, 0755, true);
             }

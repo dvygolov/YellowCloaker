@@ -1,5 +1,5 @@
 (function () {
-    const state = { settings: null, revision: 0, plugins: null, backupsLoaded: false };
+    const state = { settings: null, revision: 0, plugins: null, backupsLoaded: false, monitoringOperationId: null };
 
     function node(selector) { return document.querySelector(selector); }
 
@@ -31,14 +31,20 @@
             result = JSON.parse(body);
         } catch (_error) {
             const suffix = response.status ? ` (HTTP ${response.status})` : '';
-            throw new Error(`${fallbackMessage}${suffix}. The server returned an invalid response.`);
+            const error = new Error(`${fallbackMessage}${suffix}. The server returned an invalid response.`);
+            error.httpStatus = response.status;
+            throw error;
         }
-        if (!response.ok) throw new Error(result.error || `${fallbackMessage} (HTTP ${response.status})`);
+        if (!response.ok) {
+            const error = new Error(result.error || `${fallbackMessage} (HTTP ${response.status})`);
+            error.httpStatus = response.status;
+            throw error;
+        }
         return result;
     }
 
     function setBusy(busy) {
-        ['#saveSettings', '#updateTds', '#updateGeoBases', '#randomizeStorage', '#refreshBackups'].forEach((selector) => {
+        ['#saveSettings', '#updateTds', '#updateGeoBases', '#randomizeStorage', '#createFullBackup', '#createQuickBackup', '#refreshBackups'].forEach((selector) => {
             const element = node(selector);
             if (element) element.disabled = busy;
         });
@@ -66,7 +72,7 @@
     function field(name) { return node(`#settingsForm [name="${name}"]`); }
 
     function fillFields(settings) {
-        ['adminPassword', 'adminDomain', 'adminIp', 'adminPath', 'dbConnection', 'backupDir', 'cachingDir', 'landingFolder', 'whiteFolder', 'whiteCurlCache', 'devicesCache', 'currencyCache', 'proxyVpnCache']
+        ['adminPassword', 'adminDomain', 'adminIp', 'adminPath', 'dbConnection', 'backupDir', 'cachingDir']
             .forEach((name) => { if (field(name)) field(name).value = settings[name] ?? ''; });
         field('adminPassword').value = '';
         field('useUTP').checked = !!settings.useUTP;
@@ -187,7 +193,7 @@
 
     function collectSettings() {
         const settings = { ...state.settings };
-        ['adminPassword', 'adminDomain', 'adminIp', 'adminPath', 'dbConnection', 'backupDir', 'cachingDir', 'landingFolder', 'whiteFolder', 'whiteCurlCache', 'devicesCache', 'currencyCache', 'proxyVpnCache']
+        ['adminPassword', 'adminDomain', 'adminIp', 'adminPath', 'dbConnection', 'backupDir', 'cachingDir']
             .forEach((name) => { settings[name] = field(name).value.trim(); });
         settings.useUTP = field('useUTP').checked;
         settings.debug = field('debug').checked;
@@ -236,10 +242,10 @@
     function randomizeStorage() {
         const used = new Set(['admin', 'api', 'bases', 'caching', 'db', 'docs', 'js', 'logs', 'plugins', 'scripts', 'tests', 'tmp', 'ycclogs', 'temp_update', String(field('adminPath').value || '').toLowerCase()]);
         field('dbConnection').value = `${randomStorageName(used)}.db`;
-        ['backupDir', 'cachingDir', 'landingFolder', 'whiteFolder', 'whiteCurlCache', 'devicesCache', 'currencyCache', 'proxyVpnCache']
+        ['backupDir', 'cachingDir']
             .forEach((name) => { field(name).value = randomStorageName(used); });
         clearErrors();
-        setStatus('New storage names generated. Save settings to apply them.');
+        setStatus('New database, backup folder and cache root names generated. Cache subfolders use fixed system names. Save settings to apply the changes.');
     }
 
     function formatBackupSize(bytes) {
@@ -254,14 +260,22 @@
         return ({ pre_update: 'Before update', pre_restore: 'Before restore', manual: 'Manual' })[type] || type || 'Unknown';
     }
 
-    function renderBackups(backups, directory, limit) {
+    function backupModeLabel(mode) {
+        return mode === 'full' ? 'Full' : mode === 'quick' ? 'Quick' : 'Unsupported';
+    }
+
+    function renderBackups(backups, directory, limits, databaseBytes) {
         const container = node('#backupsList');
-        node('#backupsMeta').textContent = `Folder: ${directory}. The newest ${limit} backups are retained automatically.`;
+        const fullLimit = Number(limits?.full) || 5;
+        const quickLimit = Number(limits?.quick) || 5;
+        node('#backupsMeta').textContent = `Folder: ${directory}. The newest ${fullLimit} Full and ${quickLimit} Quick backups are retained automatically.`;
+        node('#createFullBackup').title = `Includes the current SQLite database (${formatBackupSize(databaseBytes)}). Complete restore point; large databases can take several minutes on shared hosting.`;
+        node('#createQuickBackup').title = 'Excludes only the SQLite database. Files, settings, landing pages, white pages and cache are included.';
         container.replaceChildren();
         if (!backups.length) {
             const empty = document.createElement('div');
             empty.className = 'settings-backup-empty';
-            empty.textContent = 'No backups yet. A backup will be created automatically before the next YellowTDS update.';
+            empty.textContent = 'No backups yet. Create a Full or Quick backup now.';
             container.append(empty);
             return;
         }
@@ -272,7 +286,16 @@
             const info = document.createElement('div');
             const title = document.createElement('div');
             title.className = 'settings-backup-title';
-            title.textContent = `${backupTypeLabel(backup.type)} · YellowTDS ${backup.version}`;
+            const mode = document.createElement('span');
+            mode.className = `settings-backup-mode is-${backup.mode || 'unsupported'}`;
+            mode.innerHTML = backup.mode === 'full'
+                ? '<i class="bi bi-database-check"></i> Full'
+                : backup.mode === 'quick'
+                    ? '<i class="bi bi-lightning-charge"></i> Quick'
+                    : '<i class="bi bi-question-circle"></i> Unsupported';
+            const titleText = document.createElement('span');
+            titleText.textContent = `${backupTypeLabel(backup.type)} · YellowTDS ${backup.version}`;
+            title.append(mode, titleText);
             const details = document.createElement('div');
             details.className = 'settings-backup-details';
             const when = backup.createdAt ? new Date(backup.createdAt).toLocaleString() : 'Unknown date';
@@ -289,6 +312,7 @@
                 restore.className = 'btn btn-warning';
                 restore.dataset.backupAction = 'restore';
                 restore.dataset.backupId = backup.id;
+                restore.dataset.backupMode = backup.mode;
                 restore.innerHTML = '<i class="bi bi-arrow-counterclockwise"></i> Restore';
                 actions.append(restore);
             }
@@ -297,6 +321,7 @@
             remove.className = 'btn btn-danger';
             remove.dataset.backupAction = 'delete';
             remove.dataset.backupId = backup.id;
+            remove.dataset.backupMode = backup.mode || '';
             remove.innerHTML = '<i class="bi bi-trash"></i> Delete';
             actions.append(remove);
             row.append(info, actions);
@@ -304,30 +329,117 @@
         });
     }
 
-    async function loadBackups() {
-        setBackupsStatus('Loading backups…');
+    async function loadBackups({ resumeOperation = true, silent = false, throwOnError = false } = {}) {
+        if (!silent) setBackupsStatus('Loading backups…');
         try {
             const response = await fetch('backups.php', { headers: { Accept: 'application/json' } });
             const result = await readJsonResponse(response, 'Failed to load backups');
-            renderBackups(result.backups || [], result.directory || 'backups', result.limit || 5);
+            if (Array.isArray(result.backups)) {
+                renderBackups(result.backups, result.directory || 'backups', result.limits || {}, result.databaseBytes || 0);
+            }
             state.backupsLoaded = true;
-            setBackupsStatus('');
+            if (resumeOperation && result.operation?.status === 'running') {
+                void monitorBackupOperation(result.operation.id, Number(result.operation.startedAt) * 1000);
+            } else if (!silent && state.monitoringOperationId === null) {
+                setBackupsStatus('');
+            }
+            return result;
         } catch (error) {
             setBackupsStatus(error.message, 'error');
+            if (throwOnError) throw error;
+            return null;
         }
     }
 
-    async function runBackupAction(action, id) {
+    function newOperationId() {
+        return typeof crypto.randomUUID === 'function'
+            ? crypto.randomUUID()
+            : Array.from(crypto.getRandomValues(new Uint8Array(16)), (byte) => byte.toString(16).padStart(2, '0')).join('');
+    }
+
+    function wait(milliseconds) {
+        return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+    }
+
+    async function monitorBackupOperation(operationId, startedAt = Date.now()) {
+        if (!operationId || state.monitoringOperationId === operationId) return;
+        state.monitoringOperationId = operationId;
+        setBusy(true);
+        let missingChecks = 0;
+        try {
+            while (state.monitoringOperationId === operationId) {
+                try {
+                    const response = await fetch(`backups.php?action=status&operationId=${encodeURIComponent(operationId)}`, { headers: { Accept: 'application/json' } });
+                    const result = await readJsonResponse(response, 'Failed to check backup status');
+                    const operation = result.operation || {};
+                    missingChecks = 0;
+                    if (operation.status === 'completed') {
+                        await loadBackups({ resumeOperation: false, silent: true, throwOnError: true });
+                        setBackupsStatus(operation.message || 'Backup created successfully.', 'success');
+                        return;
+                    }
+                    if (operation.status === 'failed') {
+                        const operationError = new Error(operation.error || operation.message || 'Backup creation failed.');
+                        operationError.terminal = true;
+                        throw operationError;
+                    }
+                    const elapsed = Date.now() - (startedAt || Date.now());
+                    setBackupsStatus(
+                        elapsed >= 5 * 60 * 1000
+                            ? 'Backup is still running after 5 minutes. YellowTDS will keep checking automatically.'
+                            : operation.message || 'Backup is still running. Checking automatically…',
+                        elapsed >= 5 * 60 * 1000 ? 'warning' : '',
+                    );
+                } catch (error) {
+                    if (error.terminal) {
+                        throw error;
+                    } else if (error.httpStatus === 404 && missingChecks < 3) {
+                        missingChecks++;
+                    } else if (error.httpStatus === 404) {
+                        throw new Error('Backup operation status was not found.');
+                    } else if (error.httpStatus && error.httpStatus < 500) {
+                        throw error;
+                    } else {
+                        setBackupsStatus('Unable to check the backup yet. Retrying automatically…', 'warning');
+                    }
+                }
+                await wait(5000);
+            }
+        } catch (error) {
+            setBackupsStatus(error.message, 'error');
+        } finally {
+            if (state.monitoringOperationId === operationId) state.monitoringOperationId = null;
+            setBusy(false);
+        }
+    }
+
+    async function runBackupAction(action, id = '', mode = '') {
         if (action === 'delete' && !window.confirm('Delete this backup permanently?')) return;
-        if (action === 'restore' && !window.confirm('Restore this backup? All current files, database, cache and settings will be replaced with the selected previous state. Changes made after that backup will be lost. A safety backup of the current state will be created first.')) return;
+        if (action === 'restore') {
+            const databaseNotice = mode === 'full'
+                ? 'The current SQLite database will be replaced.'
+                : 'The current SQLite database will be preserved.';
+            if (!window.confirm(`Restore this ${backupModeLabel(mode)} backup? ${databaseNotice} Files, cache and settings will return to the selected state. A matching safety backup is created first.`)) return;
+        }
 
         setBusy(true);
-        setBackupsStatus(action === 'restore' ? 'Restoring system…' : 'Deleting backup…');
+        const progressMessages = {
+            create: mode === 'full' ? 'Creating Full backup with SQLite…' : 'Creating Quick backup without SQLite…',
+            restore: 'Restoring system…',
+            delete: 'Deleting backup…',
+        };
+        setBackupsStatus(progressMessages[action] || 'Working…');
+        const operationId = ['create', 'restore'].includes(action) ? newOperationId() : null;
+        const startedAt = Date.now();
         try {
+            const payload = { action };
+            if (id) payload.id = id;
+            if (mode) payload.mode = mode;
+            if (operationId) payload.operationId = operationId;
             const response = await fetch('backups.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-                body: JSON.stringify({ action, id }),
+                body: JSON.stringify(payload),
             });
             const result = await readJsonResponse(response, `Failed to ${action} backup`);
             if (action === 'restore') {
@@ -336,12 +448,17 @@
                 window.location.assign(destination);
                 return;
             }
-            setBackupsStatus(result.message, 'success');
             await loadBackups();
+            setBackupsStatus(result.message, 'success');
         } catch (error) {
+            if (action === 'create' && operationId && (!error.httpStatus || error.httpStatus >= 500)) {
+                setBackupsStatus('The web server stopped waiting. The backup may still be running; YellowTDS is checking automatically…', 'warning');
+                await monitorBackupOperation(operationId, startedAt);
+                return;
+            }
             setBackupsStatus(error.message, 'error');
         } finally {
-            setBusy(false);
+            if (state.monitoringOperationId === null) setBusy(false);
         }
     }
 
@@ -462,10 +579,12 @@
         node('#updateGeoBases')?.addEventListener('click', updateGeoBases);
         node('#updateTds')?.addEventListener('click', updateTds);
         node('#randomizeStorage')?.addEventListener('click', randomizeStorage);
+        node('#createFullBackup')?.addEventListener('click', () => runBackupAction('create', '', 'full'));
+        node('#createQuickBackup')?.addEventListener('click', () => runBackupAction('create', '', 'quick'));
         node('#refreshBackups')?.addEventListener('click', loadBackups);
         node('#backupsList')?.addEventListener('click', (event) => {
             const button = event.target.closest('[data-backup-action]');
-            if (button) runBackupAction(button.dataset.backupAction, button.dataset.backupId);
+            if (button) runBackupAction(button.dataset.backupAction, button.dataset.backupId, button.dataset.backupMode);
         });
         node('#addCurrentAdminDomain')?.addEventListener('click', () => {
             const button = node('#addCurrentAdminDomain');

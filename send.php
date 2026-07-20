@@ -32,8 +32,8 @@ else {
         echo 'Missing folder for relative form action';
         return;
     }
-    $landingFolder = get_cache_path('landingFolder') . '/' . $folder;
-    $url = $landingFolder . '/' . $original_action;
+    $landingPath = get_cache_path('landings') . '/' . $folder;
+    $url = $landingPath . '/' . $original_action;
     $fullpath = get_abs_from_rel($url);
 }
 

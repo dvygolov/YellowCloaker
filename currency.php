@@ -10,7 +10,7 @@ class CurrencyRateManager
 
     private static function cacheDir(): string
     {
-        return self::absolutePath(get_cache_path('currencyCache'));
+        return self::absolutePath(get_cache_path('currency'));
     }
 
     private static function cacheFile(): string

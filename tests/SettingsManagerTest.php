@@ -74,7 +74,6 @@ class SettingsManagerTest extends TestCase
         $settings['dbConnection'] = 'events.sqlite';
         $settings['backupDir'] = 'restore-points';
         $settings['cachingDir'] = 'runtime-cache';
-        $settings['landingFolder'] = 'offers';
         $saved = $this->manager->save($settings, 0, $this->catalog);
 
         $this->assertDirectoryExists($this->root . '/secret-admin');
@@ -84,7 +83,7 @@ class SettingsManagerTest extends TestCase
         $this->assertFileExists($this->root . '/db/events.sqlite-shm');
         $this->assertFileExists($this->root . '/restore-points/keep.zip');
         $this->assertDirectoryDoesNotExist($this->root . '/backups');
-        $this->assertDirectoryExists($this->root . '/runtime-cache/offers');
+        $this->assertDirectoryExists($this->root . '/runtime-cache/landings');
         $this->assertSame('../secret-admin/', $saved['redirect']);
     }
 

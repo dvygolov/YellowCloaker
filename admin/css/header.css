@@ -348,13 +348,18 @@
 }
 
 .settings-storage-heading .btn,
-#refreshBackups {
+.settings-backup-toolbar .btn {
     display: inline-flex;
     min-height: 42px;
     align-items: center;
     justify-content: center;
     gap: 7px;
     white-space: nowrap;
+}
+
+.settings-backup-toolbar {
+    display: flex;
+    gap: 8px;
 }
 
 .settings-backup-warning {
@@ -397,8 +402,43 @@
 }
 
 .settings-backup-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
     color: #f8fbff;
     font-weight: 700;
+}
+
+.settings-backup-mode {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 7px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    font-size: 11px;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+}
+
+.settings-backup-mode.is-full {
+    border-color: #2875bd;
+    background: #15375e;
+    color: #b9dcff;
+}
+
+.settings-backup-mode.is-quick {
+    border-color: #2d8a65;
+    background: #163d31;
+    color: #a7f3d0;
+}
+
+.settings-backup-mode.is-unsupported {
+    border-color: #7f3549;
+    background: #3b1c2a;
+    color: #fecaca;
 }
 
 .settings-backup-details {
@@ -435,6 +475,7 @@
 .settings-update-card + .settings-update-card { margin-top: 14px; }
 .settings-update-status:empty { display: none; }
 .settings-update-status.success { background: #14372b; color: #a7f3d0; }
+.settings-update-status.warning { background: #3b3217; color: #fde68a; }
 .settings-update-status.error { background: #3b1c2a; color: #fecaca; }
 
 .settings-modal-footer {
@@ -472,13 +513,23 @@
     }
 
     .settings-storage-heading,
+    .settings-backup-heading,
     .settings-backup-row {
         align-items: stretch;
         grid-template-columns: 1fr;
     }
 
-    .settings-storage-heading {
+    .settings-storage-heading,
+    .settings-backup-heading {
         flex-direction: column;
+    }
+
+    .settings-backup-toolbar {
+        flex-wrap: wrap;
+    }
+
+    .settings-backup-toolbar .btn {
+        flex: 1;
     }
 
     .settings-backup-actions .btn { flex: 1; }

@@ -4,10 +4,15 @@ require_once __DIR__ . '/settings.php';
 
 final class BackupManager
 {
-    public const MAX_BACKUPS = 5;
-    private const SCHEMA_VERSION = 1;
+    public const MAX_BACKUPS_PER_MODE = 5;
+    public const MODE_FULL = 'full';
+    public const MODE_QUICK = 'quick';
+    private const SCHEMA_VERSION = 2;
     private const FILE_PREFIX = 'yellowtds_';
+    private const OPERATION_FILE = 'backup-operation.json';
     private string $root;
+    private ?string $activeOperationId = null;
+    private bool $activeOperationFinished = true;
 
     /** @var array<string, mixed> */
     private array $settings;
@@ -35,13 +40,57 @@ final class BackupManager
         return $this->rootPath((string)($this->settings['backupDir'] ?? 'backups'));
     }
 
+    public function databaseBytes(): int
+    {
+        $database = $this->rootPath('db/' . (string)($this->settings['dbConnection'] ?? 'clicks.db'));
+        $bytes = 0;
+        foreach ([$database, $database . '-wal', $database . '-shm'] as $path) {
+            if (is_file($path)) {
+                $bytes += (int)(filesize($path) ?: 0);
+            }
+        }
+        return $bytes;
+    }
+
+    /** @return array<string, mixed>|null */
+    public function latestOperation(): ?array
+    {
+        $operation = $this->readOperation();
+        if ($operation === null) {
+            return null;
+        }
+        return $this->resolveInterruptedOperation($operation);
+    }
+
+    /** @return array<string, mixed> */
+    public function operationStatus(string $operationId): array
+    {
+        $operationId = $this->normalizeOperationId($operationId);
+        $operation = $this->readOperation();
+        if ($operation === null || !hash_equals((string)($operation['id'] ?? ''), $operationId)) {
+            throw new InvalidArgumentException('Backup operation not found');
+        }
+        return $this->resolveInterruptedOperation($operation);
+    }
+
     /**
      * @param array<string, scalar|null> $metadata
      * @return array<string, mixed>
      */
-    public function create(string $type = 'manual', array $metadata = []): array
+    public function create(
+        string $type = 'manual',
+        array $metadata = [],
+        string $mode = self::MODE_FULL,
+        ?string $operationId = null,
+    ): array
     {
-        return $this->withLock(fn(): array => $this->createUnlocked($type, $metadata));
+        $this->assertBackupMode($mode);
+        return $this->withLock(fn(): array => $this->runTrackedOperation(
+            'create',
+            $mode,
+            $operationId,
+            fn(): array => $this->createUnlocked($type, $metadata, [], $mode),
+        ));
     }
 
     /** @return array<int, array<string, mixed>> */
@@ -64,9 +113,9 @@ final class BackupManager
     }
 
     /** @return array{backup: array<string, mixed>, safetyBackup: ?array<string, mixed>, redirect: ?string} */
-    public function restore(string $id, bool $createSafetyBackup = true): array
+    public function restore(string $id, bool $createSafetyBackup = true, ?string $operationId = null): array
     {
-        return $this->withLock(function () use ($id, $createSafetyBackup): array {
+        return $this->withLock(function () use ($id, $createSafetyBackup, $operationId): array {
             @set_time_limit(0);
             $archivePath = $this->backupPath($id);
             if (!is_file($archivePath)) {
@@ -74,52 +123,60 @@ final class BackupManager
             }
 
             $manifest = $this->readManifest($archivePath);
-            $archiveCopy = tempnam(sys_get_temp_dir(), 'yellowtds_restore_');
-            if ($archiveCopy === false || !@copy($archivePath, $archiveCopy)) {
-                throw new RuntimeException('Failed to prepare backup for restore');
-            }
-
-            $safetyBackup = null;
-            try {
-                if ($createSafetyBackup) {
-                    $safetyBackup = $this->createUnlocked('pre_restore', ['sourceBackup' => $id], [$id]);
+            $mode = (string)$manifest['mode'];
+            return $this->runTrackedOperation('restore', $mode, $operationId, function () use ($id, $archivePath, $manifest, $mode, $createSafetyBackup): array {
+                $archiveCopy = tempnam(sys_get_temp_dir(), 'yellowtds_restore_');
+                if ($archiveCopy === false || !@copy($archivePath, $archiveCopy)) {
+                    throw new RuntimeException('Failed to prepare backup for restore');
                 }
+
+                $safetyBackup = null;
                 try {
-                    $this->applyArchive($archiveCopy, $manifest);
-                } catch (Throwable $restoreError) {
-                    if (is_array($safetyBackup)) {
-                        try {
-                            $safetyPath = $this->backupPath((string)$safetyBackup['id']);
-                            $this->applyArchive($safetyPath, $this->readManifest($safetyPath));
-                        } catch (Throwable $rollbackError) {
-                            throw new RuntimeException(
-                                'Restore failed and the safety rollback also failed: ' . $rollbackError->getMessage(),
-                                0,
-                                $restoreError,
-                            );
-                        }
-                        throw new RuntimeException('Restore failed. The current system state was recovered from the safety backup.', 0, $restoreError);
+                    if ($createSafetyBackup) {
+                        $this->updateOperationStage('safety_backup', 'Creating a safety backup before restore.');
+                        $safetyMode = $mode === self::MODE_FULL ? self::MODE_FULL : self::MODE_QUICK;
+                        $safetyBackup = $this->createUnlocked('pre_restore', ['sourceBackup' => $id], [$id], $safetyMode);
                     }
-                    throw $restoreError;
+                    try {
+                        $this->updateOperationStage('restoring', 'Restoring the selected backup.');
+                        $this->applyArchive($archiveCopy, $manifest);
+                    } catch (Throwable $restoreError) {
+                        if (is_array($safetyBackup)) {
+                            try {
+                                $this->updateOperationStage('rollback', 'Restore failed. Recovering the previous system state.');
+                                $safetyPath = $this->backupPath((string)$safetyBackup['id']);
+                                $this->applyArchive($safetyPath, $this->readManifest($safetyPath));
+                            } catch (Throwable $rollbackError) {
+                                throw new RuntimeException(
+                                    'Restore failed and the safety rollback also failed: ' . $rollbackError->getMessage(),
+                                    0,
+                                    $restoreError,
+                                );
+                            }
+                            throw new RuntimeException('Restore failed. The current system state was recovered from the safety backup.', 0, $restoreError);
+                        }
+                        throw $restoreError;
+                    }
+                } finally {
+                    @unlink($archiveCopy);
                 }
-            } finally {
-                @unlink($archiveCopy);
-            }
 
-            $restoredAdminPath = (string)($manifest['adminPath'] ?? 'admin');
-            $redirect = $restoredAdminPath !== (string)($this->settings['adminPath'] ?? 'admin')
-                ? '../' . rawurlencode($restoredAdminPath) . '/'
-                : null;
+                $restoredAdminPath = (string)($manifest['adminPath'] ?? 'admin');
+                $redirect = $restoredAdminPath !== (string)($this->settings['adminPath'] ?? 'admin')
+                    ? '../' . rawurlencode($restoredAdminPath) . '/'
+                    : null;
 
-            $this->settings['adminPath'] = $restoredAdminPath;
-            $this->settings['backupDir'] = (string)($manifest['backupDir'] ?? 'backups');
-            $restoredArchivePath = $this->backupPathAfterRestore($id, $manifest);
+                $this->settings['adminPath'] = $restoredAdminPath;
+                $this->settings['backupDir'] = (string)($manifest['backupDir'] ?? 'backups');
+                $this->settings['dbConnection'] = (string)$manifest['database']['name'];
+                $restoredArchivePath = $this->backupPathAfterRestore($id, $manifest);
 
-            return [
-                'backup' => $this->publicBackupInfo($manifest, $id, is_file($restoredArchivePath) ? (filesize($restoredArchivePath) ?: 0) : 0),
-                'safetyBackup' => $safetyBackup,
-                'redirect' => $redirect,
-            ];
+                return [
+                    'backup' => $this->publicBackupInfo($manifest, $id, is_file($restoredArchivePath) ? (filesize($restoredArchivePath) ?: 0) : 0),
+                    'safetyBackup' => $safetyBackup,
+                    'redirect' => $redirect,
+                ];
+            });
         });
     }
 
@@ -128,9 +185,15 @@ final class BackupManager
      * @param array<int, string> $protectedIds
      * @return array<string, mixed>
      */
-    private function createUnlocked(string $type, array $metadata, array $protectedIds = []): array
+    private function createUnlocked(
+        string $type,
+        array $metadata,
+        array $protectedIds = [],
+        string $mode = self::MODE_FULL,
+    ): array
     {
         @set_time_limit(0);
+        $this->assertBackupMode($mode);
         if (!class_exists('ZipArchive')) {
             throw new RuntimeException('ZIP extension is required for backups');
         }
@@ -141,7 +204,12 @@ final class BackupManager
         $id = self::FILE_PREFIX . date('Y-m-d_H-i-s') . '_' . bin2hex(random_bytes(3)) . '.bak';
         $finalPath = $backupDir . DIRECTORY_SEPARATOR . $id;
         $tempPath = $backupDir . DIRECTORY_SEPARATOR . '.' . $id . '.creating';
-        $databaseSnapshot = $this->createDatabaseSnapshot();
+        $includeDatabase = $mode === self::MODE_FULL;
+        $this->updateOperationStage(
+            $includeDatabase ? 'database_snapshot' : 'archiving',
+            $includeDatabase ? 'Creating a consistent SQLite snapshot.' : 'Archiving files without SQLite.',
+        );
+        $databaseSnapshot = $includeDatabase ? $this->createDatabaseSnapshot() : null;
         $zip = new ZipArchive();
         $zipOpen = false;
 
@@ -157,20 +225,27 @@ final class BackupManager
                 'createdAt' => date(DATE_ATOM),
                 'timestamp' => time(),
                 'type' => preg_replace('/[^A-Za-z0-9_-]/', '', $type) ?: 'manual',
+                'mode' => $mode,
                 'version' => $this->currentVersion(),
                 'adminPath' => (string)($this->settings['adminPath'] ?? 'admin'),
                 'backupDir' => (string)($this->settings['backupDir'] ?? 'backups'),
+                'database' => [
+                    'included' => $includeDatabase,
+                    'name' => (string)($this->settings['dbConnection'] ?? 'clicks.db'),
+                ],
                 'metadata' => $metadata,
                 'directories' => [],
                 'files' => [],
             ];
 
             $dbRelative = 'db/' . (string)($this->settings['dbConnection'] ?? 'clicks.db');
-            $this->addDirectoryToArchive($zip, $this->root, '', $manifest, $dbRelative, $databaseSnapshot);
+            $this->updateOperationStage('archiving', $includeDatabase ? 'Compressing system files and SQLite.' : 'Compressing system files.');
+            $this->addDirectoryToArchive($zip, $this->root, '', $manifest, $dbRelative, $databaseSnapshot, $includeDatabase);
             $json = json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
             if ($json === false || !$zip->addFromString('manifest.json', $json)) {
                 throw new RuntimeException('Failed to write backup manifest');
             }
+            $this->updateOperationStage('finalizing', 'Finalizing the backup archive.');
             if (!$zip->close()) {
                 throw new RuntimeException('Failed to finalize backup archive');
             }
@@ -180,6 +255,7 @@ final class BackupManager
                 throw new RuntimeException('Failed to publish backup archive');
             }
             @chmod($finalPath, 0640);
+            $this->updateOperationStage('retention', 'Applying backup retention limits.');
             $this->enforceRetention(array_merge($protectedIds, [$id]));
 
             return $this->publicBackupInfo($manifest, $id, filesize($finalPath) ?: 0);
@@ -206,6 +282,7 @@ final class BackupManager
         array &$manifest,
         string $dbRelative,
         ?string $databaseSnapshot,
+        bool $includeDatabase,
     ): void {
         $items = scandir($absoluteDirectory);
         if ($items === false) {
@@ -230,13 +307,16 @@ final class BackupManager
                 if (!$zip->addEmptyDir('snapshot/' . $relative)) {
                     throw new RuntimeException('Failed to add directory to backup: ' . $relative);
                 }
-                $this->addDirectoryToArchive($zip, $absolute, $relative, $manifest, $dbRelative, $databaseSnapshot);
+                $this->addDirectoryToArchive($zip, $absolute, $relative, $manifest, $dbRelative, $databaseSnapshot, $includeDatabase);
                 continue;
             }
             if (!is_file($absolute)) {
                 continue;
             }
             if ($relative === $dbRelative . '-wal' || $relative === $dbRelative . '-shm') {
+                continue;
+            }
+            if ($relative === $dbRelative && !$includeDatabase) {
                 continue;
             }
 
@@ -284,6 +364,37 @@ final class BackupManager
         return $temp;
     }
 
+    private function restoreDatabaseSnapshot(string $snapshot, string $databaseName): void
+    {
+        $this->assertSafeFileName($databaseName);
+        if (!is_file($snapshot)) {
+            throw new RuntimeException('Preserved SQLite snapshot is missing');
+        }
+        $databaseDirectory = $this->rootPath('db');
+        if (!is_dir($databaseDirectory) && !@mkdir($databaseDirectory, 0755, true)) {
+            throw new RuntimeException('Failed to create the database directory');
+        }
+        $temporary = $databaseDirectory . DIRECTORY_SEPARATOR . '.' . $databaseName . '.restoring-' . bin2hex(random_bytes(4));
+        if (!@copy($snapshot, $temporary)) {
+            throw new RuntimeException('Failed to stage the preserved SQLite database');
+        }
+        @chmod($temporary, 0640);
+        $this->removeDatabaseFiles($databaseName);
+        if (!@rename($temporary, $databaseDirectory . DIRECTORY_SEPARATOR . $databaseName)) {
+            @unlink($temporary);
+            throw new RuntimeException('Failed to restore the preserved SQLite database');
+        }
+    }
+
+    private function removeDatabaseFiles(string $databaseName): void
+    {
+        $this->assertSafeFileName($databaseName);
+        $database = $this->rootPath('db/' . $databaseName);
+        @unlink($database);
+        @unlink($database . '-wal');
+        @unlink($database . '-shm');
+    }
+
     /** @return array<int, array<string, mixed>> */
     private function listUnlocked(): array
     {
@@ -304,6 +415,8 @@ final class BackupManager
                     'createdAt' => date(DATE_ATOM, filemtime($path) ?: time()),
                     'timestamp' => filemtime($path) ?: 0,
                     'type' => 'unknown',
+                    'mode' => 'unsupported',
+                    'includesDatabase' => null,
                     'version' => 'unknown',
                     'size' => filesize($path) ?: 0,
                     'valid' => false,
@@ -319,25 +432,28 @@ final class BackupManager
     private function enforceRetention(array $protectedIds = []): void
     {
         $backups = $this->listUnlocked();
-        if (count($backups) <= self::MAX_BACKUPS) {
-            return;
-        }
         $protected = array_fill_keys($protectedIds, true);
-        $remaining = count($backups);
-        foreach (array_reverse($backups) as $backup) {
-            if ($remaining <= self::MAX_BACKUPS) {
-                break;
+        foreach ([self::MODE_FULL, self::MODE_QUICK] as $mode) {
+            $modeBackups = array_values(array_filter(
+                $backups,
+                static fn(array $backup): bool => ($backup['valid'] ?? false) === true && ($backup['mode'] ?? '') === $mode,
+            ));
+            $remaining = count($modeBackups);
+            foreach (array_reverse($modeBackups) as $backup) {
+                if ($remaining <= self::MAX_BACKUPS_PER_MODE) {
+                    break;
+                }
+                $id = (string)$backup['id'];
+                if (isset($protected[$id])) {
+                    continue;
+                }
+                if (@unlink($this->backupPath($id))) {
+                    $remaining--;
+                }
             }
-            $id = (string)$backup['id'];
-            if (isset($protected[$id])) {
-                continue;
+            if ($remaining > self::MAX_BACKUPS_PER_MODE) {
+                throw new RuntimeException('Failed to enforce ' . $mode . ' backup retention limit');
             }
-            if (@unlink($this->backupPath($id))) {
-                $remaining--;
-            }
-        }
-        if ($remaining > self::MAX_BACKUPS) {
-            throw new RuntimeException('Failed to enforce backup retention limit');
         }
     }
 
@@ -356,8 +472,31 @@ final class BackupManager
             }
             $this->assertSafeDirectoryName((string)($manifest['backupDir'] ?? ''));
             $this->assertSafeDirectoryName((string)($manifest['adminPath'] ?? ''));
+            $this->assertBackupMode((string)($manifest['mode'] ?? ''));
+            $database = $manifest['database'] ?? null;
+            if (!is_array($database) || !is_bool($database['included'] ?? null)) {
+                throw new RuntimeException('Invalid backup database metadata');
+            }
+            $this->assertSafeFileName((string)($database['name'] ?? ''));
+            if (($manifest['mode'] === self::MODE_FULL) !== $database['included']) {
+                throw new RuntimeException('Backup mode does not match database metadata');
+            }
             if (!is_array($manifest['files'] ?? null) || !is_array($manifest['directories'] ?? null)) {
                 throw new RuntimeException('Incomplete backup manifest');
+            }
+            $databaseRelative = 'db/' . $database['name'];
+            $hasDatabase = false;
+            foreach ($manifest['files'] as $file) {
+                if (is_array($file) && (string)($file['path'] ?? '') === $databaseRelative) {
+                    $hasDatabase = true;
+                    break;
+                }
+            }
+            if ($database['included'] && !$hasDatabase) {
+                throw new RuntimeException('Full backup is missing its SQLite database');
+            }
+            if (!$database['included'] && $hasDatabase) {
+                throw new RuntimeException('Quick backup unexpectedly contains its SQLite database');
             }
             return $manifest;
         } finally {
@@ -370,6 +509,17 @@ final class BackupManager
     {
         $currentBackupDir = (string)($this->settings['backupDir'] ?? 'backups');
         $restoredBackupDir = (string)$manifest['backupDir'];
+        $databaseIncluded = (bool)$manifest['database']['included'];
+        $currentDatabaseName = (string)($this->settings['dbConnection'] ?? 'clicks.db');
+        $restoredDatabaseName = (string)$manifest['database']['name'];
+        $preservedDatabase = null;
+        if (!$databaseIncluded) {
+            $this->updateOperationStage('database_preserve', 'Preserving the current SQLite database.');
+            $preservedDatabase = $this->createDatabaseSnapshot();
+            if ($preservedDatabase === null) {
+                throw new RuntimeException('Cannot preserve the current SQLite database for Quick restore');
+            }
+        }
         $currentBackupPath = $this->rootPath($currentBackupDir);
         $restoredBackupPath = $this->rootPath($restoredBackupDir);
         if ($currentBackupPath !== $restoredBackupPath && file_exists($restoredBackupPath)) {
@@ -434,6 +584,10 @@ final class BackupManager
 
             $this->removeUnexpectedFiles($this->root, '', $files, $directories, $currentBackupDir);
 
+            if ($preservedDatabase !== null) {
+                $this->restoreDatabaseSnapshot($preservedDatabase, $restoredDatabaseName);
+            }
+
             if ($currentBackupPath !== $restoredBackupPath) {
                 if (!@rename($currentBackupPath, $restoredBackupPath)) {
                     throw new RuntimeException('Failed to restore backup directory name');
@@ -443,11 +597,30 @@ final class BackupManager
             if (function_exists('opcache_reset')) {
                 @opcache_reset();
             }
+        } catch (Throwable $restoreError) {
+            if ($preservedDatabase !== null) {
+                try {
+                    if ($restoredDatabaseName !== $currentDatabaseName) {
+                        $this->removeDatabaseFiles($restoredDatabaseName);
+                    }
+                    $this->restoreDatabaseSnapshot($preservedDatabase, $currentDatabaseName);
+                } catch (Throwable $databaseError) {
+                    throw new RuntimeException(
+                        'Restore failed and the current SQLite database could not be recovered: ' . $databaseError->getMessage(),
+                        0,
+                        $restoreError,
+                    );
+                }
+            }
+            throw $restoreError;
         } finally {
             if ($zipOpen) {
                 @$zip->close();
             }
             $this->recursiveDelete($stage);
+            if ($preservedDatabase !== null) {
+                @unlink($preservedDatabase);
+            }
         }
     }
 
@@ -562,6 +735,8 @@ final class BackupManager
             'createdAt' => (string)($manifest['createdAt'] ?? ''),
             'timestamp' => (int)($manifest['timestamp'] ?? 0),
             'type' => (string)($manifest['type'] ?? 'unknown'),
+            'mode' => (string)($manifest['mode'] ?? 'unsupported'),
+            'includesDatabase' => (bool)($manifest['database']['included'] ?? false),
             'version' => (string)($manifest['version'] ?? 'unknown'),
             'size' => $size,
             'valid' => true,
@@ -602,6 +777,187 @@ final class BackupManager
         if ($name === '' || strlen($name) > 64 || preg_match('/^[A-Za-z0-9._-]+$/', $name) !== 1 || $name === '.' || $name === '..') {
             throw new RuntimeException('Invalid backup directory name');
         }
+    }
+
+    private function assertSafeFileName(string $name): void
+    {
+        if ($name === '' || strlen($name) > 128 || basename($name) !== $name || preg_match('/^[A-Za-z0-9._-]+$/', $name) !== 1 || $name === '.' || $name === '..') {
+            throw new RuntimeException('Invalid database file name');
+        }
+    }
+
+    private function assertBackupMode(string $mode): void
+    {
+        if (!in_array($mode, [self::MODE_FULL, self::MODE_QUICK], true)) {
+            throw new InvalidArgumentException('Invalid backup mode');
+        }
+    }
+
+    private function normalizeOperationId(string $operationId): string
+    {
+        if (preg_match('/^[A-Za-z0-9-]{16,64}$/', $operationId) !== 1) {
+            throw new InvalidArgumentException('Invalid backup operation id');
+        }
+        return $operationId;
+    }
+
+    /**
+     * @param callable(): array<string, mixed> $callback
+     * @return array<string, mixed>
+     */
+    private function runTrackedOperation(string $action, string $mode, ?string $operationId, callable $callback): array
+    {
+        $this->assertBackupMode($mode);
+        $operationId = $operationId === null
+            ? bin2hex(random_bytes(16))
+            : $this->normalizeOperationId($operationId);
+        $now = time();
+        $operation = [
+            'id' => $operationId,
+            'action' => $action,
+            'mode' => $mode,
+            'status' => 'running',
+            'stage' => 'starting',
+            'message' => $action === 'restore' ? 'Preparing to restore the backup.' : 'Preparing the backup.',
+            'backupId' => null,
+            'error' => '',
+            'startedAt' => $now,
+            'updatedAt' => $now,
+        ];
+        $this->activeOperationId = $operationId;
+        $this->activeOperationFinished = false;
+        $this->writeOperation($operation);
+
+        register_shutdown_function(function () use ($operationId): void {
+            if ($this->activeOperationFinished || $this->activeOperationId !== $operationId) {
+                return;
+            }
+            $lastError = error_get_last();
+            $message = is_array($lastError) && isset($lastError['message'])
+                ? 'Backup process stopped: ' . (string)$lastError['message']
+                : 'Backup process was interrupted by the hosting environment.';
+            $operation = $this->readOperation();
+            if ($operation !== null && hash_equals((string)($operation['id'] ?? ''), $operationId)) {
+                $operation['status'] = 'failed';
+                $operation['stage'] = 'failed';
+                $operation['message'] = $message;
+                $operation['error'] = $message;
+                $operation['updatedAt'] = time();
+                try {
+                    $this->writeOperation($operation);
+                } catch (Throwable) {
+                    // A fatal shutdown must not emit another error.
+                }
+            }
+        });
+
+        try {
+            $result = $callback();
+            $operation = $this->readOperation() ?? $operation;
+            $operation['status'] = 'completed';
+            $operation['stage'] = 'completed';
+            $operation['message'] = $action === 'restore' ? 'Backup restored successfully.' : 'Backup created successfully.';
+            $operation['backupId'] = (string)($result['id'] ?? $result['backup']['id'] ?? '');
+            $operation['error'] = '';
+            $operation['updatedAt'] = time();
+            $this->writeOperation($operation);
+            $this->activeOperationFinished = true;
+            return $result;
+        } catch (Throwable $error) {
+            $operation = $this->readOperation() ?? $operation;
+            $operation['status'] = 'failed';
+            $operation['stage'] = 'failed';
+            $operation['message'] = $error->getMessage();
+            $operation['error'] = $error->getMessage();
+            $operation['updatedAt'] = time();
+            $this->writeOperation($operation);
+            $this->activeOperationFinished = true;
+            throw $error;
+        } finally {
+            $this->activeOperationId = null;
+        }
+    }
+
+    private function updateOperationStage(string $stage, string $message): void
+    {
+        if ($this->activeOperationId === null || $this->activeOperationFinished) {
+            return;
+        }
+        $operation = $this->readOperation();
+        if ($operation === null || !hash_equals((string)($operation['id'] ?? ''), $this->activeOperationId)) {
+            return;
+        }
+        $operation['stage'] = $stage;
+        $operation['message'] = $message;
+        $operation['updatedAt'] = time();
+        $this->writeOperation($operation);
+    }
+
+    /** @param array<string, mixed> $operation */
+    private function writeOperation(array $operation): void
+    {
+        $tmp = $this->rootPath('tmp');
+        if (!is_dir($tmp) && !@mkdir($tmp, 0755, true)) {
+            throw new RuntimeException('Failed to create backup operation directory');
+        }
+        $json = json_encode($operation, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        if ($json === false) {
+            throw new RuntimeException('Failed to encode backup operation status');
+        }
+        $target = $tmp . DIRECTORY_SEPARATOR . self::OPERATION_FILE;
+        $temporary = $target . '.' . bin2hex(random_bytes(4)) . '.tmp';
+        if (@file_put_contents($temporary, $json, LOCK_EX) === false || !@rename($temporary, $target)) {
+            @unlink($temporary);
+            throw new RuntimeException('Failed to write backup operation status');
+        }
+        @chmod($target, 0666);
+    }
+
+    /** @return array<string, mixed>|null */
+    private function readOperation(): ?array
+    {
+        $path = $this->rootPath('tmp/' . self::OPERATION_FILE);
+        if (!is_file($path)) {
+            return null;
+        }
+        $operation = json_decode((string)@file_get_contents($path), true);
+        return is_array($operation) ? $operation : null;
+    }
+
+    /** @param array<string, mixed> $operation @return array<string, mixed> */
+    private function resolveInterruptedOperation(array $operation): array
+    {
+        if (($operation['status'] ?? '') === 'running' && !$this->isBackupLocked()) {
+            $message = 'Backup process was interrupted by the hosting environment.';
+            $operation['status'] = 'failed';
+            $operation['stage'] = 'failed';
+            $operation['message'] = $message;
+            $operation['error'] = $message;
+            $operation['updatedAt'] = time();
+            $this->writeOperation($operation);
+        }
+        return $operation;
+    }
+
+    private function isBackupLocked(): bool
+    {
+        $lockPath = $this->rootPath('tmp/backups.lock');
+        if (!is_file($lockPath)) {
+            return false;
+        }
+        $lock = @fopen($lockPath, 'c+');
+        if ($lock === false) {
+            $lock = @fopen($lockPath, 'r');
+        }
+        if ($lock === false) {
+            throw new RuntimeException('Failed to inspect the backup lock');
+        }
+        $acquired = flock($lock, LOCK_EX | LOCK_NB);
+        if ($acquired) {
+            flock($lock, LOCK_UN);
+        }
+        fclose($lock);
+        return !$acquired;
     }
 
     private function ensureBackupDirectory(string $directory): void

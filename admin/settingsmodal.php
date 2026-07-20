@@ -57,28 +57,26 @@
 
                 <section class="settings-tab-panel" data-settings-panel="storage">
                     <div class="settings-section-heading settings-storage-heading">
-                        <div><h6>Storage names</h6><small>Random names make standard installation paths less predictable.</small></div>
-                        <button type="button" class="btn btn-primary" id="randomizeStorage"><i class="bi bi-shuffle"></i> Randomize all</button>
+                        <div><h6>Storage names</h6><small>Randomize the database, backup folder and cache root. Cache subfolders use fixed system names.</small></div>
+                        <button type="button" class="btn btn-primary" id="randomizeStorage"><i class="bi bi-shuffle"></i> Randomize main paths</button>
                     </div>
-                    <div class="settings-notice">Renamed database and cache locations are moved physically. Existing target names are never merged or overwritten.</div>
+                    <div class="settings-notice">Renamed database, backup and cache locations are moved physically. Existing target names are never merged or overwritten.</div>
                     <div class="settings-grid">
                         <label class="settings-field"><span>Database file</span><input type="text" name="dbConnection"></label>
                         <label class="settings-field"><span>Backup folder</span><input type="text" name="backupDir"><small>Update and restore snapshots are stored here. Only the newest five are kept.</small></label>
                         <label class="settings-field"><span>Cache root</span><input type="text" name="cachingDir"></label>
-                        <label class="settings-field"><span>Landings</span><input type="text" name="landingFolder"></label>
-                        <label class="settings-field"><span>Safe pages</span><input type="text" name="whiteFolder"></label>
-                        <label class="settings-field"><span>Safe Page CURL cache</span><input type="text" name="whiteCurlCache"></label>
-                        <label class="settings-field"><span>Device cache</span><input type="text" name="devicesCache"></label>
-                        <label class="settings-field"><span>Currency cache</span><input type="text" name="currencyCache"></label>
-                        <label class="settings-field"><span>VPN cache</span><input type="text" name="proxyVpnCache"></label>
                     </div>
                 </section>
 
                 <section class="settings-tab-panel" data-settings-panel="backups">
-                    <div class="settings-notice settings-backup-warning"><i class="bi bi-exclamation-triangle"></i> Restoring a backup replaces the current system files, database, cache and settings with the selected snapshot. A safety backup of the current state is created first.</div>
-                    <div class="settings-section-heading">
-                        <div><h6>System backups</h6><small id="backupsMeta">The newest five backups are retained automatically.</small></div>
-                        <button type="button" class="btn btn-primary" id="refreshBackups"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+                    <div class="settings-notice settings-backup-warning"><i class="bi bi-exclamation-triangle"></i> Full restore replaces the SQLite database. Quick restore preserves the current database. A matching safety backup is created first.</div>
+                    <div class="settings-section-heading settings-backup-heading">
+                        <div><h6>System backups</h6><small id="backupsMeta">The newest five Full and five Quick backups are retained automatically.</small></div>
+                        <div class="settings-backup-toolbar">
+                            <button type="button" class="btn btn-primary" id="createFullBackup" title="Includes the current SQLite database. Complete restore point; large databases can take several minutes on shared hosting."><i class="bi bi-database-add"></i> Full backup</button>
+                            <button type="button" class="btn btn-success" id="createQuickBackup" title="Excludes only the SQLite database. Files, settings, landing pages, white pages and cache are included."><i class="bi bi-lightning-charge"></i> Quick backup</button>
+                            <button type="button" class="btn btn-secondary" id="refreshBackups"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+                        </div>
                     </div>
                     <div id="backupsList" class="settings-backup-list"></div>
                     <div id="backupsStatus" class="settings-update-status" aria-live="polite"></div>

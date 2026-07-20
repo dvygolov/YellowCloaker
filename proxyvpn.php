@@ -156,7 +156,7 @@ class ProxyVpnDetector
 
     private static function cacheDir(): string
     {
-        return self::absolutePath(get_cache_path('proxyVpnCache'));
+        return self::absolutePath(get_cache_path('proxyvpn'));
     }
 
     private static function cacheFile(string $cacheKey): string

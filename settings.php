@@ -15,6 +15,7 @@ final class SettingsConflictException extends RuntimeException
 
 final class SettingsManager
 {
+    public const CACHE_SUBDIRECTORIES = ['landings', 'whites', 'whites_curl', 'devices', 'currency', 'proxyvpn'];
     private const LOCAL_FILE = 'settings.local.php';
     private const LOCK_FILE = 'settings.lock';
     private const JOURNAL_FILE = 'settings.journal.json';
@@ -37,12 +38,6 @@ final class SettingsManager
             'debug' => true,
             'logRetentionDays' => 30,
             'cachingDir' => 'caching',
-            'landingFolder' => 'landings',
-            'whiteFolder' => 'whites',
-            'whiteCurlCache' => 'whites_curl',
-            'devicesCache' => 'devices',
-            'currencyCache' => 'currency',
-            'proxyVpnCache' => 'proxyvpn',
             'plugins' => [
                 'currency' => [
                     'items' => [],
@@ -60,7 +55,8 @@ final class SettingsManager
     {
         $local = $this->readLocalPayload();
         unset($local['_revision']);
-        return self::mergeSettings(self::defaults(), $local);
+        $defaults = self::defaults();
+        return self::mergeSettings($defaults, array_intersect_key($local, $defaults));
     }
 
     public function revision(): int
@@ -75,7 +71,8 @@ final class SettingsManager
         if (is_file($this->localPath())) {
             return;
         }
-        $this->writeLocalPayload(['_revision' => max(1, $revision)] + self::mergeSettings(self::defaults(), $settings));
+        $defaults = self::defaults();
+        $this->writeLocalPayload(['_revision' => max(1, $revision)] + self::mergeSettings($defaults, array_intersect_key($settings, $defaults)));
     }
 
     /**
@@ -223,7 +220,7 @@ final class SettingsManager
         }
 
         $errors = [];
-        foreach (['adminPassword', 'adminDomain', 'adminIp', 'adminPath', 'dbConnection', 'backupDir', 'cachingDir', 'landingFolder', 'whiteFolder', 'whiteCurlCache', 'devicesCache', 'currencyCache', 'proxyVpnCache'] as $field) {
+        foreach (['adminPassword', 'adminDomain', 'adminIp', 'adminPath', 'dbConnection', 'backupDir', 'cachingDir'] as $field) {
             if (!is_string($next[$field] ?? null)) {
                 $errors[$field] = 'Must be a string';
             } else {
@@ -256,21 +253,8 @@ final class SettingsManager
             $errors['backupDir'] = 'Use a name that does not overlap system, admin or cache directories';
         }
 
-        $directoryFields = ['cachingDir', 'landingFolder', 'whiteFolder', 'whiteCurlCache', 'devicesCache', 'currencyCache', 'proxyVpnCache'];
-        foreach ($directoryFields as $field) {
-            if (!$this->isSafeName((string)($next[$field] ?? ''), 64)) {
-                $errors[$field] = 'Use a directory name without slashes';
-            }
-        }
-        $subdirFields = array_slice($directoryFields, 1);
-        $seen = [];
-        foreach ($subdirFields as $field) {
-            $value = strtolower((string)($next[$field] ?? ''));
-            if ($value !== '' && isset($seen[$value])) {
-                $errors[$field] = 'Cache directory names must be unique';
-                $errors[$seen[$value]] = 'Cache directory names must be unique';
-            }
-            $seen[$value] = $field;
+        if (!$this->isSafeName((string)($next['cachingDir'] ?? ''), 64)) {
+            $errors['cachingDir'] = 'Use a directory name without slashes';
         }
 
         foreach (['useUTP', 'debug'] as $field) {
@@ -362,31 +346,16 @@ final class SettingsManager
 
         $oldCacheRoot = $this->rootPath((string)$current['cachingDir']);
         $newCacheRoot = $this->rootPath((string)$next['cachingDir']);
-        $cacheFields = ['landingFolder', 'whiteFolder', 'whiteCurlCache', 'devicesCache', 'currencyCache', 'proxyVpnCache'];
         if (!is_dir($oldCacheRoot)) {
             if ($oldCacheRoot !== $newCacheRoot && file_exists($newCacheRoot)) {
                 $errors['cachingDir'] = 'Target cache root already exists';
             } else {
                 $operations[] = ['type' => 'mkdir', 'path' => $newCacheRoot];
-                foreach ($cacheFields as $field) {
-                    $operations[] = ['type' => 'mkdir', 'path' => $newCacheRoot . DIRECTORY_SEPARATOR . $next[$field]];
+                foreach (self::CACHE_SUBDIRECTORIES as $subdirectory) {
+                    $operations[] = ['type' => 'mkdir', 'path' => $newCacheRoot . DIRECTORY_SEPARATOR . $subdirectory];
                 }
             }
         } else {
-            foreach ($cacheFields as $field) {
-                $from = $oldCacheRoot . DIRECTORY_SEPARATOR . $current[$field];
-                $to = $oldCacheRoot . DIRECTORY_SEPARATOR . $next[$field];
-                if ($from === $to) {
-                    continue;
-                }
-                if (file_exists($to)) {
-                    $errors[$field] = 'Target cache directory already exists';
-                } elseif (is_dir($from)) {
-                    $operations[] = ['type' => 'rename', 'from' => $from, 'to' => $to];
-                } else {
-                    $operations[] = ['type' => 'mkdir', 'path' => $to];
-                }
-            }
             if ($oldCacheRoot !== $newCacheRoot) {
                 if (file_exists($newCacheRoot)) {
                     $errors['cachingDir'] = 'Target cache root already exists';
@@ -600,8 +569,11 @@ final class SettingsManager
 
 $cloSettings = (new SettingsManager(__DIR__))->load();
 
-function get_cache_path(string $subKey): string
+function get_cache_path(string $subdirectory): string
 {
     global $cloSettings;
-    return rtrim((string)$cloSettings['cachingDir'], '/\\') . '/' . ltrim((string)$cloSettings[$subKey], '/\\');
+    if (!in_array($subdirectory, SettingsManager::CACHE_SUBDIRECTORIES, true)) {
+        throw new InvalidArgumentException('Unknown cache subdirectory');
+    }
+    return rtrim((string)$cloSettings['cachingDir'], '/\\') . '/' . $subdirectory;
 }

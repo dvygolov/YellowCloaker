@@ -14,11 +14,52 @@ function backups_send(array $payload, int $status = 200): void
     echo json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 }
 
+/** @return array<string, mixed> */
+function backups_execute_action(
+    BackupManager $manager,
+    string $action,
+    string $id = '',
+    string $mode = '',
+    ?string $operationId = null,
+): array
+{
+    if ($action === 'create') {
+        return [
+            'success' => true,
+            'message' => 'Backup created successfully.',
+            'backup' => $manager->create('manual', [], $mode, $operationId),
+        ];
+    }
+
+    if ($id === '') {
+        throw new InvalidArgumentException('Backup id is required');
+    }
+
+    if ($action === 'delete') {
+        $manager->delete($id);
+        return ['success' => true, 'message' => 'Backup deleted'];
+    }
+    if ($action === 'restore') {
+        $restored = $manager->restore($id, true, $operationId);
+        return [
+            'success' => true,
+            'message' => 'System restored. All settings and files now match the selected backup.',
+            'redirect' => $restored['redirect'],
+            'safetyBackup' => $restored['safetyBackup'],
+        ];
+    }
+
+    throw new InvalidArgumentException('Invalid action');
+}
+
 function backups_handle_request(): void
 {
     if (!check_password(false)) {
         backups_send(['error' => 'Forbidden'], 403);
         return;
+    }
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_write_close();
     }
 
     try {
@@ -28,10 +69,25 @@ function backups_handle_request(): void
         $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
         if ($method === 'GET') {
+            if (($_GET['action'] ?? '') === 'status') {
+                try {
+                    backups_send(['operation' => $manager->operationStatus((string)($_GET['operationId'] ?? ''))]);
+                } catch (InvalidArgumentException $e) {
+                    backups_send(['error' => $e->getMessage()], 404);
+                }
+                return;
+            }
+            $operation = $manager->latestOperation();
+            $operationRunning = is_array($operation) && ($operation['status'] ?? '') === 'running';
             backups_send([
-                'backups' => $manager->list(),
+                'backups' => $operationRunning ? null : $manager->list(),
                 'directory' => (string)($settings['backupDir'] ?? 'backups'),
-                'limit' => BackupManager::MAX_BACKUPS,
+                'limits' => [
+                    BackupManager::MODE_FULL => BackupManager::MAX_BACKUPS_PER_MODE,
+                    BackupManager::MODE_QUICK => BackupManager::MAX_BACKUPS_PER_MODE,
+                ],
+                'databaseBytes' => $manager->databaseBytes(),
+                'operation' => $operation,
             ]);
             return;
         }
@@ -46,29 +102,15 @@ function backups_handle_request(): void
             return;
         }
         $action = (string)($body['action'] ?? '');
+
         $id = (string)($body['id'] ?? '');
-        if ($id === '') {
-            backups_send(['error' => 'Backup id is required'], 422);
-            return;
+        $mode = (string)($body['mode'] ?? '');
+        $operationId = isset($body['operationId']) ? (string)$body['operationId'] : null;
+        try {
+            backups_send(backups_execute_action($manager, $action, $id, $mode, $operationId));
+        } catch (InvalidArgumentException $e) {
+            backups_send(['error' => $e->getMessage()], 422);
         }
-
-        if ($action === 'delete') {
-            $manager->delete($id);
-            backups_send(['success' => true, 'message' => 'Backup deleted']);
-            return;
-        }
-        if ($action === 'restore') {
-            $restored = $manager->restore($id, true);
-            backups_send([
-                'success' => true,
-                'message' => 'System restored. All settings and files now match the selected backup.',
-                'redirect' => $restored['redirect'],
-                'safetyBackup' => $restored['safetyBackup'],
-            ]);
-            return;
-        }
-
-        backups_send(['error' => 'Invalid action'], 422);
     } catch (Throwable $e) {
         ytds_log('error', 'admin', $e->getMessage(), ['action' => 'backups']);
         backups_send(['error' => $e->getMessage()], 500);

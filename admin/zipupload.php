@@ -58,8 +58,8 @@ if (!preg_match('/^[a-zA-Z0-9_\-\.]+$/', $folder)) {
 }
 
 $uploadType = $_POST['type'] ?? 'landing';
-$subKey = $uploadType === 'white' ? 'whiteFolder' : 'landingFolder';
-$baseFolder = get_cache_path($subKey);
+    $subdirectory = $uploadType === 'white' ? 'whites' : 'landings';
+    $baseFolder = get_cache_path($subdirectory);
 $landingDir = realpath(__DIR__ . '/../' . $baseFolder);
 if ($landingDir === false) {
     // Try to create it

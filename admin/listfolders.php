@@ -5,8 +5,8 @@ require_once __DIR__ . '/../settings.php';
 header('Content-Type: application/json');
 
 $type = $_GET['type'] ?? 'landing';
-$subKey = $type === 'white' ? 'whiteFolder' : 'landingFolder';
-$landingDir = realpath(__DIR__ . '/../' . get_cache_path($subKey));
+$subdirectory = $type === 'white' ? 'whites' : 'landings';
+$landingDir = realpath(__DIR__ . '/../' . get_cache_path($subdirectory));
 if ($landingDir === false) {
     echo json_encode(['error' => false, 'folders' => []]);
     exit;
