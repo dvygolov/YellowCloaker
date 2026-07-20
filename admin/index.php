@@ -24,6 +24,7 @@ $gs = $db->get_common_settings();
 $savedFilters = $gs['statistics']['campaignsFilters'] ?? [];
 $hasActiveFilters = !empty($savedFilters) && !empty($savedFilters['rules']);
 $timeRange = Dates::get_time_range($gs['statistics']['timezone']);
+$calendarDates = Dates::get_calend_dates();
 $dataset = $db->get_campaigns(
     $timeRange[0],
     $timeRange[1],
@@ -47,11 +48,11 @@ $dataset = $db->get_campaigns(
                     <span class="system-status-value" id="statusFreeValue">…</span>
                 </span>
                 <span class="system-status-separator" aria-hidden="true"></span>
-                <span class="system-status-item" id="statusDatabase" title="SQLite database including WAL and shared-memory files">
+                <a class="system-status-item" id="statusDatabase" href="database.php?startdate=<?=urlencode($calendarDates[0])?>&amp;enddate=<?=urlencode($calendarDates[1])?>" title="Open SQLite database maintenance">
                     <i class="bi bi-database" aria-hidden="true"></i>
                     <span class="system-status-label">DB:</span>
                     <span class="system-status-value" id="statusDatabaseValue">…</span>
-                </span>
+                </a>
                 <span class="system-status-separator" aria-hidden="true"></span>
                 <span class="system-status-item" id="statusCache" title="All files in the configured cache directory, including landing and safe pages">
                     <i class="bi bi-folder2-open" aria-hidden="true"></i>
@@ -214,6 +215,12 @@ $dataset = $db->get_campaigns(
             display: inline-flex;
             align-items: center;
             gap: 5px;
+            color: inherit;
+            text-decoration: none;
+        }
+        a.system-status-item:hover .system-status-label,
+        a.system-status-item:hover .system-status-value {
+            color: #93c5fd;
         }
         .system-status-item i {
             color: #60a5fa;

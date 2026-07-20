@@ -1,0 +1,328 @@
+.database-page {
+    min-height: 100vh;
+    background: #111d35;
+    color: #d7dce2;
+}
+
+.database-content {
+    padding: 8px 30px 42px;
+}
+
+.database-section-head,
+.maintenance-progress-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.database-section h1,
+.database-confirm-modal h2 {
+    margin: 0;
+    color: #f0f3f7;
+}
+
+.database-section-actions,
+.maintenance-progress-actions,
+.database-modal-actions {
+    display: flex;
+    gap: 9px;
+    align-items: center;
+}
+
+.database-alert,
+.maintenance-progress,
+.database-section {
+    margin-bottom: 16px;
+    padding: 17px;
+    background: #182541;
+    border: 1px solid #2b426f;
+    border-radius: 8px;
+}
+
+.database-alert {
+    border-color: #a96d2d;
+    background: #312b2c;
+    color: #f0c77f;
+}
+
+.database-alert.is-error {
+    border-color: #a84b54;
+    background: #35212b;
+    color: #ff9ea6;
+}
+
+.maintenance-progress {
+    border-color: #3b639c;
+    background: #192a49;
+}
+
+.maintenance-progress-head > div:first-child {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+#maintenanceMessage {
+    color: #aebbd0;
+}
+
+.maintenance-progress-track {
+    height: 10px;
+    margin-top: 14px;
+    overflow: hidden;
+    background: #0d172a;
+    border-radius: 99px;
+}
+
+.maintenance-progress-track span {
+    display: block;
+    width: 0;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        #356dc3 0%,
+        #438fd0 25%,
+        #69d5eb 45%,
+        #b5efff 50%,
+        #69d5eb 55%,
+        #438fd0 75%,
+        #356dc3 100%
+    );
+    background-position: 100% 0;
+    background-size: 220% 100%;
+    border-radius: inherit;
+    transition: width .25s ease;
+}
+
+.maintenance-progress.is-active .maintenance-progress-track span {
+    animation: database-progress-flow 1.35s linear infinite;
+}
+
+.maintenance-result {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.maintenance-result > div {
+    padding: 10px 12px;
+    background: #111d33;
+    border-radius: 6px;
+}
+
+.maintenance-result small,
+.maintenance-result strong {
+    display: block;
+}
+
+.maintenance-result small {
+    color: #8997a9;
+}
+
+.database-section-head {
+    margin-bottom: 14px;
+}
+
+.database-section h1 {
+    font-size: 22px;
+}
+
+.database-table-wrap {
+    overflow: auto;
+    border: 1px solid #2b426f;
+    border-radius: 6px;
+}
+
+.database-table {
+    width: 100%;
+    min-width: 890px;
+    border-collapse: collapse;
+    background: #121f37;
+}
+
+.database-table th,
+.database-table td {
+    padding: 11px 12px;
+    border-bottom: 1px solid #253b62;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.database-table th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: #213354;
+    color: #bdc8d8;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .025em;
+}
+
+.database-table tbody tr:hover {
+    background: #182b4a;
+}
+
+.database-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.database-table .database-check {
+    width: 42px;
+    text-align: center;
+}
+
+.database-table input[type="checkbox"] {
+    width: 17px;
+    height: 17px;
+    accent-color: #3d7bd1;
+}
+
+.database-campaign-name {
+    color: #eef3f9;
+    font-weight: 600;
+}
+
+.database-muted,
+.database-loading,
+.database-empty {
+    color: #8593a7;
+}
+
+.database-loading,
+.database-empty {
+    padding: 35px !important;
+    text-align: center !important;
+}
+
+.database-table .trafficback-table-row {
+    background: #182843;
+}
+
+.database-table .trafficback-table-row td {
+    border-top: 2px solid #35517e;
+}
+
+.database-global-badge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 7px;
+    color: #bcd4f5;
+    background: #29466f;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    vertical-align: 1px;
+}
+
+.database-confirm-modal {
+    max-width: 650px;
+    color: #dce3ed;
+}
+
+.database-modal {
+    width: min(650px, calc(100vw - 28px));
+    max-width: 650px;
+    padding: 22px;
+    background: #182541;
+    border: 1px solid #35507e;
+    border-radius: 8px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
+}
+
+.cleanup-preview-summary {
+    margin: 15px 0;
+    padding: 12px 14px;
+    background: #111d33;
+    border-radius: 6px;
+}
+
+.cleanup-preview-summary ul {
+    margin: 8px 0 0;
+    padding-left: 21px;
+}
+
+.database-warning {
+    display: flex;
+    gap: 11px;
+    margin: 12px 0;
+    padding: 12px 14px;
+    background: #332d26;
+    border: 1px solid #9a6b35;
+    border-radius: 6px;
+    color: #f0c77f;
+}
+
+.database-warning i {
+    flex: 0 0 auto;
+    font-size: 20px;
+}
+
+.database-warning-danger {
+    background: #38242c;
+    border-color: #a84b54;
+    color: #ffabb2;
+}
+
+.delete-confirm-field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    margin: 17px 0;
+}
+
+.delete-confirm-field input {
+    background: #101b30;
+    border-color: #405b86;
+    color: #fff;
+}
+
+.database-modal-actions {
+    justify-content: flex-end;
+}
+
+@keyframes database-progress-flow {
+    from {
+        background-position: 200% 0;
+    }
+
+    to {
+        background-position: -200% 0;
+    }
+}
+
+@media (max-width: 1050px) {
+    .maintenance-result {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .database-content {
+        padding: 8px 12px 30px;
+    }
+
+    .database-section-head,
+    .maintenance-progress-head {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .maintenance-result {
+        grid-template-columns: 1fr;
+    }
+
+    .database-section-actions,
+    .maintenance-progress-actions {
+        flex-wrap: wrap;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .maintenance-progress.is-active .maintenance-progress-track span {
+        animation: none;
+    }
+}
