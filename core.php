@@ -18,7 +18,8 @@ require_once __DIR__ . '/bases/device/Cache/Doctrine/MultiOperationCache.php';
 require_once __DIR__ . '/bases/device/Cache/Doctrine/CacheProvider.php';
 require_once __DIR__ . '/bases/device/Cache/Doctrine/FileCache.php';
 require_once __DIR__ . '/bases/device/Cache/Doctrine/PhpFileCache.php';
-require_once __DIR__ . '/bases/device/Cache/Doctrine/CacheProvider.php';
+require_once __DIR__ . '/bases/device/Cache/Doctrine/ApcuCache.php';
+require_once __DIR__ . '/bases/device/Cache/Doctrine/ChainCache.php';
 
 require_once __DIR__ . '/bases/device/Cache/CacheInterface.php';
 require_once __DIR__ . '/bases/device/Cache/DoctrineBridge.php';
@@ -31,6 +32,38 @@ use DeviceDetector\ClientHints;
 use DeviceDetector\DeviceDetector;
 use DeviceDetector\Cache\DoctrineBridge;
 use DeviceDetector\Parser\Device\AbstractDeviceParser;
+
+function request_device_client_hints(): void
+{
+    if (headers_sent()) {
+        return;
+    }
+
+    $headers = [
+        'Sec-CH-UA', 'Sec-CH-UA-Arch', 'Sec-CH-UA-Bitness',
+        'Sec-CH-UA-Full-Version', 'Sec-CH-UA-Full-Version-List',
+        'Sec-CH-UA-Mobile', 'Sec-CH-UA-Platform', 'Sec-CH-UA-Platform-Version',
+        'Sec-CH-UA-WoW64', 'Sec-CH-UA-Model', 'Sec-CH-UA-Form-Factors',
+    ];
+    $headerList = implode(', ', $headers);
+    header('Accept-CH: ' . $headerList, true);
+    header('Critical-CH: ' . $headerList, true);
+    header('Vary: ' . $headerList, true);
+}
+
+function create_device_detector_cache(string $cacheDir): DoctrineBridge
+{
+    $fileCache = new Doctrine\Common\Cache\PhpFileCache($cacheDir);
+    if (function_exists('apcu_enabled') && apcu_enabled()) {
+        $cache = new Doctrine\Common\Cache\ChainCache([
+            new Doctrine\Common\Cache\ApcuCache(),
+            $fileCache,
+        ]);
+        return new DoctrineBridge($cache);
+    }
+
+    return new DoctrineBridge($fileCache);
+}
 
 class FiltrationCore
 {
@@ -48,7 +81,7 @@ class FiltrationCore
 
     public static function get_click_params(array $prefill = []): array
     {
-        ClientHints::requestClientHints();
+        request_device_client_hints();
         $a = [];
         $a['ua'] = $prefill['tds_ua'] ?? $_SERVER['HTTP_USER_AGENT'] ?? 'Unknown';
         $a['referer'] = $prefill['tds_ref'] ?? $_SERVER['HTTP_REFERER'] ?? '';
@@ -57,23 +90,24 @@ class FiltrationCore
 
         $clientHints = ClientHints::factory($prefill['tds_client_hints'] ?? $_SERVER);
         $dd = new DeviceDetector($a['ua'], $clientHints);
+        $dd->discardBotInformation();
 
         DebugMethods::start("YWBCoreDeviceDetector");
         $cachePath = get_cache_path('devices');
         $cacheDir = (DIRECTORY_SEPARATOR === '\\' ? preg_match('/^[A-Za-z]:/', $cachePath) : str_starts_with($cachePath, '/'))
             ? $cachePath . '/'
             : __DIR__ . '/' . $cachePath . '/';
-        $phpFileCache = new Doctrine\Common\Cache\PhpFileCache($cacheDir);
-        $dd->setCache(new DoctrineBridge($phpFileCache));
+        $dd->setCache(create_device_detector_cache($cacheDir));
         $dd->parse();
-        $clientInfo = $dd->getClient();
-        $a['client'] = $clientInfo['name'];
-        $a['clientver'] = $clientInfo['version'];
+        $a['bot'] = $dd->isBot() ? 'yes' : 'no';
+        $clientInfo = $dd->getClient() ?: [];
+        $a['client'] = (string)($clientInfo['name'] ?? '');
+        $a['clientver'] = (string)($clientInfo['version'] ?? '');
         DebugMethods::stop("YWBCoreDeviceDetector");
 
-        $osInfo = $dd->getOs();
-        $a['os'] = $osInfo['name'];
-        $a['osver'] = $osInfo['version'];
+        $osInfo = $dd->getOs() ?: [];
+        $a['os'] = (string)($osInfo['name'] ?? '');
+        $a['osver'] = (string)($osInfo['version'] ?? '');
         $a['device'] = $dd->getDeviceName();
         $a['brand'] = $dd->getBrandName();
         $a['model'] = $dd->getModel();
@@ -122,6 +156,7 @@ class FiltrationCore
             'os',
             'osver',
             'device',
+            'bot',
             'brand',
             'model',
             'client',

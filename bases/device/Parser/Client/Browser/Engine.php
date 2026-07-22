@@ -56,6 +56,8 @@ class Engine extends AbstractClientParser
         'EkiohFlow',
         'Arachne',
         'LibWeb',
+        'Maple',
+        'ArkWeb',
     ];
 
     /**

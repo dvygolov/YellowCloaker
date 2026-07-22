@@ -28,6 +28,17 @@ var tdsFilters = [
         size: 70
     },
     {
+        id: 'bot',
+        label: 'Bot',
+        type: 'string',
+        input: 'radio',
+        values: {
+            yes: 'Yes',
+            no: 'No'
+        },
+        operators: ['equal']
+    },
+    {
         id: 'brand',
         label: 'Brand',
         input: 'text',

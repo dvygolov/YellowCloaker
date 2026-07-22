@@ -62,6 +62,14 @@ class InstallerScriptTest extends TestCase
         $this->assertStringContainsString('Downloaded repository ZIP does not look like YellowTDS', $this->script);
     }
 
+    public function testInstallerInstallsAndEnablesApcuForFpm(): void
+    {
+        $this->assertStringContainsString('php${PHP_VER}-apcu', $this->script);
+        $this->assertStringContainsString('phpenmod -v "${PHP_VER}" -s fpm apcu', $this->script);
+        $this->assertStringContainsString('extension_loaded("apcu")', $this->script);
+        $this->assertStringContainsString('"$app_dir/caching/runtime"', $this->script);
+    }
+
     public function testPublishedInstallerLinksUsePrimaryBranch(): void
     {
         $canonicalUrl = 'https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/install.sh';

@@ -182,7 +182,8 @@ update_package_lists() {
 }
 
 ensure_php_repository() {
-    if apt-cache show "php${PHP_VER}-fpm" >/dev/null 2>&1; then
+    if apt-cache show "php${PHP_VER}-fpm" >/dev/null 2>&1 \
+        && apt-cache show "php${PHP_VER}-apcu" >/dev/null 2>&1; then
         return 0
     fi
 
@@ -213,7 +214,8 @@ EOF
     esac
 
     apt-cache show "php${PHP_VER}-fpm" >/dev/null 2>&1 \
-        || fail "Could not find PHP ${PHP_VER} after configuring repositories"
+        && apt-cache show "php${PHP_VER}-apcu" >/dev/null 2>&1 \
+        || fail "Could not find PHP ${PHP_VER} with APCu after configuring repositories"
 }
 
 normalize_domain() {
@@ -385,14 +387,17 @@ install_dependencies() {
         -o Dpkg::Options::="--force-confold" \
         nginx \
         php${PHP_VER}-fpm php${PHP_VER}-cli php${PHP_VER}-sqlite3 php${PHP_VER}-curl \
-        php${PHP_VER}-mbstring php${PHP_VER}-zip php${PHP_VER}-xml php${PHP_VER}-gd \
+        php${PHP_VER}-mbstring php${PHP_VER}-zip php${PHP_VER}-xml php${PHP_VER}-gd php${PHP_VER}-apcu \
         php${PHP_VER}-dev php-pear \
         libmaxminddb0 libmaxminddb-dev \
         certbot python3-certbot-nginx curl wget unzip tar ca-certificates \
         build-essential pkg-config \
         || fail "Failed to install required packages"
 
+    phpenmod -v "${PHP_VER}" -s fpm apcu || true
     enable_and_restart_service "php${PHP_VER}-fpm" || fail "Failed to start PHP-FPM"
+    php${PHP_VER} -r 'exit(extension_loaded("apcu") ? 0 : 1);' \
+        || fail "PHP extension APCu is not loaded"
     enable_and_restart_service nginx || fail "Failed to start nginx"
 }
 
@@ -446,6 +451,7 @@ copy_application() {
             --exclude='./caching/proxyvpn/*' \
             --exclude='./caching/devices/*' \
             --exclude='./caching/whites_curl/*' \
+            --exclude='./caching/runtime/*' \
             -C "$SCRIPT_DIR" -cf - . | tar -C "$app_dir" -xf - \
             || fail "Failed to copy application files"
         return 0
@@ -478,6 +484,7 @@ copy_application() {
         --exclude='./caching/proxyvpn/*' \
         --exclude='./caching/devices/*' \
         --exclude='./caching/whites_curl/*' \
+        --exclude='./caching/runtime/*' \
         -C "$source_dir" -cf - . | tar -C "$app_dir" -xf - \
         || {
             rm -rf "$temp_dir"
@@ -492,7 +499,8 @@ set_permissions() {
     mkdir -p "$app_dir/db" "$app_dir/logs" "$app_dir/ycclogs" "$app_dir/tmp" \
         "$app_dir/caching/landings" "$app_dir/caching/whites" \
         "$app_dir/caching/whites_curl" "$app_dir/caching/devices" \
-        "$app_dir/caching/currency" "$app_dir/caching/proxyvpn"
+        "$app_dir/caching/currency" "$app_dir/caching/proxyvpn" \
+        "$app_dir/caching/runtime"
 
     find "$app_dir" -type d -exec chmod 0755 {} \;
     find "$app_dir" -type f -exec chmod 0644 {} \;

@@ -77,6 +77,13 @@ class ClientHints
     protected $app = '';
 
     /**
+     * Represents `Sec-CH-UA-Form-Factors` header field: form factor device type name
+     *
+     * @var array
+     */
+    protected $formFactors = [];
+
+    /**
      * Constructor
      *
      * @param string $model           `Sec-CH-UA-Model` header field
@@ -88,8 +95,9 @@ class ClientHints
      * @param string $architecture    `Sec-CH-UA-Arch` header field
      * @param string $bitness         `Sec-CH-UA-Bitness`
      * @param string $app             `HTTP_X-REQUESTED-WITH`
+     * @param array  $formFactors     `Sec-CH-UA-Form-Factors` header field
      */
-    public function __construct(string $model = '', string $platform = '', string $platformVersion = '', string $uaFullVersion = '', array $fullVersionList = [], bool $mobile = false, string $architecture = '', string $bitness = '', string $app = '') // phpcs:ignore Generic.Files.LineLength
+    public function __construct(string $model = '', string $platform = '', string $platformVersion = '', string $uaFullVersion = '', array $fullVersionList = [], bool $mobile = false, string $architecture = '', string $bitness = '', string $app = '', array $formFactors = []) // phpcs:ignore Generic.Files.LineLength
     {
         $this->model           = $model;
         $this->platform        = $platform;
@@ -100,6 +108,7 @@ class ClientHints
         $this->architecture    = $architecture;
         $this->bitness         = $bitness;
         $this->app             = $app;
+        $this->formFactors     = $formFactors;
     }
 
     /**
@@ -224,18 +233,14 @@ class ClientHints
         return $this->app;
     }
 
-    public static function requestClientHints(): void
+    /**
+     * Returns the formFactor device type name
+     *
+     * @return array
+     */
+    public function getFormFactors(): array
     {
-        $headers = [
-            'Sec-CH-UA', 'Sec-CH-UA-Arch', 'Sec-CH-UA-Bitness',
-            'Sec-CH-UA-Full-Version', 'Sec-CH-UA-Full-Version-List',
-            'Sec-CH-UA-Mobile', 'Sec-CH-UA-Platform', 'Sec-CH-UA-Platform-Version',
-            'Sec-CH-UA-WoW64', 'Sec-CH-UA-Model'
-        ];
-        $headers_str = implode(', ', $headers);
-        header('Accept-CH: ' . $headers_str, true);
-        header('Critical-CH: ' . $headers_str, true);
-        header('Vary: ' . $headers_str, true);
+        return $this->formFactors;
     }
 
     /**
@@ -251,50 +256,72 @@ class ClientHints
         $app             = '';
         $mobile          = false;
         $fullVersionList = [];
+        $formFactors     = [];
 
         foreach ($headers as $name => $value) {
+            if (empty($value)) {
+                continue;
+            }
+
+            // any kind of html tag is unexpected as part of those headers, so discard values that contain some.
+            if (\is_string($value) && \strip_tags($value) !== $value) {
+                continue;
+            }
+
             switch (\str_replace('_', '-', \strtolower((string) $name))) {
                 case 'http-sec-ch-ua-arch':
                 case 'sec-ch-ua-arch':
                 case 'arch':
                 case 'architecture':
-                    $architecture = \trim($value, '"');
+                    if (\is_string($value)) {
+                        $architecture = \trim($value, '"');
+                    }
 
                     break;
                 case 'http-sec-ch-ua-bitness':
                 case 'sec-ch-ua-bitness':
                 case 'bitness':
-                    $bitness = \trim($value, '"');
+                    if (\is_string($value)) {
+                        $bitness = \trim($value, '"');
+                    }
 
                     break;
                 case 'http-sec-ch-ua-mobile':
                 case 'sec-ch-ua-mobile':
                 case 'mobile':
-                    $mobile = true === $value || '1' === $value || '?1' === $value;
+                    $mobile = \in_array($value, [true, '1', '?1'], true);
 
                     break;
                 case 'http-sec-ch-ua-model':
                 case 'sec-ch-ua-model':
                 case 'model':
-                    $model = \trim($value, '"');
+                    if (\is_string($value)) {
+                        $model = \trim($value, '"');
+                    }
 
                     break;
                 case 'http-sec-ch-ua-full-version':
                 case 'sec-ch-ua-full-version':
                 case 'uafullversion':
-                    $uaFullVersion = \trim($value, '"');
+                    if (\is_string($value)) {
+                        $uaFullVersion = \trim($value, '"');
+                    }
 
                     break;
                 case 'http-sec-ch-ua-platform':
                 case 'sec-ch-ua-platform':
                 case 'platform':
-                    $platform = \trim($value, '"');
+                    if (\is_string($value)) {
+                        $platform = \trim($value, '"');
+                    }
 
                     break;
                 case 'http-sec-ch-ua-platform-version':
                 case 'sec-ch-ua-platform-version':
                 case 'platformversion':
-                    $platformVersion = \trim($value, '"');
+                    if (\is_string($value)) {
+                        $platformVersion = \trim($value, '"');
+                    }
 
                     break;
                 case 'brands':
@@ -314,6 +341,10 @@ class ClientHints
                     // use this only if no other header already set the list
                 case 'http-sec-ch-ua-full-version-list':
                 case 'sec-ch-ua-full-version-list':
+                    if (!\is_string($value)) {
+                        break;
+                    }
+
                     $reg  = '/^"([^"]+)"; ?v="([^"]+)"(?:, )?/';
                     $list = [];
 
@@ -329,8 +360,22 @@ class ClientHints
                     break;
                 case 'http-x-requested-with':
                 case 'x-requested-with':
-                    if ('xmlhttprequest' !== \strtolower($value)) {
+                    if (\is_string($value) && 'xmlhttprequest' !== \strtolower($value)) {
                         $app = $value;
+                    }
+
+                    break;
+                case 'formfactors':
+                case 'http-sec-ch-ua-form-factors':
+                case 'sec-ch-ua-form-factors':
+                    if (\is_array($value)) {
+                        $stringValues = \array_filter($value, '\is_string');
+
+                        if (\count($stringValues) === \count($value)) {
+                            $formFactors = \array_map('\strtolower', $value);
+                        }
+                    } elseif (\is_string($value) && \preg_match_all('~"([a-z]+)"~i', \strtolower($value), $matches)) {
+                        $formFactors = $matches[1];
                     }
 
                     break;
@@ -346,7 +391,8 @@ class ClientHints
             $mobile,
             $architecture,
             $bitness,
-            $app
+            $app,
+            $formFactors
         );
     }
 }
