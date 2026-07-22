@@ -14,6 +14,7 @@ class Campaign implements JsonSerializable
     public WhiteSettings $white;
     public BlackSettings $black;
     public ScriptsSettings $scripts;
+    public ConversionSettings $conversions;
     public PostbackSettings $postback;
     public StatisticsSettings $statistics;
     public UniquenessSettings $uniqueness;
@@ -30,6 +31,7 @@ class Campaign implements JsonSerializable
         $this->black = BlackSettings::fromArray($s['black']);
 
         $this->scripts = ScriptsSettings::fromArray($s['scripts']);
+        $this->conversions = ConversionSettings::fromArray($s['conversions'] ?? []);
         $this->postback = PostbackSettings::fromArray($s['postback']);
         $this->statistics = StatisticsSettings::fromArray($s['statistics']);
         $this->uniqueness = UniquenessSettings::fromArray($s['uniqueness'] ?? []);
@@ -44,6 +46,7 @@ class Campaign implements JsonSerializable
             "white" => $this->white,
             "black" => $this->black,
             "statistics" => $this->statistics,
+            "conversions" => $this->conversions,
             "postback" => $this->postback,
             "scripts" => $this->scripts,
             "uniqueness" => $this->uniqueness
@@ -588,27 +591,220 @@ class ScriptsSettings implements JsonSerializable
     }
 }
 
+class ConversionStatus implements JsonSerializable
+{
+    public const BUILT_INS = ['Lead', 'Purchase', 'Reject', 'Trash'];
+
+    public function __construct(public string $name, public array $aliases = [])
+    {
+        $this->name = trim($name);
+        $this->aliases = array_values(array_unique(array_filter(array_map(
+            static fn($alias): string => trim((string)$alias),
+            $aliases
+        ), static fn(string $alias): bool => $alias !== '')));
+    }
+
+    public function isBuiltIn(): bool
+    {
+        return in_array($this->name, self::BUILT_INS, true);
+    }
+
+    public function jsonSerialize(): array
+    {
+        return ['name' => $this->name, 'aliases' => $this->aliases];
+    }
+}
+
+class ConversionSettings implements JsonSerializable
+{
+    /** @var ConversionStatus[] */
+    public array $statuses = [];
+    public bool $tidDeduplicationEnabled = true;
+    public string $paidRepeatWithoutTid = 'reject';
+    public bool $formEnabled = false;
+    public string $formStatus = 'Lead';
+    public bool $siteEnabled = false;
+
+    public static function fromArray(array $arr): ConversionSettings
+    {
+        $settings = new ConversionSettings();
+        $rawStatuses = is_array($arr['statuses'] ?? null) ? $arr['statuses'] : [];
+        foreach ($rawStatuses as $rawStatus) {
+            if (!is_array($rawStatus)) {
+                continue;
+            }
+            $name = trim((string)($rawStatus['name'] ?? ''));
+            $aliases = $rawStatus['aliases'] ?? [];
+            if (is_string($aliases)) {
+                $aliases = explode(',', $aliases);
+            }
+            if ($name !== '' && is_array($aliases)) {
+                $settings->statuses[] = new ConversionStatus($name, $aliases);
+            }
+        }
+
+        if ($settings->statuses === []) {
+            $settings->statuses = self::defaultStatuses();
+        }
+
+        $dedup = is_array($arr['deduplication'] ?? null) ? $arr['deduplication'] : [];
+        $settings->tidDeduplicationEnabled = self::toBool($dedup['enabled'] ?? true);
+        $repeatMode = strtolower(trim((string)($dedup['paid_repeat_without_tid'] ?? 'reject')));
+        $settings->paidRepeatWithoutTid = in_array($repeatMode, ['reject', 'upsell'], true) ? $repeatMode : 'reject';
+
+        $form = is_array($arr['form'] ?? null) ? $arr['form'] : [];
+        $settings->formEnabled = self::toBool($form['enabled'] ?? false);
+        $settings->formStatus = trim((string)($form['status'] ?? 'Lead')) ?: 'Lead';
+
+        $site = is_array($arr['site'] ?? null) ? $arr['site'] : [];
+        $settings->siteEnabled = self::toBool($site['enabled'] ?? false);
+        return $settings;
+    }
+
+    /** @return ConversionStatus[] */
+    public static function defaultStatuses(): array
+    {
+        return [
+            new ConversionStatus('Lead', ['lead', 'pending', 'hold']),
+            new ConversionStatus('Purchase', ['purchase', 'approved', 'sale']),
+            new ConversionStatus('Reject', ['reject', 'declined']),
+            new ConversionStatus('Trash', ['trash', 'invalid']),
+        ];
+    }
+
+    /** @return array{statuses:array<int,array{name:string,aliases:array}>,owners:array<string,string>} */
+    public static function normalizeStatusCatalog(array $rawStatuses): array
+    {
+        $normalized = [];
+        $seenNames = [];
+        $builtIns = array_fill_keys(ConversionStatus::BUILT_INS, false);
+        foreach ($rawStatuses as $rawStatus) {
+            if (!is_array($rawStatus)) {
+                throw new InvalidArgumentException('Invalid conversion status row.');
+            }
+            $name = trim((string)($rawStatus['name'] ?? ''));
+            if (preg_match('/^[A-Za-z][A-Za-z0-9 _-]{0,63}$/', $name) !== 1) {
+                throw new InvalidArgumentException('Status names must start with a letter and use up to 64 letters, numbers, spaces, underscores or hyphens.');
+            }
+            foreach (ConversionStatus::BUILT_INS as $builtIn) {
+                if (strcasecmp($name, $builtIn) === 0) {
+                    $name = $builtIn;
+                    $builtIns[$builtIn] = true;
+                    break;
+                }
+            }
+            $nameKey = strtolower($name);
+            if (isset($seenNames[$nameKey])) {
+                throw new InvalidArgumentException("Duplicate conversion status: {$name}.");
+            }
+            $seenNames[$nameKey] = true;
+
+            $aliases = $rawStatus['aliases'] ?? [];
+            if (is_string($aliases)) {
+                $aliases = explode(',', $aliases);
+            }
+            if (!is_array($aliases)) {
+                throw new InvalidArgumentException("Invalid aliases for {$name}.");
+            }
+            $normalized[] = [
+                'name' => $name,
+                'aliases' => array_values(array_unique(array_filter(array_map(
+                    static fn($alias): string => trim((string)$alias),
+                    $aliases
+                ), static fn(string $alias): bool => $alias !== ''))),
+            ];
+        }
+
+        foreach ($builtIns as $builtIn => $present) {
+            if (!$present) {
+                throw new InvalidArgumentException("Built-in conversion status {$builtIn} cannot be removed.");
+            }
+        }
+
+        $owners = [];
+        foreach ($normalized as $status) {
+            foreach (array_merge([$status['name']], $status['aliases']) as $token) {
+                $key = strtolower(trim((string)$token));
+                if ($key === '') continue;
+                if (isset($owners[$key]) && $owners[$key] !== $status['name']) {
+                    throw new InvalidArgumentException("Incoming value '{$token}' is already assigned to {$owners[$key]}.");
+                }
+                $owners[$key] = $status['name'];
+            }
+        }
+
+        return ['statuses' => $normalized, 'owners' => $owners];
+    }
+
+    public function resolveStatus(string $incoming): ?string
+    {
+        $needle = strtolower(trim($incoming));
+        if ($needle === '') {
+            return null;
+        }
+        foreach ($this->statuses as $status) {
+            if (strtolower($status->name) === $needle) {
+                return $status->name;
+            }
+            foreach ($status->aliases as $alias) {
+                if (strtolower($alias) === $needle) {
+                    return $status->name;
+                }
+            }
+        }
+        return null;
+    }
+
+    public function statusNames(): array
+    {
+        return array_map(static fn(ConversionStatus $status): string => $status->name, $this->statuses);
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'statuses' => $this->statuses,
+            'deduplication' => [
+                'enabled' => $this->tidDeduplicationEnabled,
+                'paid_repeat_without_tid' => $this->paidRepeatWithoutTid,
+            ],
+            'form' => ['enabled' => $this->formEnabled, 'status' => $this->formStatus],
+            'site' => ['enabled' => $this->siteEnabled],
+        ];
+    }
+
+    private static function toBool(mixed $value): bool
+    {
+        return is_bool($value) ? $value : filter_var($value, FILTER_VALIDATE_BOOLEAN);
+    }
+}
+
 class PostbackSettings implements JsonSerializable
 {
     public array $s2sPostbacks;
-    public string $leadStatusName;
-    public string $purchaseStatusName;
-    public string $rejectStatusName;
-    public string $trashStatusName;
+    public bool $pbkeyEnabled = false;
+    public array $pbkeys = [];
 
     public static function fromArray($arr): PostbackSettings
     {
         $ps = new PostbackSettings();
 
         $ps->s2sPostbacks = [];
-        foreach ($arr['s2s'] as $s2s) {
+        foreach (($arr['s2s'] ?? []) as $s2s) {
             $ps->s2sPostbacks[] = S2sPostback::fromArray($s2s);
         }
-
-        $ps->leadStatusName = $arr['events']['lead'];
-        $ps->purchaseStatusName = $arr['events']['purchase'];
-        $ps->rejectStatusName = $arr['events']['reject'];
-        $ps->trashStatusName = $arr['events']['trash'];
+        $pbkey = is_array($arr['pbkey'] ?? null) ? $arr['pbkey'] : [];
+        $ps->pbkeyEnabled = is_bool($pbkey['enabled'] ?? null)
+            ? $pbkey['enabled']
+            : filter_var($pbkey['enabled'] ?? false, FILTER_VALIDATE_BOOLEAN);
+        $keys = $pbkey['keys'] ?? [];
+        if (is_string($keys)) {
+            $keys = explode(',', $keys);
+        }
+        $ps->pbkeys = array_values(array_unique(array_filter(array_map(
+            static fn($key): string => trim((string)$key),
+            is_array($keys) ? $keys : []
+        ), static fn(string $key): bool => $key !== '')));
         return $ps;
     }
 
@@ -616,12 +812,7 @@ class PostbackSettings implements JsonSerializable
     {
         return [
             "postback" => [
-                "events" => [
-                    "lead" => $this->leadStatusName,
-                    "purchase" => $this->purchaseStatusName,
-                    "reject" => $this->rejectStatusName,
-                    "trash" => $this->trashStatusName
-                ],
+                "pbkey" => ["enabled" => $this->pbkeyEnabled, "keys" => $this->pbkeys],
                 "s2s" => $this->s2sPostbacks
             ]
         ];

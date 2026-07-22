@@ -186,6 +186,16 @@ class FiltrationCore
                         return true;
                     }
                     break;
+                case 'conversion_cap_campaign':
+                case 'conversion_cap_flow':
+                    $matches = $this->runtimeFilterResolver === null
+                        ? true
+                        : (bool)($this->runtimeFilterResolver)($curParamName, $filter);
+                    if ($matches) {
+                        $this->matched_filters[] = $curParamName;
+                        return true;
+                    }
+                    break;
                 default:
                     die("No operator defined for '$curParamName' check!");
             }

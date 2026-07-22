@@ -77,6 +77,8 @@
         field('adminPassword').value = '';
         field('useUTP').checked = !!settings.useUTP;
         field('debug').checked = !!settings.debug;
+        field('timezone').value = settings.timezone || 'Europe/Moscow';
+        field('conversionAttribution').value = settings.conversionAttribution || 'click_time';
         field('logRetentionDays').value = settings.logRetentionDays ?? 30;
     }
 
@@ -197,6 +199,8 @@
             .forEach((name) => { settings[name] = field(name).value.trim(); });
         settings.useUTP = field('useUTP').checked;
         settings.debug = field('debug').checked;
+        settings.timezone = field('timezone').value;
+        settings.conversionAttribution = field('conversionAttribution').value;
         settings.logRetentionDays = Number.parseInt(field('logRetentionDays').value, 10);
         settings.plugins = {
             currency: { items: collectPluginItems('currency') },

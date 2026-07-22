@@ -21,7 +21,7 @@ class SettingsManagerTest extends TestCase
         mkdir($this->root . '/tmp', 0755, true);
         mkdir($this->root . '/backups', 0755, true);
         file_put_contents($this->root . '/backups/keep.zip', 'backup');
-        foreach (['landings', 'whites', 'whites_curl', 'devices', 'currency', 'proxyvpn'] as $dir) {
+        foreach (['landings', 'whites', 'whites_curl', 'devices', 'currency', 'proxyvpn', 'runtime'] as $dir) {
             mkdir($this->root . '/caching/' . $dir, 0755, true);
         }
         file_put_contents($this->root . '/db/clicks.db', 'db');
@@ -40,6 +40,8 @@ class SettingsManagerTest extends TestCase
         $settings = $this->manager->load();
         $this->assertSame('admin', $settings['adminPath']);
         $this->assertSame(30, $settings['logRetentionDays']);
+        $this->assertSame('Europe/Moscow', $settings['timezone']);
+        $this->assertSame('click_time', $settings['conversionAttribution']);
         $this->assertSame(0, $this->manager->revision());
         $this->assertFileDoesNotExist($this->root . '/settings.local.php');
     }
@@ -84,6 +86,7 @@ class SettingsManagerTest extends TestCase
         $this->assertFileExists($this->root . '/restore-points/keep.zip');
         $this->assertDirectoryDoesNotExist($this->root . '/backups');
         $this->assertDirectoryExists($this->root . '/runtime-cache/landings');
+        $this->assertDirectoryExists($this->root . '/runtime-cache/runtime');
         $this->assertSame('../secret-admin/', $saved['redirect']);
     }
 
@@ -113,6 +116,20 @@ class SettingsManagerTest extends TestCase
             $this->fail('Expected validation exception');
         } catch (SettingsValidationException $e) {
             $this->assertArrayHasKey('logRetentionDays', $e->errors);
+        }
+    }
+
+    public function testConversionAttributionAndTimezoneAreValidated(): void
+    {
+        $settings = $this->manager->load();
+        $settings['timezone'] = 'Not/A_Zone';
+        $settings['conversionAttribution'] = 'per_table';
+        try {
+            $this->manager->save($settings, 0, $this->catalog);
+            $this->fail('Expected validation exception');
+        } catch (SettingsValidationException $e) {
+            $this->assertArrayHasKey('timezone', $e->errors);
+            $this->assertArrayHasKey('conversionAttribution', $e->errors);
         }
     }
 

@@ -169,9 +169,55 @@ var uniquenessFilter = {
     operators: ['is_unique', 'is_not_unique']
 };
 
+function escapeCapOption(value) {
+    return String(value).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function buildConversionCapFilter(id, label) {
+    return {
+        id: id,
+        field: id,
+        label: label,
+        type: 'string',
+        operators: ['less', 'less_or_equal', 'equal', 'not_equal', 'greater_or_equal', 'greater'],
+        default_operator: 'less',
+        input: function (rule, name) {
+            var statuses = Array.isArray(window.campaignConversionStatuses) ? window.campaignConversionStatuses : [];
+            var options = statuses.map(function (status) {
+                return '<option value="' + escapeCapOption(status) + '">' + escapeCapOption(status) + '</option>';
+            }).join('');
+            return '<div class="conversion-cap-input">'
+                + '<select class="form-select conversion-cap-statuses" name="' + name + '_statuses" multiple size="5" aria-label="Conversion statuses">' + options + '</select>'
+                + '<input class="form-control conversion-cap-limit" name="' + name + '_limit" type="number" min="0" step="1" value="1" aria-label="Daily conversion limit">'
+                + '</div>';
+        },
+        valueGetter: function (rule) {
+            return {
+                statuses: rule.$el.find('.conversion-cap-statuses').val() || [],
+                limit: Number(rule.$el.find('.conversion-cap-limit').val() || 0)
+            };
+        },
+        valueSetter: function (rule, value) {
+            var normalized = value && typeof value === 'object' ? value : {};
+            rule.$el.find('.conversion-cap-statuses').val(Array.isArray(normalized.statuses) ? normalized.statuses : []);
+            rule.$el.find('.conversion-cap-limit').val(Number.isFinite(Number(normalized.limit)) ? Number(normalized.limit) : 1);
+        },
+        validation: {
+            callback: function (value) {
+                return value && Array.isArray(value.statuses) && value.statuses.length > 0
+                    && Number.isFinite(Number(value.limit)) && Number(value.limit) >= 0;
+            }
+        }
+    };
+}
+
+var conversionCapCampaignFilter = buildConversionCapFilter('conversion_cap_campaign', 'Conversion cap (campaign)');
+var conversionCapFlowFilter = buildConversionCapFilter('conversion_cap_flow', 'Conversion cap (flow)');
+
 function getFlowTdsFilters() {
     var enabled = document.getElementById('uniqueness-counting-toggle')?.checked === true;
-    return enabled ? tdsFilters.concat([uniquenessFilter]) : tdsFilters.slice();
+    var filters = tdsFilters.concat([conversionCapCampaignFilter, conversionCapFlowFilter]);
+    return enabled ? filters.concat([uniquenessFilter]) : filters;
 }
 
 function initFlowFilterBuilder(selector, rules) {
@@ -179,7 +225,7 @@ function initFlowFilterBuilder(selector, rules) {
         operators: $.fn.queryBuilder.constructor.DEFAULTS.operators.concat(paramOperators),
         filters: getFlowTdsFilters()
     };
-    if (rules && Array.isArray(rules.rules)) {
+    if (rules && Array.isArray(rules.rules) && rules.rules.length > 0) {
         options.rules = rules;
     }
     $(selector).queryBuilder(options);

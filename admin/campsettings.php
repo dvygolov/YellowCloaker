@@ -53,6 +53,7 @@ global $c, $db, $campId;
                     <li><a href="#sec-api">Integration</a></li>
                     <li><a href="#sec-scripts">Scripts</a></li>
                     <li><a href="#sec-misc">Misc</a></li>
+                    <li><a href="#sec-conversions">Conversions</a></li>
                     <li><a href="#sec-postbacks">Postbacks</a></li>
                 </ul>
             </nav>
@@ -1000,6 +1001,99 @@ global $c, $db, $campId;
                     </div>
                 </div>
             </div>
+            <div class="flow-group">
+                <span class="flow-group-title">Statistics</span>
+                <div class="form-group-inner">
+                    <div class="row">
+                        <div class="col-lg-3"><label class="login2 pull-left pull-left-pro" for="campaign-statistics-timezone">Campaign timezone:</label></div>
+                        <div class="col-lg-5">
+                            <select id="campaign-statistics-timezone" name="statistics.timezone" class="form-select">
+                                <?php foreach (DateTimeZone::listIdentifiers() as $timezoneId) { ?>
+                                <option value="<?= htmlspecialchars($timezoneId, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" <?= $c->statistics->timezone === $timezoneId ? 'selected' : '' ?>><?= htmlspecialchars($timezoneId, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></option>
+                                <?php } ?>
+                            </select>
+                            <small class="form-text text-muted">Used by campaign reports and daily conversion caps.</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </section>
+
+            <section id="sec-conversions" class="camp-section">
+            <div class="flow-group">
+                <div class="conversion-section-heading">
+                    <div>
+                        <span class="flow-group-title">Conversion statuses</span>
+                        <p class="conversion-section-copy">Normalize incoming values into campaign statuses. Internal names are immutable after saving.</p>
+                    </div>
+                    <button type="button" id="add-conversion-status" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Add status</button>
+                </div>
+                <div class="conversion-status-list-heading" aria-hidden="true">
+                    <span>Internal status</span>
+                    <span>Incoming aliases</span>
+                    <span></span>
+                </div>
+                <div id="conversion-status-rows" class="conversion-status-list">
+                <?php foreach ($c->conversions->statuses as $statusIndex => $conversionStatus) { ?>
+                    <div class="conversion-status-row" data-status-row data-built-in="<?= $conversionStatus->isBuiltIn() ? '1' : '0' ?>">
+                        <div class="conversion-status-identity">
+                            <div class="conversion-status-name">
+                                <?php if ($conversionStatus->isBuiltIn()) { ?><i class="bi bi-lock" title="Built-in status"></i><?php } ?>
+                                <input type="text" class="form-control conversion-status-name-input" name="conversions.statuses[<?= $statusIndex ?>][name]" value="<?= htmlspecialchars($conversionStatus->name, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" readonly required maxlength="64">
+                            </div>
+                            <span class="conversion-status-kind"><?= $conversionStatus->isBuiltIn() ? 'Built-in' : 'Custom' ?></span>
+                        </div>
+                        <label class="visually-hidden" for="conversion-status-aliases-<?= $statusIndex ?>">Incoming aliases for <?= htmlspecialchars($conversionStatus->name, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></label>
+                        <input id="conversion-status-aliases-<?= $statusIndex ?>" type="text" class="form-control conversion-status-aliases" name="conversions.statuses[<?= $statusIndex ?>][aliases]" value="<?= htmlspecialchars(implode(', ', $conversionStatus->aliases), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+                        <div class="conversion-status-action">
+                            <?php if (!$conversionStatus->isBuiltIn()) { ?>
+                            <button type="button" class="btn btn-sm remove-conversion-status" title="Delete <?= htmlspecialchars($conversionStatus->name, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" aria-label="Delete <?= htmlspecialchars($conversionStatus->name, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"><i class="bi bi-trash"></i></button>
+                            <?php } ?>
+                        </div>
+                    </div>
+                <?php } ?>
+                </div>
+            </div>
+
+            <div class="flow-group">
+                <span class="flow-group-title">Deduplication</span>
+                <div class="campaign-setting-row">
+                    <div class="campaign-setting-label"><span>Transaction ID deduplication</span><small>One <code>tid</code> is one immutable transaction. Every reused tid is rejected.</small></div>
+                    <input type="hidden" id="conversion-tid-dedup-value" name="conversions.deduplication.enabled" value="<?= $c->conversions->tidDeduplicationEnabled ? 'true' : 'false' ?>">
+                    <label class="campaign-switch" for="conversion-tid-dedup-toggle">
+                        <input type="checkbox" id="conversion-tid-dedup-toggle" class="campaign-switch-input" data-value-target="conversion-tid-dedup-value" <?= $c->conversions->tidDeduplicationEnabled ? 'checked' : '' ?>>
+                        <span class="campaign-switch-track" aria-hidden="true"><span class="campaign-switch-option campaign-switch-option-off">Off</span><span class="campaign-switch-option campaign-switch-option-on">On</span><span class="campaign-switch-thumb"></span></span>
+                    </label>
+                </div>
+                <div class="campaign-setting-row"><div class="campaign-setting-label"><span>Postback parameter</span></div><input type="text" class="form-control conversion-compact-control" value="tid" readonly></div>
+                <div class="campaign-setting-row" id="conversion-repeat-settings">
+                    <div class="campaign-setting-label"><span>Paid repeat without tid</span><small>Used only while Transaction ID deduplication is disabled.</small></div>
+                    <select name="conversions.deduplication.paid_repeat_without_tid" class="form-select conversion-compact-control" <?= $c->conversions->tidDeduplicationEnabled ? 'disabled' : '' ?>>
+                        <option value="reject" <?= $c->conversions->paidRepeatWithoutTid === 'reject' ? 'selected' : '' ?>>Reject duplicate</option>
+                        <option value="upsell" <?= $c->conversions->paidRepeatWithoutTid === 'upsell' ? 'selected' : '' ?>>Accept as upsell</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flow-group">
+                <span class="flow-group-title">Form submission</span>
+                <div class="campaign-setting-row">
+                    <div class="campaign-setting-label"><span>Create conversion after successful form submit</span><small>Creates a zero-payout record with source <code>form_submit</code>.</small></div>
+                    <input type="hidden" id="conversion-form-enabled-value" name="conversions.form.enabled" value="<?= $c->conversions->formEnabled ? 'true' : 'false' ?>">
+                    <label class="campaign-switch" for="conversion-form-enabled-toggle"><input type="checkbox" id="conversion-form-enabled-toggle" class="campaign-switch-input" data-value-target="conversion-form-enabled-value" data-controls="conversion-form-settings" <?= $c->conversions->formEnabled ? 'checked' : '' ?>><span class="campaign-switch-track" aria-hidden="true"><span class="campaign-switch-option campaign-switch-option-off">Off</span><span class="campaign-switch-option campaign-switch-option-on">On</span><span class="campaign-switch-thumb"></span></span></label>
+                </div>
+                <div class="campaign-setting-row" id="conversion-form-settings" <?= $c->conversions->formEnabled ? '' : 'hidden' ?>><div class="campaign-setting-label"><span>Status</span></div><select name="conversions.form.status" class="form-select conversion-compact-control conversion-status-select"><?php foreach ($c->conversions->statusNames() as $statusName) { ?><option value="<?= htmlspecialchars($statusName, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" <?= $c->conversions->formStatus === $statusName ? 'selected' : '' ?>><?= htmlspecialchars($statusName) ?></option><?php } ?></select></div>
+            </div>
+
+            <div class="flow-group">
+                <span class="flow-group-title">Website status tracking</span>
+                <div class="campaign-setting-row">
+                    <div class="campaign-setting-label"><span>Site tracking endpoint</span><small>Accepts internal names and aliases using the current clickid. Payout is not accepted.</small></div>
+                    <input type="hidden" id="conversion-site-enabled-value" name="conversions.site.enabled" value="<?= $c->conversions->siteEnabled ? 'true' : 'false' ?>">
+                    <label class="campaign-switch" for="conversion-site-enabled-toggle"><input type="checkbox" id="conversion-site-enabled-toggle" class="campaign-switch-input" data-value-target="conversion-site-enabled-value" <?= $c->conversions->siteEnabled ? 'checked' : '' ?>><span class="campaign-switch-track" aria-hidden="true"><span class="campaign-switch-option campaign-switch-option-off">Off</span><span class="campaign-switch-option campaign-switch-option-on">On</span><span class="campaign-switch-thumb"></span></span></label>
+                </div>
+                <div class="conversion-code-row"><code id="conversion-site-snippet">ytdsConversion('Reg');</code><button type="button" id="copy-conversion-snippet" class="btn btn-outline-light btn-sm"><i class="bi bi-copy"></i> Copy</button></div>
+            </div>
             </section>
 
             <section id="sec-postbacks" class="camp-section">
@@ -1009,77 +1103,24 @@ global $c, $db, $campId;
                 <div class="row">
                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                         <label class="login2 pull-left pull-left-pro">
-                        <i class="bi bi-info-circle admin-info-icon" title="Put it into your Affiliate Network's postback URL. Change macros names if needed. Subid, payout and status parameters are required. Currency is optional, will be USD if omitted."></i>
+                        <i class="bi bi-info-circle admin-info-icon" title="Clickid and status are required. Payout, currency, tid and pbkey are optional unless their campaign settings require them."></i>
                         Your postback URL example:
                     </label>
                     </div>
                     <div class="col-lg-7 col-md-7 col-sm-7 col-xs-12">
                         <div class="input-group custom-go-button">
                             <?php $tdsRoot = rtrim(get_tds_path(), '/'); ?>
-                            <input type="text" readonly class="form-control" value="<?= $tdsRoot ?>/api/postback.php?clickid={sub1}&payout={payout}&currency=USD&status={status}"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-5 col-md-12 col-sm-12 col-xs-12">
-                        <label class="login2 pull-left pull-left-pro">
-                            Here you need to write lead statuses in the format that
-                            you get them from Affiliate Network's postback:
-                        </label>
-                    </div>
-                </div>
-            </div>
-            <div class="form-group-inner">
-                <div class="row">
-                    <div class="col-lg-2 col-md-12 col-sm-12 col-xs-12">
-                        <label class="login2 pull-left pull-left-pro">Lead</label>
-                    </div>
-                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                        <div class="input-group custom-go-button">
-                            <input type="text" name="postback.events.lead" class="form-control" placeholder="Lead" value="<?= $c->postback->leadStatusName ?>" />
+                            <input type="text" readonly class="form-control" value="<?= $tdsRoot ?>/api/postback.php?clickid={sub1}&amp;status={status}&amp;payout={payout}&amp;currency=USD&amp;tid={transaction_id}"/>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div class="form-group-inner">
-                <div class="row">
-                    <div class="col-lg-2 col-md-12 col-sm-12 col-xs-12">
-                        <label class="login2 pull-left pull-left-pro">Purchase</label>
-                    </div>
-                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                        <div class="input-group custom-go-button">
-                            <input type="text" name="postback.events.purchase" class="form-control" placeholder="Purchase" value="<?= $c->postback->purchaseStatusName ?>" />
-                        </div>
-                    </div>
-                </div>
+            <div class="campaign-setting-row">
+                <div class="campaign-setting-label"><span>pbkey protection</span><small>Hide rejected postbacks behind a generic 404 outside Debug Mode.</small></div>
+                <input type="hidden" id="postback-pbkey-enabled-value" name="postback.pbkey.enabled" value="<?= $c->postback->pbkeyEnabled ? 'true' : 'false' ?>">
+                <label class="campaign-switch" for="postback-pbkey-enabled-toggle"><input type="checkbox" id="postback-pbkey-enabled-toggle" class="campaign-switch-input" data-value-target="postback-pbkey-enabled-value" data-controls="postback-pbkey-settings" <?= $c->postback->pbkeyEnabled ? 'checked' : '' ?>><span class="campaign-switch-track" aria-hidden="true"><span class="campaign-switch-option campaign-switch-option-off">Off</span><span class="campaign-switch-option campaign-switch-option-on">On</span><span class="campaign-switch-thumb"></span></span></label>
             </div>
-
-            <div class="form-group-inner">
-                <div class="row">
-                    <div class="col-lg-2 col-md-12 col-sm-12 col-xs-12">
-                        <label class="login2 pull-left pull-left-pro">Reject</label>
-                    </div>
-                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                        <div class="input-group custom-go-button">
-                            <input type="text" name="postback.events.reject" class="form-control" placeholder="Reject" value="<?= $c->postback->rejectStatusName ?>" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group-inner">
-                <div class="row">
-                    <div class="col-lg-2 col-md-12 col-sm-12 col-xs-12">
-                        <label class="login2 pull-left pull-left-pro">Trash</label>
-                    </div>
-                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
-                        <div class="input-group custom-go-button">
-                            <input type="text" name="postback.events.trash" class="form-control" placeholder="Trash" value="<?= $c->postback->trashStatusName ?>" />
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <div id="postback-pbkey-settings" class="campaign-setting-row" <?= $c->postback->pbkeyEnabled ? '' : 'hidden' ?>><div class="campaign-setting-label"><span>Allowed pbkey values</span><small>Separate multiple keys with commas.</small></div><input type="text" name="postback.pbkey.keys" class="form-control conversion-compact-control" value="<?= htmlspecialchars(implode(', ', $c->postback->pbkeys), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"></div>
             </div>
 
             <div class="flow-group">
@@ -1140,8 +1181,7 @@ global $c, $db, $campId;
                                 <br />
                                 <br/>
                                 <?php
-                                $statuses = ['Lead','Purchase','Reject','Trash'];
-                                foreach ($statuses as $status)
+                                foreach ($c->conversions->statusNames() as $status)
                                 {?>
                                     <div class="form-check form-switch">
                                         <label for="<?=$status?><?=$i?>" class="form-check-label"><?=$status?></label>
@@ -1478,8 +1518,10 @@ global $c, $db, $campId;
     <script type="module" src="js/campsettings/dws-sync.js?v=<?= filemtime(__DIR__ . '/js/campsettings/dws-sync.js') ?>"></script>
     <script type="module" src="js/campsettings/domains.js"></script>
     <script type="module" src="js/campsettings/toggles.js?v=<?= filemtime(__DIR__ . '/js/campsettings/toggles.js') ?>"></script>
+    <script src="js/campsettings/conversions.js?v=<?= filemtime(__DIR__ . '/js/campsettings/conversions.js') ?>"></script>
     <script type="module" src="js/campsettings/form-submit.js"></script>
-    <script src="js/filters.js"></script>
+    <script>window.campaignConversionStatuses = <?= json_encode($c->conversions->statusNames(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;</script>
+    <script src="js/filters.js?v=<?= filemtime(__DIR__ . '/js/filters.js') ?>"></script>
     <script>
         var rules_basic = <?=json_encode($c->white->filters)?>;
 

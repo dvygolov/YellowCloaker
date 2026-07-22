@@ -9,6 +9,7 @@ require_once __DIR__ . '/redirect.php';
 require_once __DIR__ . '/abtest.php';
 require_once __DIR__ . '/requestfunc.php';
 require_once __DIR__ . '/actions.php';
+require_once __DIR__ . '/conversion.php';
 
 function traficback(array $clickParams): TdsAction
 {
@@ -171,7 +172,10 @@ function black_unique(Campaign $c, FiltrationCore $clkr): ?TdsAction
         if (!$filtersNeedUniqueness) {
             $stage = 'flow_selection';
             foreach ($c->black->flows as $index => $candidate) {
-                if ($clkr->click_matches_filters($candidate->filters)) {
+                $resolver = static function (string $kind, array $filter = []) use ($db, $c, $candidate): bool {
+                    return ConversionCapEvaluator::matches($db, $c, $candidate, $kind, $filter);
+                };
+                if ($clkr->click_matches_filters($candidate->filters, $resolver)) {
                     $preselectedFlowIndex = $index;
                     break;
                 }
@@ -223,15 +227,19 @@ function black_unique(Campaign $c, FiltrationCore $clkr): ?TdsAction
 
                 $stage = 'flow_selection';
                 foreach ($c->black->flows as $index => $candidate) {
-                    $resolver = function (string $scope) use (
+                    $resolver = function (string $scope, array $filter = []) use (
                         $campaignUnique,
                         $connection,
                         $c,
                         $candidate,
+                        $db,
                         $identity,
                         $ttlCutoff,
                         &$flowUniqueByName
                     ): bool {
+                        if (in_array($scope, ['conversion_cap_campaign', 'conversion_cap_flow'], true)) {
+                            return ConversionCapEvaluator::matches($db, $c, $candidate, $scope, $filter);
+                        }
                         if ($scope === 'campaign') {
                             return $campaignUnique;
                         }

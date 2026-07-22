@@ -175,12 +175,15 @@ function get_new_columns($existingColumns, $newColumnNames): array
 function validate_stats_columns_config(array $columns, array &$normalizedColumns): ?string
 {
     foreach ($columns as $column) {
-        if (!is_array($column) || empty($column['custom'])) {
+        if (!is_array($column)) {
             continue;
         }
-        if (Db::normalize_custom_metric_column($column) === null) {
+        $valid = !empty($column['custom'])
+            ? Db::normalize_custom_metric_column($column) !== null
+            : (!empty($column['status_metric']) ? Db::normalize_status_metric_column($column) !== null : true);
+        if (!$valid) {
             $title = trim((string)($column['title'] ?? $column['field'] ?? 'custom column'));
-            return "Error: invalid custom stats column: $title";
+            return "Error: invalid stats column: $title";
         }
     }
 

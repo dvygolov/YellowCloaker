@@ -15,7 +15,7 @@ final class SettingsConflictException extends RuntimeException
 
 final class SettingsManager
 {
-    public const CACHE_SUBDIRECTORIES = ['landings', 'whites', 'whites_curl', 'devices', 'currency', 'proxyvpn'];
+    public const CACHE_SUBDIRECTORIES = ['landings', 'whites', 'whites_curl', 'devices', 'currency', 'proxyvpn', 'runtime'];
     private const LOCAL_FILE = 'settings.local.php';
     private const LOCK_FILE = 'settings.lock';
     private const JOURNAL_FILE = 'settings.journal.json';
@@ -36,6 +36,8 @@ final class SettingsManager
             'backupDir' => 'backups',
             'useUTP' => false,
             'debug' => true,
+            'timezone' => 'Europe/Moscow',
+            'conversionAttribution' => 'click_time',
             'logRetentionDays' => 30,
             'cachingDir' => 'caching',
             'plugins' => [
@@ -220,7 +222,7 @@ final class SettingsManager
         }
 
         $errors = [];
-        foreach (['adminPassword', 'adminDomain', 'adminIp', 'adminPath', 'dbConnection', 'backupDir', 'cachingDir'] as $field) {
+        foreach (['adminPassword', 'adminDomain', 'adminIp', 'adminPath', 'dbConnection', 'backupDir', 'cachingDir', 'timezone', 'conversionAttribution'] as $field) {
             if (!is_string($next[$field] ?? null)) {
                 $errors[$field] = 'Must be a string';
             } else {
@@ -239,6 +241,12 @@ final class SettingsManager
         }
         if (($next['adminIp'] ?? '') !== '' && filter_var($next['adminIp'], FILTER_VALIDATE_IP) === false) {
             $errors['adminIp'] = 'Invalid IP address';
+        }
+        if (!in_array((string)($next['timezone'] ?? ''), timezone_identifiers_list(), true)) {
+            $errors['timezone'] = 'Select a valid IANA timezone';
+        }
+        if (!in_array((string)($next['conversionAttribution'] ?? ''), ['click_time', 'conversion_time'], true)) {
+            $errors['conversionAttribution'] = 'Use click_time or conversion_time';
         }
         if (!$this->isSafeName((string)($next['dbConnection'] ?? ''), 128)) {
             $errors['dbConnection'] = 'Use a file name without directories';
@@ -375,6 +383,12 @@ final class SettingsManager
             } else {
                 $operations[] = ['type' => 'rename', 'from' => $oldAdmin, 'to' => $newAdmin];
             }
+        }
+        if (!in_array((string)($next['timezone'] ?? ''), DateTimeZone::listIdentifiers(), true)) {
+            $errors['timezone'] = 'Select a valid timezone';
+        }
+        if (!in_array((string)($next['conversionAttribution'] ?? ''), ['click_time', 'conversion_time'], true)) {
+            $errors['conversionAttribution'] = 'Select Click time or Conversion time';
         }
         if (!is_int($next['logRetentionDays'] ?? null) && !is_numeric($next['logRetentionDays'] ?? null)) {
             $errors['logRetentionDays'] = 'Must be a whole number';

@@ -56,6 +56,39 @@ CREATE INDEX IF NOT EXISTS idx_unique_campaign_cookie ON clicks (campaign_id,use
 CREATE INDEX IF NOT EXISTS idx_unique_flow_cookie ON clicks (campaign_id,flow,userid,time DESC)
     WHERE unique_flags IS NOT NULL AND userid <> '';
 
+CREATE TABLE IF NOT EXISTS conversions (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	clickid TEXT NOT NULL,
+	campaign_id INTEGER NOT NULL,
+	flow TEXT NOT NULL,
+	time INTEGER NOT NULL,
+	status TEXT NOT NULL,
+	raw_status TEXT NOT NULL,
+	source TEXT NOT NULL CHECK (source IN ('postback', 'form_submit', 'site_script')),
+	tid TEXT,
+	payout NUMERIC NOT NULL DEFAULT 0,
+	currency TEXT NOT NULL DEFAULT 'USD',
+	is_initial INTEGER NOT NULL DEFAULT 0 CHECK (is_initial IN (0, 1)),
+	changes_status INTEGER NOT NULL DEFAULT 0 CHECK (changes_status IN (0, 1)),
+	status_occurrence INTEGER NOT NULL DEFAULT 1 CHECK (status_occurrence >= 1),
+	FOREIGN KEY (clickid) REFERENCES clicks (clickid) ON DELETE CASCADE,
+	FOREIGN KEY (campaign_id) REFERENCES campaigns (id) ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_conversion_initial_click
+    ON conversions (clickid) WHERE is_initial = 1;
+CREATE INDEX IF NOT EXISTS idx_conversion_campaign_tid
+    ON conversions (campaign_id,tid) WHERE tid IS NOT NULL AND tid <> '';
+CREATE INDEX IF NOT EXISTS idx_conversion_campaign_time_status
+    ON conversions (campaign_id,time,status);
+CREATE INDEX IF NOT EXISTS idx_conversion_campaign_flow_time_status
+    ON conversions (campaign_id,flow,time,status);
+CREATE INDEX IF NOT EXISTS idx_conversion_cap_campaign_status_time
+    ON conversions (campaign_id,status COLLATE NOCASE,time);
+CREATE INDEX IF NOT EXISTS idx_conversion_cap_flow_status_time
+    ON conversions (campaign_id,flow,status COLLATE NOCASE,time);
+CREATE INDEX IF NOT EXISTS idx_conversion_click_status_time
+    ON conversions (clickid,status,time,id);
+
 CREATE TABLE IF NOT EXISTS click_event_log (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	clickid TEXT NOT NULL,

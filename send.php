@@ -6,6 +6,7 @@ require_once __DIR__ . '/cookies.php';
 require_once __DIR__ . '/redirect.php';
 require_once __DIR__ . '/paths.php';
 require_once __DIR__ . '/requestfunc.php';
+require_once __DIR__ . '/conversion.php';
 global $db, $cloSettings;
 
 $clickid = (string)($_POST['clickid'] ?? $_GET['clickid'] ?? get_clickid());
@@ -54,7 +55,7 @@ $useUTP = $cloSettings['useUTP'];
 
 switch ($res["info"]["http_code"]) {
     case 302:
-        $db->add_lead($clickid,$_POST);
+        record_successful_form_conversion($db, $clickid, $_POST);
         $thankyouData = $_POST;
         if (!empty($clickid)) {
             $thankyouData['clickid'] = $clickid;
@@ -70,7 +71,7 @@ switch ($res["info"]["http_code"]) {
         }
         break;
     case 200:
-        $db->add_lead($clickid, $_POST);
+        record_successful_form_conversion($db, $clickid, $_POST);
         $thankyouData = $_POST;
         if (!empty($clickid)) {
             $thankyouData['clickid'] = $clickid;
@@ -95,4 +96,26 @@ switch ($res["info"]["http_code"]) {
         echo '<br/>';
         var_dump($_POST);
         exit();
+}
+
+function record_successful_form_conversion(Db $db, string $clickid, array $leadData): void
+{
+    if ($clickid === '') {
+        return;
+    }
+    $db->update_leaddata($clickid, $leadData);
+    $click = $db->get_click_by_clickid($clickid);
+    if ($click === []) {
+        return;
+    }
+    $campaign = new Campaign((int)$click['campaign_id'], $db->get_campaign_settings((int)$click['campaign_id']));
+    if (!$campaign->conversions->formEnabled) {
+        return;
+    }
+    (new ConversionService($db))->record(
+        $campaign,
+        $clickid,
+        $campaign->conversions->formStatus,
+        'form_submit'
+    );
 }

@@ -1,113 +1,71 @@
 <?php
 
-require_once __DIR__ . '/../logging.php';
-require_once __DIR__ . '/../db/db.php';
-require_once __DIR__ . '/../macros.php';
+require_once __DIR__ . '/../conversion.php';
 require_once __DIR__ . '/../paths.php';
-require_once __DIR__ . '/../requestfunc.php';
-require_once __DIR__ . '/../campaign.php';
-require_once __DIR__ . '/../currency.php';
-global $db;
 
-$curLink = (is_https() ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-$clickid = $_REQUEST['clickid'] ?? '';
+global $db, $cloSettings;
+
+$clickid = trim((string)($_REQUEST['clickid'] ?? ''));
 if ($clickid === '') {
-    http_response_code(500);
-    $msg = 'No clickid found! Url: ' . $curLink;
-    add_log('postback', $msg);
-    echo $msg;
-    exit;
-}
-$status = $_REQUEST['status'] ?? '';
-if ($status === '') {
-    http_response_code(500);
-    $msg = 'No status found! Url: ' . $curLink;
-    add_log('postback', $msg);
-    echo $msg;
-    exit;
-}
-$payout = $_REQUEST['payout'] ?? '';
-if ($payout === '') {
-    http_response_code(500);
-    $msg = 'No payout found! Url: ' . $curLink;
-    add_log('postback', $msg);
-    echo $msg;
-    exit;
+    postback_response(null, ['accepted' => false, 'code' => 'missing_clickid', 'message' => 'No clickid found.'], 400);
 }
 
 $click = $db->get_click_by_clickid($clickid);
-if (empty($click)) {
-    http_response_code(500);
-    $msg = 'No click data for clickid ' . $clickid . ' found! Url: ' . $curLink;
-    add_log('postback', $msg);
-    echo $msg;
-    exit;
-}
-$cs = $db->get_campaign_settings($click['campaign_id']);
-$c = new Campaign($click['campaign_id'], $cs);
-
-$inner_status = match (strtolower($status)) {
-    strtolower($c->postback->leadStatusName) => 'Lead',
-    strtolower($c->postback->purchaseStatusName) => 'Purchase',
-    strtolower($c->postback->rejectStatusName) => 'Reject',
-    strtolower($c->postback->trashStatusName) => 'Trash',
-    default => ''
-};
-
-if ($inner_status === '') {
-    http_response_code(500);
-    $msg = 'Status ' . $status . ' is unknown! Url: ' . $curLink;
-    add_log('postback', $msg);
-    echo $msg;
-    exit;
+if ($click === []) {
+    postback_response(null, ['accepted' => false, 'code' => 'click_not_found', 'message' => 'Clickid not found.'], 404);
 }
 
-$currency = strtoupper($_REQUEST['currency'] ?? 'USD');
-$payout = CurrencyConverter::convert($payout, $currency);
-
-$updated = $db->update_status($clickid, $inner_status, $payout);
-
-if ($updated) {
-    process_s2s_posbacks($c->postback->s2sPostbacks, $inner_status, $click);
-    http_response_code(200);
-    $msg = 'Postback for clickid ' . $clickid . ' with status ' . $status . ' and payout ' . $payout . ' ' . $currency . ' accepted.';
-    add_log('postback', $msg);
-    echo $msg;
-} else {
-    http_response_code(404);
-    $msg = 'Postback for clickid ' . $clickid . ' with status ' . $status . ' and payout ' . $payout . ' ' . $currency . ' NOT accepted! Clickid NOT FOUND.';
-    add_log('postback', $msg);
-    echo $msg;
-}
-
-function process_s2s_posbacks(array $s2s_postbacks, string $inner_status, array $click): void
-{
-    $clickid = (string)($click['clickid'] ?? '');
-    $userid = (string)($click['userid'] ?? '');
-    $mp = new MacrosProcessor(null, $click, $clickid, $userid);
-    foreach ($s2s_postbacks as $s2s) {
-        if (empty($s2s->url)) {
-            continue;
-        }
-        if (!in_array($inner_status, $s2s->events, true)) {
-            continue;
-        }
-        $final_url = str_replace('{status}', $inner_status, $s2s->url);
-        $final_url = $mp->replace_url_macros($final_url);
-        $s2s_res = '';
-        switch ($s2s->method) {
-            case 'GET':
-                $s2s_res = get($final_url);
-                break;
-            case 'POST':
-                $urlParts = explode('?', $final_url);
-                $params = [];
-                if (count($urlParts) > 1) {
-                    parse_str($urlParts[1], $params);
-                }
-                $s2s_res = post($urlParts[0], $params);
-                break;
-        }
-        add_log('postback', $s2s->method . ', ' . $final_url . ', ' . $inner_status . ', ' . $s2s_res['info']['http_code']);
+$campaign = new Campaign((int)$click['campaign_id'], $db->get_campaign_settings((int)$click['campaign_id']));
+if ($campaign->postback->pbkeyEnabled) {
+    $providedPbkey = trim((string)($_REQUEST['pbkey'] ?? ''));
+    if ($providedPbkey === '' || !in_array($providedPbkey, $campaign->postback->pbkeys, true)) {
+        postback_response($campaign, ['accepted' => false, 'code' => 'invalid_pbkey', 'message' => 'Invalid pbkey.'], 403);
     }
+}
+
+$service = new ConversionService($db);
+$result = $service->record(
+    $campaign,
+    $clickid,
+    (string)($_REQUEST['status'] ?? ''),
+    'postback',
+    array_key_exists('payout', $_REQUEST) ? $_REQUEST['payout'] : null,
+    (string)($_REQUEST['currency'] ?? 'USD'),
+    isset($_REQUEST['tid']) ? (string)$_REQUEST['tid'] : null
+);
+
+$statusCode = match ($result['code'] ?? '') {
+    'accepted' => 200,
+    'click_not_found' => 404,
+    'duplicate_tid', 'duplicate_status', 'duplicate_conversion', 'tid_required' => 409,
+    'unknown_status', 'invalid_payout', 'invalid_currency', 'currency_error' => 422,
+    default => 400,
+};
+postback_response($campaign, $result, $statusCode);
+
+function postback_response(?Campaign $campaign, array $result, int $statusCode): never
+{
+    global $cloSettings;
+    $accepted = ($result['accepted'] ?? false) === true;
+    $hideFailure = !$accepted
+        && $campaign !== null
+        && $campaign->postback->pbkeyEnabled
+        && !($cloSettings['debug'] ?? false);
+
+    if ($hideFailure) {
+        http_response_code(404);
+        echo 'Not Found';
+        exit;
+    }
+
+    http_response_code($statusCode);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode([
+        'ok' => $accepted,
+        'code' => (string)($result['code'] ?? 'error'),
+        'message' => (string)($result['message'] ?? 'Unknown error.'),
+        'status' => $result['status'] ?? null,
+        'conversion_id' => $result['conversion_id'] ?? null,
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    exit;
 }

@@ -79,6 +79,25 @@ class Tabulator
         return array_merge($tabulatorColumn, self::custom_metric_formatter($column));
     }
 
+    private static function build_status_metric_column(array $column): array
+    {
+        $calculation = $column['calculation'] ?? 'current';
+        $tooltip = match ($calculation) {
+            'count' => 'Counts every accepted conversion row with this status. One clickid can be counted more than once.',
+            'unique' => 'Counts distinct clickids that have at least one accepted row with this status.',
+            'nth' => 'Counts clickids whose selected occurrence of this status falls inside the attribution period.',
+            default => 'Counts clickids whose latest accepted status equals this status.',
+        };
+        return [
+            'title' => $column['title'] ?? $column['field'],
+            'field' => $column['field'],
+            'headerTooltip' => $tooltip,
+            'sorter' => 'number',
+            'hozAlign' => 'right',
+            'bottomCalc' => 'sum',
+        ];
+    }
+
     public static function get_stats_columns(array $columns, ?string $groupByClmnTitle = null, array $groupByFields = []): string
     {
         $columns = Db::normalize_stats_columns_config($columns);
@@ -102,6 +121,8 @@ class Tabulator
                 $tabulatorColumns[] = $columnSettings[$field];
             } elseif (!empty($columns[$i]['custom'])) {
                 $tabulatorColumns[] = self::build_custom_metric_column($columns[$i]);
+            } elseif (!empty($columns[$i]['status_metric'])) {
+                $tabulatorColumns[] = self::build_status_metric_column($columns[$i]);
             } elseif (str_starts_with($field, 'event.')) {
                 $title = $columns[$i]['title'] ?? ucwords(str_replace('_', ' ', substr($field, 6)));
                 $tabulatorColumns[] = [

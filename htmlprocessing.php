@@ -183,8 +183,25 @@ function load_step(Campaign $c, FlowSettings $flow, int $stepIndex, string $fold
     }
 
     $html = add_event_tracking($html, $c->scripts, $clickid);
+    $html = add_conversion_tracking($html, $c->conversions, $clickid);
 
     return $html;
+}
+
+function add_conversion_tracking(string $html, ConversionSettings $settings, string $clickid): string
+{
+    if (!$settings->siteEnabled) {
+        return $html;
+    }
+    return insert_file_content(
+        $html,
+        'conversiontracking.js',
+        '</body>',
+        true,
+        true,
+        ['{CONVERSION_API_URL_JSON}', '{CLICK_ID_JSON}'],
+        [json_encode(get_tds_relative_path() . 'api/conversion.php'), json_encode($clickid)]
+    );
 }
 
 function add_event_tracking(string $html, ScriptsSettings $scripts, string $clickid): string

@@ -47,6 +47,7 @@ if (count($ss->tables)>0){
     <script>
         let availableClmns = <?= json_encode(AvailableColumns::get_stats_columns_for_campaign($c, $db, $campId)) ?>;
         let availableDimensions = <?= json_encode(AvailableColumns::get_columns_for_type('groupby')) ?>;
+        let campaignConversionStatuses = <?= json_encode($c->conversions->statusNames(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;
     </script>
     <div class="buttons-block" style="display: flex; justify-content: space-between; align-items: center;">
         <div>
@@ -285,7 +286,8 @@ if (count($ss->tables)>0){
                 "<?=$tName?>",
                 `clmnseditor.php?action=savestats&name=<?=$tName?>&campid=<?=$campId?>`,
                 existingFilters,
-                existingOrderby
+                existingOrderby,
+                campaignConversionStatuses
             );
 
             $('#statsTableModal').modal({
@@ -360,7 +362,8 @@ if (count($ss->tables)>0){
                 'New', // no table name
                 'clmnseditor.php?action=savestats&campid=<?=$campId?>',
                 {},
-                []
+                [],
+                campaignConversionStatuses
             );
             $('#statsTableModal').modal({
                 modalClass: 'ywbmodal',

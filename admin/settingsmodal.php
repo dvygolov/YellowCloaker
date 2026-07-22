@@ -48,6 +48,23 @@
                     </div>
                     <div class="settings-grid" style="margin-top: 14px;">
                         <label class="settings-field">
+                            <span>TDS timezone</span>
+                            <select name="timezone">
+                                <?php foreach (DateTimeZone::listIdentifiers() as $timezoneId) { ?>
+                                <option value="<?= htmlspecialchars($timezoneId, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"><?= htmlspecialchars($timezoneId, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></option>
+                                <?php } ?>
+                            </select>
+                            <small>Used as the default timezone for new campaigns.</small>
+                        </label>
+                        <label class="settings-field">
+                            <span>Conversion attribution</span>
+                            <select name="conversionAttribution">
+                                <option value="click_time">Click time</option>
+                                <option value="conversion_time">Conversion time</option>
+                            </select>
+                            <small>Applies consistently to conversion, revenue and status metrics.</small>
+                        </label>
+                        <label class="settings-field">
                             <span>Log retention (days)</span>
                             <input type="number" name="logRetentionDays" min="1" max="3650" step="1">
                             <small>Structured server logs older than this are removed automatically.</small>

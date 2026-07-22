@@ -1140,3 +1140,178 @@
     content: "\f5de";
     font-size: 14px;
 }
+.conversion-section-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.conversion-section-copy {
+    color: #94a3b8;
+    margin: 6px 0 0;
+}
+
+.conversion-status-list-heading,
+.conversion-status-row {
+    display: grid;
+    grid-template-columns: minmax(190px, 0.8fr) minmax(320px, 1.4fr) 42px;
+    align-items: center;
+    gap: 18px;
+}
+
+.conversion-status-list-heading {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(76, 104, 158, 0.42);
+    color: #8ea0bf;
+    font-size: 13px;
+}
+
+.conversion-status-row {
+    min-height: 62px;
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(76, 104, 158, 0.28);
+}
+
+.conversion-status-row:last-child {
+    border-bottom: 0;
+}
+
+.conversion-status-row-new {
+    background: rgba(13, 110, 253, 0.06);
+}
+
+.conversion-status-identity {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+}
+
+.conversion-status-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.conversion-status-name .bi-lock {
+    color: #94a3b8;
+}
+
+.conversion-status-kind {
+    flex: 0 0 auto;
+    color: #8ea0bf;
+    font-size: 12px;
+}
+
+.conversion-status-action {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.conversion-status-action:empty {
+    min-height: 32px;
+}
+
+.conversion-status-action .remove-conversion-status {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-color: transparent;
+    background: transparent;
+    color: #ef4056;
+}
+
+.conversion-status-action .remove-conversion-status:hover,
+.conversion-status-action .remove-conversion-status:focus-visible {
+    border-color: #ef4056;
+    background: rgba(239, 64, 86, 0.12);
+    color: #ff6679;
+}
+
+.camp-content .conversion-status-row input.form-control:not([readonly]),
+.camp-content .conversion-status-row input.form-control:not([readonly]):focus {
+    background-color: #172238;
+    color: #e2e8f0;
+}
+
+.camp-content .conversion-status-row input.form-control:not([readonly]):focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.2);
+}
+
+.camp-content input.form-control.conversion-status-name-input[readonly] {
+    background: transparent;
+    border-color: transparent;
+    color: #f0f4fb;
+    opacity: 1;
+    box-shadow: none;
+    padding-left: 0;
+}
+
+.conversion-status-name-input {
+    min-width: 0;
+}
+
+.conversion-status-aliases {
+    width: 100%;
+}
+
+.conversion-compact-control {
+    width: min(100%, 420px);
+    justify-self: end;
+}
+
+.conversion-code-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 0;
+}
+
+.conversion-cap-input {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) 92px;
+    gap: 8px;
+    min-width: 300px;
+}
+
+.conversion-cap-statuses {
+    min-height: 74px;
+}
+
+@media (max-width: 760px) {
+    .conversion-section-heading,
+    .conversion-code-row {
+        align-items: stretch;
+        flex-direction: column;
+    }
+    .conversion-status-list-heading {
+        display: none;
+    }
+    .conversion-status-row {
+        grid-template-columns: minmax(0, 1fr) 42px;
+        gap: 10px;
+    }
+    .conversion-status-identity {
+        grid-column: 1;
+        grid-row: 1;
+    }
+    .conversion-status-aliases {
+        grid-column: 1 / -1;
+        grid-row: 2;
+    }
+    .conversion-status-action {
+        grid-column: 2;
+        grid-row: 1;
+    }
+    .conversion-compact-control {
+        width: 100%;
+    }
+}

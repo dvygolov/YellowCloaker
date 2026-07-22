@@ -5,6 +5,7 @@ require_once __DIR__ . '/campaign.php';
 require_once __DIR__ . '/core.php';
 require_once __DIR__ . '/main.php';
 require_once __DIR__ . '/cookies.php';
+require_once __DIR__ . '/conversion.php';
 
 class Tds
 {
@@ -179,7 +180,7 @@ class Tds
             return black_unique($campaign, $clkr);
         }
 
-        $flowIndex = self::pick_flow_index($clkr, $campaign->black->flows);
+        $flowIndex = self::pick_flow_index($clkr, $campaign->black->flows, null, $campaign);
         return $flowIndex === null
             ? null
             : black($campaign, $flowIndex, $clkr->click_params);
@@ -188,11 +189,23 @@ class Tds
     public static function pick_flow_index(
         FiltrationCore $clkr,
         array $flows,
-        ?callable $runtimeFilterResolver = null
+        ?callable $runtimeFilterResolver = null,
+        ?Campaign $campaign = null
     ): ?int
     {
         for ($i = 0; $i < count($flows); $i++) {
-            if ($clkr->click_matches_filters($flows[$i]->filters, $runtimeFilterResolver)) {
+            $candidate = $flows[$i];
+            $resolver = $runtimeFilterResolver;
+            if ($campaign !== null) {
+                $resolver = function (string $kind, array $filter = []) use ($runtimeFilterResolver, $campaign, $candidate): bool {
+                    global $db;
+                    if (in_array($kind, ['conversion_cap_campaign', 'conversion_cap_flow'], true)) {
+                        return ConversionCapEvaluator::matches($db, $campaign, $candidate, $kind, $filter);
+                    }
+                    return $runtimeFilterResolver === null ? true : (bool)$runtimeFilterResolver($kind, $filter, $candidate);
+                };
+            }
+            if ($clkr->click_matches_filters($candidate->filters, $resolver)) {
                 return $i;
             }
         }

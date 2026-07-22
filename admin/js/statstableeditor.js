@@ -5,14 +5,18 @@ const MAX_ORDERBY_RULES = 3;
 const CUSTOM_COLUMN_FORMATS = ['number', 'percent', 'currency'];
 const FORMULA_OPERATOR_TOKENS = ['7', '8', '9', '-', '*', '4', '5', '6', '+', '/', '1', '2', '3', '(', ')', '0', '.'];
 let customColumnsState = new Map();
+let statusColumnsState = new Map();
 let availableMetricsMeta = new Map();
 let activeCustomFormulaField = null;
+let campaignStatusesState = [];
 
-function initializeStatsTableEditor(availableColumns, selectedMetrics, availableDimensions, selectedDimensions, tableName, saveUrl, existingFilters, existingOrderby) {
+function initializeStatsTableEditor(availableColumns, selectedMetrics, availableDimensions, selectedDimensions, tableName, saveUrl, existingFilters, existingOrderby, campaignStatuses = []) {
     const MAX_GROUPBY_SELECTIONS = 3;
 
     customColumnsState = new Map();
+    statusColumnsState = new Map();
     availableMetricsMeta = new Map();
+    campaignStatusesState = Array.isArray(campaignStatuses) ? campaignStatuses.filter(Boolean).map(String) : [];
     availableColumns.forEach((column) => {
         const field = typeof column === 'string' ? column : column.field;
         availableMetricsMeta.set(field, column);
@@ -20,7 +24,13 @@ function initializeStatsTableEditor(availableColumns, selectedMetrics, available
 
     const selectedMetricObjects = Array.isArray(selectedMetrics) ? selectedMetrics : [];
     const customMetrics = selectedMetricObjects.filter((item) => typeof item === 'object' && item?.custom);
+    const statusMetrics = selectedMetricObjects.filter((item) => typeof item === 'object' && item?.status_metric);
     customMetrics.forEach((column) => customColumnsState.set(column.field, normalizeCustomColumn(column)));
+    statusMetrics.forEach((column) => {
+        const normalized = normalizeStatusColumn(column);
+        statusColumnsState.set(normalized.field, normalized);
+        availableMetricsMeta.set(normalized.field, normalized);
+    });
 
     initializeSortable('metricsColumns', 'metrics');
     initializeSortable('dimensionsColumns', 'dimensions');
@@ -31,7 +41,7 @@ function initializeStatsTableEditor(availableColumns, selectedMetrics, available
     const regularDimensions = selectedDimensions.filter((d) => !d.startsWith('param.'));
     const paramDimensions = selectedDimensions.filter((d) => d.startsWith('param.'));
 
-    addColumnsToList('metricsColumns', selectedMetricObjects, [...availableColumns, ...customMetrics], existingOrderby);
+    addColumnsToList('metricsColumns', selectedMetricObjects, [...availableColumns, ...statusMetrics, ...customMetrics], existingOrderby);
     addColumnsToList('dimensionsColumns', regularDimensions, availableDimensions);
     reorderItemsByFields('metricsColumns', selectedMetricObjects);
 
@@ -69,6 +79,15 @@ function initializeStatsTableEditor(availableColumns, selectedMetrics, available
     document.getElementById('customColumnsList').oninput = handleCustomColumnInput;
     document.getElementById('customColumnsList').onclick = handleCustomColumnClick;
     document.getElementById('customColumnsList').onfocusin = handleCustomColumnFocus;
+    document.getElementById('openStatusColumn').onclick = () => toggleStatusColumnModal(true);
+    document.getElementById('closeStatusColumn').onclick = () => toggleStatusColumnModal(false);
+    document.getElementById('addStatusColumn').onclick = addStatusColumn;
+    document.getElementById('statusCalculationChoices').onchange = updateStatusOccurrenceVisibility;
+    document.getElementById('configuredStatusColumns').onclick = handleConfiguredStatusColumnClick;
+    document.getElementById('statusColumnStatus').onchange = updateStatusColumnDefaultTitle;
+    document.getElementById('statusCalculationChoices').addEventListener('change', updateStatusColumnDefaultTitle);
+    populateStatusColumnOptions();
+    renderConfiguredStatusColumns();
 
     tableNameInput.addEventListener('input', () => updateSaveButtonState());
     updateSaveButtonState();
@@ -129,6 +148,162 @@ function toggleCustomColumnsModal(show) {
     }
 }
 
+function normalizeStatusColumn(column) {
+    const allowedCalculations = ['current', 'count', 'unique', 'nth'];
+    const calculation = allowedCalculations.includes(column?.calculation) ? column.calculation : 'current';
+    const occurrence = Math.max(1, Number.parseInt(column?.occurrence ?? 1, 10) || 1);
+    return {
+        field: String(column?.field || generateStatusColumnField(column?.status || 'status', calculation, occurrence)),
+        title: String(column?.title || getStatusColumnDefaultTitle(column?.status || 'Status', calculation, occurrence)),
+        status: String(column?.status || ''),
+        calculation,
+        occurrence,
+        status_metric: true,
+        width: Number(column?.width ?? -1),
+    };
+}
+
+function toggleStatusColumnModal(show) {
+    const modal = document.getElementById('statusColumnModal');
+    if (!modal) return;
+    if (show && campaignStatusesState.length === 0) {
+        alert('Add at least one conversion status in Campaign settings first.');
+        return;
+    }
+    modal.style.display = show ? 'block' : 'none';
+    if (show) {
+        populateStatusColumnOptions();
+        updateStatusOccurrenceVisibility();
+        updateStatusColumnDefaultTitle(true);
+        renderConfiguredStatusColumns();
+    }
+}
+
+function populateStatusColumnOptions() {
+    const select = document.getElementById('statusColumnStatus');
+    if (!select) return;
+    const previous = select.value;
+    select.innerHTML = campaignStatusesState
+        .map((status) => `<option value="${escapeHtml(status)}">${escapeHtml(status)}</option>`)
+        .join('');
+    if (campaignStatusesState.includes(previous)) select.value = previous;
+}
+
+function getSelectedStatusCalculation() {
+    return document.querySelector('input[name="statusCalculation"]:checked')?.value || 'current';
+}
+
+function updateStatusOccurrenceVisibility() {
+    const row = document.getElementById('statusOccurrenceRow');
+    if (row) row.style.display = getSelectedStatusCalculation() === 'nth' ? '' : 'none';
+}
+
+function getStatusCalculationLabel(calculation) {
+    return {
+        current: 'Current',
+        count: 'Count',
+        unique: 'Unique clickids',
+        nth: 'Nth occurrence',
+    }[calculation] || 'Current';
+}
+
+function getStatusColumnDefaultTitle(status, calculation, occurrence) {
+    const suffix = calculation === 'nth'
+        ? `${Math.max(1, Number.parseInt(occurrence, 10) || 1)}th occurrence`
+        : getStatusCalculationLabel(calculation);
+    return `${status} — ${suffix}`;
+}
+
+function updateStatusColumnDefaultTitle(force = false) {
+    updateStatusOccurrenceVisibility();
+    const input = document.getElementById('statusColumnTitle');
+    const status = document.getElementById('statusColumnStatus')?.value || 'Status';
+    const calculation = getSelectedStatusCalculation();
+    const occurrence = document.getElementById('statusColumnOccurrence')?.value || 2;
+    if (input && (force || !input.dataset.edited || input.value.trim() === '')) {
+        input.value = getStatusColumnDefaultTitle(status, calculation, occurrence);
+        input.dataset.edited = '';
+    }
+}
+
+function generateStatusColumnField(status, calculation, occurrence) {
+    const slug = String(status || 'status').toLowerCase().replace(/[^a-z0-9_]+/g, '_').replace(/^_+|_+$/g, '') || 'status';
+    const occurrenceSuffix = calculation === 'nth' ? `_${Math.max(1, Number.parseInt(occurrence, 10) || 1)}` : '';
+    const base = `status.${slug}_${calculation}${occurrenceSuffix}`;
+    let field = base;
+    let counter = 2;
+    while (statusColumnsState.has(field) || availableMetricsMeta.has(field)) field = `${base}_${counter++}`;
+    return field;
+}
+
+function addStatusColumn() {
+    const status = document.getElementById('statusColumnStatus')?.value || '';
+    const calculation = getSelectedStatusCalculation();
+    const occurrence = Math.max(1, Number.parseInt(document.getElementById('statusColumnOccurrence')?.value || 1, 10) || 1);
+    const titleInput = document.getElementById('statusColumnTitle');
+    const title = titleInput?.value.trim() || getStatusColumnDefaultTitle(status, calculation, occurrence);
+    if (!status) return;
+
+    const field = generateStatusColumnField(status, calculation, occurrence);
+    const column = normalizeStatusColumn({ field, title, status, calculation, occurrence, status_metric: true });
+    statusColumnsState.set(field, column);
+    availableMetricsMeta.set(field, column);
+    rebuildMetricColumns([...getSelectedItems('metricsColumns'), field]);
+    renderConfiguredStatusColumns();
+    if (titleInput) {
+        titleInput.dataset.edited = '';
+        updateStatusColumnDefaultTitle(true);
+    }
+    updateSaveButtonState();
+}
+
+function rebuildMetricColumns(selectedFields) {
+    const orderby = collectOrderby();
+    const selected = selectedFields.map((field) => statusColumnsState.get(field) || customColumnsState.get(field) || field);
+    addColumnsToList(
+        'metricsColumns',
+        selected,
+        [...availableMetricsMeta.values(), ...statusColumnsState.values(), ...customColumnsState.values()],
+        orderby
+    );
+    reorderItemsByFields('metricsColumns', selectedFields);
+    updateSortToggleAvailability();
+}
+
+function renderConfiguredStatusColumns() {
+    const container = document.getElementById('configuredStatusColumns');
+    if (!container) return;
+    if (statusColumnsState.size === 0) {
+        container.innerHTML = '<div style="opacity:.65; padding:7px 0;">No custom status columns yet.</div>';
+        return;
+    }
+    container.innerHTML = [...statusColumnsState.values()].map((column) => `
+        <div class="configured-status-column" data-status-field="${escapeHtml(column.field)}">
+            <span><strong>${escapeHtml(column.title)}</strong><small style="display:block; opacity:.68;">${escapeHtml(column.status)} · ${escapeHtml(getStatusCalculationLabel(column.calculation))}${column.calculation === 'nth' ? ` #${column.occurrence}` : ''}</small></span>
+            <button type="button" class="btn btn-sm btn-danger remove-status-column">Delete</button>
+        </div>
+    `).join('');
+}
+
+function handleConfiguredStatusColumnClick(event) {
+    const button = event.target.closest('.remove-status-column');
+    if (!button) return;
+    const row = button.closest('[data-status-field]');
+    const field = row?.dataset.statusField;
+    if (!field) return;
+    statusColumnsState.delete(field);
+    availableMetricsMeta.delete(field);
+    qs(`#metricsColumns .column-item[data-field="${CSS.escape(field)}"]`)?.remove();
+    renderConfiguredStatusColumns();
+    updateSortToggleAvailability();
+    updateSaveButtonState();
+}
+
+document.addEventListener('input', (event) => {
+    if (event.target?.id === 'statusColumnTitle') event.target.dataset.edited = '1';
+    if (event.target?.id === 'statusColumnOccurrence') updateStatusColumnDefaultTitle();
+});
+
 async function deleteStatsTable(tableName, deleteUrl) {
     if (!confirm(`Are you sure you want to delete table "${tableName}"?`)) return;
     try {
@@ -181,6 +356,7 @@ function addColumnsToList(containerId, selectedItems, columns, orderbyRules) {
         div.className = 'column-item';
         div.dataset.field = field;
         if (column?.custom) div.dataset.custom = '1';
+        if (column?.status_metric) div.dataset.statusMetric = '1';
 
         let sortToggleHtml = '';
         if (isMetrics) {
@@ -193,7 +369,7 @@ function addColumnsToList(containerId, selectedItems, columns, orderbyRules) {
         div.innerHTML = `
             <span class="drag-handle">☰</span>
             <input type="checkbox" ${isSelected ? 'checked' : ''}>
-            <span class="column-label">${escapeHtml(title)}${column?.custom ? ' <span style="opacity:0.7">fx</span>' : ''}</span>
+            <span class="column-label">${escapeHtml(title)}${column?.custom ? ' <span style="opacity:0.7">fx</span>' : ''}${column?.status_metric ? ' <span style="opacity:0.7">status</span>' : ''}</span>
             ${sortToggleHtml}
         `;
 
@@ -246,6 +422,9 @@ function collectSelectedMetricConfigs() {
             const field = el.dataset.field;
             if (customColumnsState.has(field)) {
                 return normalizeCustomColumn(customColumnsState.get(field));
+            }
+            if (statusColumnsState.has(field)) {
+                return normalizeStatusColumn(statusColumnsState.get(field));
             }
             const meta = availableMetricsMeta.get(field);
             if (meta && typeof meta === 'object' && meta.title) {
@@ -445,7 +624,7 @@ function tokenizeCustomFormula(formula) {
             tokens.push({ type: 'number', value: raw });
         } else if (/^[()+\-*/]$/.test(raw)) {
             tokens.push({ type: 'operator', value: raw });
-        } else if (/^(?:[a-z][a-z0-9_]*|event\.[a-z0-9_]+|custom\.[a-z0-9_]+)$/.test(raw)) {
+        } else if (/^(?:[a-z][a-z0-9_]*|event\.[a-z0-9_]+|status\.[a-z0-9_]+|custom\.[a-z0-9_]+)$/.test(raw)) {
             tokens.push({ type: 'field', value: raw });
         } else {
             return null;

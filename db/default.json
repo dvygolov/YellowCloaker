@@ -1,9 +1,5 @@
 {
-  "domains": [
-    "yourdomain.com",
-    "*.mydomain.com",
-    "localhost:48960"
-  ],
+  "domains": [],
   "apikey": "test",
   "saveuserflow": false,
   "uniqueness": {
@@ -416,12 +412,29 @@
       }
     ]
   },
+  "conversions": {
+    "statuses": [
+      {"name": "Lead", "aliases": ["lead", "pending", "hold"]},
+      {"name": "Purchase", "aliases": ["purchase", "approved", "sale"]},
+      {"name": "Reject", "aliases": ["reject", "declined"]},
+      {"name": "Trash", "aliases": ["trash", "invalid"]}
+    ],
+    "deduplication": {
+      "enabled": true,
+      "paid_repeat_without_tid": "reject"
+    },
+    "form": {
+      "enabled": false,
+      "status": "Lead"
+    },
+    "site": {
+      "enabled": false
+    }
+  },
   "postback": {
-    "events": {
-      "lead": "Lead",
-      "purchase": "Purchase",
-      "reject": "Reject",
-      "trash": "Trash"
+    "pbkey": {
+      "enabled": false,
+      "keys": []
     },
     "s2s": [
       {

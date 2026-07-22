@@ -4,15 +4,13 @@ require_once __DIR__ . "/../cookies.php";
 require_once __DIR__ . "/../logging.php";
 require_once __DIR__ . "/../settings.php";
 require_once __DIR__ . "/../paths.php";
+require_once __DIR__ . "/../runtimeconfig.php";
 
 class Db
 {
     private const DERIVED_STATS_DEPENDENCIES = [
         'uniques_ratio' => ['clicks', 'uniques'],
         'cra' => ['clicks', 'conversion'],
-        'crs' => ['clicks', 'purchase'],
-        'appt' => ['purchase', 'conversion', 'trash'],
-        'app' => ['purchase', 'conversion'],
         'roi' => ['revenue', 'costs'],
         'epc' => ['revenue', 'clicks'],
         'uepc' => ['revenue', 'uniques'],
@@ -38,70 +36,6 @@ class Db
             if (!$created)
                 die("Couldn't create the SQLite database! Read logs for additional info.");
         }
-        $this->ensure_schema_migrations();
-    }
-
-    private function ensure_schema_migrations(): void
-    {
-        $db = new SQLite3($this->dbPath, SQLITE3_OPEN_READWRITE);
-        $db->busyTimeout(5000);
-
-        $columns = [];
-        $result = $db->query("PRAGMA table_info(clicks)");
-        while ($row = $result?->fetchArray(SQLITE3_ASSOC)) {
-            $columns[] = $row['name'] ?? '';
-        }
-
-        if (!in_array('events', $columns, true)) {
-            $db->exec("ALTER TABLE clicks ADD COLUMN events TEXT DEFAULT '{}'");
-        }
-        if (!in_array('unique_hash', $columns, true)) {
-            $db->exec('ALTER TABLE clicks ADD COLUMN unique_hash BLOB NULL');
-        }
-        if (!in_array('unique_flags', $columns, true)) {
-            $db->exec(
-                'ALTER TABLE clicks ADD COLUMN unique_flags INTEGER NULL '
-                . 'CHECK (unique_flags IS NULL OR unique_flags BETWEEN 0 AND 3)'
-            );
-        }
-
-        $db->exec('CREATE INDEX IF NOT EXISTS idx_userid ON clicks (userid)');
-
-        $db->exec(
-            "CREATE INDEX IF NOT EXISTS idx_unique_campaign_hash
-             ON clicks (campaign_id,unique_hash,time DESC)
-             WHERE unique_flags IS NOT NULL AND unique_hash IS NOT NULL"
-        );
-        $db->exec(
-            "CREATE INDEX IF NOT EXISTS idx_unique_flow_hash
-             ON clicks (campaign_id,flow,unique_hash,time DESC)
-             WHERE unique_flags IS NOT NULL AND unique_hash IS NOT NULL"
-        );
-        $db->exec(
-            "CREATE INDEX IF NOT EXISTS idx_unique_campaign_cookie
-             ON clicks (campaign_id,userid,time DESC)
-             WHERE unique_flags IS NOT NULL AND userid <> ''"
-        );
-        $db->exec(
-            "CREATE INDEX IF NOT EXISTS idx_unique_flow_cookie
-             ON clicks (campaign_id,flow,userid,time DESC)
-             WHERE unique_flags IS NOT NULL AND userid <> ''"
-        );
-
-        $db->exec(
-            "CREATE TABLE IF NOT EXISTS click_event_log (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                clickid TEXT NOT NULL,
-                time INTEGER NOT NULL,
-                step_index INTEGER NOT NULL,
-                event_name TEXT NOT NULL,
-                event_value NUMERIC NOT NULL,
-                FOREIGN KEY (clickid) REFERENCES clicks (clickid) ON DELETE CASCADE
-            )"
-        );
-        $db->exec('CREATE INDEX IF NOT EXISTS idx_event_clickid_time ON click_event_log (clickid,time)');
-        $db->exec('CREATE INDEX IF NOT EXISTS idx_event_name_time ON click_event_log (event_name,time)');
-        $db->close();
     }
 
     private static function decode_click_row(array &$click): void
@@ -155,6 +89,12 @@ class Db
                     continue;
                 }
                 $normalizedColumn = array_merge($normalizedColumn, $custom, ['custom' => true]);
+            } elseif (!empty($column['status_metric'])) {
+                $statusMetric = self::normalize_status_metric_column($column);
+                if ($statusMetric === null) {
+                    continue;
+                }
+                $normalizedColumn = array_merge($normalizedColumn, $statusMetric, ['status_metric' => true]);
             } elseif (isset($column['title']) && is_string($column['title']) && trim($column['title']) !== '') {
                 $normalizedColumn['title'] = trim($column['title']);
             }
@@ -190,6 +130,28 @@ class Db
             'formula' => $formula,
             'format' => $format,
             'decimals' => $decimals,
+        ];
+    }
+
+    public static function normalize_status_metric_column(array $column): ?array
+    {
+        $field = strtolower(trim((string)($column['field'] ?? '')));
+        $title = trim((string)($column['title'] ?? ''));
+        $status = trim((string)($column['status'] ?? ''));
+        $calculation = strtolower(trim((string)($column['calculation'] ?? 'current')));
+        $occurrence = max(1, (int)($column['occurrence'] ?? 1));
+        if (preg_match('/^status\.[a-z0-9_]+$/', $field) !== 1 || $title === '' || $status === '') {
+            return null;
+        }
+        if (!in_array($calculation, ['current', 'count', 'unique', 'nth'], true)) {
+            return null;
+        }
+        return [
+            'field' => $field,
+            'title' => $title,
+            'status' => $status,
+            'calculation' => $calculation,
+            'occurrence' => $occurrence,
         ];
     }
 
@@ -238,7 +200,7 @@ class Db
             } elseif (in_array($raw, ['+', '-', '*', '/', '(', ')'], true)) {
                 $tokens[] = ['type' => 'operator', 'value' => $raw];
             } else {
-                if (!preg_match('/^(?:[a-z][a-z0-9_]*|event\.[a-z0-9_]+|custom\.[a-z0-9_]+)$/', $raw)) {
+                if (!preg_match('/^(?:[a-z][a-z0-9_]*|event\.[a-z0-9_]+|status\.[a-z0-9_]+|custom\.[a-z0-9_]+)$/', $raw)) {
                     return null;
                 }
                 $tokens[] = ['type' => 'field', 'value' => $raw];
@@ -392,11 +354,15 @@ class Db
         $normalizedColumns = self::normalize_stats_columns_config($selectedColumns);
         $selectedFields = [];
         $customColumns = [];
+        $statusColumns = [];
         foreach ($normalizedColumns as $column) {
             $field = $column['field'];
             $selectedFields[] = $field;
             if (!empty($column['custom'])) {
                 $customColumns[] = $column;
+            }
+            if (!empty($column['status_metric'])) {
+                $statusColumns[$field] = $column;
             }
         }
 
@@ -408,7 +374,7 @@ class Db
             }
         }
 
-        return [$selectedFields, $customColumns, $normalizedColumns];
+        return [$selectedFields, $customColumns, $normalizedColumns, $statusColumns];
     }
 
     private static function apply_custom_columns_to_tree(array &$tree, array $customColumns): void
@@ -843,9 +809,6 @@ class Db
                 case 'cra':
                     $selectParts[] = "(COUNT(DISTINCT CASE WHEN status IS NOT NULL THEN c.id END) * 100.0 / COUNT(*)) AS cra";
                     break;
-                case 'crs':
-                    $selectParts[] = "(COUNT(DISTINCT CASE WHEN status = 'Purchase' THEN c.id END) * 100.0 / COUNT(*)) AS crs";
-                    break;
                 case 'epc':
                     $selectParts[] = "(SUM(payout) * 1.0 / COUNT(c.id)) AS epc";
                     break;
@@ -867,22 +830,6 @@ class Db
                     break;
                 case '_uniqueness_total':
                     $selectParts[] = 'COUNT(c.id) AS _uniqueness_total';
-                    break;
-                case 'appt':
-                    $selectParts[] = "CASE
-                            WHEN COUNT(DISTINCT CASE WHEN status = 'Purchase' THEN c.id END) = 0
-                                 OR (COUNT(DISTINCT CASE WHEN status IS NOT NULL THEN c.id END) - COUNT(DISTINCT CASE WHEN status = 'Trash' THEN c.id END)) = 0
-                            THEN 0
-                            ELSE (COUNT(DISTINCT CASE WHEN status = 'Purchase' THEN c.id END) * 100.0 / (COUNT(DISTINCT CASE WHEN status IS NOT NULL THEN c.id END) - COUNT(DISTINCT CASE WHEN status = 'Trash' THEN c.id END)))
-                       END AS appt";
-                    break;
-                case 'app':
-                    $selectParts[] = "CASE
-                            WHEN COUNT(DISTINCT CASE WHEN status = 'Purchase' THEN c.id END) = 0
-                                 OR COUNT(DISTINCT CASE WHEN status IS NOT NULL THEN c.id END) = 0
-                            THEN 0
-                            ELSE (COUNT(DISTINCT CASE WHEN status = 'Purchase' THEN c.id END) * 100.0 / COUNT(DISTINCT CASE WHEN status IS NOT NULL THEN c.id END))
-                       END AS app";
                     break;
                 case 'conversion':
                     $selectParts[] = "COUNT(DISTINCT CASE WHEN status IS NOT NULL THEN clickid END) AS conversion";
@@ -916,6 +863,104 @@ class Db
                     break;
                 case 'roi':
                     $selectParts[] = "((SUM(payout) - SUM(cost))*1.0 / SUM(cost) * 100.0) as roi";
+                    break;
+                default:
+                    if (str_starts_with($field, 'event.')) {
+                        $eventName = substr($field, 6);
+                        if (preg_match('/^[a-z0-9_]+$/', $eventName)) {
+                            $selectParts[] = "COALESCE(SUM(CAST(json_extract(events, '$.$eventName') AS REAL)), 0) AS \"$field\"";
+                        }
+                    }
+                    break;
+            }
+        }
+        return $selectParts;
+    }
+
+    private function get_stats_source_select_parts(array $selectedFields, array $statusColumns): array
+    {
+        $selectParts = [];
+        $builtInStatuses = [
+            'purchase' => 'Purchase',
+            'hold' => 'Lead',
+            'reject' => 'Reject',
+            'trash' => 'Trash',
+        ];
+        foreach ($selectedFields as $field) {
+            if (isset($statusColumns[$field])) {
+                $column = $statusColumns[$field];
+                $status = str_replace("'", "''", (string)$column['status']);
+                $alias = str_replace('"', '""', (string)$field);
+                $calculation = $column['calculation'];
+                $expression = match ($calculation) {
+                    'current' => "SUM(CASE WHEN current_status_event = 1 AND metric_status = '{$status}' COLLATE NOCASE THEN 1 ELSE 0 END)",
+                    'count' => "SUM(CASE WHEN is_conversion = 1 AND metric_status = '{$status}' COLLATE NOCASE THEN 1 ELSE 0 END)",
+                    'unique' => "COUNT(DISTINCT CASE WHEN is_conversion = 1 AND metric_status = '{$status}' COLLATE NOCASE THEN clickid END)",
+                    'nth' => "COUNT(DISTINCT CASE WHEN is_conversion = 1 AND metric_status = '{$status}' COLLATE NOCASE AND status_occurrence = " . (int)$column['occurrence'] . " THEN clickid END)",
+                    default => '0',
+                };
+                $selectParts[] = $expression . ' AS "' . $alias . '"';
+                continue;
+            }
+            if (isset($builtInStatuses[$field])) {
+                $status = $builtInStatuses[$field];
+                $selectParts[] = "SUM(CASE WHEN current_status_event = 1 AND metric_status = '{$status}' COLLATE NOCASE THEN 1 ELSE 0 END) AS {$field}";
+                continue;
+            }
+            switch ($field) {
+                case 'clicks':
+                    $selectParts[] = 'SUM(is_click) AS clicks';
+                    break;
+                case 'uniques':
+                    $selectParts[] = "CASE WHEN SUM(is_click) = SUM(CASE WHEN is_click = 1 AND unique_flags IS NOT NULL THEN 1 ELSE 0 END) THEN COALESCE(SUM(CASE WHEN is_click = 1 AND (unique_flags & 2) != 0 THEN 1 ELSE 0 END), 0) ELSE NULL END AS uniques";
+                    break;
+                case 'flow_uniques':
+                    $selectParts[] = "CASE WHEN SUM(is_click) = SUM(CASE WHEN is_click = 1 AND unique_flags IS NOT NULL THEN 1 ELSE 0 END) THEN COALESCE(SUM(CASE WHEN is_click = 1 AND (unique_flags & 1) != 0 THEN 1 ELSE 0 END), 0) ELSE NULL END AS flow_uniques";
+                    break;
+                case 'uniques_ratio':
+                    $selectParts[] = "CASE WHEN SUM(is_click) = SUM(CASE WHEN is_click = 1 AND unique_flags IS NOT NULL THEN 1 ELSE 0 END) THEN COALESCE(SUM(CASE WHEN is_click = 1 AND (unique_flags & 2) != 0 THEN 1 ELSE 0 END) * 100.0 / NULLIF(SUM(is_click), 0), 0) ELSE NULL END AS uniques_ratio";
+                    break;
+                case '_uniqueness_counted':
+                    $selectParts[] = 'SUM(CASE WHEN is_click = 1 AND unique_flags IS NOT NULL THEN 1 ELSE 0 END) AS _uniqueness_counted';
+                    break;
+                case '_uniqueness_total':
+                    $selectParts[] = 'SUM(is_click) AS _uniqueness_total';
+                    break;
+                case 'conversion':
+                    $selectParts[] = 'SUM(is_initial) AS conversion';
+                    break;
+                case 'cra':
+                    $selectParts[] = 'COALESCE(SUM(is_initial) * 100.0 / NULLIF(SUM(is_click), 0), 0) AS cra';
+                    break;
+                case 'revenue':
+                    $selectParts[] = 'SUM(conversion_payout) AS revenue';
+                    break;
+                case 'costs':
+                    $selectParts[] = 'SUM(click_cost) AS costs';
+                    break;
+                case 'profit':
+                    $selectParts[] = '(SUM(conversion_payout) - SUM(click_cost)) AS profit';
+                    break;
+                case 'roi':
+                    $selectParts[] = 'COALESCE((SUM(conversion_payout) - SUM(click_cost)) * 100.0 / NULLIF(SUM(click_cost), 0), 0) AS roi';
+                    break;
+                case 'epc':
+                    $selectParts[] = 'COALESCE(SUM(conversion_payout) / NULLIF(SUM(is_click), 0), 0) AS epc';
+                    break;
+                case 'uepc':
+                    $selectParts[] = 'COALESCE(SUM(conversion_payout) / NULLIF(SUM(CASE WHEN is_click = 1 AND (unique_flags & 2) != 0 THEN 1 ELSE 0 END), 0), 0) AS uepc';
+                    break;
+                case 'cpc':
+                    $selectParts[] = 'COALESCE(SUM(click_cost) / NULLIF(SUM(is_click), 0), 0) AS cpc';
+                    break;
+                case 'ucpc':
+                    $selectParts[] = 'COALESCE(SUM(click_cost) / NULLIF(SUM(CASE WHEN is_click = 1 AND (unique_flags & 2) != 0 THEN 1 ELSE 0 END), 0), 0) AS ucpc';
+                    break;
+                case 'ec':
+                    $selectParts[] = 'COALESCE(SUM(conversion_payout) / NULLIF(SUM(is_initial), 0), 0) AS ec';
+                    break;
+                case 'cpa':
+                    $selectParts[] = 'COALESCE(SUM(click_cost) / NULLIF(SUM(is_initial), 0), 0) AS cpa';
                     break;
                 default:
                     if (str_starts_with($field, 'event.')) {
@@ -1024,7 +1069,8 @@ class Db
         array $filters = [],
         array $orderby = []
     ): array {
-        [$selectedFields, $customColumns] = self::split_requested_stats_columns($selectedColumns);
+        global $cloSettings;
+        [$selectedFields, $customColumns, $_normalizedColumns, $statusColumns] = self::split_requested_stats_columns($selectedColumns);
         $queryFields = $selectedFields;
         foreach ($customColumns as $customColumn) {
             foreach (self::extract_formula_dependencies($customColumn['formula']) ?? [] as $dependency) {
@@ -1040,13 +1086,36 @@ class Db
             $queryFields = array_values(array_unique($queryFields));
         }
 
-        $baseQuery =
-            "SELECT %s FROM clicks c WHERE campaign_id = :campid AND time BETWEEN :startDate AND :endDate";
+        $conversionTime = ($cloSettings['conversionAttribution'] ?? 'click_time') === 'conversion_time';
+        $conversionStatTime = $conversionTime ? 'cv.time' : 'c.time';
+        $clickCurrentStatus = $conversionTime ? 'NULL' : 'c.status';
+        $clickCurrentFlag = $conversionTime ? '0' : "CASE WHEN c.status IS NOT NULL AND c.status <> '' THEN 1 ELSE 0 END";
+        $conversionCurrentFlag = $conversionTime
+            ? "CASE WHEN cv.changes_status = 1 AND cv.id = (SELECT cv2.id FROM conversions cv2 WHERE cv2.clickid = cv.clickid AND cv2.changes_status = 1 ORDER BY cv2.time DESC, cv2.id DESC LIMIT 1) THEN 1 ELSE 0 END"
+            : '0';
+        $baseQuery = "WITH stats_source AS (
+            SELECT c.id, c.campaign_id, c.country, c.lang, c.os, c.osver, c.brand, c.model, c.device,
+                   c.isp, c.client, c.clientver, c.flow, c.step, c.path, c.status, c.params, c.events,
+                   c.unique_flags, c.clickid, c.time AS stat_time, 1 AS is_click, 0 AS is_conversion,
+                   0 AS is_initial, c.cost AS click_cost, 0.0 AS conversion_payout,
+                   {$clickCurrentStatus} AS metric_status, 0 AS status_occurrence,
+                   {$clickCurrentFlag} AS current_status_event
+            FROM clicks c WHERE c.campaign_id = :sourceCampId
+            UNION ALL
+            SELECT c.id, c.campaign_id, c.country, c.lang, c.os, c.osver, c.brand, c.model, c.device,
+                   c.isp, c.client, c.clientver, c.flow, c.step, c.path, c.status, c.params, '{}' AS events,
+                   NULL AS unique_flags, c.clickid, {$conversionStatTime} AS stat_time, 0 AS is_click, 1 AS is_conversion,
+                   cv.is_initial, 0.0 AS click_cost, cv.payout AS conversion_payout,
+                   cv.status AS metric_status, cv.status_occurrence,
+                   {$conversionCurrentFlag} AS current_status_event
+            FROM conversions cv INNER JOIN clicks c ON c.clickid = cv.clickid
+            WHERE cv.campaign_id = :sourceConversionCampId
+        ) SELECT %s FROM stats_source c WHERE campaign_id = :campid AND stat_time BETWEEN :startDate AND :endDate";
         $selectParts = [];
         $groupByParts = [];
         $orderByParts = [];
 
-        $selectParts = $this->get_stats_select_parts($queryFields);
+        $selectParts = $this->get_stats_source_select_parts($queryFields, $statusColumns);
 
         [$filterWhere, $filterBinds] = $this->buildFilterWhere($filters);
 
@@ -1063,7 +1132,7 @@ class Db
                 $offsetFormatted = sprintf('%+03d:%02d', $hours, $minutes);
 
                 $selectParts[] =
-                    "strftime('%Y-%m-%d', datetime(time, 'unixepoch', '{$offsetFormatted}')) AS date";
+                    "strftime('%Y-%m-%d', datetime(stat_time, 'unixepoch', '{$offsetFormatted}')) AS date";
                 $groupByParts[] = "date";
                 $orderByParts[] = "date";
             } elseif (in_array($field, ['country', 'lang', 'os', 'osver', 'brand', 'model', 'device', 'isp', 'client', 'clientver', 'flow', 'step', 'path'])) {
@@ -1100,6 +1169,8 @@ class Db
         }
 
         $stmt->bindValue(':campid', $campId, SQLITE3_INTEGER);
+        $stmt->bindValue(':sourceCampId', $campId, SQLITE3_INTEGER);
+        $stmt->bindValue(':sourceConversionCampId', $campId, SQLITE3_INTEGER);
         $stmt->bindValue(':startDate', $startDate, SQLITE3_INTEGER);
         $stmt->bindValue(':endDate', $endDate, SQLITE3_INTEGER);
         foreach ($filterBinds as $param => $val) {
@@ -1213,37 +1284,29 @@ class Db
         if (in_array('uniques_ratio', $selectedFields))
             $totals['uniques_ratio'] = !$uniquenessComplete
                 ? null
-                : ($totals['clicks'] === 0 ? 0 : round($totals['uniques'] * 100.0 / $totals['clicks'], 4));
+                : ((float)$totals['clicks'] === 0.0 ? 0 : round($totals['uniques'] * 100.0 / $totals['clicks'], 4));
         if (in_array('cra', $selectedFields))
-            $totals['cra'] = $totals['clicks'] === 0 ? 0 : round($totals['conversion'] * 100.0 / $totals['clicks'], 4);
-        if (in_array('crs', $selectedFields))
-            $totals['crs'] = $totals['clicks'] === 0 ? 0 : round($totals['purchase'] * 100.0 / $totals['clicks'], 4);
-        if (in_array('appt', $selectedFields)) {
-            $denom = $totals['conversion'] - $totals['trash'];
-            $totals['appt'] = $denom === 0 ? 0 : round($totals['purchase'] * 100.0 / $denom, 4);
-        }
-        if (in_array('app', $selectedFields))
-            $totals['app'] = $totals['conversion'] === 0 ? 0 : round($totals['purchase'] * 100.0 / $totals['conversion'], 4);
+            $totals['cra'] = (float)$totals['clicks'] === 0.0 ? 0 : round($totals['conversion'] * 100.0 / $totals['clicks'], 4);
         if (in_array('roi', $selectedFields))
-            $totals['roi'] = $totals['costs'] === 0 ? 0 : round(($totals['revenue'] - $totals['costs']) * 100.0 / $totals['costs'], 4);
+            $totals['roi'] = (float)$totals['costs'] === 0.0 ? 0 : round(($totals['revenue'] - $totals['costs']) * 100.0 / $totals['costs'], 4);
 
         // Money-per-unit metrics: round to 6 decimals (frontend trims to 2-5)
         if (in_array('epc', $selectedFields))
-            $totals['epc'] = $totals['clicks'] === 0 ? 0 : round($totals['revenue'] * 1.0 / $totals['clicks'], 6);
+            $totals['epc'] = (float)$totals['clicks'] === 0.0 ? 0 : round($totals['revenue'] * 1.0 / $totals['clicks'], 6);
         if (in_array('uepc', $selectedFields))
             $totals['uepc'] = !$uniquenessComplete
                 ? null
-                : ($totals['uniques'] === 0 ? 0 : round($totals['revenue'] * 1.0 / $totals['uniques'], 6));
+                : ((float)$totals['uniques'] === 0.0 ? 0 : round($totals['revenue'] * 1.0 / $totals['uniques'], 6));
         if (in_array('cpc', $selectedFields))
-            $totals['cpc'] = $totals['clicks'] === 0 ? 0 : round($totals['costs'] * 1.0 / $totals['clicks'], 6);
+            $totals['cpc'] = (float)$totals['clicks'] === 0.0 ? 0 : round($totals['costs'] * 1.0 / $totals['clicks'], 6);
         if (in_array('ucpc', $selectedFields))
             $totals['ucpc'] = !$uniquenessComplete
                 ? null
-                : ($totals['uniques'] === 0 ? 0 : round($totals['costs'] * 1.0 / $totals['uniques'], 6));
+                : ((float)$totals['uniques'] === 0.0 ? 0 : round($totals['costs'] * 1.0 / $totals['uniques'], 6));
         if (in_array('ec', $selectedFields))
-            $totals['ec'] = $totals['conversion'] === 0 ? 0 : round($totals['revenue'] * 1.0 / $totals['conversion'], 6);
+            $totals['ec'] = (float)$totals['conversion'] === 0.0 ? 0 : round($totals['revenue'] * 1.0 / $totals['conversion'], 6);
         if (in_array('cpa', $selectedFields))
-            $totals['cpa'] = $totals['conversion'] === 0 ? 0 : round($totals['costs'] * 1.0 / $totals['conversion'], 6);
+            $totals['cpa'] = (float)$totals['conversion'] === 0.0 ? 0 : round($totals['costs'] * 1.0 / $totals['conversion'], 6);
 
         // Composite additive metrics: recalculate from base to avoid stale SQL values
         if (in_array('profit', $selectedFields))
@@ -1469,35 +1532,203 @@ class Db
         return $this->exec_update_query($query, [$pathJson => SQLITE3_TEXT, $clickid => SQLITE3_TEXT]);
     }
 
-    public function add_lead(string $clickid, array $leaddata, string $status = 'Lead'): bool
+    public function update_leaddata(string $clickid, array $leaddata): bool
     {
         if (empty($clickid)) {
             add_log("warning", "Skipping lead addition - empty clickid provided");
             return false;
         }
 
-        $updateQuery = "UPDATE clicks SET status = :status, leaddata = :leaddata WHERE id = (SELECT id FROM clicks WHERE clickid = :clickid ORDER BY time DESC LIMIT 1)";
-        return $this->exec_update_query($updateQuery, [$status => SQLITE3_TEXT, $leaddata => SQLITE3_TEXT, $clickid => SQLITE3_TEXT]);
+        $encoded = json_encode($leaddata, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        if ($encoded === false) {
+            return false;
+        }
+        $updateQuery = "UPDATE clicks SET leaddata = :leaddata WHERE id = (SELECT id FROM clicks WHERE clickid = :clickid ORDER BY time DESC LIMIT 1)";
+        return $this->exec_update_query($updateQuery, [$encoded => SQLITE3_TEXT, $clickid => SQLITE3_TEXT]);
     }
 
-    public function update_status(string $clickid, string $status, float $payout): bool
+    /** @return array{accepted:bool,code:string,message:string,click?:array,conversion_id?:int} */
+    public function record_conversion(
+        string $clickid,
+        int $campaignId,
+        string $status,
+        string $rawStatus,
+        string $source,
+        ?string $tid,
+        float $payout,
+        string $currency,
+        bool $payoutProvided,
+        bool $tidDeduplicationEnabled,
+        string $paidRepeatWithoutTid
+    ): array {
+        try {
+            return $this->immediate_transaction(function (SQLite3 $db) use (
+                $clickid,
+                $campaignId,
+                $status,
+                $rawStatus,
+                $source,
+                $tid,
+                $payout,
+                $currency,
+                $payoutProvided,
+                $tidDeduplicationEnabled,
+                $paidRepeatWithoutTid
+            ): array {
+                $clickStmt = $db->prepare('SELECT * FROM clicks WHERE clickid = :clickid LIMIT 1');
+                if ($clickStmt === false) {
+                    throw new Exception('Failed to prepare click lookup: ' . $db->lastErrorMsg());
+                }
+                $clickStmt->bindValue(':clickid', $clickid, SQLITE3_TEXT);
+                $clickResult = $clickStmt->execute();
+                $click = $clickResult === false ? [] : ($clickResult->fetchArray(SQLITE3_ASSOC) ?: []);
+                if ($click === [] || (int)$click['campaign_id'] !== $campaignId) {
+                    return ['accepted' => false, 'code' => 'click_not_found', 'message' => 'Clickid not found.'];
+                }
+
+                $storedTid = $tid;
+                if ($tidDeduplicationEnabled && $storedTid !== null) {
+                    $tidStmt = $db->prepare('SELECT 1 FROM conversions WHERE campaign_id = :campaign AND tid = :tid LIMIT 1');
+                    if ($tidStmt === false) {
+                        throw new Exception('Failed to prepare transaction lookup: ' . $db->lastErrorMsg());
+                    }
+                    $tidStmt->bindValue(':campaign', $campaignId, SQLITE3_INTEGER);
+                    $tidStmt->bindValue(':tid', $storedTid, SQLITE3_TEXT);
+                    $tidResult = $tidStmt->execute();
+                    if ($tidResult === false) {
+                        throw new Exception('Failed to execute transaction lookup: ' . $db->lastErrorMsg());
+                    }
+                    if ($tidResult->fetchArray(SQLITE3_NUM) !== false) {
+                        return ['accepted' => false, 'code' => 'duplicate_tid', 'message' => 'Transaction ID was already used.'];
+                    }
+                }
+
+                $currentStatus = isset($click['status']) ? (string)$click['status'] : '';
+                $sameStatus = $currentStatus !== '' && strcasecmp($currentStatus, $status) === 0;
+                if ($sameStatus) {
+                    if (!$payoutProvided || $payout <= 0) {
+                        return ['accepted' => false, 'code' => 'duplicate_status', 'message' => 'The click already has this status.'];
+                    }
+                    if ($tidDeduplicationEnabled && $storedTid === null) {
+                        return ['accepted' => false, 'code' => 'tid_required', 'message' => 'A new tid is required for a paid repeat status.'];
+                    }
+                    if (!$tidDeduplicationEnabled && $tid === null && $paidRepeatWithoutTid !== 'upsell') {
+                        return ['accepted' => false, 'code' => 'duplicate_status', 'message' => 'Paid repeat without tid is disabled.'];
+                    }
+                }
+
+                $initial = $currentStatus === '';
+                $changesStatus = !$sameStatus;
+                $occurrenceStmt = $db->prepare('SELECT COUNT(*) + 1 FROM conversions WHERE clickid = :clickid AND status = :status COLLATE NOCASE');
+                $occurrenceStmt->bindValue(':clickid', $clickid, SQLITE3_TEXT);
+                $occurrenceStmt->bindValue(':status', $status, SQLITE3_TEXT);
+                $occurrenceResult = $occurrenceStmt->execute();
+                $occurrenceRow = $occurrenceResult === false ? false : $occurrenceResult->fetchArray(SQLITE3_NUM);
+                $occurrence = (int)(is_array($occurrenceRow) ? ($occurrenceRow[0] ?? 1) : 1);
+
+                $insert = $db->prepare(
+                    'INSERT INTO conversions '
+                    . '(clickid,campaign_id,flow,time,status,raw_status,source,tid,payout,currency,is_initial,changes_status,status_occurrence) '
+                    . 'VALUES (:clickid,:campaign,:flow,:time,:status,:raw_status,:source,:tid,:payout,:currency,:initial,:changes_status,:occurrence)'
+                );
+                $insert->bindValue(':clickid', $clickid, SQLITE3_TEXT);
+                $insert->bindValue(':campaign', $campaignId, SQLITE3_INTEGER);
+                $insert->bindValue(':flow', (string)($click['flow'] ?? 'unknown'), SQLITE3_TEXT);
+                $insert->bindValue(':time', time(), SQLITE3_INTEGER);
+                $insert->bindValue(':status', $status, SQLITE3_TEXT);
+                $insert->bindValue(':raw_status', $rawStatus, SQLITE3_TEXT);
+                $insert->bindValue(':source', $source, SQLITE3_TEXT);
+                $insert->bindValue(':tid', $storedTid, $storedTid === null ? SQLITE3_NULL : SQLITE3_TEXT);
+                $insert->bindValue(':payout', $payout, SQLITE3_FLOAT);
+                $insert->bindValue(':currency', $currency, SQLITE3_TEXT);
+                $insert->bindValue(':initial', $initial ? 1 : 0, SQLITE3_INTEGER);
+                $insert->bindValue(':changes_status', $changesStatus ? 1 : 0, SQLITE3_INTEGER);
+                $insert->bindValue(':occurrence', $occurrence, SQLITE3_INTEGER);
+                if ($insert->execute() === false) {
+                    throw new RuntimeException('Failed to insert conversion: ' . $db->lastErrorMsg());
+                }
+                $conversionId = (int)$db->lastInsertRowID();
+
+                $update = $db->prepare('UPDATE clicks SET status = :status, payout = COALESCE(payout, 0) + :payout WHERE clickid = :clickid');
+                $update->bindValue(':status', $status, SQLITE3_TEXT);
+                $update->bindValue(':payout', $payout, SQLITE3_FLOAT);
+                $update->bindValue(':clickid', $clickid, SQLITE3_TEXT);
+                if ($update->execute() === false || $db->changes() !== 1) {
+                    throw new RuntimeException('Failed to update click conversion snapshot: ' . $db->lastErrorMsg());
+                }
+
+                $click['status'] = $status;
+                $click['payout'] = (float)($click['payout'] ?? 0) + $payout;
+                self::decode_click_row($click);
+                return [
+                    'accepted' => true,
+                    'code' => 'accepted',
+                    'message' => 'Conversion accepted.',
+                    'conversion_id' => $conversionId,
+                    'click' => $click,
+                ];
+            });
+        } catch (Throwable $e) {
+            add_log('errors', 'Conversion transaction failed: ' . $e->getMessage());
+            $duplicate = str_contains(strtolower($e->getMessage()), 'unique');
+            return [
+                'accepted' => false,
+                'code' => $duplicate ? 'duplicate_conversion' : 'storage_error',
+                'message' => $duplicate ? 'Conversion was already recorded.' : 'Failed to record conversion.',
+            ];
+        }
+    }
+
+    public function count_conversions_for_cap(
+        int $campaignId,
+        ?string $flow,
+        array $statuses,
+        int $startTime,
+        int $endTime,
+        ?int $stopAfter = null
+    ): int {
+        $statuses = array_values(array_unique(array_filter(array_map('strval', $statuses))));
+        if ($statuses === []) {
+            return 0;
+        }
+        $binds = [[$campaignId, SQLITE3_INTEGER], [$startTime, SQLITE3_INTEGER], [$endTime, SQLITE3_INTEGER]];
+        $statusSql = implode(',', array_fill(0, count($statuses), '?'));
+        $sql = 'SELECT 1 FROM conversions WHERE campaign_id = ? AND time >= ? AND time < ? '
+            . "AND status COLLATE NOCASE IN ($statusSql)";
+        foreach ($statuses as $statusName) {
+            $binds[] = [$statusName, SQLITE3_TEXT];
+        }
+        if ($flow !== null) {
+            $sql .= ' AND flow = ?';
+            $binds[] = [$flow, SQLITE3_TEXT];
+        }
+        if ($stopAfter !== null) {
+            $sql .= ' LIMIT ?';
+            $binds[] = [max(1, $stopAfter), SQLITE3_INTEGER];
+        }
+        $sql = 'SELECT COUNT(*) AS total FROM (' . $sql . ')';
+        $row = $this->exec_bind_list_query($sql, $binds, true);
+        return (int)($row['total'] ?? 0);
+    }
+
+    public function get_conversion_status_history_count(int $campaignId, string $status): int
     {
-        if (empty($clickid)) {
-            add_log("warning", "Skipping status update - empty clickid provided");
-            return false;
-        }
+        $row = $this->exec_read_query(
+            'SELECT COUNT(*) AS total FROM conversions WHERE campaign_id = :campaign AND status = :status COLLATE NOCASE',
+            [$campaignId => SQLITE3_INTEGER, $status => SQLITE3_TEXT],
+            true
+        );
+        return (int)($row['total'] ?? 0);
+    }
 
-        if (!$this->clickid_exists($clickid)) {
-            add_log("warning", "Skipping status update - clickid not found: $clickid");
-            return false;
-        }
-
-        if (!is_numeric($payout)) {
-            throw new Exception("Invalid payout value: $payout");
-        }
-
-        $updateQuery = "UPDATE clicks SET status = :status, payout = :payout WHERE id = (SELECT id FROM clicks WHERE clickid = :clickid ORDER BY time DESC LIMIT 1)";
-        return $this->exec_update_query($updateQuery, [$status => SQLITE3_TEXT, $payout => SQLITE3_FLOAT, $clickid => SQLITE3_TEXT]);
+    public function get_current_status_click_count(int $campaignId, string $status): int
+    {
+        $row = $this->exec_read_query(
+            'SELECT COUNT(*) AS total FROM clicks WHERE campaign_id = :campaign AND status = :status COLLATE NOCASE',
+            [$campaignId => SQLITE3_INTEGER, $status => SQLITE3_TEXT],
+            true
+        );
+        return (int)($row['total'] ?? 0);
     }
 
     public function update_click_params(int $clickId, array $params): bool
@@ -1646,15 +1877,21 @@ class Db
         return $data;
     }
 
-    public function add_campaign($name): bool|int
+    public function add_campaign($name, bool $refreshRuntime = true): bool|int
     {
+        global $cloSettings;
         $query = "INSERT INTO campaigns (name, settings) VALUES (:name, :settings)";
 
         $settingsJson = file_get_contents(__DIR__ . '/default.json');
         $settings = json_decode($settingsJson, true);
         $settings['apikey'] = $this->generate_api_key();
+        $settings['statistics']['timezone'] = (string)($cloSettings['timezone'] ?? 'Europe/Moscow');
         $settingsJson = json_encode($settings);
-        return $this->exec_write_query($query, [$name => SQLITE3_TEXT, $settingsJson => SQLITE3_TEXT], true);
+        $campaignId = $this->exec_write_query($query, [$name => SQLITE3_TEXT, $settingsJson => SQLITE3_TEXT], true);
+        if (is_int($campaignId) && $refreshRuntime) {
+            $this->rebuild_runtime_cache();
+        }
+        return $campaignId;
     }
 
     private function generate_api_key(): string
@@ -1682,11 +1919,35 @@ class Db
         return $camp;
     }
 
-    public function clone_campaign($id): bool|int
+    public function clone_campaign($id, bool $refreshRuntime = true): bool|int
     {
-        $query = "INSERT INTO campaigns (name, settings)
-                  SELECT name || ' (Clone)', settings FROM campaigns WHERE id = :id";
-        return $this->exec_write_query($query, [$id => SQLITE3_INTEGER], true);
+        $source = $this->exec_read_query(
+            'SELECT name, settings FROM campaigns WHERE id = :id',
+            [$id => SQLITE3_INTEGER],
+            true
+        );
+        $settings = json_decode((string)($source['settings'] ?? ''), true);
+        if (!is_array($settings)) {
+            return false;
+        }
+        $settings['domains'] = [];
+        if (is_array($settings['white']['domainfilter'] ?? null)) {
+            $settings['white']['domainfilter']['use'] = false;
+            $settings['white']['domainfilter']['domains'] = [];
+        }
+        $settingsJson = json_encode($settings, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        if ($settingsJson === false) {
+            return false;
+        }
+        $campaignId = $this->exec_write_query(
+            'INSERT INTO campaigns (name, settings) VALUES (:name, :settings)',
+            [((string)($source['name'] ?? '') . ' (Clone)') => SQLITE3_TEXT, $settingsJson => SQLITE3_TEXT],
+            true
+        );
+        if (is_int($campaignId) && $refreshRuntime) {
+            $this->rebuild_runtime_cache();
+        }
+        return $campaignId;
     }
 
     public function get_campaign_name(int $id): string
@@ -1710,13 +1971,45 @@ class Db
         return $settings;
     }
 
+    /** @return array<int, array{id: int, name: string, settings: array<string, mixed>}> */
+    public function get_campaign_runtime_rows(): array
+    {
+        $rows = $this->exec_read_query('SELECT id, name, settings FROM campaigns ORDER BY id ASC', []);
+        foreach ($rows as &$row) {
+            $settings = json_decode((string)($row['settings'] ?? ''), true);
+            if (!is_array($settings)) {
+                throw new RuntimeException('Campaign ' . (int)($row['id'] ?? 0) . ' has invalid settings JSON.');
+            }
+            $row['id'] = (int)$row['id'];
+            $row['name'] = (string)$row['name'];
+            $row['settings'] = $settings;
+        }
+        unset($row);
+        return $rows;
+    }
+
+    public function rebuild_runtime_cache(): bool
+    {
+        try {
+            RuntimeCampaignCache::rebuild($this);
+            return true;
+        } catch (Throwable $e) {
+            RuntimeCampaignCache::invalidateDomainsSnapshot();
+            add_log('errors', 'Runtime campaign cache rebuild failed: ' . $e->getMessage());
+            return false;
+        }
+    }
+
     public function get_campaign_by_domain(): array|bool
     {
-        $cPath = get_tds_path(true, false);
-        $parsedUrl = parse_url($cPath);
-        $domain = isset($parsedUrl['port']) ?
-            $parsedUrl['host'] . ":" . $parsedUrl['port'] :
-            $parsedUrl['host'];
+        $domain = get_request_host();
+        $cached = RuntimeCampaignCache::findCampaign($domain);
+        if ($cached['available']) {
+            if (is_array($cached['campaign'])) {
+                add_log('trace', 'Found cached campaign for domain ' . $domain . ': ' . $cached['campaign']['id']);
+            }
+            return $cached['campaign'];
+        }
 
         $query = "SELECT * FROM campaigns";
         $campaigns = $this->exec_read_query($query, []);
@@ -1739,43 +2032,61 @@ class Db
 
     private function match_domain($domains, $domainToMatch): bool
     {
-        foreach ($domains as $domain) {
-            if ($domain === $domainToMatch) {
-                return true;
-            } elseif (strpos($domain, '*') !== false) {
-                // Convert wildcard domain to a regex pattern
-                $pattern = str_replace('.', '\.', $domain);
-                $pattern = str_replace('*', '.*', $pattern);
-                if (preg_match('/^' . $pattern . '$/', $domainToMatch)) {
-                    return true;
-                }
-            }
+        try {
+            return RuntimeCampaignCache::matches(is_array($domains) ? $domains : [], (string)$domainToMatch);
+        } catch (CampaignDomainException $e) {
+            add_log('errors', 'Invalid campaign domain configuration: ' . $e->getMessage());
+            return false;
         }
-        return false;
     }
 
-    public function rename_campaign(int $id, string $name): bool
+    public function rename_campaign(int $id, string $name, bool $refreshRuntime = true): bool
     {
         $query = "UPDATE campaigns SET name = :name WHERE id = :id";
-        return $this->exec_write_query($query, [$name => SQLITE3_TEXT, $id => SQLITE3_INTEGER]);
+        $saved = $this->exec_write_query($query, [$name => SQLITE3_TEXT, $id => SQLITE3_INTEGER]);
+        if ($saved && $refreshRuntime) {
+            $this->rebuild_runtime_cache();
+        }
+        return $saved;
     }
 
-    public function save_campaign_settings(int $id, array $settings): bool
+    public function save_campaign_settings(
+        int $id,
+        array $settings,
+        bool $refreshRuntime = true,
+        bool $validateDomains = true
+    ): bool
     {
+        $settings = RuntimeCampaignCache::normalizeSettingsDomains($settings);
+        if ($validateDomains) {
+            RuntimeCampaignCache::validateCandidate($this, $id, $settings);
+        }
         $query = "UPDATE campaigns SET settings = :settings WHERE id = :id";
-        $settingsJson = json_encode($settings);
-        return $this->exec_write_query($query, [$settingsJson => SQLITE3_TEXT, $id => SQLITE3_INTEGER]);
+        $settingsJson = json_encode($settings, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+        if ($settingsJson === false) {
+            return false;
+        }
+        $saved = $this->exec_write_query($query, [$settingsJson => SQLITE3_TEXT, $id => SQLITE3_INTEGER]);
+        if ($saved && $refreshRuntime) {
+            $this->rebuild_runtime_cache();
+        }
+        return $saved;
     }
 
 
-    public function delete_campaign(int $id): bool
+    public function delete_campaign(int $id, bool $refreshRuntime = true): bool
     {
         $query = "DELETE FROM campaigns WHERE id = :id";
-        return $this->exec_write_query($query, [$id => SQLITE3_INTEGER]);
+        $deleted = $this->exec_write_query($query, [$id => SQLITE3_INTEGER]);
+        if ($deleted && $refreshRuntime) {
+            $this->rebuild_runtime_cache();
+        }
+        return $deleted;
     }
 
     public function get_campaigns($startDate, $endDate, array $selectFields, array $filters = []): array
     {
+        global $cloSettings;
         $bindList = [];
         $bindList[] = [$startDate, SQLITE3_INTEGER];
         $bindList[] = [$endDate, SQLITE3_INTEGER];
@@ -1792,9 +2103,9 @@ class Db
                 if ($sqlField === null || !in_array($op, self::FILTER_OPERATORS)) continue;
 
                 if (str_starts_with($sqlField, "json_extract(")) {
-                    $sqlField = str_replace("json_extract(params,", "json_extract(c.params,", $sqlField);
+                    $sqlField = str_replace("json_extract(params,", "json_extract(s.params,", $sqlField);
                 } else {
-                    $sqlField = "c.$sqlField";
+                    $sqlField = "s.$sqlField";
                 }
 
                 switch ($op) {
@@ -1830,11 +2141,35 @@ class Db
             }
         }
 
-        $selectClause = implode(',', $this->get_stats_select_parts($selectFields));
-        $query = "
+        $conversionTime = ($cloSettings['conversionAttribution'] ?? 'click_time') === 'conversion_time';
+        $conversionStatTime = $conversionTime ? 'cv.time' : 'c.time';
+        $clickCurrentStatus = $conversionTime ? 'NULL' : 'c.status';
+        $clickCurrentFlag = $conversionTime ? '0' : "CASE WHEN c.status IS NOT NULL AND c.status <> '' THEN 1 ELSE 0 END";
+        $conversionCurrentFlag = $conversionTime
+            ? "CASE WHEN cv.changes_status = 1 AND cv.id = (SELECT cv2.id FROM conversions cv2 WHERE cv2.clickid = cv.clickid AND cv2.changes_status = 1 ORDER BY cv2.time DESC, cv2.id DESC LIMIT 1) THEN 1 ELSE 0 END"
+            : '0';
+        $selectParts = $this->get_stats_source_select_parts($selectFields, []);
+        $selectClause = $selectParts === [] ? 'COALESCE(SUM(is_click), 0) AS clicks' : implode(',', $selectParts);
+        $query = "WITH stats_source AS (
+            SELECT c.campaign_id, c.country, c.lang, c.os, c.osver, c.brand, c.model, c.device,
+                   c.isp, c.client, c.clientver, c.flow, c.step, c.path, c.status, c.params, c.events,
+                   c.unique_flags, c.clickid, c.time AS stat_time, 1 AS is_click, 0 AS is_conversion,
+                   0 AS is_initial, c.cost AS click_cost, 0.0 AS conversion_payout,
+                   {$clickCurrentStatus} AS metric_status, 0 AS status_occurrence,
+                   {$clickCurrentFlag} AS current_status_event
+            FROM clicks c
+            UNION ALL
+            SELECT c.campaign_id, c.country, c.lang, c.os, c.osver, c.brand, c.model, c.device,
+                   c.isp, c.client, c.clientver, c.flow, c.step, c.path, c.status, c.params, '{}' AS events,
+                   NULL AS unique_flags, c.clickid, {$conversionStatTime} AS stat_time, 0 AS is_click, 1 AS is_conversion,
+                   cv.is_initial, 0.0 AS click_cost, cv.payout AS conversion_payout,
+                   cv.status AS metric_status, cv.status_occurrence,
+                   {$conversionCurrentFlag} AS current_status_event
+            FROM conversions cv INNER JOIN clicks c ON c.clickid = cv.clickid
+        )
         SELECT cmp.id, cmp.name, $selectClause
         FROM campaigns cmp
-        LEFT JOIN clicks c ON c.campaign_id=cmp.id AND c.time BETWEEN ? AND ?$filterJoin
+        LEFT JOIN stats_source s ON s.campaign_id=cmp.id AND s.stat_time BETWEEN ? AND ?$filterJoin
         GROUP BY cmp.id";
 
         $campaigns = $this->exec_bind_list_query($query, $bindList);
