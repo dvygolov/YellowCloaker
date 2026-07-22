@@ -10,6 +10,7 @@ The campaign settings page includes:
 - Integration
 - Scripts
 - Misc
+- Conversions
 - Postbacks
 
 The campaign name is shown at the top of the sidebar. Use the pencil icon beside it to rename the campaign without returning to the dashboard.
@@ -19,6 +20,10 @@ All editor sections use one full-size treatment for text actions. Icon-only acti
 ## Domains
 
 The **Domains list** group contains every campaign domain. Each row shows its check result and keeps the delete button aligned with the domain field.
+
+Domains are stored in lowercase without a scheme or path. A hostname, IP/`localhost`, and an optional port are supported. A wildcard is allowed only at the beginning: `*.example.com` matches `a.example.com` and `a.b.example.com`, but not the `example.com` apex. Overlapping rules across campaigns are rejected and the editor names both conflicting campaigns. New and duplicated campaigns start with an empty domain list.
+
+On save, YellowTDS automatically writes `caching/runtime/domains.php` and the complete campaign settings to `caching/runtime/campaign-<id>.php`. Runtime includes these PHP files directly. If the domain index or the selected campaign file is missing or unreadable, the request falls back to the normal SQLite lookup; the next campaign save recreates the full set.
 
 ![Campaign settings overview](../assets/screenshots/campaign-settings-overview.png)
 
@@ -55,4 +60,12 @@ Backfix, redirects, event tracking and image lazy loading use the same explicit 
 
 ## Misc
 
-The **Misc** section contains **Uniqueness counting**, its identifier method, and sliding TTL. See [Uniqueness Counting](uniqueness.md) for identifier, flow-filter, cookie, GET-array, and statistics behavior.
+The **Misc** section contains **Uniqueness counting**, its identifier method and sliding TTL, plus the campaign timezone used by reports and daily conversion caps. The timezone selector in the statistics header edits this same value. See [Uniqueness Counting](uniqueness.md) for identifier, flow-filter, cookie, GET-array, and statistics behavior.
+
+## Conversions
+
+This section contains the campaign status catalog, transaction-ID deduplication, successful-form conversion settings, and the optional website helper. See [Conversions and Postbacks](postbacks.md).
+
+## Postbacks
+
+The Postbacks section contains pbkey protection and outgoing S2S rules. Its event lists are generated from the Conversions catalog.

@@ -5,10 +5,19 @@
 - `index.php`
 - `js/index.php`
 - `api/phpconnect.php`
-- `postback.php`
+- `api/postback.php`
+- `api/conversion.php`
 - `send.php`
 - `next.php`
-- `updateparams.php`
+- `api/updateparams.php`
+
+## Endpoints конверсий
+
+`api/postback.php` принимает `clickid`, `status`, необязательные `payout`, `currency`, `tid` и campaign `pbkey`. Обычно он возвращает структурированный JSON; при включённой pbkey-защите отклонённый запрос маскируется как `404 Not Found`. Подробнее: [Конверсии и Postbacks](postbacks.md).
+
+`api/conversion.php` — same-origin POST endpoint для инжектируемой функции `ytdsConversion(status)`. В кампании должен быть включён Website status tracking. Endpoint принимает только текущий `clickid` и внутреннее имя статуса или alias; payout через браузер не передаётся.
+
+Все источники конверсий атомарно пишут одну историю `conversions` и обновляют snapshot клика.
 
 ## Интеграция кампании
 

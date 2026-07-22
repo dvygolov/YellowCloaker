@@ -16,7 +16,8 @@ curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/
 
 ## Что делает автоустановщик
 
-- ставит nginx, PHP 8.4 FPM/CLI, SQLite, curl, mbstring, zip/xml и certbot;
+- ставит nginx, PHP 8.4 FPM/CLI, SQLite, curl, mbstring, zip/xml, APCu и certbot;
+- включает APCu для PHP-FPM; DeviceDetector использует его для кэша regex-каталогов, а при недоступном APCu автоматически остаётся на PHP file cache;
 - ставит `libmaxminddb` и PECL-расширение `maxminddb`;
 - включает `maxminddb` для PHP CLI и FPM и проверяет загрузку расширения;
 - скачивает `country.mmdb` и `asn.mmdb` из `sapics/ip-location-db` GitHub Releases в `bases/`;

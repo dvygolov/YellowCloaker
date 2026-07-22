@@ -6,7 +6,7 @@ The **Settings** button in the header opens instance-wide YellowTDS settings. Th
 
 ## Tabs
 
-- **General** — new password, admin domain/IP restrictions, admin path, UTP, and debug mode.
+- **General** — new password, admin domain/IP restrictions, admin path, UTP, debug mode, the default TDS timezone for new campaigns, and global **Conversion attribution** (`Click time` or `Conversion time`).
 - **Storage** — SQLite file name, backup folder, and cache root. Cache subfolders use fixed system names and are not shown in the UI. **Randomize main paths** generates new unpredictable names for the database, backup folder, and cache root; the rename is applied after **Save settings**.
 - **Backups** — create Full snapshots with SQLite or faster Quick snapshots without SQLite, then view, restore, or delete them.
 - **Plugins** — currency sources and VPN/proxy detectors, preferred currencies, and `any`/`most` decision mode.
@@ -31,5 +31,7 @@ Large Full backups may outlive a shared hosting HTTP timeout. YellowTDS records 
 `settings.php` contains defaults and the settings manager. UI changes are written to the adjacent `settings.local.php`, which returns a PHP array and produces no direct output. System settings do not depend on the database.
 
 The current password is never returned to the browser. An empty password field preserves the current value; a non-empty value replaces it.
+
+Conversion attribution is instance-wide and cannot be overridden per table. It changes reporting only; conversion CAP always uses conversion-row time and the campaign timezone.
 
 Plugins are discovered automatically from `*Plugin.php` files in `plugins/currency/` and `plugins/vpn/`. Newly discovered plugins are disabled. Removing a plugin file removes its settings the next time Settings is opened or saved.

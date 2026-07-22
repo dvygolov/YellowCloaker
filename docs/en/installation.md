@@ -16,7 +16,8 @@ The full installation path has been verified on clean Ubuntu 22.04 and 24.04 sys
 
 ## What the Installer Does
 
-- installs nginx, PHP 8.4 FPM/CLI, SQLite, curl, mbstring, zip/xml, and certbot;
+- installs nginx, PHP 8.4 FPM/CLI, SQLite, curl, mbstring, zip/xml, APCu, and certbot;
+- enables APCu for PHP-FPM; DeviceDetector uses it for regex-catalog caching and automatically keeps using the PHP file cache when APCu is unavailable;
 - installs `libmaxminddb` and the PECL `maxminddb` extension;
 - enables `maxminddb` for PHP CLI and FPM and verifies the extension is loaded;
 - downloads `country.mmdb` and `asn.mmdb` from `sapics/ip-location-db` GitHub Releases into `bases/`;

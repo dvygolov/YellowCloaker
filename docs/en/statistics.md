@@ -23,6 +23,37 @@ Custom formula columns can use:
 - event metrics
 - derived metrics
 
+The former built-in Approval, Approval without trash, App, App(t), and related sales CR presets are not special metrics. Build the required business ratio as a formula instead. For example:
+
+- `App`: `purchase/conversion*100`
+- `App(t)`: `purchase/(conversion-trash)*100`
+
+Division by zero produces `0`.
+
+## Conversion Attribution
+
+**Settings → General → Conversion attribution** selects one mode for every statistics table:
+
+- **Click time** attributes conversions and all revenue rows to the original click date.
+- **Conversion time** attributes initial conversions and revenue to the time of each accepted conversion row.
+
+The **Conversions** base metric counts only the first accepted status for a clickid. Later status changes and paid repeats remain in conversion history but do not increase this metric. The campaign timezone shown in **Misc** controls date grouping. The timezone selector in the page header edits that same campaign value.
+
+## Status Columns
+
+Use **+ Status** in the table editor to choose a campaign status and one calculation:
+
+- **Current** — clickids whose latest accepted status equals the selected status.
+- **Count** — every accepted history row with that status; a clickid may count more than once.
+- **Unique clickids** — distinct clickids that have the status at least once.
+- **Nth occurrence** — clickids whose selected occurrence of the status falls in the attribution period.
+
+Each calculation has its own tooltip in the editor. Lead, Purchase, Reject, and Trash are ordinary **Current** presets. A formula can use a configured status-column token as well as the built-in metric tokens.
+
+Filtering by **Status** always uses the latest status snapshot. Its value is free text, so a removed historical status can still be entered manually.
+
+![Status column editor](../assets/screenshots/statistics-status-column.png)
+
 ## Unique Clicks
 
 **Uniques** counts Campaign unique clicks. **Flow uniques** sums unique flow entries and is available without Group by Flow. **U/C**, **EPuC**, and **CPuC** use Campaign uniques. Legacy clicks are not backfilled, and legacy-only or mixed groups show `—`. See [Uniqueness Counting](uniqueness.md).

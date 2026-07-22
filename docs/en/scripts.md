@@ -15,3 +15,5 @@ The Scripts section controls additional page and funnel behavior.
 Every binary setting uses the same **Off/On** switch. Fields that belong to a feature are shown only while its switch is On. Saving still writes one boolean value for each setting.
 
 ![Scripts section](../assets/screenshots/scripts-settings-overview.png)
+
+Conversion tracking is configured separately under **Conversions**. A successful proxied terminal form can create a selected zero-payout status, and optional Website status tracking injects the `ytdsConversion(status)` helper. Both use the same campaign catalog and conversion history as an incoming postback.
