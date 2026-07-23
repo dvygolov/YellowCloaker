@@ -70,6 +70,24 @@ class InstallerScriptTest extends TestCase
         $this->assertStringContainsString('"$app_dir/caching/runtime"', $this->script);
     }
 
+    public function testInstallerCreatesAndWriteChecksDatabaseAsFpmUser(): void
+    {
+        $this->assertStringContainsString('initialize_database()', $this->script);
+        $this->assertStringContainsString('runuser -u www-data -- "$php_bin" -r', $this->script);
+        $this->assertStringContainsString('INSERT INTO common (settings) SELECT settings FROM common LIMIT 1', $this->script);
+        $this->assertStringContainsString('PRAGMA quick_check', $this->script);
+
+        $installBlockStart = strpos($this->script, 'run_full_install()');
+        $this->assertNotFalse($installBlockStart);
+        $installBlock = substr($this->script, $installBlockStart);
+        $permissionsPos = strpos($installBlock, 'set_permissions "$app_dir"');
+        $databasePos = strpos($installBlock, 'initialize_database "$app_dir"');
+
+        $this->assertNotFalse($permissionsPos);
+        $this->assertNotFalse($databasePos);
+        $this->assertLessThan($databasePos, $permissionsPos);
+    }
+
     public function testPublishedInstallerLinksUsePrimaryBranch(): void
     {
         $canonicalUrl = 'https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/install.sh';

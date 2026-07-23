@@ -518,6 +518,57 @@ set_permissions() {
     find "$app_dir/db" "$app_dir/logs" "$app_dir/ycclogs" "$app_dir/tmp" "$app_dir/caching" "$app_dir/bases" -type f -exec chmod 0664 {} \;
 }
 
+initialize_database() {
+    local app_dir="$1"
+    local php_bin
+
+    php_bin="$(command -v php${PHP_VER} || command -v php)"
+    [ -n "$php_bin" ] || fail "PHP CLI binary not found for database initialization"
+    command -v runuser >/dev/null 2>&1 || fail "runuser is required for database initialization"
+
+    info "Initializing SQLite database as www-data..."
+    runuser -u www-data -- "$php_bin" -r '
+        $root = rtrim($argv[1], "/");
+        require $root . "/db/db.php";
+
+        $dbName = $cloSettings["dbConnection"] ?? "";
+        if (!is_string($dbName) || $dbName === "" || basename($dbName) !== $dbName) {
+            fwrite(STDERR, "Invalid dbConnection setting\n");
+            exit(2);
+        }
+
+        $probe = null;
+        try {
+            $probe = new SQLite3($root . "/db/" . $dbName, SQLITE3_OPEN_READWRITE);
+            $probe->busyTimeout(5000);
+            if (!$probe->exec("BEGIN IMMEDIATE")) {
+                throw new RuntimeException($probe->lastErrorMsg());
+            }
+            if (!$probe->exec("INSERT INTO common (settings) SELECT settings FROM common LIMIT 1")) {
+                throw new RuntimeException($probe->lastErrorMsg());
+            }
+            if (!$probe->exec("ROLLBACK")) {
+                throw new RuntimeException($probe->lastErrorMsg());
+            }
+            if ($probe->querySingle("PRAGMA quick_check") !== "ok") {
+                throw new RuntimeException("SQLite quick_check failed");
+            }
+        } catch (Throwable $e) {
+            if ($probe instanceof SQLite3) {
+                @$probe->exec("ROLLBACK");
+            }
+            fwrite(STDERR, $e->getMessage() . "\n");
+            exit(1);
+        } finally {
+            if ($probe instanceof SQLite3) {
+                $probe->close();
+            }
+        }
+    ' "$app_dir" || fail "Failed to initialize writable SQLite database as www-data"
+
+    success "SQLite database is writable by www-data"
+}
+
 download_sapics_database() {
     local source_name="$1"
     local output_name="$2"
@@ -689,6 +740,7 @@ run_full_install() {
     copy_application "$app_dir"
     configure_admin_path "$app_dir"
     set_permissions "$app_dir"
+    initialize_database "$app_dir"
     download_geo_databases "$app_dir"
     setup_currency_cron "$app_dir"
     set_permissions "$app_dir"
