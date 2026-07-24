@@ -52,31 +52,40 @@ if ($nextStep >= count($steps)) {
     die('NO MORE STEPS IN FUNNEL!');
 }
 
-$plannedPath = $click['path'] ?? [];
-if (!is_array($plannedPath) || empty($plannedPath)) {
-    die('EMPTY PLANNED PATH!');
-}
-
-if (!isset($plannedPath[$nextStep])) {
-    die('NO VARIANT PLANNED FOR STEP ' . $nextStep);
-}
-
-$chosenVariant = $plannedPath[$nextStep];
 $stepSettings = $steps[$nextStep];
 $validItems = $stepSettings->getItems();
-if (!in_array($chosenVariant, $validItems, true)) {
-    if (empty($validItems)) {
-        die('NO ITEMS AVAILABLE FOR STEP ' . $nextStep);
-    }
-    $chosenVariant = $validItems[0];
-    $plannedPath[$nextStep] = $chosenVariant;
-    $db->update_click_path($clickid, $plannedPath);
-}
 
-if ($maxReachedStep < $nextStep) {
+if ($maxReachedStep >= $nextStep) {
+    $chosenVariant = $db->get_click_step_variant($clickid, $nextStep);
+    if ($chosenVariant === null) {
+        die('RECORDED STEP NOT FOUND!');
+    }
+} else {
+    $plannedPath = $click['path'] ?? [];
+    if (!is_array($plannedPath) || empty($plannedPath)) {
+        die('EMPTY PLANNED PATH!');
+    }
+    if (!isset($plannedPath[$nextStep])) {
+        die('NO VARIANT PLANNED FOR STEP ' . $nextStep);
+    }
+
+    $chosenVariant = $plannedPath[$nextStep];
+    if (!in_array($chosenVariant, $validItems, true)) {
+        die('PLANNED VARIANT NO LONGER AVAILABLE FOR STEP ' . $nextStep);
+    }
     if (!$db->add_click_step($clickid, $nextStep, $chosenVariant)) {
         die('FAILED TO RECORD STEP ENTRY!');
     }
+    // If two requests advanced the same click concurrently, the row that
+    // actually won is authoritative for both rendered HTML and event identity.
+    $chosenVariant = $db->get_click_step_variant($clickid, $nextStep);
+    if ($chosenVariant === null) {
+        die('RECORDED STEP NOT FOUND AFTER INSERT!');
+    }
+}
+
+if (!in_array($chosenVariant, $validItems, true)) {
+    die('RECORDED VARIANT NO LONGER AVAILABLE FOR STEP ' . $nextStep);
 }
 
 if ($stepSettings->isRedirect()) {

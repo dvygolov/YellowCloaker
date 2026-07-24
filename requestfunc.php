@@ -199,21 +199,6 @@ final class HttpClient
     }
 }
 
-function send_access_control_headers(): void
-{
-    if (isset($_SERVER['HTTP_REFERER'])) {
-        $parsedUrl = parse_url($_SERVER['HTTP_REFERER']);
-        if (is_array($parsedUrl) && isset($parsedUrl['scheme'], $parsedUrl['host'])) {
-            $origin = $parsedUrl['scheme'] . '://' . $parsedUrl['host'];
-            if (!empty($parsedUrl['port'])) {
-                $origin .= ':' . $parsedUrl['port'];
-            }
-            header('Access-Control-Allow-Origin: ' . $origin);
-        }
-    }
-    header('Access-Control-Allow-Credentials: true');
-}
-
 function get_abs_from_rel(string $url): string
 {
     $fullpath = get_tds_path() . $url;

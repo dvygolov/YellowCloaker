@@ -28,7 +28,7 @@ The **Settings** button opens [system settings](system-settings.md), plugin cont
 
 The **DB** page lists each campaign with click and blocked-record counts for the header date range and for all stored data. Trafficback is the final row of the same table and is marked **GLOBAL**.
 
-One or several rows can be selected, and **Select all** includes Trafficback. Cleanup removes clicks, status and payout snapshots, conversion history, aggregated events, associated funnel steps and event history, plus matching blocked records. Campaign settings, `common`, files, cache, and server logs remain untouched.
+One or several rows can be selected, and **Select all** includes Trafficback. Cleanup removes clicks, status and payout snapshots, conversion history, associated funnel steps with their event data, plus matching blocked records. Campaign settings, `common`, files, cache, and server logs remain untouched.
 
 YellowTDS recounts the selection and warns about recent traffic before starting. No automatic backup is created: type `DELETE` to confirm the irreversible operation. Records are removed in batches of 1,000 clicks. Closing the page stops between batches, and reopening it offers to resume. Clicks received after the cleanup starts are not added to that operation.
 

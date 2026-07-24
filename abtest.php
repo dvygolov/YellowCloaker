@@ -11,11 +11,6 @@ class AbTest
         $this->campaign = $campaign;
     }
 
-    public function select_folder(array $folders, string $folder_type): array
-    {
-        return $this->select_item($folders, $folder_type, true);
-    }
-
     public function select_item(array $items, string $item_type, bool $is_folder): array
     {
         if (empty($items))

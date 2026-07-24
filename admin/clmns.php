@@ -98,7 +98,8 @@ class AvailableColumns
         "client",
         "clientver",
         "flow",
-        "step"
+        "step",
+        "landing"
     ];
 
     static $statsColumns = [
@@ -130,33 +131,83 @@ class AvailableColumns
         return self::$$clmnsName;
     }
 
-    public static function get_stats_columns_for_campaign(Campaign $campaign, Db $db, int $campId): array
+    public static function get_stats_columns_for_campaign(Campaign $campaign): array
     {
         $columns = self::$statsColumns;
-        $eventFields = array_merge($campaign->scripts->getConfiguredEventMetricFields(), array_map(
-            fn(string $name): string => 'event.' . $name,
-            $db->get_event_names($campId)
-        ));
 
-        $seen = [];
-        foreach ($eventFields as $field) {
-            if (!is_string($field) || !str_starts_with($field, 'event.') || isset($seen[$field])) {
+        $ordinaryEvents = [];
+        if ($campaign->events->scrollTrackingUse) {
+            foreach ($campaign->events->scrollTrackingThresholds as $threshold) {
+                $ordinaryEvents['scroll_' . $threshold] = "Scroll {$threshold}%";
+            }
+        }
+        if ($campaign->events->timeTrackingUse) {
+            foreach ($campaign->events->timeTrackingThresholds as $threshold) {
+                $ordinaryEvents['stay_' . $threshold . 's'] = "Visible {$threshold}s";
+            }
+        }
+        foreach ($campaign->events->customEventNames as $eventName) {
+            $ordinaryEvents[$eventName] = ucwords(str_replace('_', ' ', $eventName));
+        }
+
+        foreach ($ordinaryEvents as $eventName => $title) {
+            if (preg_match('/^[a-z][a-z0-9_]{0,63}$/', $eventName) !== 1) {
                 continue;
             }
-            $seen[$field] = true;
-            $columns[] = [
-                'field' => $field,
-                'title' => self::format_event_metric_title($field),
+            foreach (['count', 'avg', 'p75', 'min', 'max'] as $aggregation) {
+                $columns[] = self::event_metric_column(
+                    "event.{$eventName}.{$aggregation}",
+                    $title,
+                    $aggregation,
+                    'Elapsed milliseconds from tracker start; Count is the number of reached steps where the event occurred.'
+                );
+            }
+        }
+
+        if ($campaign->events->performanceTrackingUse) {
+            $performanceMetrics = [
+                'ttfb' => ['TTFB', 'Time to First Byte in milliseconds.'],
+                'fcp' => ['FCP', 'First Contentful Paint in milliseconds.'],
+                'lcp' => ['LCP', 'Largest Contentful Paint in milliseconds.'],
+                'inp' => ['INP', 'Interaction to Next Paint in milliseconds; absent when no measurable interaction occurred.'],
+                'cls' => ['CLS', 'Cumulative Layout Shift score; zero is a valid value.'],
             ];
+            foreach ($performanceMetrics as $metric => [$title, $description]) {
+                foreach (['p75', 'avg', 'min', 'max', 'count'] as $aggregation) {
+                    $columns[] = self::event_metric_column(
+                        "performance.{$metric}.{$aggregation}",
+                        $title,
+                        $aggregation,
+                        $description
+                    );
+                }
+            }
         }
 
         return $columns;
     }
 
-    private static function format_event_metric_title(string $field): string
+    private static function event_metric_column(
+        string $field,
+        string $metricTitle,
+        string $aggregation,
+        string $description
+    ): array
     {
-        $eventName = substr($field, 6);
-        return ucwords(str_replace('_', ' ', $eventName));
+        $aggregationTitles = [
+            'count' => 'Count',
+            'avg' => 'Average',
+            'p75' => 'P75',
+            'min' => 'Minimum',
+            'max' => 'Maximum',
+        ];
+        $aggregationTitle = $aggregationTitles[$aggregation] ?? strtoupper($aggregation);
+        return [
+            'field' => $field,
+            'title' => "{$metricTitle} — {$aggregationTitle}",
+            'description' => "{$description} Aggregation: {$aggregationTitle}.",
+            'event_metric' => true,
+        ];
     }
 }
 

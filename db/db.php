@@ -8,6 +8,18 @@ require_once __DIR__ . "/../runtimeconfig.php";
 
 class Db
 {
+    public const STEP_EVENT_CREATED = 'created';
+    public const STEP_EVENT_SAVED = 'saved';
+    public const STEP_EVENT_NOT_FOUND = 'not_found';
+    public const STEP_EVENT_NOT_ALLOWED = 'not_allowed';
+    public const STEP_EVENT_STORAGE_ERROR = 'storage_error';
+    private const EVENT_NAME_PATTERN = '/^[a-z][a-z0-9_]{0,63}$/';
+    private const MAX_EVENT_ELAPSED_MS = 2592000000;
+    private const MAX_PERFORMANCE_TIMING_MS = 86400000;
+    private const PERFORMANCE_METRICS = ['ttfb', 'fcp', 'lcp', 'inp', 'cls'];
+    private const EVENT_JSON_TREE_METRIC_THRESHOLD = 32;
+    private const EVENT_JSON_TREE_UNFILTERED_THRESHOLD = 96;
+
     private const DERIVED_STATS_DEPENDENCIES = [
         'uniques_ratio' => ['clicks', 'uniques'],
         'cra' => ['clicks', 'conversion'],
@@ -48,7 +60,7 @@ class Db
             $click['path'] = is_array($decodedPath) ? $decodedPath : [];
         }
 
-        foreach (['params', 'events'] as $jsonField) {
+        foreach (['params'] as $jsonField) {
             if (!array_key_exists($jsonField, $click)) {
                 continue;
             }
@@ -200,7 +212,7 @@ class Db
             } elseif (in_array($raw, ['+', '-', '*', '/', '(', ')'], true)) {
                 $tokens[] = ['type' => 'operator', 'value' => $raw];
             } else {
-                if (!preg_match('/^(?:[a-z][a-z0-9_]*|event\.[a-z0-9_]+|status\.[a-z0-9_]+|custom\.[a-z0-9_]+)$/', $raw)) {
+                if (!preg_match('/^(?:[a-z][a-z0-9_]*|status\.[a-z0-9_]+|custom\.[a-z0-9_]+)$/', $raw)) {
                     return null;
                 }
                 $tokens[] = ['type' => 'field', 'value' => $raw];
@@ -377,6 +389,38 @@ class Db
         return [$selectedFields, $customColumns, $normalizedColumns, $statusColumns];
     }
 
+    /**
+     * @return array{kind:string,name:string,aggregation:string,base:string}|null
+     */
+    private static function parse_event_metric_field(string $field): ?array
+    {
+        if (preg_match(
+            '/^event\.([a-z][a-z0-9_]{0,63})\.(count|avg|p75|min|max)$/',
+            $field,
+            $matches
+        ) === 1) {
+            return [
+                'kind' => 'event',
+                'name' => $matches[1],
+                'aggregation' => $matches[2],
+                'base' => 'event.' . $matches[1],
+            ];
+        }
+        if (preg_match(
+            '/^performance\.(ttfb|fcp|lcp|inp|cls)\.(count|avg|p75|min|max)$/',
+            $field,
+            $matches
+        ) === 1) {
+            return [
+                'kind' => 'performance',
+                'name' => $matches[1],
+                'aggregation' => $matches[2],
+                'base' => 'performance.' . $matches[1],
+            ];
+        }
+        return null;
+    }
+
     private static function apply_custom_columns_to_tree(array &$tree, array $customColumns): void
     {
         foreach ($tree as &$row) {
@@ -458,11 +502,8 @@ class Db
 
     private static function attach_stats_totals_to_tree(array &$tree, array $totals): void
     {
-        foreach ($tree as &$row) {
-            $row['_stats_totals'] = $totals;
-            if (!empty($row['_children']) && is_array($row['_children'])) {
-                self::attach_stats_totals_to_tree($row['_children'], $totals);
-            }
+        if ($tree !== []) {
+            $tree[0]['_stats_totals'] = $totals;
         }
     }
 
@@ -782,101 +823,6 @@ class Db
         return $clicks[0] ?? [];
     }
 
-    private function get_stats_select_parts(array $selectedFields): array
-    {
-        $selectParts = [];
-        // Process selected fields
-        foreach ($selectedFields as $field) {
-            switch ($field) {
-                case 'clicks':
-                    $selectParts[] = "COUNT(c.id) AS clicks";
-                    break;
-                case 'uniques':
-                    $selectParts[] = "CASE WHEN COUNT(c.id) = COUNT(c.unique_flags)
-                        THEN COALESCE(SUM(CASE WHEN (c.unique_flags & 2) != 0 THEN 1 ELSE 0 END), 0)
-                        ELSE NULL END AS uniques";
-                    break;
-                case 'flow_uniques':
-                    $selectParts[] = "CASE WHEN COUNT(c.id) = COUNT(c.unique_flags)
-                        THEN COALESCE(SUM(CASE WHEN (c.unique_flags & 1) != 0 THEN 1 ELSE 0 END), 0)
-                        ELSE NULL END AS flow_uniques";
-                    break;
-                case 'uniques_ratio':
-                    $selectParts[] = "CASE WHEN COUNT(c.id) = COUNT(c.unique_flags)
-                        THEN COALESCE(SUM(CASE WHEN (c.unique_flags & 2) != 0 THEN 1 ELSE 0 END) * 100.0 / NULLIF(COUNT(c.id), 0), 0)
-                        ELSE NULL END AS uniques_ratio";
-                    break;
-                case 'cra':
-                    $selectParts[] = "(COUNT(DISTINCT CASE WHEN status IS NOT NULL THEN c.id END) * 100.0 / COUNT(*)) AS cra";
-                    break;
-                case 'epc':
-                    $selectParts[] = "(SUM(payout) * 1.0 / COUNT(c.id)) AS epc";
-                    break;
-                case 'uepc':
-                    $selectParts[] = "CASE WHEN COUNT(c.id) = COUNT(c.unique_flags)
-                        THEN COALESCE(SUM(payout) * 1.0 / NULLIF(SUM(CASE WHEN (c.unique_flags & 2) != 0 THEN 1 ELSE 0 END), 0), 0)
-                        ELSE NULL END AS uepc";
-                    break;
-                case 'cpc':
-                    $selectParts[] = "(SUM(cost) * 1.0 / COUNT(c.id)) AS cpc";
-                    break;
-                case 'ucpc':
-                    $selectParts[] = "CASE WHEN COUNT(c.id) = COUNT(c.unique_flags)
-                        THEN COALESCE(SUM(cost) * 1.0 / NULLIF(SUM(CASE WHEN (c.unique_flags & 2) != 0 THEN 1 ELSE 0 END), 0), 0)
-                        ELSE NULL END AS ucpc";
-                    break;
-                case '_uniqueness_counted':
-                    $selectParts[] = 'COUNT(c.unique_flags) AS _uniqueness_counted';
-                    break;
-                case '_uniqueness_total':
-                    $selectParts[] = 'COUNT(c.id) AS _uniqueness_total';
-                    break;
-                case 'conversion':
-                    $selectParts[] = "COUNT(DISTINCT CASE WHEN status IS NOT NULL THEN clickid END) AS conversion";
-                    break;
-                case 'purchase':
-                    $selectParts[] = "COUNT(DISTINCT CASE WHEN status = 'Purchase' THEN clickid END) AS purchase";
-                    break;
-                case 'hold':
-                    $selectParts[] = "COUNT(DISTINCT CASE WHEN status = 'Lead' THEN clickid END) AS hold";
-                    break;
-                case 'reject':
-                    $selectParts[] = "COUNT(DISTINCT CASE WHEN status = 'Reject' THEN clickid END) AS reject";
-                    break;
-                case 'trash':
-                    $selectParts[] = "COUNT(DISTINCT CASE WHEN status = 'Trash' THEN clickid END) AS trash";
-                    break;
-                case 'ec':
-                    $selectParts[] = "(SUM(payout) * 1.0 / COUNT(DISTINCT CASE WHEN status IS NOT NULL THEN clickid END)) AS ec";
-                    break;
-                case 'cpa':
-                    $selectParts[] = "(SUM(cost) * 1.0 / COUNT(DISTINCT CASE WHEN status IS NOT NULL THEN clickid END)) AS cpa";
-                    break;
-                case 'revenue':
-                    $selectParts[] = "SUM(payout) AS revenue";
-                    break;
-                case 'costs':
-                    $selectParts[] = "SUM(cost) AS costs";
-                    break;
-                case 'profit':
-                    $selectParts[] = "(SUM(payout) - SUM(cost)) as profit";
-                    break;
-                case 'roi':
-                    $selectParts[] = "((SUM(payout) - SUM(cost))*1.0 / SUM(cost) * 100.0) as roi";
-                    break;
-                default:
-                    if (str_starts_with($field, 'event.')) {
-                        $eventName = substr($field, 6);
-                        if (preg_match('/^[a-z0-9_]+$/', $eventName)) {
-                            $selectParts[] = "COALESCE(SUM(CAST(json_extract(events, '$.$eventName') AS REAL)), 0) AS \"$field\"";
-                        }
-                    }
-                    break;
-            }
-        }
-        return $selectParts;
-    }
-
     private function get_stats_source_select_parts(array $selectedFields, array $statusColumns): array
     {
         $selectParts = [];
@@ -948,13 +894,13 @@ class Db
                     $selectParts[] = 'COALESCE(SUM(conversion_payout) / NULLIF(SUM(is_click), 0), 0) AS epc';
                     break;
                 case 'uepc':
-                    $selectParts[] = 'COALESCE(SUM(conversion_payout) / NULLIF(SUM(CASE WHEN is_click = 1 AND (unique_flags & 2) != 0 THEN 1 ELSE 0 END), 0), 0) AS uepc';
+                    $selectParts[] = 'CASE WHEN SUM(is_click) = SUM(CASE WHEN is_click = 1 AND unique_flags IS NOT NULL THEN 1 ELSE 0 END) THEN COALESCE(SUM(conversion_payout) / NULLIF(SUM(CASE WHEN is_click = 1 AND (unique_flags & 2) != 0 THEN 1 ELSE 0 END), 0), 0) ELSE NULL END AS uepc';
                     break;
                 case 'cpc':
                     $selectParts[] = 'COALESCE(SUM(click_cost) / NULLIF(SUM(is_click), 0), 0) AS cpc';
                     break;
                 case 'ucpc':
-                    $selectParts[] = 'COALESCE(SUM(click_cost) / NULLIF(SUM(CASE WHEN is_click = 1 AND (unique_flags & 2) != 0 THEN 1 ELSE 0 END), 0), 0) AS ucpc';
+                    $selectParts[] = 'CASE WHEN SUM(is_click) = SUM(CASE WHEN is_click = 1 AND unique_flags IS NOT NULL THEN 1 ELSE 0 END) THEN COALESCE(SUM(click_cost) / NULLIF(SUM(CASE WHEN is_click = 1 AND (unique_flags & 2) != 0 THEN 1 ELSE 0 END), 0), 0) ELSE NULL END AS ucpc';
                     break;
                 case 'ec':
                     $selectParts[] = 'COALESCE(SUM(conversion_payout) / NULLIF(SUM(is_initial), 0), 0) AS ec';
@@ -963,12 +909,6 @@ class Db
                     $selectParts[] = 'COALESCE(SUM(click_cost) / NULLIF(SUM(is_initial), 0), 0) AS cpa';
                     break;
                 default:
-                    if (str_starts_with($field, 'event.')) {
-                        $eventName = substr($field, 6);
-                        if (preg_match('/^[a-z0-9_]+$/', $eventName)) {
-                            $selectParts[] = "COALESCE(SUM(CAST(json_extract(events, '$.$eventName') AS REAL)), 0) AS \"$field\"";
-                        }
-                    }
                     break;
             }
         }
@@ -977,7 +917,7 @@ class Db
 
     private const FILTERABLE_FIELDS = [
         'country', 'lang', 'os', 'osver', 'brand', 'model', 'device',
-        'isp', 'client', 'clientver', 'flow', 'step', 'path', 'status', 'reason'
+        'isp', 'client', 'clientver', 'flow', 'step', 'landing', 'path', 'status', 'reason'
     ];
 
     private const FILTER_OPERATORS = ['=', '!=', 'in', 'not_in', 'is_null', 'is_not_null'];
@@ -995,7 +935,7 @@ class Db
         return null;
     }
 
-    private function buildFilterWhere(array $filters): array {
+    private function buildFilterWhere(array $filters, bool $stepScoped = true): array {
         $filterWhere = '';
         $filterBinds = [];
         if (empty($filters) || !isset($filters['rules']) || !is_array($filters['rules'])) {
@@ -1003,24 +943,29 @@ class Db
         }
 
         $filterParts = [];
+        $stepFilterParts = [];
         foreach ($filters['rules'] as $i => $rule) {
             $field = $rule['field'] ?? '';
             $op = $rule['operator'] ?? '';
             $value = $rule['value'] ?? '';
 
-            $sqlField = self::resolveFilterField($field);
+            $targetsReachedStep = !$stepScoped && in_array($field, ['step', 'landing'], true);
+            $sqlField = $targetsReachedStep
+                ? 'filter_step.' . ($field === 'step' ? 'step' : 'variant')
+                : self::resolveFilterField($field);
             if ($sqlField === null || !in_array($op, self::FILTER_OPERATORS)) {
                 continue;
             }
 
             $paramName = ":filter_{$i}";
+            $part = null;
             switch ($op) {
                 case '=':
-                    $filterParts[] = "$sqlField = $paramName";
+                    $part = "$sqlField = $paramName";
                     $filterBinds[$paramName] = $value;
                     break;
                 case '!=':
-                    $filterParts[] = "$sqlField != $paramName";
+                    $part = "$sqlField != $paramName";
                     $filterBinds[$paramName] = $value;
                     break;
                 case 'in':
@@ -1031,7 +976,9 @@ class Db
                         $placeholders[] = $p;
                         $filterBinds[$p] = $v;
                     }
-                    $filterParts[] = "$sqlField IN (" . implode(',', $placeholders) . ")";
+                    $part = $placeholders === []
+                        ? '0 = 1'
+                        : "$sqlField IN (" . implode(',', $placeholders) . ')';
                     break;
                 case 'not_in':
                     $vals = is_array($value) ? $value : array_map('trim', explode(',', $value));
@@ -1041,22 +988,614 @@ class Db
                         $placeholders[] = $p;
                         $filterBinds[$p] = $v;
                     }
-                    $filterParts[] = "$sqlField NOT IN (" . implode(',', $placeholders) . ")";
+                    $part = $placeholders === []
+                        ? '1 = 1'
+                        : "$sqlField NOT IN (" . implode(',', $placeholders) . ')';
                     break;
                 case 'is_null':
-                    $filterParts[] = "$sqlField IS NULL";
+                    $part = "$sqlField IS NULL";
                     break;
                 case 'is_not_null':
-                    $filterParts[] = "$sqlField IS NOT NULL";
+                    $part = "$sqlField IS NOT NULL";
                     break;
+            }
+            if ($part === null) {
+                continue;
+            }
+            if ($targetsReachedStep) {
+                $stepFilterParts[] = $part;
+            } else {
+                $filterParts[] = $part;
             }
         }
         $condition = ($filters['condition'] ?? 'AND') === 'OR' ? ' OR ' : ' AND ';
+        if ($stepFilterParts !== []) {
+            $filterParts[] = 'EXISTS (SELECT 1 FROM click_steps filter_step '
+                . 'WHERE filter_step.clickid = c.clickid '
+                . 'AND filter_step.step <= c.attribution_step '
+                . 'AND (' . implode($condition, $stepFilterParts) . '))';
+        }
         if (!empty($filterParts)) {
             $filterWhere = ' AND (' . implode($condition, $filterParts) . ')';
         }
 
         return [$filterWhere, $filterBinds];
+    }
+
+    /**
+     * @return array{select:array<int,string>,group:array<int,string>,order:array<int,string>,fields:array<int,string>}
+     */
+    private function build_stats_group_parts(array $groupByFields, string $timezone): array
+    {
+        $selectParts = [];
+        $groupByParts = [];
+        $orderByParts = [];
+        $normalizedFields = [];
+
+        foreach ($groupByFields as $field) {
+            if ($field === 'date') {
+                $dateTime = new DateTime('now', new DateTimeZone($timezone));
+                $offsetInSeconds = $dateTime->getOffset();
+                $hours = floor($offsetInSeconds / 3600);
+                $minutes = floor(($offsetInSeconds % 3600) / 60);
+                $offsetFormatted = sprintf('%+03d:%02d', $hours, $minutes);
+                $selectParts[] = "strftime('%Y-%m-%d', datetime(stat_time, 'unixepoch', '{$offsetFormatted}')) AS date";
+                $groupByParts[] = 'date';
+                $orderByParts[] = 'date';
+                $normalizedFields[] = 'date';
+                continue;
+            }
+
+            if (in_array($field, [
+                'country', 'lang', 'os', 'osver', 'brand', 'model', 'device',
+                'isp', 'client', 'clientver', 'flow', 'step', 'landing', 'path',
+            ], true)) {
+                $selectParts[] = $field;
+                $groupByParts[] = $field;
+                $orderByParts[] = $field;
+                $normalizedFields[] = $field;
+                continue;
+            }
+
+            $jsonKey = str_starts_with($field, 'param.') ? substr($field, 6) : $field;
+            if (preg_match('/^[a-zA-Z0-9_]+$/', $jsonKey) !== 1) {
+                continue;
+            }
+            $selectParts[] = "COALESCE(json_extract(params, '$." . $jsonKey . "'), 'unknown') AS " . $jsonKey;
+            $groupByParts[] = $jsonKey;
+            $orderByParts[] = $jsonKey;
+            $normalizedFields[] = $jsonKey;
+        }
+
+        return [
+            'select' => $selectParts,
+            'group' => $groupByParts,
+            'order' => $orderByParts,
+            'fields' => $normalizedFields,
+        ];
+    }
+
+    private function query_statistics_level(
+        array $queryFields,
+        array $statusColumns,
+        array $groupByFields,
+        int $campId,
+        string $startDate,
+        string $endDate,
+        string $timezone,
+        array $filters
+    ): array {
+        global $cloSettings;
+
+        $stepScoped = array_intersect(['step', 'landing'], $groupByFields) !== [];
+        $conversionTime = ($cloSettings['conversionAttribution'] ?? 'click_time') === 'conversion_time';
+        $conversionStatTime = $conversionTime ? 'cv.time' : 'c.time';
+        if ($stepScoped) {
+            $clickCurrentStatus = 'NULL';
+            $clickCurrentFlag = '0';
+            $conversionCurrentFlag = "CASE WHEN cv.changes_status = 1 AND cv.id = (
+                SELECT cv2.id FROM conversions cv2
+                WHERE cv2.clickid = cv.clickid AND cv2.changes_status = 1
+                ORDER BY cv2.time DESC, cv2.id DESC LIMIT 1
+            ) THEN 1 ELSE 0 END";
+            $clickStep = 'cs.step';
+            $clickLanding = 'cs.variant';
+            $clickStepJoin = ' INNER JOIN click_steps cs ON cs.clickid = c.clickid';
+            $conversionStep = 'cs.step';
+            $conversionLanding = 'cs.variant';
+            $conversionStepJoin = ' INNER JOIN click_steps cs ON cs.clickid = c.clickid AND cs.step <= cv.step';
+        } else {
+            $clickCurrentStatus = $conversionTime ? 'NULL' : 'c.status';
+            $clickCurrentFlag = $conversionTime
+                ? '0'
+                : "CASE WHEN c.status IS NOT NULL AND c.status <> '' THEN 1 ELSE 0 END";
+            $conversionCurrentFlag = $conversionTime
+                ? "CASE WHEN cv.changes_status = 1 AND cv.id = (
+                    SELECT cv2.id FROM conversions cv2
+                    WHERE cv2.clickid = cv.clickid AND cv2.changes_status = 1
+                    ORDER BY cv2.time DESC, cv2.id DESC LIMIT 1
+                ) THEN 1 ELSE 0 END"
+                : '0';
+            $clickStep = 'c.step';
+            $clickLanding = 'NULL';
+            $clickStepJoin = '';
+            $conversionStep = 'cv.step';
+            $conversionLanding = 'NULL';
+            $conversionStepJoin = '';
+        }
+
+        $baseQuery = "WITH stats_source AS (
+            SELECT c.id, c.campaign_id, c.country, c.lang, c.os, c.osver, c.brand, c.model, c.device,
+                   c.isp, c.client, c.clientver, c.flow, {$clickStep} AS step, {$clickLanding} AS landing,
+                   c.path, c.status, c.params, c.unique_flags, c.clickid, c.step AS attribution_step,
+                   c.time AS stat_time,
+                   1 AS is_click, 0 AS is_conversion, 0 AS is_initial,
+                   c.cost AS click_cost, 0.0 AS conversion_payout,
+                   {$clickCurrentStatus} AS metric_status, 0 AS status_occurrence,
+                   {$clickCurrentFlag} AS current_status_event
+            FROM clicks c{$clickStepJoin}
+            WHERE c.campaign_id = :sourceCampId
+            UNION ALL
+            SELECT c.id, c.campaign_id, c.country, c.lang, c.os, c.osver, c.brand, c.model, c.device,
+                   c.isp, c.client, c.clientver, c.flow, {$conversionStep} AS step, {$conversionLanding} AS landing,
+                   c.path, c.status, c.params, NULL AS unique_flags, c.clickid, cv.step AS attribution_step,
+                   {$conversionStatTime} AS stat_time,
+                   0 AS is_click, 1 AS is_conversion, cv.is_initial,
+                   0.0 AS click_cost, cv.payout AS conversion_payout,
+                   cv.status AS metric_status, cv.status_occurrence,
+                   {$conversionCurrentFlag} AS current_status_event
+            FROM conversions cv
+            INNER JOIN clicks c ON c.clickid = cv.clickid{$conversionStepJoin}
+            WHERE cv.campaign_id = :sourceConversionCampId
+        ) SELECT %s
+        FROM stats_source c
+        WHERE campaign_id = :campid AND stat_time BETWEEN :startDate AND :endDate";
+
+        $selectParts = $this->get_stats_source_select_parts($queryFields, $statusColumns);
+        $groupParts = $this->build_stats_group_parts($groupByFields, $timezone);
+        $selectParts = array_merge($selectParts, $groupParts['select']);
+        if ($selectParts === []) {
+            return [];
+        }
+
+        [$filterWhere, $filterBinds] = $this->buildFilterWhere($filters, $stepScoped);
+        $groupByClause = $groupParts['group'] !== []
+            ? ' GROUP BY ' . implode(', ', $groupParts['group'])
+            : '';
+        $orderByClause = $groupParts['order'] !== []
+            ? ' ORDER BY ' . implode(', ', $groupParts['order'])
+            : '';
+        $sqlQuery = sprintf($baseQuery, implode(', ', $selectParts))
+            . $filterWhere . $groupByClause . $orderByClause;
+
+        $db = $this->open_db(true);
+        $stmt = $db->prepare($sqlQuery);
+        if ($stmt === false) {
+            add_log('errors', 'Error preparing statistics statement: ' . $db->lastErrorMsg());
+            return [];
+        }
+        $stmt->bindValue(':campid', $campId, SQLITE3_INTEGER);
+        $stmt->bindValue(':sourceCampId', $campId, SQLITE3_INTEGER);
+        $stmt->bindValue(':sourceConversionCampId', $campId, SQLITE3_INTEGER);
+        $stmt->bindValue(':startDate', $startDate, SQLITE3_INTEGER);
+        $stmt->bindValue(':endDate', $endDate, SQLITE3_INTEGER);
+        foreach ($filterBinds as $param => $value) {
+            $stmt->bindValue($param, $value, SQLITE3_TEXT);
+        }
+        $result = $stmt->execute();
+        if ($result === false) {
+            add_log('errors', 'Error executing statistics statement: ' . $db->lastErrorMsg());
+            return [];
+        }
+
+        $rows = [];
+        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
+            $rows[] = $row;
+        }
+        return $rows;
+    }
+
+    /**
+     * @return array<int,array<int,array<string,mixed>>> Rows keyed by grouping depth.
+     */
+    private function query_event_statistics_levels(
+        array $eventMetricFields,
+        array $groupByFields,
+        int $campId,
+        string $startDate,
+        string $endDate,
+        string $timezone,
+        array $filters
+    ): array {
+        $metricDefinitions = [];
+        $p75MetricDefinitions = [];
+        foreach ($eventMetricFields as $field) {
+            $metric = self::parse_event_metric_field($field);
+            if ($metric === null) {
+                continue;
+            }
+            $jsonPath = $metric['kind'] === 'event'
+                ? '$.' . $metric['name']
+                : '$.performance.' . $metric['name'];
+            $metricDefinitions[$metric['base']] = $jsonPath;
+            if ($metric['aggregation'] === 'p75') {
+                $p75MetricDefinitions[$metric['base']] = $jsonPath;
+            }
+        }
+
+        if ($metricDefinitions === []) {
+            return [];
+        }
+
+        $sourceColumns = "c.campaign_id, c.country, c.lang, c.os, c.osver, c.brand, c.model, c.device,
+            c.isp, c.client, c.clientver, c.flow, cs.step, cs.variant AS landing,
+            c.path, c.status, c.params, c.clickid, c.time AS stat_time, cs.events";
+
+        $groupParts = $this->build_stats_group_parts($groupByFields, $timezone);
+        [$filterWhere, $filterBinds] = $this->buildFilterWhere($filters);
+        $levelFieldsByDepth = [];
+        for ($level = 0; $level <= count($groupParts['fields']); $level++) {
+            $levelFieldsByDepth[$level] = array_slice($groupParts['fields'], 0, $level);
+        }
+        $groupSelect = $groupParts['select'] !== []
+            ? implode(', ', $groupParts['select']) . ', '
+            : '';
+        $leafSelect = $groupParts['fields'] !== []
+            ? implode(', ', $groupParts['fields']) . ', '
+            : '';
+        $finalGroupFields = array_merge($groupParts['fields'], ['metric_base']);
+
+        $db = $this->open_db(true);
+        $buildSamplesCte = static function (array $definitions) use (
+            $sourceColumns,
+            $groupSelect,
+            $filterWhere
+        ): string {
+            if (count($definitions) > self::EVENT_JSON_TREE_METRIC_THRESHOLD) {
+                // A wide, sparse selection is cheaper as one JSON-tree walk
+                // than as requested-paths × click_steps lookups. At the maximum
+                // catalog size, filtering the small canonical leaf set in PHP
+                // also avoids a large SQL IN lookup for every leaf.
+                $pathFilter = '';
+                if (count($definitions) <= self::EVENT_JSON_TREE_UNFILTERED_THRESHOLD) {
+                    $jsonPaths = array_map(
+                        static fn(string $path): string => "'" . str_replace("'", "''", $path) . "'",
+                        array_values($definitions)
+                    );
+                    $pathFilter = ' AND jt.fullkey IN (' . implode(', ', $jsonPaths) . ')';
+                }
+                return "WITH event_steps AS (
+                        SELECT {$sourceColumns}
+                        FROM clicks c
+                        INNER JOIN click_steps cs ON cs.clickid = c.clickid
+                        WHERE c.campaign_id = :eventSourceCampId
+                    ),
+                    event_samples AS (
+                        SELECT {$groupSelect}
+                               CASE WHEN jt.path = '$.performance'
+                                    THEN 'performance.' ELSE 'event.' END || jt.key AS metric_base,
+                               CAST(jt.value AS REAL) AS metric_value
+                        FROM event_steps c
+                        INNER JOIN json_tree(c.events) jt
+                        WHERE c.stat_time BETWEEN :startDate AND :endDate{$filterWhere}
+                          AND jt.type IN ('integer', 'real'){$pathFilter}
+                          AND jt.path IN ('$', '$.performance')
+                    )";
+            }
+
+            $definitionRows = [];
+            foreach ($definitions as $metricBase => $jsonPath) {
+                $definitionRows[] = sprintf(
+                    "('%s', '%s')",
+                    str_replace("'", "''", $metricBase),
+                    str_replace("'", "''", $jsonPath)
+                );
+            }
+            return "WITH metric_definitions(metric_base, json_path) AS (
+                    VALUES " . implode(', ', $definitionRows) . "
+                ),
+                event_steps AS (
+                    SELECT {$sourceColumns}
+                    FROM clicks c
+                    INNER JOIN click_steps cs ON cs.clickid = c.clickid
+                    WHERE c.campaign_id = :eventSourceCampId
+                ),
+                event_samples AS (
+                    SELECT {$groupSelect}md.metric_base,
+                           CAST(json_extract(c.events, md.json_path) AS REAL) AS metric_value
+                    FROM event_steps c
+                    CROSS JOIN metric_definitions md
+                    WHERE c.stat_time BETWEEN :startDate AND :endDate{$filterWhere}
+                      AND json_valid(c.events) = 1
+                      AND json_type(c.events, md.json_path) IN ('integer', 'real')
+                )";
+        };
+        $execute = static function (string $sql) use (
+            $db,
+            $campId,
+            $startDate,
+            $endDate,
+            $filterBinds
+        ): SQLite3Result|false {
+            $stmt = $db->prepare($sql);
+            if ($stmt === false) {
+                return false;
+            }
+            $stmt->bindValue(':eventSourceCampId', $campId, SQLITE3_INTEGER);
+            $stmt->bindValue(':startDate', $startDate, SQLITE3_INTEGER);
+            $stmt->bindValue(':endDate', $endDate, SQLITE3_INTEGER);
+            foreach ($filterBinds as $param => $value) {
+                $stmt->bindValue($param, $value, SQLITE3_TEXT);
+            }
+            return $stmt->execute();
+        };
+
+        $aggregateSql = $buildSamplesCte($metricDefinitions)
+            . " SELECT {$leafSelect}metric_base,
+                       COUNT(*) AS sample_count,
+                       SUM(metric_value) AS metric_sum,
+                       MIN(metric_value) AS metric_min,
+                       MAX(metric_value) AS metric_max
+                FROM event_samples
+                GROUP BY " . implode(', ', $finalGroupFields);
+        $aggregateResult = $execute($aggregateSql);
+        if ($aggregateResult === false) {
+            add_log('errors', 'Error executing event aggregate statement: ' . $db->lastErrorMsg());
+            return [];
+        }
+
+        // Exact parent aggregates can be derived from the deepest groups without
+        // rescanning or sorting every hierarchy prefix in SQLite.
+        $statesByLevel = [];
+        $presentMetricBases = [];
+        while ($leaf = $aggregateResult->fetchArray(SQLITE3_ASSOC)) {
+            $metricBase = (string)$leaf['metric_base'];
+            if (!isset($metricDefinitions[$metricBase])) {
+                continue;
+            }
+            $presentMetricBases[$metricBase] = true;
+            $sampleCount = (int)$leaf['sample_count'];
+            $metricSum = (float)$leaf['metric_sum'];
+            $metricMin = (float)$leaf['metric_min'];
+            $metricMax = (float)$leaf['metric_max'];
+
+            foreach (
+                self::stats_group_keys_by_depth($leaf, $groupParts['fields'])
+                as $level => $groupKey
+            ) {
+                $levelFields = $levelFieldsByDepth[$level];
+                if (!isset($statesByLevel[$level][$groupKey][$metricBase])) {
+                    $groupValues = [];
+                    foreach ($levelFields as $field) {
+                        $groupValues[$field] = $leaf[$field] ?? null;
+                    }
+                    $statesByLevel[$level][$groupKey][$metricBase] = $groupValues + [
+                        'metric_base' => $metricBase,
+                        'sample_count' => 0,
+                        'metric_sum' => 0.0,
+                        'metric_min' => $metricMin,
+                        'metric_max' => $metricMax,
+                        'metric_p75' => null,
+                        'p75_seen' => 0,
+                        'p75_target' => 0,
+                    ];
+                }
+
+                $state =& $statesByLevel[$level][$groupKey][$metricBase];
+                $state['sample_count'] += $sampleCount;
+                $state['metric_sum'] += $metricSum;
+                $state['metric_min'] = min($state['metric_min'], $metricMin);
+                $state['metric_max'] = max($state['metric_max'], $metricMax);
+                unset($state);
+            }
+        }
+
+        $activeP75MetricDefinitions = array_intersect_key(
+            $p75MetricDefinitions,
+            $presentMetricBases
+        );
+        if ($activeP75MetricDefinitions !== []) {
+            foreach ($statesByLevel as &$groups) {
+                foreach ($groups as &$metrics) {
+                    foreach ($metrics as &$state) {
+                        if (isset($activeP75MetricDefinitions[$state['metric_base']])) {
+                            $state['p75_target'] = intdiv(
+                                3 * $state['sample_count'] + 3,
+                                4
+                            );
+                        }
+                    }
+                    unset($state);
+                }
+                unset($metrics);
+            }
+            unset($groups);
+
+            // The global value order also orders every group's subsequence. One
+            // streaming pass therefore finds nearest-rank P75 for every prefix,
+            // while memory remains proportional to the number of result groups.
+            $sampleSql = $buildSamplesCte($activeP75MetricDefinitions)
+                . " SELECT {$leafSelect}metric_base, metric_value
+                    FROM event_samples
+                    ORDER BY metric_base, metric_value";
+            $sampleResult = $execute($sampleSql);
+            if ($sampleResult === false) {
+                add_log('errors', 'Error executing event percentile statement: ' . $db->lastErrorMsg());
+                return [];
+            }
+
+            $groupFieldCount = count($groupParts['fields']);
+            while ($sample = $sampleResult->fetchArray(SQLITE3_NUM)) {
+                $metricBase = (string)$sample[$groupFieldCount];
+                if (!isset($activeP75MetricDefinitions[$metricBase])) {
+                    continue;
+                }
+                $metricValue = (float)$sample[$groupFieldCount + 1];
+                foreach (
+                    self::stats_group_keys_from_values($sample, $groupFieldCount)
+                    as $level => $groupKey
+                ) {
+                    if (!isset($statesByLevel[$level][$groupKey][$metricBase])) {
+                        continue;
+                    }
+                    $state =& $statesByLevel[$level][$groupKey][$metricBase];
+                    $state['p75_seen']++;
+                    if ($state['p75_seen'] === $state['p75_target']) {
+                        $state['metric_p75'] = $metricValue;
+                    }
+                    unset($state);
+                }
+            }
+        }
+
+        $rowsByLevel = [];
+        foreach ($statesByLevel as $level => $groups) {
+            foreach ($groups as $metrics) {
+                foreach ($metrics as $state) {
+                    $sampleCount = (int)$state['sample_count'];
+                    $metricAverage = $sampleCount > 0
+                        ? (float)$state['metric_sum'] / $sampleCount
+                        : null;
+                    unset($state['metric_sum'], $state['p75_seen'], $state['p75_target']);
+                    $state['metric_avg'] = $metricAverage;
+                    $rowsByLevel[$level][] = $state;
+                }
+            }
+        }
+        return $rowsByLevel;
+    }
+
+    /**
+     * @return array<int,string> Collision-safe group keys keyed by prefix depth.
+     */
+    private static function stats_group_keys_by_depth(array $row, array $groupFields): array
+    {
+        $values = [];
+        foreach ($groupFields as $field) {
+            $values[] = $row[$field] ?? 'unknown';
+        }
+        return self::stats_group_keys_from_values($values, count($groupFields));
+    }
+
+    /**
+     * @return array<int,string> Collision-safe group keys keyed by prefix depth.
+     */
+    private static function stats_group_keys_from_values(array $values, int $fieldCount): array
+    {
+        $keys = [''];
+        $key = '';
+        for ($index = 0; $index < $fieldCount; $index++) {
+            $value = (string)($values[$index] ?? 'unknown');
+            $key .= strlen($value) . ':' . $value . ';';
+            $keys[] = $key;
+        }
+        return $keys;
+    }
+
+    private static function stats_group_key(array $row, array $groupFields): string
+    {
+        $keys = self::stats_group_keys_by_depth($row, $groupFields);
+        return $keys[count($groupFields)] ?? '';
+    }
+
+    private static function merge_event_metrics_into_rows(
+        array &$rows,
+        array $eventRows,
+        array $groupFields,
+        array $eventMetricFields
+    ): void {
+        $metricsByGroup = [];
+        foreach ($eventRows as $eventRow) {
+            $groupKey = self::stats_group_key($eventRow, $groupFields);
+            $metricBase = (string)($eventRow['metric_base'] ?? '');
+            if ($metricBase === '') {
+                continue;
+            }
+            $metricsByGroup[$groupKey][$metricBase] = $eventRow;
+        }
+
+        foreach ($rows as &$row) {
+            $groupKey = self::stats_group_key($row, $groupFields);
+            foreach ($eventMetricFields as $field) {
+                $metric = self::parse_event_metric_field($field);
+                if ($metric === null) {
+                    continue;
+                }
+                $sample = $metricsByGroup[$groupKey][$metric['base']] ?? null;
+                if ($sample === null) {
+                    $row[$field] = $metric['aggregation'] === 'count' ? 0 : null;
+                    continue;
+                }
+                $sourceField = match ($metric['aggregation']) {
+                    'count' => 'sample_count',
+                    'avg' => 'metric_avg',
+                    'p75' => 'metric_p75',
+                    'min' => 'metric_min',
+                    'max' => 'metric_max',
+                };
+                $value = $sample[$sourceField] ?? null;
+                $row[$field] = $metric['aggregation'] === 'count'
+                    ? (int)($value ?? 0)
+                    : ($value === null ? null : (float)$value);
+            }
+        }
+    }
+
+    private function build_exact_stats_tree(
+        array $rowsByLevel,
+        array $groupFields
+    ): array {
+        if ($groupFields === []) {
+            return $rowsByLevel[0] ?? [];
+        }
+
+        $rowsByParent = [];
+        for ($depth = 1; $depth <= count($groupFields); $depth++) {
+            $parentFields = array_slice($groupFields, 0, $depth - 1);
+            foreach ($rowsByLevel[$depth] ?? [] as $row) {
+                $parentKey = self::stats_group_key($row, $parentFields);
+                $rowsByParent[$depth][$parentKey][] = $row;
+            }
+        }
+
+        return $this->build_indexed_stats_tree($rowsByParent, $groupFields, 1, '');
+    }
+
+    /**
+     * @param array<int,array<string,array<int,array<string,mixed>>>> $rowsByParent
+     */
+    private function build_indexed_stats_tree(
+        array $rowsByParent,
+        array $groupFields,
+        int $depth,
+        string $parentKey
+    ): array {
+        $rows = $rowsByParent[$depth][$parentKey] ?? [];
+        $currentField = $groupFields[$depth - 1];
+        $tree = [];
+
+        foreach ($rows as $row) {
+            $groupValue = $row[$currentField] ?? 'unknown';
+            $node = $row;
+            foreach ($groupFields as $field) {
+                unset($node[$field]);
+            }
+            $node['group'] = is_numeric($groupValue) ? (string)$groupValue : $groupValue;
+            if ($depth < count($groupFields)) {
+                $childParentFields = array_slice($groupFields, 0, $depth);
+                $children = $this->build_indexed_stats_tree(
+                    $rowsByParent,
+                    $groupFields,
+                    $depth + 1,
+                    self::stats_group_key($row, $childParentFields)
+                );
+                if ($children !== []) {
+                    $node['_children'] = $children;
+                }
+            }
+            $tree[] = $node;
+        }
+        return $tree;
     }
 
     public function get_statistics(
@@ -1069,8 +1608,11 @@ class Db
         array $filters = [],
         array $orderby = []
     ): array {
-        global $cloSettings;
-        [$selectedFields, $customColumns, $_normalizedColumns, $statusColumns] = self::split_requested_stats_columns($selectedColumns);
+        [$selectedFields, $customColumns, $_normalizedColumns, $statusColumns] =
+            self::split_requested_stats_columns($selectedColumns);
+        if ($selectedFields === []) {
+            return [];
+        }
         $queryFields = $selectedFields;
         foreach ($customColumns as $customColumn) {
             foreach (self::extract_formula_dependencies($customColumn['formula']) ?? [] as $dependency) {
@@ -1080,247 +1622,86 @@ class Db
             }
         }
         $queryFields = self::expand_stats_dependencies($queryFields);
-        if (array_intersect(['uniques', 'flow_uniques', 'uniques_ratio', 'uepc', 'ucpc'], $queryFields) !== []) {
-            $queryFields[] = '_uniqueness_counted';
-            $queryFields[] = '_uniqueness_total';
-            $queryFields = array_values(array_unique($queryFields));
-        }
 
-        $conversionTime = ($cloSettings['conversionAttribution'] ?? 'click_time') === 'conversion_time';
-        $conversionStatTime = $conversionTime ? 'cv.time' : 'c.time';
-        $clickCurrentStatus = $conversionTime ? 'NULL' : 'c.status';
-        $clickCurrentFlag = $conversionTime ? '0' : "CASE WHEN c.status IS NOT NULL AND c.status <> '' THEN 1 ELSE 0 END";
-        $conversionCurrentFlag = $conversionTime
-            ? "CASE WHEN cv.changes_status = 1 AND cv.id = (SELECT cv2.id FROM conversions cv2 WHERE cv2.clickid = cv.clickid AND cv2.changes_status = 1 ORDER BY cv2.time DESC, cv2.id DESC LIMIT 1) THEN 1 ELSE 0 END"
-            : '0';
-        $baseQuery = "WITH stats_source AS (
-            SELECT c.id, c.campaign_id, c.country, c.lang, c.os, c.osver, c.brand, c.model, c.device,
-                   c.isp, c.client, c.clientver, c.flow, c.step, c.path, c.status, c.params, c.events,
-                   c.unique_flags, c.clickid, c.time AS stat_time, 1 AS is_click, 0 AS is_conversion,
-                   0 AS is_initial, c.cost AS click_cost, 0.0 AS conversion_payout,
-                   {$clickCurrentStatus} AS metric_status, 0 AS status_occurrence,
-                   {$clickCurrentFlag} AS current_status_event
-            FROM clicks c WHERE c.campaign_id = :sourceCampId
-            UNION ALL
-            SELECT c.id, c.campaign_id, c.country, c.lang, c.os, c.osver, c.brand, c.model, c.device,
-                   c.isp, c.client, c.clientver, c.flow, c.step, c.path, c.status, c.params, '{}' AS events,
-                   NULL AS unique_flags, c.clickid, {$conversionStatTime} AS stat_time, 0 AS is_click, 1 AS is_conversion,
-                   cv.is_initial, 0.0 AS click_cost, cv.payout AS conversion_payout,
-                   cv.status AS metric_status, cv.status_occurrence,
-                   {$conversionCurrentFlag} AS current_status_event
-            FROM conversions cv INNER JOIN clicks c ON c.clickid = cv.clickid
-            WHERE cv.campaign_id = :sourceConversionCampId
-        ) SELECT %s FROM stats_source c WHERE campaign_id = :campid AND stat_time BETWEEN :startDate AND :endDate";
-        $selectParts = [];
-        $groupByParts = [];
-        $orderByParts = [];
-
-        $selectParts = $this->get_stats_source_select_parts($queryFields, $statusColumns);
-
-        [$filterWhere, $filterBinds] = $this->buildFilterWhere($filters);
-
-        // Process group by fields
-        foreach ($groupByFields as $field) {
-            if ($field === 'date') {
-
-                $dateTime = new DateTime('now', new DateTimeZone($timezone));
-                // Get the offset in seconds from UTC
-                $offsetInSeconds = $dateTime->getOffset();
-                // Convert this offset to an SQLite compatible format (HH:MM)
-                $hours = floor($offsetInSeconds / 3600);
-                $minutes = floor(($offsetInSeconds % 3600) / 60);
-                $offsetFormatted = sprintf('%+03d:%02d', $hours, $minutes);
-
-                $selectParts[] =
-                    "strftime('%Y-%m-%d', datetime(stat_time, 'unixepoch', '{$offsetFormatted}')) AS date";
-                $groupByParts[] = "date";
-                $orderByParts[] = "date";
-            } elseif (in_array($field, ['country', 'lang', 'os', 'osver', 'brand', 'model', 'device', 'isp', 'client', 'clientver', 'flow', 'step', 'path'])) {
-                $selectParts[] = $field;
-                $groupByParts[] = $field;
-                $orderByParts[] = $field;
-            } else {
-                // JSON fields — strip param. prefix if present
-                $jsonKey = str_starts_with($field, 'param.') ? substr($field, 6) : $field;
-                if (!preg_match('/^[a-zA-Z0-9_]+$/', $jsonKey)) continue;
-                $alias = $jsonKey;
-                $jsonExtract = "COALESCE(json_extract(params, '$." . $jsonKey . "'), 'unknown') AS " . $alias;
-                $selectParts[] = $jsonExtract;
-                $groupByParts[] = $alias;
-                $orderByParts[] = $alias;
+        $eventMetricFields = [];
+        $coreQueryFields = [];
+        foreach ($queryFields as $field) {
+            if (self::parse_event_metric_field($field) !== null) {
+                $eventMetricFields[] = $field;
+                continue;
             }
-        }
-
-        // Construct the SQL query
-        if ($selectParts === []) {
-            return [];
-        }
-        $selectClause = implode(', ', $selectParts);
-        $groupByClause = !empty($groupByParts) ? "GROUP BY " . implode(', ', $groupByParts) : '';
-        $orderByClause = !empty($orderByParts) ? "ORDER BY " . implode(', ', $orderByParts) : '';
-        $sqlQuery = sprintf($baseQuery, $selectClause) . $filterWhere . " " . $groupByClause . " " . $orderByClause;
-
-        $db = $this->open_db(true);
-        $stmt = $db->prepare($sqlQuery);
-        if ($stmt === false) {
-            $errorMessage = $db->lastErrorMsg();
-            add_log("errors", "Error preparing statistics statement: $errorMessage");
-            return [];
-        }
-
-        $stmt->bindValue(':campid', $campId, SQLITE3_INTEGER);
-        $stmt->bindValue(':sourceCampId', $campId, SQLITE3_INTEGER);
-        $stmt->bindValue(':sourceConversionCampId', $campId, SQLITE3_INTEGER);
-        $stmt->bindValue(':startDate', $startDate, SQLITE3_INTEGER);
-        $stmt->bindValue(':endDate', $endDate, SQLITE3_INTEGER);
-        foreach ($filterBinds as $param => $val) {
-            $stmt->bindValue($param, $val, SQLITE3_TEXT);
-        }
-        $result = $stmt->execute();
-
-        if ($result === false) {
-            $errorMessage = $db->lastErrorMsg();
-            add_log("errors", "Error executing statistics statement: $errorMessage");
-            return [];
-        }
-
-        $rows = [];
-        while ($row = $result->fetchArray(SQLITE3_ASSOC)) {
-            $rows[] = $row;
-        }
-
-        // Normalize groupby field names: strip param. prefix so they match SQL aliases
-        $normalizedGroupBy = array_map(function($f) {
-            return str_starts_with($f, 'param.') ? substr($f, 6) : $f;
-        }, $groupByFields);
-
-        // Build the tree structure
-        $tree = $this->build_tree($rows, $normalizedGroupBy, $queryFields, 0, $orderby);
-        if (!empty($customColumns)) {
-            $statsTotals = $this->calculate_totals($rows, $queryFields);
-            self::apply_custom_columns_to_row($statsTotals, $customColumns);
-            $statsTotals = self::filter_stats_totals_fields($statsTotals, $selectedFields);
-            self::apply_custom_columns_to_tree($tree, $customColumns);
-            self::sort_tree($tree, $orderby);
-        }
-        self::filter_tree_fields($tree, $selectedFields);
-        if (!empty($customColumns)) {
-            self::attach_stats_totals_to_tree($tree, $statsTotals);
-        }
-        return $tree;
-    }
-
-    private function build_tree(array $rows, array $groupByFields, array $selectedFields, int $level = 0, array $orderby = []): array
-    {
-        if (empty($groupByFields) || $level >= count($groupByFields)) {
-            // No grouping: recalculate derived metrics to fix SQL NULLs from division by zero
-            if ($level === 0 && !empty($rows)) {
-                return [$this->calculate_totals($rows, $selectedFields)];
+            if (str_starts_with($field, 'custom.')) {
+                continue;
             }
-            return $rows;
+            $coreQueryFields[] = $field;
+        }
+        $eventMetricFields = array_values(array_unique($eventMetricFields));
+        if (!in_array('clicks', $coreQueryFields, true)) {
+            // Required to build groups even for an event-only report.
+            $coreQueryFields[] = 'clicks';
         }
 
-        $groupField = $groupByFields[$level];
-        $groupedData = [];
-
-        // Group rows by current level's field
-        foreach ($rows as $row) {
-            $groupValue = $row[$groupField];
-            // Convert all numeric values to strings to prevent implicit conversions
-            if (is_numeric($groupValue)) {
-                $groupValue = (string) $groupValue;
-            }
-            if (!isset($groupedData[$groupValue])) {
-                $groupedData[$groupValue] = [];
-            }
-            $groupedData[$groupValue][] = $row;
+        if (array_intersect(
+            ['uniques', 'flow_uniques', 'uniques_ratio', 'uepc', 'ucpc'],
+            $coreQueryFields
+        ) !== []) {
+            $coreQueryFields[] = '_uniqueness_counted';
+            $coreQueryFields[] = '_uniqueness_total';
+            $coreQueryFields = array_values(array_unique($coreQueryFields));
         }
 
-        $tree = [];
-        foreach ($groupedData as $groupValue => $groupRows) {
-            // For leaf nodes or single level grouping
-            if ($level >= count($groupByFields) - 1) {
-                $totals = $this->calculate_totals($groupRows, $selectedFields);
-                $totals['group'] = $groupValue;
-                $tree[] = $totals;
-            } else {
-                $children = $this->build_tree($groupRows, $groupByFields, $selectedFields, $level + 1, $orderby);
-                $totals = $this->calculate_totals($groupRows, $selectedFields);
-                $node = array_merge(
-                    array_diff_key($totals, array_flip($groupByFields)),
-                    ['_children' => $children],
-                    ['group' => $groupValue]  // Put this last to override any 'group' from totals
+        $rowsByLevel = [];
+        $normalizedGroupBy = [];
+        $eventRowsByLevel = $eventMetricFields !== []
+            ? $this->query_event_statistics_levels(
+                $eventMetricFields,
+                $groupByFields,
+                $campId,
+                $startDate,
+                $endDate,
+                $timezone,
+                $filters
+            )
+            : [];
+        for ($level = 0; $level <= count($groupByFields); $level++) {
+            $levelGroupBy = array_slice($groupByFields, 0, $level);
+            $groupParts = $this->build_stats_group_parts($levelGroupBy, $timezone);
+            $normalizedGroupBy = $level === count($groupByFields)
+                ? $groupParts['fields']
+                : $normalizedGroupBy;
+
+            $levelRows = $this->query_statistics_level(
+                $coreQueryFields,
+                $statusColumns,
+                $levelGroupBy,
+                $campId,
+                $startDate,
+                $endDate,
+                $timezone,
+                $filters
+            );
+            if ($eventMetricFields !== []) {
+                self::merge_event_metrics_into_rows(
+                    $levelRows,
+                    $eventRowsByLevel[count($groupParts['fields'])] ?? [],
+                    $groupParts['fields'],
+                    $eventMetricFields
                 );
-                $tree[] = $node;
             }
+            $rowsByLevel[$level] = $levelRows;
         }
 
-        if (!empty($orderby)) {
-            self::sort_tree($tree, $orderby);
+        $tree = $this->build_exact_stats_tree($rowsByLevel, $normalizedGroupBy);
+        $statsTotals = $rowsByLevel[0][0] ?? array_fill_keys($queryFields, 0);
+        if ($customColumns !== []) {
+            self::apply_custom_columns_to_row($statsTotals, $customColumns);
+            self::apply_custom_columns_to_tree($tree, $customColumns);
         }
-
+        $statsTotals = self::filter_stats_totals_fields($statsTotals, $selectedFields);
+        self::sort_tree($tree, $orderby);
+        self::attach_stats_totals_to_tree($tree, $statsTotals);
+        self::filter_tree_fields($tree, $selectedFields);
         return $tree;
-    }
-
-    private function calculate_totals(array $rows, array $selectedFields): array
-    {
-        $totals = array_fill_keys($selectedFields, 0);
-
-        foreach ($rows as $row) {
-            foreach ($selectedFields as $field) {
-                if (isset($row[$field]) && is_numeric($row[$field])) {
-                    $totals[$field] += $row[$field];
-                }
-            }
-        }
-
-        $hasUniquenessState = in_array('_uniqueness_counted', $selectedFields, true)
-            && in_array('_uniqueness_total', $selectedFields, true);
-        $uniquenessComplete = !$hasUniquenessState
-            || (int)$totals['_uniqueness_counted'] === (int)$totals['_uniqueness_total'];
-
-        // Recalculate derived (non-additive) fields from summed base metrics
-        // Percentage metrics: round to 4 decimals (frontend trims to 2)
-        if (in_array('uniques_ratio', $selectedFields))
-            $totals['uniques_ratio'] = !$uniquenessComplete
-                ? null
-                : ((float)$totals['clicks'] === 0.0 ? 0 : round($totals['uniques'] * 100.0 / $totals['clicks'], 4));
-        if (in_array('cra', $selectedFields))
-            $totals['cra'] = (float)$totals['clicks'] === 0.0 ? 0 : round($totals['conversion'] * 100.0 / $totals['clicks'], 4);
-        if (in_array('roi', $selectedFields))
-            $totals['roi'] = (float)$totals['costs'] === 0.0 ? 0 : round(($totals['revenue'] - $totals['costs']) * 100.0 / $totals['costs'], 4);
-
-        // Money-per-unit metrics: round to 6 decimals (frontend trims to 2-5)
-        if (in_array('epc', $selectedFields))
-            $totals['epc'] = (float)$totals['clicks'] === 0.0 ? 0 : round($totals['revenue'] * 1.0 / $totals['clicks'], 6);
-        if (in_array('uepc', $selectedFields))
-            $totals['uepc'] = !$uniquenessComplete
-                ? null
-                : ((float)$totals['uniques'] === 0.0 ? 0 : round($totals['revenue'] * 1.0 / $totals['uniques'], 6));
-        if (in_array('cpc', $selectedFields))
-            $totals['cpc'] = (float)$totals['clicks'] === 0.0 ? 0 : round($totals['costs'] * 1.0 / $totals['clicks'], 6);
-        if (in_array('ucpc', $selectedFields))
-            $totals['ucpc'] = !$uniquenessComplete
-                ? null
-                : ((float)$totals['uniques'] === 0.0 ? 0 : round($totals['costs'] * 1.0 / $totals['uniques'], 6));
-        if (in_array('ec', $selectedFields))
-            $totals['ec'] = (float)$totals['conversion'] === 0.0 ? 0 : round($totals['revenue'] * 1.0 / $totals['conversion'], 6);
-        if (in_array('cpa', $selectedFields))
-            $totals['cpa'] = (float)$totals['conversion'] === 0.0 ? 0 : round($totals['costs'] * 1.0 / $totals['conversion'], 6);
-
-        // Composite additive metrics: recalculate from base to avoid stale SQL values
-        if (in_array('profit', $selectedFields))
-            $totals['profit'] = round($totals['revenue'] - $totals['costs'], 6);
-
-        if (!$uniquenessComplete) {
-            foreach (['uniques', 'flow_uniques'] as $field) {
-                if (in_array($field, $selectedFields, true)) {
-                    $totals[$field] = null;
-                }
-            }
-        }
-
-        return $totals;
     }
 
     private function add_click(string $query, array $click): bool
@@ -1516,20 +1897,20 @@ class Db
         }
     }
 
-    public function update_click_path(string $clickid, array $path): bool
+    public function get_click_step_variant(string $clickid, int $step): ?string
     {
-        if (empty($clickid)) {
-            add_log("warning", "Skipping path update - empty clickid provided");
-            return false;
-        }
-        $pathJson = json_encode(array_values($path));
-        if ($pathJson === false) {
-            add_log("warning", "Skipping path update - invalid path JSON for clickid: $clickid");
-            return false;
+        if ($clickid === '' || $step < 0) {
+            return null;
         }
 
-        $query = "UPDATE clicks SET path = :path WHERE clickid = :clickid";
-        return $this->exec_update_query($query, [$pathJson => SQLITE3_TEXT, $clickid => SQLITE3_TEXT]);
+        $row = $this->exec_bind_list_query(
+            'SELECT variant FROM click_steps WHERE clickid = ? AND step = ? LIMIT 1',
+            [[$clickid, SQLITE3_TEXT], [$step, SQLITE3_INTEGER]],
+            true
+        );
+        return isset($row['variant']) && is_string($row['variant']) && $row['variant'] !== ''
+            ? $row['variant']
+            : null;
     }
 
     public function update_leaddata(string $clickid, array $leaddata): bool
@@ -1555,6 +1936,7 @@ class Db
         string $rawStatus,
         string $source,
         ?string $tid,
+        ?string $tidParameter,
         float $payout,
         string $currency,
         bool $payoutProvided,
@@ -1569,6 +1951,7 @@ class Db
                 $rawStatus,
                 $source,
                 $tid,
+                $tidParameter,
                 $payout,
                 $currency,
                 $payoutProvided,
@@ -1587,19 +1970,29 @@ class Db
                 }
 
                 $storedTid = $tid;
+                $storedTidParameter = $storedTid === null ? null : $tidParameter;
                 if ($tidDeduplicationEnabled && $storedTid !== null) {
-                    $tidStmt = $db->prepare('SELECT 1 FROM conversions WHERE campaign_id = :campaign AND tid = :tid LIMIT 1');
+                    $tidStmt = $db->prepare(
+                        'SELECT 1 FROM conversions '
+                        . 'WHERE campaign_id = :campaign AND tid_parameter = :tid_parameter '
+                        . 'AND tid = :tid AND tid <> \'\' LIMIT 1'
+                    );
                     if ($tidStmt === false) {
                         throw new Exception('Failed to prepare transaction lookup: ' . $db->lastErrorMsg());
                     }
                     $tidStmt->bindValue(':campaign', $campaignId, SQLITE3_INTEGER);
+                    $tidStmt->bindValue(':tid_parameter', $storedTidParameter, SQLITE3_TEXT);
                     $tidStmt->bindValue(':tid', $storedTid, SQLITE3_TEXT);
                     $tidResult = $tidStmt->execute();
                     if ($tidResult === false) {
                         throw new Exception('Failed to execute transaction lookup: ' . $db->lastErrorMsg());
                     }
                     if ($tidResult->fetchArray(SQLITE3_NUM) !== false) {
-                        return ['accepted' => false, 'code' => 'duplicate_tid', 'message' => 'Transaction ID was already used.'];
+                        return [
+                            'accepted' => false,
+                            'code' => 'duplicate_tid',
+                            'message' => 'Transaction ID was already used for this parameter.',
+                        ];
                     }
                 }
 
@@ -1628,17 +2021,23 @@ class Db
 
                 $insert = $db->prepare(
                     'INSERT INTO conversions '
-                    . '(clickid,campaign_id,flow,time,status,raw_status,source,tid,payout,currency,is_initial,changes_status,status_occurrence) '
-                    . 'VALUES (:clickid,:campaign,:flow,:time,:status,:raw_status,:source,:tid,:payout,:currency,:initial,:changes_status,:occurrence)'
+                    . '(clickid,campaign_id,flow,step,time,status,raw_status,source,tid,tid_parameter,payout,currency,is_initial,changes_status,status_occurrence) '
+                    . 'VALUES (:clickid,:campaign,:flow,:step,:time,:status,:raw_status,:source,:tid,:tid_parameter,:payout,:currency,:initial,:changes_status,:occurrence)'
                 );
                 $insert->bindValue(':clickid', $clickid, SQLITE3_TEXT);
                 $insert->bindValue(':campaign', $campaignId, SQLITE3_INTEGER);
                 $insert->bindValue(':flow', (string)($click['flow'] ?? 'unknown'), SQLITE3_TEXT);
+                $insert->bindValue(':step', max(0, (int)($click['step'] ?? 0)), SQLITE3_INTEGER);
                 $insert->bindValue(':time', time(), SQLITE3_INTEGER);
                 $insert->bindValue(':status', $status, SQLITE3_TEXT);
                 $insert->bindValue(':raw_status', $rawStatus, SQLITE3_TEXT);
                 $insert->bindValue(':source', $source, SQLITE3_TEXT);
                 $insert->bindValue(':tid', $storedTid, $storedTid === null ? SQLITE3_NULL : SQLITE3_TEXT);
+                $insert->bindValue(
+                    ':tid_parameter',
+                    $storedTidParameter,
+                    $storedTidParameter === null ? SQLITE3_NULL : SQLITE3_TEXT
+                );
                 $insert->bindValue(':payout', $payout, SQLITE3_FLOAT);
                 $insert->bindValue(':currency', $currency, SQLITE3_TEXT);
                 $insert->bindValue(':initial', $initial ? 1 : 0, SQLITE3_INTEGER);
@@ -1748,76 +2147,230 @@ class Db
         return $this->exec_update_query($updateQuery, [$paramsJson => SQLITE3_TEXT, $clickId => SQLITE3_INTEGER]);
     }
 
-    public function add_click_event(string $clickid, string $eventName, float $eventValue): bool
-    {
-        if ($clickid === '' || !preg_match('/^[a-z0-9_]+$/', $eventName) || !is_finite($eventValue)) {
-            return false;
+    public function save_step_event(
+        string $clickid,
+        int $stepIndex,
+        string $variant,
+        string $eventName,
+        int $elapsedMilliseconds
+    ): string {
+        if (
+            $clickid === ''
+            || $stepIndex < 0
+            || $variant === ''
+            || preg_match(self::EVENT_NAME_PATTERN, $eventName) !== 1
+            || $elapsedMilliseconds < 0
+            || $elapsedMilliseconds > self::MAX_EVENT_ELAPSED_MS
+        ) {
+            return self::STEP_EVENT_STORAGE_ERROR;
         }
 
-        $db = $this->open_db();
-        try {
-            $db->exec('BEGIN IMMEDIATE');
+        return $this->write_step_event_value(
+            $clickid,
+            $stepIndex,
+            $variant,
+            $eventName,
+            $elapsedMilliseconds,
+            null
+        );
+    }
 
-            $clickStmt = $db->prepare('SELECT id, step, events FROM clicks WHERE clickid = :clickid ORDER BY time DESC LIMIT 1');
-            if ($clickStmt === false) {
-                throw new Exception('Failed to prepare click lookup: ' . $db->lastErrorMsg());
-            }
-            $clickStmt->bindValue(':clickid', $clickid, SQLITE3_TEXT);
-            $clickRow = $clickStmt->execute()?->fetchArray(SQLITE3_ASSOC) ?: null;
-            if (!is_array($clickRow)) {
-                throw new Exception('Click not found for clickid ' . $clickid);
-            }
+    /** @param array<string, int|float> $performance */
+    public function save_step_performance(
+        string $clickid,
+        int $stepIndex,
+        string $variant,
+        array $performance
+    ): string {
+        $performance = self::normalize_step_performance($performance);
+        if ($clickid === '' || $stepIndex < 0 || $variant === '' || $performance === null) {
+            return self::STEP_EVENT_STORAGE_ERROR;
+        }
 
-            $events = [];
-            if (!empty($clickRow['events'])) {
-                $decoded = json_decode((string)$clickRow['events'], true);
-                if (is_array($decoded)) {
-                    $events = $decoded;
+        return $this->write_step_event_value(
+            $clickid,
+            $stepIndex,
+            $variant,
+            null,
+            null,
+            $performance
+        );
+    }
+
+    /** @return array<string, int|float>|null */
+    private static function normalize_step_performance(array $performance): ?array
+    {
+        if ($performance === [] || count($performance) > count(self::PERFORMANCE_METRICS)) {
+            return null;
+        }
+
+        $normalized = [];
+        foreach (self::PERFORMANCE_METRICS as $metric) {
+            if (!array_key_exists($metric, $performance)) {
+                continue;
+            }
+            $value = $performance[$metric];
+            if ((!is_int($value) && !is_float($value)) || !is_finite((float)$value)) {
+                return null;
+            }
+            if ($metric === 'cls') {
+                $value = round((float)$value, 4);
+                if ($value < 0 || $value > 100) {
+                    return null;
                 }
+                $normalized[$metric] = $value;
+                continue;
             }
-            $events[$eventName] = round(((float)($events[$eventName] ?? 0)) + $eventValue, 6);
-            $eventsJson = json_encode($events);
-            if ($eventsJson === false) {
-                throw new Exception('Failed to encode events JSON');
+            $value = (int)round((float)$value);
+            if ($value < 0 || $value > self::MAX_PERFORMANCE_TIMING_MS) {
+                return null;
+            }
+            $normalized[$metric] = $value;
+        }
+
+        return count($normalized) === count($performance) ? $normalized : null;
+    }
+
+    /**
+     * Ordinary values and the performance packet are written directly by
+     * SQLite JSON functions. The WHERE condition makes every key immutable
+     * after its first successful write, including concurrent retries.
+     *
+     * @param array<string, int|float>|null $performance
+     */
+    private function write_step_event_value(
+        string $clickid,
+        int $stepIndex,
+        string $variant,
+        ?string $eventName,
+        ?int $elapsedMilliseconds,
+        ?array $performance
+    ): string {
+        try {
+            $readDb = $this->open_db(true);
+            $targetStmt = $readDb->prepare(
+                'SELECT cs.id, cs.events, json_valid(cs.events) AS events_valid, '
+                . 'json_type(cs.events) AS events_type, cmp.settings '
+                . 'FROM click_steps cs '
+                . 'INNER JOIN clicks c ON c.clickid = cs.clickid '
+                . 'INNER JOIN campaigns cmp ON cmp.id = c.campaign_id '
+                . 'WHERE cs.clickid = :clickid AND cs.step = :step AND cs.variant = :variant '
+                . 'LIMIT 1'
+            );
+            if ($targetStmt === false) {
+                throw new RuntimeException('Failed to prepare click-step lookup: ' . $readDb->lastErrorMsg());
+            }
+            $targetStmt->bindValue(':clickid', $clickid, SQLITE3_TEXT);
+            $targetStmt->bindValue(':step', $stepIndex, SQLITE3_INTEGER);
+            $targetStmt->bindValue(':variant', $variant, SQLITE3_TEXT);
+            $targetResult = $targetStmt->execute();
+            if ($targetResult === false) {
+                throw new RuntimeException('Failed to read click-step events: ' . $readDb->lastErrorMsg());
+            }
+            $target = $targetResult->fetchArray(SQLITE3_ASSOC);
+            $targetResult->finalize();
+            $targetStmt->close();
+            if (!is_array($target)) {
+                return self::STEP_EVENT_NOT_FOUND;
+            }
+            if (
+                (int)($target['events_valid'] ?? 0) !== 1
+                || ($target['events_type'] ?? null) !== 'object'
+            ) {
+                throw new RuntimeException('Click-step events must contain a JSON object');
             }
 
-            $insertStmt = $db->prepare('INSERT INTO click_event_log (clickid, time, step_index, event_name, event_value) VALUES (:clickid, :time, :step_index, :event_name, :event_value)');
-            if ($insertStmt === false) {
-                throw new Exception('Failed to prepare event insert: ' . $db->lastErrorMsg());
+            try {
+                $storedEvents = json_decode(
+                    (string)$target['events'],
+                    true,
+                    32,
+                    JSON_THROW_ON_ERROR
+                );
+                $campaignSettings = json_decode(
+                    (string)($target['settings'] ?? ''),
+                    true,
+                    64,
+                    JSON_THROW_ON_ERROR
+                );
+            } catch (JsonException $e) {
+                throw new RuntimeException('Invalid event or campaign JSON', 0, $e);
             }
-            $insertStmt->bindValue(':clickid', $clickid, SQLITE3_TEXT);
-            $insertStmt->bindValue(':time', time(), SQLITE3_INTEGER);
-            $insertStmt->bindValue(':step_index', max(0, (int)($clickRow['step'] ?? 0)), SQLITE3_INTEGER);
-            $insertStmt->bindValue(':event_name', $eventName, SQLITE3_TEXT);
-            $insertStmt->bindValue(':event_value', $eventValue, SQLITE3_FLOAT);
-            if ($insertStmt->execute() === false) {
-                throw new Exception('Failed to insert event: ' . $db->lastErrorMsg());
+            if (!is_array($storedEvents) || !is_array($campaignSettings)) {
+                throw new RuntimeException('Event and campaign JSON must contain objects');
+            }
+            $configuredEvents = self::campaign_event_settings($campaignSettings);
+
+            if ($eventName !== null) {
+                if (!$configuredEvents->accepts($eventName)) {
+                    return self::STEP_EVENT_NOT_ALLOWED;
+                }
+                if (array_key_exists($eventName, $storedEvents)) {
+                    return self::STEP_EVENT_SAVED;
+                }
+                $writeDb = $this->open_db();
+                $jsonPath = '$.' . $eventName;
+                $updateStmt = $writeDb->prepare(
+                    'UPDATE click_steps '
+                    . 'SET events = json_set(events, :path, :value) '
+                    . 'WHERE id = :id AND json_type(events, :path) IS NULL'
+                );
+                if ($updateStmt === false) {
+                    throw new RuntimeException('Failed to prepare ordinary event write: ' . $writeDb->lastErrorMsg());
+                }
+                $updateStmt->bindValue(':path', $jsonPath, SQLITE3_TEXT);
+                $updateStmt->bindValue(':value', $elapsedMilliseconds, SQLITE3_INTEGER);
+            } else {
+                if (!$configuredEvents->performanceTrackingUse) {
+                    return self::STEP_EVENT_NOT_ALLOWED;
+                }
+                if (array_key_exists('performance', $storedEvents)) {
+                    return self::STEP_EVENT_SAVED;
+                }
+                $writeDb = $this->open_db();
+                $performanceJson = json_encode(
+                    $performance,
+                    JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
+                );
+                if ($performanceJson === false) {
+                    throw new RuntimeException('Failed to encode performance packet');
+                }
+                $updateStmt = $writeDb->prepare(
+                    "UPDATE click_steps "
+                    . "SET events = json_set(events, '$.performance', json(:value)) "
+                    . "WHERE id = :id AND json_type(events, '$.performance') IS NULL"
+                );
+                if ($updateStmt === false) {
+                    throw new RuntimeException('Failed to prepare performance write: ' . $writeDb->lastErrorMsg());
+                }
+                $updateStmt->bindValue(':value', $performanceJson, SQLITE3_TEXT);
             }
 
-            $updateStmt = $db->prepare('UPDATE clicks SET events = :events WHERE id = :id');
-            if ($updateStmt === false) {
-                throw new Exception('Failed to prepare events update: ' . $db->lastErrorMsg());
+            $updateStmt->bindValue(':id', (int)$target['id'], SQLITE3_INTEGER);
+            $updateResult = $updateStmt->execute();
+            if ($updateResult === false) {
+                throw new RuntimeException('Failed to write click-step events: ' . $writeDb->lastErrorMsg());
             }
-            $updateStmt->bindValue(':events', $eventsJson, SQLITE3_TEXT);
-            $updateStmt->bindValue(':id', (int)$clickRow['id'], SQLITE3_INTEGER);
-            if ($updateStmt->execute() === false) {
-                throw new Exception('Failed to update click events: ' . $db->lastErrorMsg());
-            }
+            $created = $writeDb->changes() === 1;
+            $updateResult->finalize();
+            $updateStmt->close();
 
-            $db->exec('COMMIT');
-            return true;
-        } catch (Exception $e) {
-            $db->exec('ROLLBACK');
-            add_log('errors', 'Failed to add click event: ' . $e->getMessage());
-            return false;
+            // A concurrent request may have won the guarded update. That is a
+            // successful idempotent retry, but only the atomic winner may
+            // trigger side effects such as an outbound S2S postback.
+            return $created ? self::STEP_EVENT_CREATED : self::STEP_EVENT_SAVED;
+        } catch (Throwable $e) {
+            add_log('errors', 'Failed to save click-step event: ' . $e->getMessage());
+            return self::STEP_EVENT_STORAGE_ERROR;
         }
     }
 
-    public function get_event_names(int $campId): array
+    private static function campaign_event_settings(array $campaignSettings): EventSettings
     {
-        $query = 'SELECT DISTINCT cel.event_name AS event_name FROM click_event_log cel INNER JOIN clicks c ON c.clickid = cel.clickid WHERE c.campaign_id = :campid ORDER BY cel.event_name';
-        $rows = $this->exec_read_query($query, [$campId => SQLITE3_INTEGER]);
-        return array_values(array_filter(array_map(fn($row) => $row['event_name'] ?? null, $rows)));
+        if (!class_exists(EventSettings::class, false)) {
+            require_once __DIR__ . '/../campaign.php';
+        }
+        return EventSettings::fromArray($campaignSettings['events'] ?? []);
     }
 
     public function get_funnel_stats(int $campId, string $flowName, string $status): array
@@ -2152,7 +2705,7 @@ class Db
         $selectClause = $selectParts === [] ? 'COALESCE(SUM(is_click), 0) AS clicks' : implode(',', $selectParts);
         $query = "WITH stats_source AS (
             SELECT c.campaign_id, c.country, c.lang, c.os, c.osver, c.brand, c.model, c.device,
-                   c.isp, c.client, c.clientver, c.flow, c.step, c.path, c.status, c.params, c.events,
+                   c.isp, c.client, c.clientver, c.flow, c.step, c.path, c.status, c.params,
                    c.unique_flags, c.clickid, c.time AS stat_time, 1 AS is_click, 0 AS is_conversion,
                    0 AS is_initial, c.cost AS click_cost, 0.0 AS conversion_payout,
                    {$clickCurrentStatus} AS metric_status, 0 AS status_occurrence,
@@ -2160,7 +2713,7 @@ class Db
             FROM clicks c
             UNION ALL
             SELECT c.campaign_id, c.country, c.lang, c.os, c.osver, c.brand, c.model, c.device,
-                   c.isp, c.client, c.clientver, c.flow, c.step, c.path, c.status, c.params, '{}' AS events,
+                   c.isp, c.client, c.clientver, c.flow, c.step, c.path, c.status, c.params,
                    NULL AS unique_flags, c.clickid, {$conversionStatTime} AS stat_time, 0 AS is_click, 1 AS is_conversion,
                    cv.is_initial, 0.0 AS click_cost, cv.payout AS conversion_payout,
                    cv.status AS metric_status, cv.status_occurrence,

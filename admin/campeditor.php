@@ -55,9 +55,17 @@ switch ($action) {
         if ($uniquenessError !== null) {
             return send_camp_result($uniquenessError, true);
         }
+        $eventError = normalize_event_input($input);
+        if ($eventError !== null) {
+            return send_camp_result($eventError, true);
+        }
         $conversionError = normalize_conversion_input($input);
         if ($conversionError !== null) {
             return send_camp_result($conversionError, true);
+        }
+        $postbackError = normalize_postback_input($input);
+        if ($postbackError !== null) {
+            return send_camp_result($postbackError, true);
         }
         if (isset($input['black']['flows']) && is_array($input['black']['flows'])) {
             foreach ($input['black']['flows'] as &$flow) {
@@ -132,70 +140,6 @@ function normalize_step_weights(array &$step): void {
         $diff--;
     }
     $step['weights'] = array_map('intval', $floored);
-}
-
-function normalize_conversion_input(array &$input): ?string
-{
-    if (!isset($input['conversions'])) {
-        return null;
-    }
-    if (!is_array($input['conversions']) || !is_array($input['conversions']['statuses'] ?? null)) {
-        return 'Invalid conversion status catalog.';
-    }
-
-    try {
-        $catalog = ConversionSettings::normalizeStatusCatalog($input['conversions']['statuses']);
-    } catch (InvalidArgumentException $e) {
-        return $e->getMessage();
-    }
-    $input['conversions']['statuses'] = $catalog['statuses'];
-    $owners = $catalog['owners'];
-
-    $dedup = &$input['conversions']['deduplication'];
-    if (!is_array($dedup ?? null)) {
-        $dedup = [];
-    }
-    $dedup['enabled'] = filter_var($dedup['enabled'] ?? true, FILTER_VALIDATE_BOOLEAN);
-    $repeatMode = strtolower(trim((string)($dedup['paid_repeat_without_tid'] ?? 'reject')));
-    $dedup['paid_repeat_without_tid'] = in_array($repeatMode, ['reject', 'upsell'], true) ? $repeatMode : 'reject';
-
-    $form = &$input['conversions']['form'];
-    if (!is_array($form ?? null)) {
-        $form = [];
-    }
-    $form['enabled'] = filter_var($form['enabled'] ?? false, FILTER_VALIDATE_BOOLEAN);
-    $form['status'] = trim((string)($form['status'] ?? 'Lead')) ?: 'Lead';
-    if (!isset($owners[strtolower($form['status'])])) {
-        return 'Form conversion status must exist in the campaign catalog.';
-    }
-    $form['status'] = $owners[strtolower($form['status'])];
-
-    $site = &$input['conversions']['site'];
-    if (!is_array($site ?? null)) {
-        $site = [];
-    }
-    $site['enabled'] = filter_var($site['enabled'] ?? false, FILTER_VALIDATE_BOOLEAN);
-
-    if (isset($input['postback']['pbkey'])) {
-        $pbkey = &$input['postback']['pbkey'];
-        if (!is_array($pbkey)) {
-            return 'Invalid pbkey settings.';
-        }
-        $pbkey['enabled'] = filter_var($pbkey['enabled'] ?? false, FILTER_VALIDATE_BOOLEAN);
-        $keys = $pbkey['keys'] ?? [];
-        if (is_string($keys)) {
-            $keys = explode(',', $keys);
-        }
-        $pbkey['keys'] = array_values(array_unique(array_filter(array_map(
-            static fn($key): string => trim((string)$key),
-            is_array($keys) ? $keys : []
-        ), static fn(string $key): bool => $key !== '')));
-        if ($pbkey['enabled'] && $pbkey['keys'] === []) {
-            return 'Add at least one pbkey before enabling protection.';
-        }
-    }
-
-    return null;
 }
 
 function mergeSettingsRecursive($current, $incoming) {

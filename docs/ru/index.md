@@ -18,6 +18,7 @@
 - [Black settings и flows](black-settings-and-flows.md)
 - [Подсчёт уникальности](uniqueness.md)
 - [Scripts](scripts.md)
+- [Events](events.md)
 - [Postbacks](postbacks.md)
 - [Статистика](statistics.md)
 - [Click views](clicks-and-views.md)

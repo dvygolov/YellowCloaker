@@ -45,7 +45,7 @@ if (count($ss->tables)>0){
     <?php include __DIR__."/statstableeditor.html" ?>
 
     <script>
-        let availableClmns = <?= json_encode(AvailableColumns::get_stats_columns_for_campaign($c, $db, $campId)) ?>;
+        let availableClmns = <?= json_encode(AvailableColumns::get_stats_columns_for_campaign($c)) ?>;
         let availableDimensions = <?= json_encode(AvailableColumns::get_columns_for_type('groupby')) ?>;
         let campaignConversionStatuses = <?= json_encode($c->conversions->statusNames(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;
     </script>

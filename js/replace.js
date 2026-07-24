@@ -1,11 +1,3 @@
-function replaceContentDeprecated(b64) {
-    var html = decodeURIComponent(escape(atob(b64)));
-    document.body.innerHTML='';
-    document.open();
-    document.write(html);
-    document.close();
-}
-
 function replaceContent(b64) {
     var html = decodeURIComponent(escape(atob(b64)));
     var tempDiv = document.createElement('div');

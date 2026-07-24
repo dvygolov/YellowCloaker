@@ -122,7 +122,6 @@ final class DatabaseMaintenanceTest extends TestCase
         $db = $this->open(true);
         self::assertSame(0, (int)$db->querySingle("SELECT COUNT(*) FROM clicks WHERE clickid LIKE 'selected-%'"));
         self::assertSame(0, (int)$db->querySingle('SELECT COUNT(*) FROM click_steps'));
-        self::assertSame(0, (int)$db->querySingle('SELECT COUNT(*) FROM click_event_log'));
         self::assertSame(1, (int)$db->querySingle("SELECT COUNT(*) FROM clicks WHERE clickid = 'arrived-later'"));
         self::assertSame(1, (int)$db->querySingle("SELECT COUNT(*) FROM clicks WHERE clickid = 'outside-range'"));
         self::assertSame(1, (int)$db->querySingle("SELECT COUNT(*) FROM clicks WHERE clickid = 'other-campaign'"));
@@ -291,12 +290,12 @@ final class DatabaseMaintenanceTest extends TestCase
     {
         $db = $this->open();
         $statement = $db->prepare(
-            'INSERT INTO click_event_log (clickid, time, step_index, event_name, event_value)
-             VALUES (:clickid, :time, 0, :event_name, 1)'
+            "UPDATE click_steps SET events = json_set(events, '$.scroll_50', :elapsed)
+             WHERE clickid = :clickid AND time = :time"
         );
         $statement->bindValue(':clickid', $clickId, SQLITE3_TEXT);
         $statement->bindValue(':time', $time, SQLITE3_INTEGER);
-        $statement->bindValue(':event_name', 'scroll_50', SQLITE3_TEXT);
+        $statement->bindValue(':elapsed', 1, SQLITE3_INTEGER);
         $statement->execute();
         $db->close();
     }

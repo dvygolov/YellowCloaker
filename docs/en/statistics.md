@@ -20,7 +20,6 @@ Campaign statistics let you:
 Custom formula columns can use:
 
 - base metrics
-- event metrics
 - derived metrics
 
 The former built-in Approval, Approval without trash, App, App(t), and related sales CR presets are not special metrics. Build the required business ratio as a formula instead. For example:
@@ -29,6 +28,22 @@ The former built-in Approval, Approval without trash, App, App(t), and related s
 - `App(t)`: `purchase/(conversion-trash)*100`
 
 Division by zero produces `0`.
+
+## Event Columns
+
+Events enabled in campaign [Events settings](events.md) appear in **Available columns** in the table editor. Event data is reported in the ordinary statistics table; use the **Flow → Step → Landing** grouping hierarchy to compare the landing pages that produced the samples.
+
+When adding an event column, choose one calculation:
+
+- **Count** — number of recorded samples
+- **Average** — arithmetic mean of the recorded values
+- **P75** — 75th percentile
+- **Min** — smallest recorded value
+- **Max** — largest recorded value
+
+**Count** is the default for scroll, visible-time, and custom events. **P75** is the default for LCP, INP, CLS, TTFB, and FCP performance measurements. Sum is deliberately unavailable because adding elapsed times or browser measurements does not produce a meaningful result.
+
+P75 uses the nearest-rank method: sort the available values from smallest to largest and take the value at position `ceil(0.75 × N)`, counting positions from one. Missing measurements are excluded. A group without values displays `0` for Count and `—` for Average, P75, Min, and Max.
 
 ## Conversion Attribution
 

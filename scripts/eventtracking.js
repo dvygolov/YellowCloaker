@@ -1,100 +1,119 @@
-(function () {
-  const eventUrl = {EVENT_API_URL_JSON};
-  const clickId = {CLICK_ID_JSON};
-  const scrollThresholds = Array.isArray({SCROLL_THRESHOLDS_JSON}) ? {SCROLL_THRESHOLDS_JSON} : [];
-  const timeThresholds = Array.isArray({TIME_THRESHOLDS_JSON}) ? {TIME_THRESHOLDS_JSON} : [];
+(function (global) {
+  'use strict';
 
-  if (!eventUrl || !clickId) {
+  if (global.__yellowTdsEventTransport) {
     return;
   }
 
-  const fired = new Set();
+  const endpoint = {EVENT_API_URL_JSON};
+  const clickId = {CLICK_ID_JSON};
+  const stepIndex = {STEP_INDEX_JSON};
+  const variant = {VARIANT_JSON};
+  const trackerStart = performance.now();
+  const eventRequests = new Map();
+  let performanceRequest = null;
+  const retryDelays = [0, 250, 1000];
 
-  function sendEvent(eventName, value) {
-    if (!eventName || fired.has(eventName)) {
-      return;
-    }
-    fired.add(eventName);
-
-    const body = new URLSearchParams();
-    body.set('clickid', clickId);
-    body.set('event', eventName);
-    body.set('value', String(value));
-
-    if (navigator.sendBeacon) {
-      const blob = new Blob([body.toString()], { type: 'application/x-www-form-urlencoded;charset=UTF-8' });
-      navigator.sendBeacon(eventUrl, blob);
-      return;
-    }
-
-    fetch(eventUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
-      body: body.toString(),
-      keepalive: true,
-      credentials: 'same-origin'
-    }).catch(function () {});
+  function wait(delay) {
+    return new Promise(function (resolve) {
+      window.setTimeout(resolve, delay);
+    });
   }
 
-  function setupScrollTracking() {
-    if (!scrollThresholds.length) {
-      return;
-    }
+  function post(payload) {
+    const body = JSON.stringify(payload);
 
-    const uniqueThresholds = Array.from(new Set(scrollThresholds.map(Number).filter(function (n) {
-      return Number.isFinite(n) && n > 0;
-    }))).sort(function (a, b) { return a - b; });
-
-    function checkScroll() {
-      const doc = document.documentElement;
-      const body = document.body;
-      const scrollTop = window.scrollY || doc.scrollTop || body.scrollTop || 0;
-      const viewportHeight = window.innerHeight || doc.clientHeight || 0;
-      const documentHeight = Math.max(
-        body.scrollHeight || 0,
-        doc.scrollHeight || 0,
-        body.offsetHeight || 0,
-        doc.offsetHeight || 0,
-        doc.clientHeight || 0
-      );
-      const maxScrollable = Math.max(documentHeight - viewportHeight, 1);
-      const percent = ((scrollTop + viewportHeight) / (maxScrollable + viewportHeight)) * 100;
-
-      uniqueThresholds.forEach(function (threshold) {
-        if (percent >= threshold) {
-          sendEvent('scroll_' + threshold, 1);
+    function attempt(attemptIndex) {
+      return Promise.resolve().then(function () {
+        return fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'text/plain;charset=UTF-8'
+          },
+          body: body,
+          mode: 'cors',
+          credentials: 'omit',
+          keepalive: true
+        });
+      }).then(function (response) {
+        if (response.ok) {
+          return response;
         }
+
+        const error = new Error(
+          'YellowTDS event request failed with HTTP ' + response.status
+        );
+        const retryable = response.status === 429
+          || (response.status >= 500 && response.status <= 599);
+        if (retryable && attemptIndex + 1 < retryDelays.length) {
+          return wait(retryDelays[attemptIndex + 1]).then(function () {
+            return attempt(attemptIndex + 1);
+          });
+        }
+        throw error;
+      }, function (error) {
+        if (attemptIndex + 1 < retryDelays.length) {
+          return wait(retryDelays[attemptIndex + 1]).then(function () {
+            return attempt(attemptIndex + 1);
+          });
+        }
+        throw error;
       });
     }
 
-    window.addEventListener('scroll', checkScroll, { passive: true });
-    window.addEventListener('resize', checkScroll);
-    checkScroll();
+    return attempt(0);
   }
 
-  function setupTimeTracking() {
-    if (!timeThresholds.length) {
-      return;
+  function sendEvent(eventName) {
+    if (
+      typeof eventName !== 'string'
+      || !/^[a-z][a-z0-9_]{0,63}$/.test(eventName)
+      || eventName === 'performance'
+      || eventName.indexOf('performance_') === 0
+    ) {
+      return Promise.reject(new TypeError('Invalid YellowTDS event name'));
     }
 
-    const uniqueThresholds = Array.from(new Set(timeThresholds.map(Number).filter(function (n) {
-      return Number.isFinite(n) && n > 0;
-    }))).sort(function (a, b) { return a - b; });
-    let visibleSeconds = 0;
+    if (eventRequests.has(eventName)) {
+      return eventRequests.get(eventName);
+    }
 
-    window.setInterval(function () {
-      if (document.visibilityState === 'hidden') {
-        return;
+    const request = post({
+      clickid: clickId,
+      step_index: stepIndex,
+      variant: variant,
+      event: eventName,
+      value: Math.max(0, Math.round(performance.now() - trackerStart))
+    }).catch(function (error) {
+      eventRequests.delete(eventName);
+      throw error;
+    });
+    eventRequests.set(eventName, request);
+    return request;
+  }
+
+  function sendPerformance(metrics) {
+    if (performanceRequest) {
+      return performanceRequest;
+    }
+
+    const request = post({
+      clickid: clickId,
+      step_index: stepIndex,
+      variant: variant,
+      performance: metrics
+    }).catch(function (error) {
+      if (performanceRequest === request) {
+        performanceRequest = null;
       }
-      visibleSeconds += 1;
-      uniqueThresholds.forEach(function (threshold) {
-        if (visibleSeconds >= threshold) {
-          sendEvent('stay_' + threshold + 's', 1);
-        }
-      });
-    }, 1000);
+      throw error;
+    });
+    performanceRequest = request;
+    return request;
   }
 
-  setupScrollTracking();
-  setupTimeTracking();
-})();
+  global.__yellowTdsEventTransport = Object.freeze({
+    sendEvent: sendEvent,
+    sendPerformance: sendPerformance
+  });
+})(window);

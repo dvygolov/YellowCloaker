@@ -40,16 +40,6 @@ function get_userid(): string
     return isset($_COOKIE['userid']) && is_string($_COOKIE['userid']) ? $_COOKIE['userid'] : '';
 }
 
-function set_userid(): string
-{
-    $uid = get_userid();
-    if (empty($uid)) {
-        $uid = generate_userid();
-    }
-    set_userid_cookie($uid);
-    return $uid;
-}
-
 function generate_userid(): string
 {
     return rtrim(strtr(base64_encode(random_bytes(16)), '+/', '-_'), '=');

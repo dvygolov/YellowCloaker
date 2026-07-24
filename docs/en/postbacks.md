@@ -21,8 +21,8 @@ Send a request to `api/postback.php` with:
 - `status` — required internal name or alias;
 - `payout` — optional non-negative number, default `0`;
 - `currency` — optional three-letter code, default `USD`;
-- `tid` — optional transaction identifier;
-- `pbkey` — required only when pbkey protection is enabled for the campaign.
+- `tid` — optional transaction identifier; this is the default parameter name and can be changed or extended in **Conversions → Transaction ID parameters**;
+- `pbkey` — required only when campaign **Key protection** is enabled.
 
 Example:
 
@@ -30,15 +30,19 @@ Example:
 /api/postback.php?clickid={sub1}&status={status}&payout={payout}&currency=USD&tid={transaction_id}&pbkey=secret
 ```
 
+**Transaction ID parameters** accepts up to 32 comma-separated names, for example `tid, order_id, transaction_id`. Names contain ASCII letters, numbers, underscores or hyphens, start with a letter or underscore, and cannot replace the core `clickid`, `status`, `payout`, `currency`, or `pbkey` fields. Each name is a separate deduplication namespace, so `order_id=123` and `transaction_id=123` can represent transactions from different affiliate programs.
+
+Send at most one non-empty configured transaction ID parameter in a postback. Empty configured values are ignored; multiple non-empty names, array values, control characters, or a parameter duplicated between the query string and POST body are rejected. GET and form POST are supported explicitly; cookies are never read as postback parameters.
+
 The first accepted status is the clickid's initial conversion. Later status changes are stored in history but do not increase the base **Conversions** metric. `clicks.status` is the latest accepted status and `clicks.payout` is cumulative revenue. The raw incoming status is retained in history for diagnostics.
 
-Unknown statuses are rejected and written to the warning log. If pbkey protection is enabled, any rejected postback is returned as a generic `404 Not Found` unless Debug Mode is enabled. Without pbkey protection, YellowTDS always returns the actual JSON result.
+Unknown statuses are rejected and written to the warning log. When **Key protection** is enabled, any rejected postback is returned as a generic `404 Not Found` unless Debug Mode is enabled. Without Key protection, YellowTDS always returns the actual JSON result.
 
 ## Duplicate Transactions and Paid Repeats
 
-When Transaction ID deduplication is enabled, every reused `tid` is rejected. A paid repeat of the current status requires a new `tid`; status or payout correction by reusing a prior `tid` is not supported. A repeat of the current status without payout is always rejected.
+When Transaction ID deduplication is enabled, a transaction ID can be used only once within the configured parameter that received it. A paid repeat of the current status requires a new transaction ID in that namespace; status or payout correction by reusing a prior ID is not supported. A repeat of the current status without payout is always rejected.
 
-When deduplication is disabled, **Paid repeat without tid** controls a paid repeat of the current status:
+When deduplication is disabled, **Paid repeat without transaction ID** controls a paid repeat of the current status:
 
 - **Reject duplicate** — reject it; this is the default.
 - **Accept as upsell** — append another history row and add its payout.
@@ -56,4 +60,23 @@ ytdsConversion('Reg').then(console.log).catch(console.error);
 
 ## Outgoing S2S Postbacks
 
-The event checklist is generated from the campaign catalog. `{status}` in the outgoing URL is replaced with the normalized internal status. Each accepted history row, including an accepted paid repeat, can trigger its selected S2S events.
+Each S2S rule in **Postbacks** has a URL, a `GET` or `POST` method, and two independent searchable fields: **Conversion statuses** and **Events**. Selected values appear as chips and can be found by typing, added, or removed without changing the rest of the rule.
+
+- **Conversion statuses** contains internal statuses from the Conversions catalog. For a conversion, `{status}` in the URL is replaced with that normalized internal status.
+- **Events** contains only enabled browser events: configured `scroll_*` and `stay_*` thresholds plus allowed custom events. Performance/RUM metrics are not S2S events and do not appear in this field.
+
+The selections use **OR** semantics: a rule runs when any selected conversion status **or** any selected event occurs. A rule with both fields empty does not run. Each accepted history row, including an accepted paid repeat, can trigger a selected conversion status.
+
+A browser-event delivery can happen only once for a `clickid + step + event` combination. Repeated scroll crossings, visible-time threshold hits, or custom-event calls do not create another S2S delivery for that same combination.
+
+### Macros
+
+Conversion-triggered S2S URLs support `{clickid}`, `{userid}`, `{domain}`, `{status}`, and click-parameter `c.*` macros where configured in the URL. `{status}` is replaced with the normalized internal status name.
+
+Browser-event-triggered S2S URLs support `{clickid}`, `{userid}`, `{domain}`, `c.*`, plus `{event}`, `{event_value}`, `{step_index}`, `{variant}`, and `{trigger_type}`. `{status}` belongs only to conversion-triggered delivery.
+
+### Delivery and Event Trust
+
+Browser-event-triggered S2S is sent in fire-and-forget mode: YellowTDS writes the HTTP request to a write-only socket and does not wait for the partner's HTTP response. These deliveries have no queue, retries, or delivery guarantee; an unavailable server, network error, or a partner response after the write is not retried automatically. Conversion-status S2S remains an ordinary confirmed delivery. Use event-triggered S2S for best-effort notifications, not as the only confirmation of a financial conversion.
+
+Browser events originate on the visitor's page and are untrusted engagement signals. Do not treat them as protected proof of payment, fraud prevention, or a server-side status; select them for S2S only where this best-effort meaning is acceptable.

@@ -105,21 +105,25 @@
       "use": false,
       "rules": []
     },
-    "events": {
-      "scroll": {
-        "use": false,
-        "thresholds": [
-          50
-        ]
-      },
-      "time": {
-        "use": false,
-        "thresholds": [
-          60
-        ]
-      }
-    },
     "imageslazyload": false
+  },
+  "events": {
+    "scroll": {
+      "use": false,
+      "thresholds": [
+        50
+      ]
+    },
+    "time": {
+      "use": false,
+      "thresholds": [
+        60
+      ]
+    },
+    "performance": {
+      "use": false
+    },
+    "custom": []
   },
   "statistics": {
     "timezone": "Europe/Moscow",
@@ -421,6 +425,7 @@
     ],
     "deduplication": {
       "enabled": true,
+      "transaction_id_parameters": ["tid"],
       "paid_repeat_without_tid": "reject"
     },
     "form": {
@@ -440,9 +445,10 @@
       {
         "url": "https://eu.roerads.com/conversion/aid/45141/ed52562686164ba2?click_id={hash:clickid}",
         "method": "GET",
-        "events": [
+        "statuses": [
           "Purchase"
-        ]
+        ],
+        "events": []
       }
     ]
   }

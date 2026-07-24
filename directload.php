@@ -157,13 +157,14 @@ function dl_handle_black_step_route(string $reqPath, array $mimeTypes): bool
         dl_not_found('Flow or step not found');
     }
 
-    $path = $click['path'] ?? [];
-    if (!is_array($path) || !isset($path[$stepIndex])) {
-        dl_not_found('Path is invalid');
-    }
-
     $step = $flow->steps[$stepIndex];
-    $variant = $path[$stepIndex];
+    $variant = $db->get_click_step_variant($clickid, $stepIndex);
+    if ($variant === null) {
+        dl_not_found('Recorded step not found');
+    }
+    if (!in_array($variant, $step->getItems(), true)) {
+        dl_not_found('Recorded variant is no longer available');
+    }
     if ($step->isRedirect()) {
         $url = $step->getRedirectUrlByLabel($variant);
         redirect($url, $step->redirectType, true);

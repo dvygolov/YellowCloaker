@@ -18,6 +18,7 @@ This is the main product, admin, and runtime documentation for YellowTDS.
 - [Black Settings and Flows](black-settings-and-flows.md)
 - [Uniqueness Counting](uniqueness.md)
 - [Scripts](scripts.md)
+- [Events](events.md)
 - [Postbacks](postbacks.md)
 - [Statistics](statistics.md)
 - [Clicks and Views](clicks-and-views.md)

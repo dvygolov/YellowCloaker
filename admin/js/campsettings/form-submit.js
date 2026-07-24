@@ -119,6 +119,13 @@ document.getElementById("campsettings")?.addEventListener("submit", async (e) =>
         return false;
     }
 
+    if (typeof window.normalizeEventThresholdInputs === 'function') {
+        window.normalizeEventThresholdInputs();
+    }
+    if (typeof window.normalizeTransactionIdParametersInput === 'function') {
+        window.normalizeTransactionIdParametersInput();
+    }
+
     let rules = $('#filtersbuilder').queryBuilder('getRules');
     let flowsJson = window.collectFlowsData ? window.collectFlowsData() : '[]';
     let whiteData = window.collectWhiteData ? window.collectWhiteData() : { folders: [], loadmode: {} };
@@ -133,6 +140,10 @@ document.getElementById("campsettings")?.addEventListener("submit", async (e) =>
         }
     }
     payload = compactArrays(payload);
+    payload.events = payload.events || {};
+    payload.events.custom = Array.from(
+        document.querySelectorAll('#custom-event-list .custom-event-name')
+    ).map((input) => input.value.trim());
     payload.white = payload.white || {};
     payload.black = payload.black || {};
     payload.scripts = payload.scripts || {};

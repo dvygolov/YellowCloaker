@@ -5,7 +5,17 @@ require_once __DIR__ . '/../paths.php';
 
 global $db, $cloSettings;
 
-$clickid = trim((string)($_REQUEST['clickid'] ?? ''));
+$query = is_array($_GET) ? $_GET : [];
+$body = is_array($_POST) ? $_POST : [];
+$clickidInput = PostbackInput::readString($query, $body, 'clickid', 255);
+if (!($clickidInput['ok'] ?? false)) {
+    postback_response(null, [
+        'accepted' => false,
+        'code' => (string)($clickidInput['code'] ?? 'invalid_parameter'),
+        'message' => (string)($clickidInput['message'] ?? 'Invalid clickid.'),
+    ], 400);
+}
+$clickid = trim((string)($clickidInput['value'] ?? ''));
 if ($clickid === '') {
     postback_response(null, ['accepted' => false, 'code' => 'missing_clickid', 'message' => 'No clickid found.'], 400);
 }
@@ -16,22 +26,53 @@ if ($click === []) {
 }
 
 $campaign = new Campaign((int)$click['campaign_id'], $db->get_campaign_settings((int)$click['campaign_id']));
+$pbkeyInput = PostbackInput::readString($query, $body, 'pbkey', 255);
+if (!($pbkeyInput['ok'] ?? false)) {
+    postback_response($campaign, [
+        'accepted' => false,
+        'code' => (string)($pbkeyInput['code'] ?? 'invalid_parameter'),
+        'message' => (string)($pbkeyInput['message'] ?? 'Invalid pbkey.'),
+    ], 400);
+}
 if ($campaign->postback->pbkeyEnabled) {
-    $providedPbkey = trim((string)($_REQUEST['pbkey'] ?? ''));
+    $providedPbkey = trim((string)($pbkeyInput['value'] ?? ''));
     if ($providedPbkey === '' || !in_array($providedPbkey, $campaign->postback->pbkeys, true)) {
         postback_response($campaign, ['accepted' => false, 'code' => 'invalid_pbkey', 'message' => 'Invalid pbkey.'], 403);
     }
+}
+
+$statusInput = PostbackInput::readString($query, $body, 'status', 255);
+$payoutInput = PostbackInput::readString($query, $body, 'payout', 128);
+$currencyInput = PostbackInput::readString($query, $body, 'currency', 16);
+foreach ([$statusInput, $payoutInput, $currencyInput] as $input) {
+    if (!($input['ok'] ?? false)) {
+        postback_response($campaign, [
+            'accepted' => false,
+            'code' => (string)($input['code'] ?? 'invalid_parameter'),
+            'message' => (string)($input['message'] ?? 'Invalid postback parameter.'),
+        ], 400);
+    }
+}
+
+$transactionId = $campaign->conversions->resolveTransactionIdFromRequest($query, $body);
+if (!($transactionId['ok'] ?? false)) {
+    postback_response($campaign, [
+        'accepted' => false,
+        'code' => (string)($transactionId['code'] ?? 'invalid_tid'),
+        'message' => (string)($transactionId['message'] ?? 'Invalid transaction ID.'),
+    ], 400);
 }
 
 $service = new ConversionService($db);
 $result = $service->record(
     $campaign,
     $clickid,
-    (string)($_REQUEST['status'] ?? ''),
+    (string)($statusInput['value'] ?? ''),
     'postback',
-    array_key_exists('payout', $_REQUEST) ? $_REQUEST['payout'] : null,
-    (string)($_REQUEST['currency'] ?? 'USD'),
-    isset($_REQUEST['tid']) ? (string)$_REQUEST['tid'] : null
+    $payoutInput['value'],
+    (string)($currencyInput['value'] ?? 'USD'),
+    $transactionId['tid'],
+    $transactionId['parameter']
 );
 
 $statusCode = match ($result['code'] ?? '') {

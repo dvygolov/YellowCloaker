@@ -14,6 +14,7 @@ class Campaign implements JsonSerializable
     public WhiteSettings $white;
     public BlackSettings $black;
     public ScriptsSettings $scripts;
+    public EventSettings $events;
     public ConversionSettings $conversions;
     public PostbackSettings $postback;
     public StatisticsSettings $statistics;
@@ -31,6 +32,7 @@ class Campaign implements JsonSerializable
         $this->black = BlackSettings::fromArray($s['black']);
 
         $this->scripts = ScriptsSettings::fromArray($s['scripts']);
+        $this->events = EventSettings::fromArray($s['events'] ?? []);
         $this->conversions = ConversionSettings::fromArray($s['conversions'] ?? []);
         $this->postback = PostbackSettings::fromArray($s['postback']);
         $this->statistics = StatisticsSettings::fromArray($s['statistics']);
@@ -49,6 +51,7 @@ class Campaign implements JsonSerializable
             "conversions" => $this->conversions,
             "postback" => $this->postback,
             "scripts" => $this->scripts,
+            "events" => $this->events,
             "uniqueness" => $this->uniqueness
         ];
     }
@@ -236,11 +239,6 @@ class FlowSettings implements JsonSerializable
     {
         return count($this->steps) > 1;
     }
-
-    public function lastStep(): ?StepSettings
-    {
-        return empty($this->steps) ? null : end($this->steps);
-    }
 }
 
 class StepSettings implements JsonSerializable
@@ -303,12 +301,6 @@ class StepSettings implements JsonSerializable
         return !empty($this->redirectUrls) ? $this->redirectUrls[0]['url'] : '';
     }
 
-    public static function generateRedirectLabel(string $url): string
-    {
-        $host = parse_url($url, PHP_URL_HOST);
-        return $host ? preg_replace('/^www\./', '', $host) : 'redirect';
-    }
-
     public function jsonSerialize(): array
     {
         return [
@@ -368,6 +360,165 @@ class JsBotDetection implements JsonSerializable
     }
 }
 
+class EventSettings implements JsonSerializable
+{
+    public const EVENT_NAME_PATTERN = '/^[a-z][a-z0-9_]{0,63}$/';
+    public const MAX_THRESHOLDS = 32;
+    public const MAX_CUSTOM_EVENTS = 64;
+
+    public bool $scrollTrackingUse;
+    /** @var list<int> */
+    public array $scrollTrackingThresholds;
+    public bool $timeTrackingUse;
+    /** @var list<int> */
+    public array $timeTrackingThresholds;
+    public bool $performanceTrackingUse;
+    /** @var list<string> */
+    public array $customEventNames;
+
+    public static function fromArray(mixed $settings): EventSettings
+    {
+        $settings = is_array($settings) ? $settings : [];
+        $scroll = is_array($settings['scroll'] ?? null) ? $settings['scroll'] : [];
+        $time = is_array($settings['time'] ?? null) ? $settings['time'] : [];
+        $performance = is_array($settings['performance'] ?? null) ? $settings['performance'] : [];
+        $events = new EventSettings();
+        $events->scrollTrackingUse = self::toBool($scroll['use'] ?? false);
+        $events->scrollTrackingThresholds = self::normalizeThresholds(
+            $scroll['thresholds'] ?? [50],
+            100
+        );
+        $events->timeTrackingUse = self::toBool($time['use'] ?? false);
+        $events->timeTrackingThresholds = self::normalizeThresholds(
+            $time['thresholds'] ?? [60],
+            86400
+        );
+        $events->performanceTrackingUse = self::toBool($performance['use'] ?? false);
+        $events->customEventNames = self::normalizeCustomEventNames($settings['custom'] ?? []);
+        return $events;
+    }
+
+    /** @return list<string> */
+    public function getConfiguredEventNames(): array
+    {
+        $names = [];
+        if ($this->scrollTrackingUse) {
+            foreach ($this->scrollTrackingThresholds as $threshold) {
+                $names['scroll_' . $threshold] = true;
+            }
+        }
+        if ($this->timeTrackingUse) {
+            foreach ($this->timeTrackingThresholds as $threshold) {
+                $names['stay_' . $threshold . 's'] = true;
+            }
+        }
+        foreach ($this->customEventNames as $name) {
+            $names[$name] = true;
+        }
+        return array_keys($names);
+    }
+
+    public function accepts(string $name): bool
+    {
+        return in_array($name, $this->getConfiguredEventNames(), true);
+    }
+
+    public static function isReservedEventName(string $name): bool
+    {
+        return $name === 'performance'
+            || str_starts_with($name, 'performance_')
+            || preg_match('/^scroll_\d+$/', $name) === 1
+            || preg_match('/^stay_\d+s$/', $name) === 1;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'scroll' => [
+                'use' => $this->scrollTrackingUse,
+                'thresholds' => $this->scrollTrackingThresholds,
+            ],
+            'time' => [
+                'use' => $this->timeTrackingUse,
+                'thresholds' => $this->timeTrackingThresholds,
+            ],
+            'performance' => [
+                'use' => $this->performanceTrackingUse,
+            ],
+            'custom' => $this->customEventNames,
+        ];
+    }
+
+    private static function toBool(mixed $value): bool
+    {
+        if (is_bool($value)) {
+            return $value;
+        }
+        if (is_string($value)) {
+            return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+        }
+        return (bool)$value;
+    }
+
+    /** @return list<int> */
+    private static function normalizeThresholds(mixed $thresholds, int $maximum): array
+    {
+        if (is_string($thresholds)) {
+            $thresholds = array_map('trim', explode(',', $thresholds));
+        }
+        if (!is_array($thresholds)) {
+            return [];
+        }
+
+        $normalized = [];
+        foreach ($thresholds as $threshold) {
+            if (!is_numeric($threshold)) {
+                continue;
+            }
+            $threshold = (int)$threshold;
+            if ($threshold <= 0 || $threshold > $maximum) {
+                continue;
+            }
+            $normalized[$threshold] = $threshold;
+            if (count($normalized) >= self::MAX_THRESHOLDS) {
+                break;
+            }
+        }
+        ksort($normalized);
+        return array_values($normalized);
+    }
+
+    /** @return list<string> */
+    private static function normalizeCustomEventNames(mixed $names): array
+    {
+        if (is_string($names)) {
+            $names = preg_split('/[\s,]+/', $names) ?: [];
+        }
+        if (!is_array($names)) {
+            return [];
+        }
+
+        $normalized = [];
+        foreach ($names as $name) {
+            if (!is_string($name)) {
+                continue;
+            }
+            $name = trim($name);
+            if (
+                preg_match(self::EVENT_NAME_PATTERN, $name) !== 1
+                || self::isReservedEventName($name)
+            ) {
+                continue;
+            }
+            $normalized[$name] = $name;
+            if (count($normalized) >= self::MAX_CUSTOM_EVENTS) {
+                break;
+            }
+        }
+        return array_values($normalized);
+    }
+}
+
 class ScriptsSettings implements JsonSerializable
 {
     public bool $backfix;
@@ -376,10 +527,6 @@ class ScriptsSettings implements JsonSerializable
     public array $nextRedirectRules;
     public bool $submitRedirectUse;
     public array $submitRedirectRules;
-    public bool $scrollTrackingUse;
-    public array $scrollTrackingThresholds;
-    public bool $timeTrackingUse;
-    public array $timeTrackingThresholds;
     public bool $imagesLazyLoad;
 
     public static function fromArray($arr): ScriptsSettings
@@ -391,10 +538,6 @@ class ScriptsSettings implements JsonSerializable
         $ss->nextRedirectRules = self::normalizeRedirectRules($arr['nextredirect']['rules'] ?? []);
         $ss->submitRedirectUse = self::toBool($arr['submitredirect']['use'] ?? false);
         $ss->submitRedirectRules = self::normalizeRedirectRules($arr['submitredirect']['rules'] ?? []);
-        $ss->scrollTrackingUse = self::toBool($arr['events']['scroll']['use'] ?? false);
-        $ss->scrollTrackingThresholds = self::normalizeThresholds($arr['events']['scroll']['thresholds'] ?? [50]);
-        $ss->timeTrackingUse = self::toBool($arr['events']['time']['use'] ?? false);
-        $ss->timeTrackingThresholds = self::normalizeThresholds($arr['events']['time']['thresholds'] ?? [60]);
         $ss->imagesLazyLoad = self::toBool($arr['imageslazyload'] ?? false);
         return $ss;
     }
@@ -445,31 +588,6 @@ class ScriptsSettings implements JsonSerializable
         }
 
         return $normalized;
-    }
-
-    private static function normalizeThresholds($thresholds): array
-    {
-        if (is_string($thresholds)) {
-            $thresholds = array_map('trim', explode(',', $thresholds));
-        }
-        if (!is_array($thresholds)) {
-            return [];
-        }
-
-        $normalized = [];
-        foreach ($thresholds as $threshold) {
-            if (!is_numeric($threshold)) {
-                continue;
-            }
-            $threshold = (int)$threshold;
-            if ($threshold <= 0) {
-                continue;
-            }
-            $normalized[$threshold] = $threshold;
-        }
-
-        ksort($normalized);
-        return array_values($normalized);
     }
 
     private static function normalizeRuleSteps($steps): array|string
@@ -523,22 +641,6 @@ class ScriptsSettings implements JsonSerializable
         return $this->findRedirectRule($this->submitRedirectUse, $this->submitRedirectRules, $flowName, $stepIndex);
     }
 
-    public function getConfiguredEventMetricFields(): array
-    {
-        $fields = [];
-        if ($this->scrollTrackingUse) {
-            foreach ($this->scrollTrackingThresholds as $threshold) {
-                $fields[] = 'event.scroll_' . $threshold;
-            }
-        }
-        if ($this->timeTrackingUse) {
-            foreach ($this->timeTrackingThresholds as $threshold) {
-                $fields[] = 'event.stay_' . $threshold . 's';
-            }
-        }
-        return $fields;
-    }
-
     private function findRedirectRule(bool $enabled, array $rules, string $flowName, int $stepIndex): ?array
     {
         if (!$enabled) {
@@ -575,16 +677,6 @@ class ScriptsSettings implements JsonSerializable
                     "use" => $this->submitRedirectUse,
                     "rules" => $this->submitRedirectRules
                 ],
-                "events" => [
-                    "scroll" => [
-                        "use" => $this->scrollTrackingUse,
-                        "thresholds" => $this->scrollTrackingThresholds
-                    ],
-                    "time" => [
-                        "use" => $this->timeTrackingUse,
-                        "thresholds" => $this->timeTrackingThresholds
-                    ]
-                ],
                 "imageslazyload" => $this->imagesLazyLoad
             ]
         ];
@@ -617,9 +709,17 @@ class ConversionStatus implements JsonSerializable
 
 class ConversionSettings implements JsonSerializable
 {
+    public const MAX_TRANSACTION_ID_PARAMETERS = 32;
+    public const MAX_TRANSACTION_ID_PARAMETER_INPUT_LENGTH = 2110;
+    public const MAX_TRANSACTION_ID_VALUE_BYTES = 255;
+    public const TRANSACTION_ID_PARAMETER_PATTERN = '/^[A-Za-z_][A-Za-z0-9_-]{0,63}$/';
+    private const RESERVED_POSTBACK_PARAMETERS = ['clickid', 'status', 'payout', 'currency', 'pbkey'];
+
     /** @var ConversionStatus[] */
     public array $statuses = [];
     public bool $tidDeduplicationEnabled = true;
+    /** @var string[] */
+    public array $transactionIdParameters = ['tid'];
     public string $paidRepeatWithoutTid = 'reject';
     public bool $formEnabled = false;
     public string $formStatus = 'Lead';
@@ -649,6 +749,13 @@ class ConversionSettings implements JsonSerializable
 
         $dedup = is_array($arr['deduplication'] ?? null) ? $arr['deduplication'] : [];
         $settings->tidDeduplicationEnabled = self::toBool($dedup['enabled'] ?? true);
+        if (array_key_exists('transaction_id_parameters', $dedup)) {
+            $settings->transactionIdParameters = self::normalizeTransactionIdParameters(
+                $dedup['transaction_id_parameters']
+            );
+        } else {
+            $settings->transactionIdParameters = ['tid'];
+        }
         $repeatMode = strtolower(trim((string)($dedup['paid_repeat_without_tid'] ?? 'reject')));
         $settings->paidRepeatWithoutTid = in_array($repeatMode, ['reject', 'upsell'], true) ? $repeatMode : 'reject';
 
@@ -736,6 +843,100 @@ class ConversionSettings implements JsonSerializable
         return ['statuses' => $normalized, 'owners' => $owners];
     }
 
+    /** @return string[] */
+    public static function normalizeTransactionIdParameters(mixed $rawParameters): array
+    {
+        if (is_string($rawParameters)) {
+            $rawParameters = explode(',', $rawParameters);
+        }
+        if (!is_array($rawParameters)) {
+            throw new InvalidArgumentException('Transaction ID postback parameters must be a comma-separated list.');
+        }
+
+        $parameters = [];
+        foreach ($rawParameters as $rawParameter) {
+            if (!is_string($rawParameter)) {
+                throw new InvalidArgumentException('Transaction ID postback parameter names must be strings.');
+            }
+            $parameter = trim($rawParameter);
+            if ($parameter === '') {
+                continue;
+            }
+            if (preg_match(self::TRANSACTION_ID_PARAMETER_PATTERN, $parameter) !== 1) {
+                throw new InvalidArgumentException(
+                    'Transaction ID postback parameters may contain up to 64 letters, numbers, underscores or hyphens and must start with a letter or underscore.'
+                );
+            }
+            if (in_array(strtolower($parameter), self::RESERVED_POSTBACK_PARAMETERS, true)) {
+                throw new InvalidArgumentException("Postback parameter '{$parameter}' is reserved.");
+            }
+            $parameterKey = strtolower($parameter);
+            if (!isset($parameters[$parameterKey])) {
+                $parameters[$parameterKey] = $parameter;
+            }
+        }
+
+        if ($parameters === []) {
+            throw new InvalidArgumentException('Add at least one transaction ID postback parameter.');
+        }
+        if (count($parameters) > self::MAX_TRANSACTION_ID_PARAMETERS) {
+            throw new InvalidArgumentException(
+                'A campaign supports at most ' . self::MAX_TRANSACTION_ID_PARAMETERS
+                . ' transaction ID postback parameters.'
+            );
+        }
+
+        return array_values($parameters);
+    }
+
+    /**
+     * @return array{ok:true,tid:?string,parameter:?string}
+     *     | array{ok:false,code:string,message:string}
+     */
+    public function resolveTransactionIdFromRequest(array $query, array $body = []): array
+    {
+        $values = [];
+        foreach ($this->transactionIdParameters as $parameter) {
+            $resolved = PostbackInput::readString(
+                $query,
+                $body,
+                $parameter,
+                self::MAX_TRANSACTION_ID_VALUE_BYTES
+            );
+            if (!($resolved['ok'] ?? false)) {
+                return [
+                    'ok' => false,
+                    'code' => ($resolved['code'] ?? '') === 'ambiguous_parameter'
+                        ? 'ambiguous_tid'
+                        : 'invalid_tid',
+                    'message' => (string)($resolved['message'] ?? 'Invalid transaction ID.'),
+                ];
+            }
+            $value = $resolved['value'];
+            if ($value === null || trim($value) === '') {
+                continue;
+            }
+            $values[$parameter] = trim($value);
+        }
+
+        if ($values === []) {
+            return ['ok' => true, 'tid' => null, 'parameter' => null];
+        }
+        if (count($values) > 1) {
+            return [
+                'ok' => false,
+                'code' => 'ambiguous_tid',
+                'message' => 'Send exactly one configured transaction ID parameter per postback.',
+            ];
+        }
+
+        return [
+            'ok' => true,
+            'tid' => reset($values),
+            'parameter' => array_key_first($values),
+        ];
+    }
+
     public function resolveStatus(string $incoming): ?string
     {
         $needle = strtolower(trim($incoming));
@@ -766,6 +967,7 @@ class ConversionSettings implements JsonSerializable
             'statuses' => $this->statuses,
             'deduplication' => [
                 'enabled' => $this->tidDeduplicationEnabled,
+                'transaction_id_parameters' => $this->transactionIdParameters,
                 'paid_repeat_without_tid' => $this->paidRepeatWithoutTid,
             ],
             'form' => ['enabled' => $this->formEnabled, 'status' => $this->formStatus],
@@ -779,18 +981,72 @@ class ConversionSettings implements JsonSerializable
     }
 }
 
+final class PostbackInput
+{
+    /**
+     * @return array{ok:true,value:?string}
+     *     | array{ok:false,code:string,message:string}
+     */
+    public static function readString(
+        array $query,
+        array $body,
+        string $parameter,
+        int $maximumBytes = 4096
+    ): array {
+        $inQuery = array_key_exists($parameter, $query);
+        $inBody = array_key_exists($parameter, $body);
+        if ($inQuery && $inBody) {
+            return [
+                'ok' => false,
+                'code' => 'ambiguous_parameter',
+                'message' => "Parameter '{$parameter}' must not be sent in both the query string and request body.",
+            ];
+        }
+        if (!$inQuery && !$inBody) {
+            return ['ok' => true, 'value' => null];
+        }
+
+        $value = $inQuery ? $query[$parameter] : $body[$parameter];
+        if ($value === null) {
+            return ['ok' => true, 'value' => null];
+        }
+        if (!is_string($value)) {
+            return [
+                'ok' => false,
+                'code' => 'invalid_parameter',
+                'message' => "Parameter '{$parameter}' must contain one string value.",
+            ];
+        }
+        if (strlen($value) > $maximumBytes || preg_match('/[\x00-\x1F\x7F]/', $value) === 1) {
+            return [
+                'ok' => false,
+                'code' => 'invalid_parameter',
+                'message' => "Parameter '{$parameter}' contains an invalid value.",
+            ];
+        }
+
+        return ['ok' => true, 'value' => $value];
+    }
+}
+
 class PostbackSettings implements JsonSerializable
 {
+    public const MAX_S2S_POSTBACKS = 5;
+    public const MAX_S2S_URL_LENGTH = 8192;
+
+    /** @var list<S2sPostback> */
     public array $s2sPostbacks;
     public bool $pbkeyEnabled = false;
+    /** @var list<string> */
     public array $pbkeys = [];
 
-    public static function fromArray($arr): PostbackSettings
+    public static function fromArray(mixed $arr): PostbackSettings
     {
         $ps = new PostbackSettings();
+        $arr = is_array($arr) ? $arr : [];
 
         $ps->s2sPostbacks = [];
-        foreach (($arr['s2s'] ?? []) as $s2s) {
+        foreach (is_array($arr['s2s'] ?? null) ? $arr['s2s'] : [] as $s2s) {
             $ps->s2sPostbacks[] = S2sPostback::fromArray($s2s);
         }
         $pbkey = is_array($arr['pbkey'] ?? null) ? $arr['pbkey'] : [];
@@ -811,10 +1067,8 @@ class PostbackSettings implements JsonSerializable
     public function jsonSerialize(): array
     {
         return [
-            "postback" => [
-                "pbkey" => ["enabled" => $this->pbkeyEnabled, "keys" => $this->pbkeys],
-                "s2s" => $this->s2sPostbacks
-            ]
+            'pbkey' => ['enabled' => $this->pbkeyEnabled, 'keys' => $this->pbkeys],
+            's2s' => $this->s2sPostbacks,
         ];
     }
 }
@@ -823,29 +1077,63 @@ class S2sPostback implements JsonSerializable
 {
     public string $url;
     public string $method;
+    /** @var list<string> */
+    public array $statuses;
+    /** @var list<string> */
     public array $events;
 
-    public function __construct($url, $method, $events)
+    /**
+     * @param list<string> $statuses
+     * @param list<string> $events
+     */
+    public function __construct(string $url, string $method, array $statuses, array $events)
     {
         $this->url = $url;
         $this->method = $method;
+        $this->statuses = $statuses;
         $this->events = $events;
     }
 
-    public static function fromArray($arr): S2sPostback
+    public static function fromArray(mixed $arr): S2sPostback
     {
-        return new S2sPostback($arr['url'], $arr['method'], $arr['events']);
+        $arr = is_array($arr) ? $arr : [];
+        return new S2sPostback(
+            trim((string)($arr['url'] ?? '')),
+            strtoupper(trim((string)($arr['method'] ?? 'GET'))),
+            self::normalizeStringList($arr['statuses'] ?? []),
+            self::normalizeStringList($arr['events'] ?? [])
+        );
     }
 
     public function jsonSerialize(): array
     {
         return [
-            "url" => $this->url,
-            "method" => $this->method,
-            "events" => $this->events
+            'url' => $this->url,
+            'method' => $this->method,
+            'statuses' => $this->statuses,
+            'events' => $this->events,
         ];
     }
 
+    /** @return list<string> */
+    private static function normalizeStringList(mixed $values): array
+    {
+        if (!is_array($values)) {
+            return [];
+        }
+
+        $normalized = [];
+        foreach ($values as $value) {
+            if (!is_string($value)) {
+                continue;
+            }
+            $value = trim($value);
+            if ($value !== '' && !isset($normalized[$value])) {
+                $normalized[$value] = $value;
+            }
+        }
+        return array_values($normalized);
+    }
 }
 
 class StatisticsSettings implements JsonSerializable

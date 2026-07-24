@@ -4,6 +4,12 @@ require_once __DIR__ . '/clmns.php';
 
 class Tabulator
 {
+    private static function exact_total_bottom_calc(string $field): string
+    {
+        $escapedField = addcslashes($field, "'\\");
+        return 'FSTARTfunction(values,data){var holder=(data||[]).find(function(row){return row&&row._stats_totals;});var totals=(holder&&holder._stats_totals)||{};if(!Object.prototype.hasOwnProperty.call(totals,\'' . $escapedField . '\'))return 0;return totals[\'' . $escapedField . '\']===null?\'—\':totals[\'' . $escapedField . '\'];}FEND';
+    }
+
     private static function custom_metric_formatter(array $column): array
     {
         $format = $column['format'] ?? 'number';
@@ -63,7 +69,7 @@ class Tabulator
         ];
     }
 
-    private static function build_custom_metric_column(array $column): array
+    private static function build_custom_metric_column(array $column, bool $useExactTotals): array
     {
         $field = $column['field'];
         $title = $column['title'] ?? $field;
@@ -73,13 +79,15 @@ class Tabulator
             'field' => $field,
             'sorter' => 'number',
             'hozAlign' => 'right',
-            'bottomCalc' => 'FSTARTfunction(values,data){var totals=(data&&data[0]&&data[0]._stats_totals)||{};var result=((totals[\'' . $escapedField . '\'] ?? 0) * 1);return isFinite(result)?result:0;}FEND',
+            'bottomCalc' => $useExactTotals
+                ? 'FSTARTfunction(values,data){var holder=(data||[]).find(function(row){return row&&row._stats_totals;});var totals=(holder&&holder._stats_totals)||{};var result=((totals[\'' . $escapedField . '\'] ?? 0) * 1);return isFinite(result)?result:0;}FEND'
+                : 'sum',
         ];
 
         return array_merge($tabulatorColumn, self::custom_metric_formatter($column));
     }
 
-    private static function build_status_metric_column(array $column): array
+    private static function build_status_metric_column(array $column, bool $useExactTotals): array
     {
         $calculation = $column['calculation'] ?? 'current';
         $tooltip = match ($calculation) {
@@ -94,11 +102,63 @@ class Tabulator
             'headerTooltip' => $tooltip,
             'sorter' => 'number',
             'hozAlign' => 'right',
-            'bottomCalc' => 'sum',
+            'bottomCalc' => $useExactTotals
+                ? self::exact_total_bottom_calc((string)$column['field'])
+                : 'sum',
         ];
     }
 
-    public static function get_stats_columns(array $columns, ?string $groupByClmnTitle = null, array $groupByFields = []): string
+    private static function build_event_metric_column(array $column, bool $useExactTotals): array
+    {
+        $field = (string)$column['field'];
+        $title = (string)($column['title'] ?? $field);
+        $parts = explode('.', $field);
+        $isPerformance = ($parts[0] ?? '') === 'performance';
+        $metric = $parts[1] ?? '';
+        $aggregation = $parts[2] ?? 'count';
+        if ($aggregation === 'count') {
+            $decimals = 0;
+        } elseif ($isPerformance && $metric === 'cls') {
+            $decimals = 4;
+        } elseif ($aggregation === 'avg') {
+            $decimals = 2;
+        } else {
+            $decimals = 0;
+        }
+
+        $descriptions = [
+            'ttfb' => 'Time to First Byte.',
+            'fcp' => 'First Contentful Paint.',
+            'lcp' => 'Largest Contentful Paint.',
+            'inp' => 'Interaction to Next Paint. Missing when no measurable interaction occurred.',
+            'cls' => 'Cumulative Layout Shift. Zero is a valid value.',
+        ];
+        $tooltip = $isPerformance
+            ? (($descriptions[$metric] ?? strtoupper($metric)) . ' Aggregation: ' . strtoupper($aggregation) . '.')
+            : ('Elapsed time from tracker start for ' . str_replace('_', ' ', $metric) . '. Aggregation: ' . strtoupper($aggregation) . '.');
+
+        $escapedField = addcslashes($field, "'\\");
+        $formatter = "FSTARTfunction(cell){var v=cell.getValue();if(v===null||v===undefined||v===''){return '—';}var n=Number(v);if(!isFinite(n)){return '—';}return n.toLocaleString(undefined,{minimumFractionDigits:" . $decimals . ',maximumFractionDigits:' . $decimals . '});}FEND';
+        $bottomCalc = $useExactTotals ? self::exact_total_bottom_calc($field) : 'sum';
+
+        return [
+            'title' => $title,
+            'field' => $field,
+            'headerTooltip' => $tooltip,
+            'sorter' => 'number',
+            'hozAlign' => 'right',
+            'formatter' => $formatter,
+            'bottomCalc' => $bottomCalc,
+            'bottomCalcFormatter' => $formatter,
+        ];
+    }
+
+    public static function get_stats_columns(
+        array $columns,
+        ?string $groupByClmnTitle = null,
+        array $groupByFields = [],
+        bool $useExactTotals = true
+    ): string
     {
         $columns = Db::normalize_stats_columns_config($columns);
         $columnSettings = TableColumns::$statsClmns;
@@ -118,20 +178,17 @@ class Tabulator
                 continue;
             $width = $columns[$i]['width'] ?? -1;
             if (array_key_exists($field, $columnSettings)) {
-                $tabulatorColumns[] = $columnSettings[$field];
+                $tabulatorColumn = $columnSettings[$field];
+                if ($useExactTotals && $field !== 'group') {
+                    $tabulatorColumn['bottomCalc'] = self::exact_total_bottom_calc($field);
+                }
+                $tabulatorColumns[] = $tabulatorColumn;
             } elseif (!empty($columns[$i]['custom'])) {
-                $tabulatorColumns[] = self::build_custom_metric_column($columns[$i]);
+                $tabulatorColumns[] = self::build_custom_metric_column($columns[$i], $useExactTotals);
             } elseif (!empty($columns[$i]['status_metric'])) {
-                $tabulatorColumns[] = self::build_status_metric_column($columns[$i]);
-            } elseif (str_starts_with($field, 'event.')) {
-                $title = $columns[$i]['title'] ?? ucwords(str_replace('_', ' ', substr($field, 6)));
-                $tabulatorColumns[] = [
-                    'title' => $title,
-                    'field' => $field,
-                    'sorter' => 'number',
-                    'hozAlign' => 'right',
-                    'bottomCalc' => 'sum',
-                ];
+                $tabulatorColumns[] = self::build_status_metric_column($columns[$i], $useExactTotals);
+            } elseif (preg_match('/^(?:event\.[a-z][a-z0-9_]{0,63}|performance\.(?:ttfb|fcp|lcp|inp|cls))\.(?:count|avg|p75|min|max)$/', $field) === 1) {
+                $tabulatorColumns[] = self::build_event_metric_column($columns[$i], $useExactTotals);
             } else {
                 $tabulatorColumns[] = ["title" => $field, "field" => $field];
             }
@@ -252,7 +309,7 @@ class Tabulator
 JSON;
 
         $filteredColumns = array_values(array_filter($columns, fn($c) => !in_array($c['field'] ?? '', ['name', 'actions'])));
-        $statColumns = Tabulator::get_stats_columns($filteredColumns);
+        $statColumns = Tabulator::get_stats_columns($filteredColumns, null, [], false);
         $defaultClmns .= substr($statColumns, 1);
         return $defaultClmns;
     }

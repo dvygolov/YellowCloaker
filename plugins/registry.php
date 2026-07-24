@@ -24,12 +24,6 @@ final class PluginRegistry
         return self::$plugins['vpn'];
     }
 
-    /** @return array<string, BaseProxyVpnPlugin> */
-    public static function proxyVpnPlugins(): array
-    {
-        return self::vpnPlugins();
-    }
-
     /**
      * @return array{
      *   currency: array<string, array{id: string, class: string, file: string}>,

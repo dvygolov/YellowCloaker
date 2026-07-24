@@ -182,7 +182,15 @@ function load_step(Campaign $c, FlowSettings $flow, int $stepIndex, string $fold
         $html = add_images_lazy_load($html);
     }
 
-    $html = add_event_tracking($html, $c->scripts, $clickid);
+    if ($relativePath === '') {
+        $html = add_event_tracking(
+            $html,
+            $c->events,
+            $clickid,
+            $stepIndex,
+            $folderName
+        );
+    }
     $html = add_conversion_tracking($html, $c->conversions, $clickid);
 
     return $html;
@@ -204,27 +212,113 @@ function add_conversion_tracking(string $html, ConversionSettings $settings, str
     );
 }
 
-function add_event_tracking(string $html, ScriptsSettings $scripts, string $clickid): string
+function is_js_connect_request(): bool
 {
-    if (!$scripts->scrollTrackingUse && !$scripts->timeTrackingUse) {
+    $scriptName = str_replace('\\', '/', (string)($_SERVER['SCRIPT_NAME'] ?? ''));
+    return preg_match('#(?:^|/)js/index\.php$#', $scriptName) === 1;
+}
+
+function inject_event_script(
+    string $html,
+    string $scriptName,
+    ?array $search = null,
+    ?array $replacement = null
+): string {
+    $content = file_get_contents(__DIR__ . '/scripts/' . $scriptName);
+    if (!is_string($content) || $content === '') {
+        return $html;
+    }
+    if ($search !== null && $replacement !== null) {
+        $content = str_replace($search, $replacement, $content);
+    }
+    $script = '<script>' . $content . '</script>';
+
+    $bodyMatches = preg_match_all('/<\/body\s*>/i', $html, $matches, PREG_OFFSET_CAPTURE);
+    if (is_int($bodyMatches) && $bodyMatches > 0) {
+        $closingBody = end($matches[0]);
+        return substr_replace($html, $script, (int)$closingBody[1], 0);
+    }
+    $htmlMatches = preg_match_all('/<\/html\s*>/i', $html, $matches, PREG_OFFSET_CAPTURE);
+    if (is_int($htmlMatches) && $htmlMatches > 0) {
+        $closingHtml = end($matches[0]);
+        return substr_replace($html, $script, (int)$closingHtml[1], 0);
+    }
+    return $html . $script;
+}
+
+function add_event_tracking(
+    string $html,
+    EventSettings $events,
+    string $clickid,
+    int $stepIndex,
+    string $variant
+): string {
+    $scrollEnabled = $events->scrollTrackingUse && $events->scrollTrackingThresholds !== [];
+    $timeEnabled = $events->timeTrackingUse && $events->timeTrackingThresholds !== [];
+    $customEnabled = $events->customEventNames !== [];
+    $performanceEnabled = $events->performanceTrackingUse && !is_js_connect_request();
+
+    if (!$scrollEnabled && !$timeEnabled && !$customEnabled && !$performanceEnabled) {
         return $html;
     }
 
-    $eventApiUrl = get_tds_relative_path() . 'api/events.php';
-    return insert_file_content(
+    $eventApiUrl = rtrim(get_tds_path(true, true), '/') . '/api/events.php';
+    $html = inject_event_script(
         $html,
         'eventtracking.js',
-        '</body>',
-        true,
-        true,
-        ['{EVENT_API_URL_JSON}', '{CLICK_ID_JSON}', '{SCROLL_THRESHOLDS_JSON}', '{TIME_THRESHOLDS_JSON}'],
+        [
+            '{EVENT_API_URL_JSON}',
+            '{CLICK_ID_JSON}',
+            '{STEP_INDEX_JSON}',
+            '{VARIANT_JSON}',
+        ],
         [
             json_encode($eventApiUrl),
             json_encode($clickid),
-            json_encode($scripts->scrollTrackingUse ? $scripts->scrollTrackingThresholds : []),
-            json_encode($scripts->timeTrackingUse ? $scripts->timeTrackingThresholds : []),
+            json_encode($stepIndex),
+            json_encode($variant),
         ]
     );
+
+    if ($scrollEnabled) {
+        $html = inject_event_script(
+            $html,
+            'scrolltracking.js',
+            ['{SCROLL_THRESHOLDS_JSON}'],
+            [json_encode($events->scrollTrackingThresholds)]
+        );
+    }
+
+    if ($timeEnabled) {
+        $html = inject_event_script(
+            $html,
+            'visibletimetracking.js',
+            ['{TIME_THRESHOLDS_JSON}'],
+            [json_encode($events->timeTrackingThresholds)]
+        );
+    }
+
+    if ($customEnabled) {
+        $html = inject_event_script(
+            $html,
+            'customeventtracking.js',
+            ['{CUSTOM_EVENTS_JSON}'],
+            [json_encode($events->customEventNames)]
+        );
+    }
+
+    if ($performanceEnabled) {
+        $html = inject_event_script(
+            $html,
+            'vendor/web-vitals-5.3.0/web-vitals.iife.js'
+        );
+        $html = inject_event_script(
+            $html,
+            'performancetracking.js'
+        );
+    }
+
+    return $html;
 }
 
 function fix_head_add_base($html, $fullpath)

@@ -24,12 +24,6 @@ class DebugMethods
         header($header_name.": " . $time_elapsed_secs . " sec.");
     }
 
-    public static function set_header(string $header_name, string $value): void
-    {
-        if (!self::on()) return;
-        header($header_name.": " . $value);
-    }
-
     public static function display_errors(): void
     {
         ini_set('display_errors', '1');

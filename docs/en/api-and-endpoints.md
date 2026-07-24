@@ -13,7 +13,7 @@
 
 ## Conversion Endpoints
 
-`api/postback.php` accepts `clickid`, `status`, optional `payout`, `currency`, `tid`, and campaign `pbkey`. It returns a structured JSON result unless pbkey protection masks a rejected request as `404 Not Found`. See [Conversions and Postbacks](postbacks.md).
+`api/postback.php` accepts `clickid`, `status`, optional `payout`, `currency`, a campaign-configured transaction ID parameter, and campaign `pbkey`. The default transaction ID name is `tid`; campaigns can allow several names for different affiliate programs. Send only one non-empty configured name per request. Query and form fields are read explicitly, while cookies and a field duplicated between GET and POST are rejected or ignored as described in [Conversions and Postbacks](postbacks.md). The endpoint returns a structured JSON result unless pbkey protection masks a rejected request as `404 Not Found`.
 
 `api/conversion.php` is a same-origin POST endpoint used by the injected `ytdsConversion(status)` helper. Website status tracking must be enabled in the campaign. It accepts only the current `clickid` and an internal status name or alias; payout is not exposed to the browser.
 

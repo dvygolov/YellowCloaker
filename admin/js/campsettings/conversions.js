@@ -40,11 +40,11 @@ function addConversionStatusRow() {
     row.innerHTML = `
         <div class="conversion-status-identity">
             <div class="conversion-status-name"><input type="text" class="form-control conversion-status-name-input" name="conversions.statuses[${index}][name]" placeholder="Status name" required maxlength="64"></div>
-            <span class="conversion-status-kind">New status</span>
+            <span class="conversion-status-kind">Custom</span>
         </div>
         <label class="visually-hidden" for="conversion-status-aliases-${index}">Incoming aliases</label>
         <input id="conversion-status-aliases-${index}" type="text" class="form-control conversion-status-aliases" name="conversions.statuses[${index}][aliases]" placeholder="alias, another_alias">
-        <div class="conversion-status-action"><button type="button" class="btn btn-sm remove-conversion-status" title="Remove new status" aria-label="Remove new status"><i class="bi bi-x-lg"></i></button></div>`;
+        <div class="conversion-status-action"><button type="button" class="btn btn-sm remove-conversion-status" title="Delete custom status" aria-label="Delete custom status"><i class="bi bi-trash" aria-hidden="true"></i></button></div>`;
     document.getElementById('conversion-status-rows')?.appendChild(row);
     row.querySelector('.conversion-status-name-input')?.focus();
 }
@@ -82,12 +82,53 @@ document.getElementById('conversion-status-rows')?.addEventListener('input', (ev
 });
 
 const tidDedupToggle = document.getElementById('conversion-tid-dedup-toggle');
+const tidParametersInput = document.getElementById('conversion-tid-parameters');
+const postbackUrlExample = document.getElementById('postback-url-example');
+const paidRepeatSelect = document.getElementById('conversion-repeat-mode');
+const paidRepeatValue = document.getElementById('conversion-repeat-mode-value');
+
+function getTransactionIdParameterNames() {
+    if (!tidParametersInput) return [];
+    const seen = new Set();
+    return tidParametersInput.value
+        .split(',')
+        .map((name) => name.trim())
+        .filter((name) => {
+            const key = name.toLowerCase();
+            if (name === '' || seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+}
+
+function syncPostbackUrlExample() {
+    if (!postbackUrlExample) return;
+    const firstParameter = getTransactionIdParameterNames()[0] || 'tid';
+    const validParameter = /^[A-Za-z_][A-Za-z0-9_-]{0,63}$/.test(firstParameter)
+        ? firstParameter
+        : 'tid';
+    postbackUrlExample.value = `${postbackUrlExample.dataset.urlPrefix || ''}${validParameter}={transaction_id}`;
+}
+
+function normalizeTransactionIdParametersInput() {
+    if (!tidParametersInput) return;
+    tidParametersInput.value = getTransactionIdParameterNames().join(', ');
+    syncPostbackUrlExample();
+}
+
+window.normalizeTransactionIdParametersInput = normalizeTransactionIdParametersInput;
+tidParametersInput?.addEventListener('blur', normalizeTransactionIdParametersInput);
+tidParametersInput?.addEventListener('input', syncPostbackUrlExample);
+
 function syncPaidRepeatControl() {
-    const select = document.querySelector('[name="conversions.deduplication.paid_repeat_without_tid"]');
-    if (select) select.disabled = tidDedupToggle?.checked === true;
+    if (paidRepeatSelect) paidRepeatSelect.disabled = tidDedupToggle?.checked === true;
 }
 tidDedupToggle?.addEventListener('change', syncPaidRepeatControl);
+paidRepeatSelect?.addEventListener('change', () => {
+    if (paidRepeatValue) paidRepeatValue.value = paidRepeatSelect.value;
+});
 syncPaidRepeatControl();
+syncPostbackUrlExample();
 
 document.getElementById('copy-conversion-snippet')?.addEventListener('click', async () => {
     const snippet = document.getElementById('conversion-site-snippet')?.textContent || "ytdsConversion('Reg');";

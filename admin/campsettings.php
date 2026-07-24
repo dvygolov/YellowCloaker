@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/securitycheck.php';
 require_once __DIR__ . '/campinit.php';
+require_once __DIR__ . '/timezones.php';
 require_once __DIR__ . '/../paths.php';
 require_once __DIR__ . '/../abtest.php';
 global $c, $db, $campId;
@@ -29,17 +30,17 @@ global $c, $db, $campId;
                     ><i class="bi bi-pencil-fill" aria-hidden="true"></i></button>
                 </div>
                 <ul>
-                    <li><a href="#sec-domains" class="active">Domains</a></li>
+                    <li><a href="#sec-domains" class="active"><i class="bi bi-globe2 campaign-nav-icon" aria-hidden="true"></i>Domains</a></li>
                     <li class="safepage-nav-root nav-tree-parent">
                         <button type="button" class="campaign-nav-toggle" data-tree-toggle="safe-pages" aria-expanded="true" aria-label="Collapse domain-specific safe pages" title="Collapse domain-specific safe pages"><i class="bi bi-dash-square" aria-hidden="true"></i></button>
-                        <a href="#sec-safepage">Safe Page</a>
+                        <a href="#sec-safepage"><i class="bi bi-shield-check campaign-nav-icon" aria-hidden="true"></i>Safe Page</a>
                     </li>
                     <?php if ($c->white->domainFilterEnabled) foreach ($c->domains as $di => $domainName) { ?>
                     <li class="dws-nav-item" data-domain="<?= htmlspecialchars($domainName) ?>"><a href="#sec-dws-<?= $di ?>"><?= htmlspecialchars($domainName) ?></a></li>
                     <?php } ?>
                     <li class="flows-nav-root nav-tree-parent">
                         <button type="button" class="campaign-nav-toggle" data-tree-toggle="flows" aria-expanded="true" aria-label="Collapse flows" title="Collapse flows"><i class="bi bi-dash-square" aria-hidden="true"></i></button>
-                        <a href="#sec-flows">Flows</a>
+                        <a href="#sec-flows"><i class="bi bi-diagram-3 campaign-nav-icon" aria-hidden="true"></i>Flows</a>
                     </li>
                     <?php foreach ($c->black->flows as $fi => $flow) { ?>
                     <li class="flow-nav-item nav-tree-parent" data-flow-index="<?= $fi ?>" data-flow-key="<?= htmlspecialchars($flow->name, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
@@ -50,16 +51,21 @@ global $c, $db, $campId;
                     <li class="step-nav-item" data-flow-index="<?= $fi ?>" data-step-index="<?= $si ?>"><a href="#sec-step-<?= $fi ?>-<?= $si ?>">Step <?= $si + 1 ?></a></li>
                     <?php } ?>
                     <?php } ?>
-                    <li><a href="#sec-api">Integration</a></li>
-                    <li><a href="#sec-scripts">Scripts</a></li>
-                    <li><a href="#sec-misc">Misc</a></li>
-                    <li><a href="#sec-conversions">Conversions</a></li>
-                    <li><a href="#sec-postbacks">Postbacks</a></li>
+                    <li><a href="#sec-conversions"><i class="bi bi-bullseye campaign-nav-icon" aria-hidden="true"></i>Conversions</a></li>
+                    <li><a href="#sec-events"><i class="bi bi-activity campaign-nav-icon" aria-hidden="true"></i>Events</a></li>
+                    <li><a href="#sec-misc"><i class="bi bi-sliders campaign-nav-icon" aria-hidden="true"></i>Misc</a></li>
+                    <li><a href="#sec-postbacks"><i class="bi bi-arrow-left-right campaign-nav-icon" aria-hidden="true"></i>Postbacks</a></li>
+                    <li><a href="#sec-api"><i class="bi bi-plug campaign-nav-icon" aria-hidden="true"></i>Integration</a></li>
+                    <li><a href="#sec-scripts"><i class="bi bi-code-slash campaign-nav-icon" aria-hidden="true"></i>Scripts</a></li>
                 </ul>
             </nav>
             <div class="camp-content">
         <form id="campsettings" autocomplete="off">
             <section id="sec-domains" class="camp-section active">
+            <div class="campaign-section-heading">
+                <h3><i class="bi bi-globe2" aria-hidden="true"></i> Domains</h3>
+                <p>Add the domains that route traffic through this campaign.</p>
+            </div>
             <div class="flow-group domains-group">
                 <span class="flow-group-title">
                     <i class="bi bi-info-circle admin-info-icon" title="Add all of the campaign's domains WITHOUT HTTP(S)! You can use *.xxx.com to match ALL subdomains."></i>Domains list
@@ -81,6 +87,10 @@ global $c, $db, $campId;
             </section>
 
             <section id="sec-safepage" class="camp-section">
+            <div class="campaign-section-heading">
+                <h3><i class="bi bi-shield-check" aria-hidden="true"></i> Safe Page</h3>
+                <p>Choose which visitors see the safe page and how it is served.</p>
+            </div>
             <div class="flow-group">
             <span class="flow-group-title flow-group-title-with-help">
                 <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Traffic matching these filters will be shown the safe page. Everyone else goes to the Flows section." data-tooltip="Traffic matching these filters will be shown the safe page. Everyone else goes to the Flows section."></i>
@@ -344,6 +354,10 @@ global $c, $db, $campId;
             <?php } ?>
 
             <section id="sec-flows" class="camp-section">
+            <div class="campaign-section-heading">
+                <h3><i class="bi bi-diagram-3" aria-hidden="true"></i> Flows</h3>
+                <p>Create and prioritize the routes and funnel steps used by this campaign.</p>
+            </div>
             <div class="form-group-inner">
                 <p>Flows are processed top-to-bottom. First flow whose filters match the visitor gets the traffic. Empty filters = catch-all.</p>
                 <div id="flows-list">
@@ -653,6 +667,10 @@ global $c, $db, $campId;
             <?php } ?>
 
             <section id="sec-scripts" class="camp-section">
+            <div class="campaign-section-heading">
+                <h3><i class="bi bi-code-slash" aria-hidden="true"></i> Scripts</h3>
+                <p>Configure browser-side behavior for landing pages and funnel transitions.</p>
+            </div>
             <div class="flow-group">
             <span class="flow-group-title">Backfix</span>
             <div class="campaign-setting-row script-switch-row">
@@ -828,62 +846,6 @@ global $c, $db, $campId;
             </div>
             </div>
 
-            <div class="flow-group">
-            <span class="flow-group-title">Event Tracking</span>
-            <div class="campaign-setting-row script-switch-row">
-                <div class="campaign-setting-label">
-                    <span>Track scroll depth</span>
-                </div>
-                <input type="hidden" id="scripts-scroll-tracking-use" name="scripts.events.scroll.use" value="<?= $c->scripts->scrollTrackingUse ? 'true' : 'false' ?>" />
-                <label class="campaign-switch" for="scripts-scroll-tracking-toggle">
-                    <input type="checkbox" id="scripts-scroll-tracking-toggle" class="campaign-switch-input" data-value-target="scripts-scroll-tracking-use" data-controls="scroll_tracking_block" aria-controls="scroll_tracking_block" aria-label="Track scroll depth" <?= $c->scripts->scrollTrackingUse ? 'checked' : '' ?> />
-                    <span class="campaign-switch-track" aria-hidden="true">
-                        <span class="campaign-switch-option campaign-switch-option-off">Off</span>
-                        <span class="campaign-switch-option campaign-switch-option-on">On</span>
-                        <span class="campaign-switch-thumb"></span>
-                    </span>
-                </label>
-            </div>
-            <div id="scroll_tracking_block" class="campaign-dependent-settings script-dependent-settings" <?= $c->scripts->scrollTrackingUse ? '' : 'hidden' ?>>
-                <div class="form-group-inner">
-                    <div class="row">
-                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                            <label class="login2 pull-left pull-left-pro">Scroll thresholds, %</label>
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                            <input type="text" class="form-control" name="scripts.events.scroll.thresholds" value="<?= htmlspecialchars(implode(',', $c->scripts->scrollTrackingThresholds), ENT_QUOTES) ?>" placeholder="50,75,90" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="campaign-setting-row campaign-setting-row-separated script-switch-row">
-                <div class="campaign-setting-label">
-                    <span>Track visible time on page</span>
-                </div>
-                <input type="hidden" id="scripts-time-tracking-use" name="scripts.events.time.use" value="<?= $c->scripts->timeTrackingUse ? 'true' : 'false' ?>" />
-                <label class="campaign-switch" for="scripts-time-tracking-toggle">
-                    <input type="checkbox" id="scripts-time-tracking-toggle" class="campaign-switch-input" data-value-target="scripts-time-tracking-use" data-controls="time_tracking_block" aria-controls="time_tracking_block" aria-label="Track visible time on page" <?= $c->scripts->timeTrackingUse ? 'checked' : '' ?> />
-                    <span class="campaign-switch-track" aria-hidden="true">
-                        <span class="campaign-switch-option campaign-switch-option-off">Off</span>
-                        <span class="campaign-switch-option campaign-switch-option-on">On</span>
-                        <span class="campaign-switch-thumb"></span>
-                    </span>
-                </label>
-            </div>
-            <div id="time_tracking_block" class="campaign-dependent-settings script-dependent-settings" <?= $c->scripts->timeTrackingUse ? '' : 'hidden' ?>>
-                <div class="form-group-inner">
-                    <div class="row">
-                        <div class="col-lg-3 col-md-6 col-sm-6 col-xs-12">
-                            <label class="login2 pull-left pull-left-pro">Time thresholds, seconds</label>
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                            <input type="text" class="form-control" name="scripts.events.time.thresholds" value="<?= htmlspecialchars(implode(',', $c->scripts->timeTrackingThresholds), ENT_QUOTES) ?>" placeholder="30,60,120" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-            </div>
-
             <template id="script-rule-template-next">
                 <div class="form-group-inner script-rule-item" data-rule-kind="__KIND__">
                     <div class="row script-rule-header-row">
@@ -955,15 +917,151 @@ global $c, $db, $campId;
             </div>
             </section>
 
+            <section id="sec-events" class="camp-section">
+            <div class="campaign-section-heading">
+                <h3><i class="bi bi-activity" aria-hidden="true"></i> Events</h3>
+                <p>Choose which landing interactions and performance metrics this campaign records.</p>
+            </div>
+
+            <div class="flow-group">
+            <span class="flow-group-title">Scroll depth</span>
+            <div class="campaign-setting-row">
+                <div class="campaign-setting-label events-setting-label">
+                    <span>Track scroll depth</span>
+                    <small>Record the first time each configured percentage is reached.</small>
+                </div>
+                <input type="hidden" id="events-scroll-tracking-use" name="events.scroll.use" value="<?= $c->events->scrollTrackingUse ? 'true' : 'false' ?>" />
+                <label class="campaign-switch" for="events-scroll-tracking-toggle">
+                    <input type="checkbox" id="events-scroll-tracking-toggle" class="campaign-switch-input" data-value-target="events-scroll-tracking-use" data-controls="events-scroll-tracking-block" aria-controls="events-scroll-tracking-block" aria-label="Track scroll depth" <?= $c->events->scrollTrackingUse ? 'checked' : '' ?> />
+                    <span class="campaign-switch-track" aria-hidden="true">
+                        <span class="campaign-switch-option campaign-switch-option-off">Off</span>
+                        <span class="campaign-switch-option campaign-switch-option-on">On</span>
+                        <span class="campaign-switch-thumb"></span>
+                    </span>
+                </label>
+            </div>
+            <div id="events-scroll-tracking-block" class="campaign-dependent-settings events-dependent-settings" <?= $c->events->scrollTrackingUse ? '' : 'hidden' ?>>
+                <div class="events-field-row">
+                    <label for="events-scroll-thresholds">Scroll thresholds, %</label>
+                    <div>
+                        <input id="events-scroll-thresholds" type="text" class="form-control" name="events.scroll.thresholds" value="<?= htmlspecialchars(implode(',', $c->events->scrollTrackingThresholds), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" placeholder="50,75,90" inputmode="numeric" pattern="[0-9,]*" autocomplete="off" />
+                        <small>Up to 32 comma-separated whole numbers from 1 to 100. Example events: <code>scroll_50</code>, <code>scroll_90</code>.</small>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <div class="flow-group">
+            <span class="flow-group-title">Visible time</span>
+            <div class="campaign-setting-row">
+                <div class="campaign-setting-label events-setting-label">
+                    <span>Track visible time on page</span>
+                    <small>Count only seconds while the page is visible to the visitor.</small>
+                </div>
+                <input type="hidden" id="events-time-tracking-use" name="events.time.use" value="<?= $c->events->timeTrackingUse ? 'true' : 'false' ?>" />
+                <label class="campaign-switch" for="events-time-tracking-toggle">
+                    <input type="checkbox" id="events-time-tracking-toggle" class="campaign-switch-input" data-value-target="events-time-tracking-use" data-controls="events-time-tracking-block" aria-controls="events-time-tracking-block" aria-label="Track visible time on page" <?= $c->events->timeTrackingUse ? 'checked' : '' ?> />
+                    <span class="campaign-switch-track" aria-hidden="true">
+                        <span class="campaign-switch-option campaign-switch-option-off">Off</span>
+                        <span class="campaign-switch-option campaign-switch-option-on">On</span>
+                        <span class="campaign-switch-thumb"></span>
+                    </span>
+                </label>
+            </div>
+            <div id="events-time-tracking-block" class="campaign-dependent-settings events-dependent-settings" <?= $c->events->timeTrackingUse ? '' : 'hidden' ?>>
+                <div class="events-field-row">
+                    <label for="events-time-thresholds">Time thresholds, seconds</label>
+                    <div>
+                        <input id="events-time-thresholds" type="text" class="form-control" name="events.time.thresholds" value="<?= htmlspecialchars(implode(',', $c->events->timeTrackingThresholds), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" placeholder="30,60,120" inputmode="numeric" pattern="[0-9,]*" autocomplete="off" />
+                        <small>Up to 32 comma-separated whole numbers from 1 to 86400. Example events: <code>stay_30s</code>, <code>stay_60s</code>.</small>
+                    </div>
+                </div>
+            </div>
+            </div>
+
+            <div class="flow-group">
+            <span class="flow-group-title">Performance</span>
+            <div class="campaign-setting-row">
+                <div class="campaign-setting-label events-setting-label">
+                    <span>Measure landing performance</span>
+                    <small>Collect browser performance metrics once for every clickid + step.</small>
+                </div>
+                <input type="hidden" id="events-performance-tracking-use" name="events.performance.use" value="<?= $c->events->performanceTrackingUse ? 'true' : 'false' ?>" />
+                <label class="campaign-switch" for="events-performance-tracking-toggle">
+                    <input type="checkbox" id="events-performance-tracking-toggle" class="campaign-switch-input" data-value-target="events-performance-tracking-use" data-controls="events-performance-metrics" aria-controls="events-performance-metrics" aria-label="Measure landing performance" <?= $c->events->performanceTrackingUse ? 'checked' : '' ?> />
+                    <span class="campaign-switch-track" aria-hidden="true">
+                        <span class="campaign-switch-option campaign-switch-option-off">Off</span>
+                        <span class="campaign-switch-option campaign-switch-option-on">On</span>
+                        <span class="campaign-switch-thumb"></span>
+                    </span>
+                </label>
+            </div>
+            <div id="events-performance-metrics" class="campaign-dependent-settings events-dependent-settings" <?= $c->events->performanceTrackingUse ? '' : 'hidden' ?>>
+                <p class="events-performance-copy">YellowTDS measures real visits in the browser. Reports use P75 by default: 75% of measured visits are at or below that value.</p>
+                <div class="events-metric-grid">
+                    <article class="events-metric-card events-metric-card-core">
+                        <div><strong>LCP</strong><span>Core Web Vital</span></div>
+                        <p>Largest Contentful Paint — when the main visible content finishes rendering.</p>
+                        <small>Good: ≤ 2.5 s · Poor: &gt; 4 s</small>
+                    </article>
+                    <article class="events-metric-card events-metric-card-core">
+                        <div><strong>INP</strong><span>Core Web Vital</span></div>
+                        <p>Interaction to Next Paint — how quickly the page responds to visitor interactions.</p>
+                        <small>Good: ≤ 200 ms · Poor: &gt; 500 ms</small>
+                    </article>
+                    <article class="events-metric-card events-metric-card-core">
+                        <div><strong>CLS</strong><span>Core Web Vital</span></div>
+                        <p>Cumulative Layout Shift — how much visible content unexpectedly moves.</p>
+                        <small>Good: ≤ 0.1 · Poor: &gt; 0.25</small>
+                    </article>
+                    <article class="events-metric-card">
+                        <div><strong>TTFB</strong><span>Diagnostic</span></div>
+                        <p>Time to First Byte — how long the browser waits for the first server response byte.</p>
+                    </article>
+                    <article class="events-metric-card">
+                        <div><strong>FCP</strong><span>Diagnostic</span></div>
+                        <p>First Contentful Paint — when the first text, image, or other content appears.</p>
+                    </article>
+                </div>
+            </div>
+            </div>
+
+            <div class="flow-group">
+                <div class="events-custom-heading">
+                    <div>
+                        <span class="flow-group-title">Custom events</span>
+                        <p>Only names in this list are accepted. Add up to 64 names and call the helper when the action happens on a landing.</p>
+                    </div>
+                    <button type="button" id="add-custom-event" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg"></i> Add event</button>
+                </div>
+                <div id="custom-event-empty" class="events-empty-state" <?= $c->events->customEventNames === [] ? '' : 'hidden' ?>>No custom events configured.</div>
+                <div id="custom-event-list" class="events-custom-list">
+                    <?php foreach ($c->events->customEventNames as $eventIndex => $eventName) { ?>
+                    <div class="events-custom-row" data-custom-event-row>
+                        <div>
+                            <label class="visually-hidden" for="custom-event-name-<?= $eventIndex ?>">Custom event name</label>
+                            <input id="custom-event-name-<?= $eventIndex ?>" type="text" class="form-control custom-event-name" name="events.custom[<?= $eventIndex ?>]" value="<?= htmlspecialchars($eventName, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" placeholder="cta_click" pattern="[a-z][a-z0-9_]{0,63}" maxlength="64" required />
+                            <small>Lowercase letters, numbers and underscores; start with a letter.</small>
+                        </div>
+                        <div class="events-custom-actions">
+                            <button type="button" class="btn btn-outline-light btn-sm copy-custom-event" title="Copy landing code" aria-label="Copy code for <?= htmlspecialchars($eventName, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"><i class="bi bi-copy"></i><span>Copy</span></button>
+                            <button type="button" class="btn btn-danger campaign-icon-btn remove-custom-event" title="Delete event" aria-label="Delete <?= htmlspecialchars($eventName, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"><i class="bi bi-trash"></i></button>
+                        </div>
+                    </div>
+                    <?php } ?>
+                </div>
+            </div>
+            </section>
+
             <?php $uniqueness = $c->uniqueness; ?>
             <section id="sec-misc" class="camp-section">
+            <div class="campaign-section-heading">
+                <h3><i class="bi bi-sliders" aria-hidden="true"></i> Misc</h3>
+                <p>Configure campaign-wide uniqueness and reporting settings.</p>
+            </div>
             <div class="flow-group">
-                <span class="flow-group-title">Uniqueness counting</span>
-                <div class="campaign-setting-row">
-                    <div class="campaign-setting-label">
-                        <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Calculates campaign and flow uniqueness for every recorded flow click. Remove uniqueness rules from flows before switching this off." data-tooltip="Calculates campaign and flow uniqueness for every recorded flow click. Remove uniqueness rules from flows before switching this off."></i>
-                        <span>Uniqueness counting</span>
-                    </div>
+                <span class="flow-group-title flow-group-title-with-help"><i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Calculates campaign and flow uniqueness for every recorded flow click. Remove uniqueness rules from flows before switching this off." data-tooltip="Calculates campaign and flow uniqueness for every recorded flow click. Remove uniqueness rules from flows before switching this off."></i>Uniqueness counting</span>
+                <div class="campaign-setting-row campaign-setting-row-control-only">
                     <input type="hidden" id="uniqueness-enabled-value" name="uniqueness.enabled" value="<?= $uniqueness->enabled ? 'true' : 'false' ?>" />
                     <label class="campaign-switch" for="uniqueness-counting-toggle">
                         <input type="checkbox" id="uniqueness-counting-toggle" class="campaign-switch-input" data-value-target="uniqueness-enabled-value" data-controls="uniqueness-settings" aria-label="Enable uniqueness counting" aria-controls="uniqueness-settings" <?= $uniqueness->enabled ? 'checked' : '' ?> />
@@ -1008,11 +1106,12 @@ global $c, $db, $campId;
                         <div class="col-lg-3"><label class="login2 pull-left pull-left-pro" for="campaign-statistics-timezone">Campaign timezone:</label></div>
                         <div class="col-lg-5">
                             <select id="campaign-statistics-timezone" name="statistics.timezone" class="form-select">
+                                <?php $timezoneLabelDate = new DateTimeImmutable('now'); ?>
                                 <?php foreach (DateTimeZone::listIdentifiers() as $timezoneId) { ?>
-                                <option value="<?= htmlspecialchars($timezoneId, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" <?= $c->statistics->timezone === $timezoneId ? 'selected' : '' ?>><?= htmlspecialchars($timezoneId, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></option>
+                                <option value="<?= htmlspecialchars($timezoneId, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" <?= $c->statistics->timezone === $timezoneId ? 'selected' : '' ?>><?= htmlspecialchars(get_timezone_option_label($timezoneId, $timezoneLabelDate), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></option>
                                 <?php } ?>
                             </select>
-                            <small class="form-text text-muted">Used by campaign reports and daily conversion caps.</small>
+                            <small class="form-text campaign-setting-note">Used by campaign reports and daily conversion caps. Offsets reflect the current date.</small>
                         </div>
                     </div>
                 </div>
@@ -1020,6 +1119,10 @@ global $c, $db, $campId;
             </section>
 
             <section id="sec-conversions" class="camp-section">
+            <div class="campaign-section-heading">
+                <h3><i class="bi bi-bullseye" aria-hidden="true"></i> Conversions</h3>
+                <p>Define conversion statuses, deduplication, and on-site tracking.</p>
+            </div>
             <div class="flow-group">
                 <div class="conversion-section-heading">
                     <div>
@@ -1058,17 +1161,30 @@ global $c, $db, $campId;
             <div class="flow-group">
                 <span class="flow-group-title">Deduplication</span>
                 <div class="campaign-setting-row">
-                    <div class="campaign-setting-label"><span>Transaction ID deduplication</span><small>One <code>tid</code> is one immutable transaction. Every reused tid is rejected.</small></div>
+                    <div class="campaign-setting-label">
+                        <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="One transaction ID is one immutable transaction within each configured parameter. Reusing it through the same parameter is rejected." data-tooltip="One transaction ID is one immutable transaction within each configured parameter. Reusing it through the same parameter is rejected."></i>
+                        <span>Transaction ID deduplication</span>
+                    </div>
                     <input type="hidden" id="conversion-tid-dedup-value" name="conversions.deduplication.enabled" value="<?= $c->conversions->tidDeduplicationEnabled ? 'true' : 'false' ?>">
                     <label class="campaign-switch" for="conversion-tid-dedup-toggle">
-                        <input type="checkbox" id="conversion-tid-dedup-toggle" class="campaign-switch-input" data-value-target="conversion-tid-dedup-value" <?= $c->conversions->tidDeduplicationEnabled ? 'checked' : '' ?>>
+                        <input type="checkbox" id="conversion-tid-dedup-toggle" class="campaign-switch-input" data-value-target="conversion-tid-dedup-value" aria-label="Transaction ID deduplication" <?= $c->conversions->tidDeduplicationEnabled ? 'checked' : '' ?>>
                         <span class="campaign-switch-track" aria-hidden="true"><span class="campaign-switch-option campaign-switch-option-off">Off</span><span class="campaign-switch-option campaign-switch-option-on">On</span><span class="campaign-switch-thumb"></span></span>
                     </label>
                 </div>
-                <div class="campaign-setting-row"><div class="campaign-setting-label"><span>Postback parameter</span></div><input type="text" class="form-control conversion-compact-control" value="tid" readonly></div>
-                <div class="campaign-setting-row" id="conversion-repeat-settings">
-                    <div class="campaign-setting-label"><span>Paid repeat without tid</span><small>Used only while Transaction ID deduplication is disabled.</small></div>
-                    <select name="conversions.deduplication.paid_repeat_without_tid" class="form-select conversion-compact-control" <?= $c->conversions->tidDeduplicationEnabled ? 'disabled' : '' ?>>
+                <div class="campaign-setting-row conversion-field-row">
+                    <div class="campaign-setting-label">
+                        <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Comma-separated query or form parameter names that may carry the transaction ID. Each name has its own deduplication namespace. Send only one non-empty configured parameter per postback." data-tooltip="Comma-separated query or form parameter names that may carry the transaction ID. Each name has its own deduplication namespace. Send only one non-empty configured parameter per postback."></i>
+                        <label for="conversion-tid-parameters">Transaction ID parameters</label>
+                    </div>
+                    <input id="conversion-tid-parameters" type="text" name="conversions.deduplication.transaction_id_parameters" class="form-control conversion-compact-control conversion-tid-parameters-control" value="<?= htmlspecialchars(implode(', ', $c->conversions->transactionIdParameters), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" placeholder="tid, transaction_id, order_id" maxlength="<?= ConversionSettings::MAX_TRANSACTION_ID_PARAMETER_INPUT_LENGTH ?>" autocomplete="off" spellcheck="false" required>
+                </div>
+                <div class="campaign-setting-row conversion-field-row" id="conversion-repeat-settings">
+                    <div class="campaign-setting-label">
+                        <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Used only while Transaction ID deduplication is Off." data-tooltip="Used only while Transaction ID deduplication is Off."></i>
+                        <label for="conversion-repeat-mode">Paid repeat without transaction ID</label>
+                    </div>
+                    <input type="hidden" id="conversion-repeat-mode-value" name="conversions.deduplication.paid_repeat_without_tid" value="<?= htmlspecialchars($c->conversions->paidRepeatWithoutTid, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
+                    <select id="conversion-repeat-mode" class="form-select conversion-compact-control" <?= $c->conversions->tidDeduplicationEnabled ? 'disabled' : '' ?>>
                         <option value="reject" <?= $c->conversions->paidRepeatWithoutTid === 'reject' ? 'selected' : '' ?>>Reject duplicate</option>
                         <option value="upsell" <?= $c->conversions->paidRepeatWithoutTid === 'upsell' ? 'selected' : '' ?>>Accept as upsell</option>
                     </select>
@@ -1078,9 +1194,12 @@ global $c, $db, $campId;
             <div class="flow-group">
                 <span class="flow-group-title">Form submission</span>
                 <div class="campaign-setting-row">
-                    <div class="campaign-setting-label"><span>Create conversion after successful form submit</span><small>Creates a zero-payout record with source <code>form_submit</code>.</small></div>
+                    <div class="campaign-setting-label">
+                        <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Creates a zero-payout record with source form_submit." data-tooltip="Creates a zero-payout record with source form_submit."></i>
+                        <span>Create conversion after successful form submit</span>
+                    </div>
                     <input type="hidden" id="conversion-form-enabled-value" name="conversions.form.enabled" value="<?= $c->conversions->formEnabled ? 'true' : 'false' ?>">
-                    <label class="campaign-switch" for="conversion-form-enabled-toggle"><input type="checkbox" id="conversion-form-enabled-toggle" class="campaign-switch-input" data-value-target="conversion-form-enabled-value" data-controls="conversion-form-settings" <?= $c->conversions->formEnabled ? 'checked' : '' ?>><span class="campaign-switch-track" aria-hidden="true"><span class="campaign-switch-option campaign-switch-option-off">Off</span><span class="campaign-switch-option campaign-switch-option-on">On</span><span class="campaign-switch-thumb"></span></span></label>
+                    <label class="campaign-switch" for="conversion-form-enabled-toggle"><input type="checkbox" id="conversion-form-enabled-toggle" class="campaign-switch-input" data-value-target="conversion-form-enabled-value" data-controls="conversion-form-settings" aria-label="Create conversion after successful form submit" aria-controls="conversion-form-settings" <?= $c->conversions->formEnabled ? 'checked' : '' ?>><span class="campaign-switch-track" aria-hidden="true"><span class="campaign-switch-option campaign-switch-option-off">Off</span><span class="campaign-switch-option campaign-switch-option-on">On</span><span class="campaign-switch-thumb"></span></span></label>
                 </div>
                 <div class="campaign-setting-row" id="conversion-form-settings" <?= $c->conversions->formEnabled ? '' : 'hidden' ?>><div class="campaign-setting-label"><span>Status</span></div><select name="conversions.form.status" class="form-select conversion-compact-control conversion-status-select"><?php foreach ($c->conversions->statusNames() as $statusName) { ?><option value="<?= htmlspecialchars($statusName, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" <?= $c->conversions->formStatus === $statusName ? 'selected' : '' ?>><?= htmlspecialchars($statusName) ?></option><?php } ?></select></div>
             </div>
@@ -1088,115 +1207,128 @@ global $c, $db, $campId;
             <div class="flow-group">
                 <span class="flow-group-title">Website status tracking</span>
                 <div class="campaign-setting-row">
-                    <div class="campaign-setting-label"><span>Site tracking endpoint</span><small>Accepts internal names and aliases using the current clickid. Payout is not accepted.</small></div>
+                    <div class="campaign-setting-label">
+                        <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Accepts internal names and aliases using the current clickid. Payout is not accepted." data-tooltip="Accepts internal names and aliases using the current clickid. Payout is not accepted."></i>
+                        <span>Site tracking endpoint</span>
+                    </div>
                     <input type="hidden" id="conversion-site-enabled-value" name="conversions.site.enabled" value="<?= $c->conversions->siteEnabled ? 'true' : 'false' ?>">
-                    <label class="campaign-switch" for="conversion-site-enabled-toggle"><input type="checkbox" id="conversion-site-enabled-toggle" class="campaign-switch-input" data-value-target="conversion-site-enabled-value" <?= $c->conversions->siteEnabled ? 'checked' : '' ?>><span class="campaign-switch-track" aria-hidden="true"><span class="campaign-switch-option campaign-switch-option-off">Off</span><span class="campaign-switch-option campaign-switch-option-on">On</span><span class="campaign-switch-thumb"></span></span></label>
+                    <label class="campaign-switch" for="conversion-site-enabled-toggle"><input type="checkbox" id="conversion-site-enabled-toggle" class="campaign-switch-input" data-value-target="conversion-site-enabled-value" aria-label="Enable website status tracking" <?= $c->conversions->siteEnabled ? 'checked' : '' ?>><span class="campaign-switch-track" aria-hidden="true"><span class="campaign-switch-option campaign-switch-option-off">Off</span><span class="campaign-switch-option campaign-switch-option-on">On</span><span class="campaign-switch-thumb"></span></span></label>
                 </div>
                 <div class="conversion-code-row"><code id="conversion-site-snippet">ytdsConversion('Reg');</code><button type="button" id="copy-conversion-snippet" class="btn btn-outline-light btn-sm"><i class="bi bi-copy"></i> Copy</button></div>
             </div>
             </section>
 
             <section id="sec-postbacks" class="camp-section">
+            <div class="campaign-section-heading">
+                <h3><i class="bi bi-arrow-left-right" aria-hidden="true"></i> Postbacks</h3>
+                <p>Receive conversion updates and send them to external services.</p>
+            </div>
             <div class="flow-group">
             <span class="flow-group-title">Postback</span>
             <div class="form-group-inner">
                 <div class="row">
                     <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12">
                         <label class="login2 pull-left pull-left-pro">
-                        <i class="bi bi-info-circle admin-info-icon" title="Clickid and status are required. Payout, currency, tid and pbkey are optional unless their campaign settings require them."></i>
+                        <i class="bi bi-info-circle admin-info-icon" title="Clickid and status are required. Payout, currency, the configured transaction ID parameters and pbkey are optional unless their campaign settings require them."></i>
                         Your postback URL example:
                     </label>
                     </div>
                     <div class="col-lg-7 col-md-7 col-sm-7 col-xs-12">
                         <div class="input-group custom-go-button">
                             <?php $tdsRoot = rtrim(get_tds_path(), '/'); ?>
-                            <input type="text" readonly class="form-control" value="<?= $tdsRoot ?>/api/postback.php?clickid={sub1}&amp;status={status}&amp;payout={payout}&amp;currency=USD&amp;tid={transaction_id}"/>
+                            <?php $primaryTransactionIdParameter = $c->conversions->transactionIdParameters[0] ?? 'tid'; ?>
+                            <?php $postbackUrlPrefix = $tdsRoot . '/api/postback.php?clickid={sub1}&status={status}&payout={payout}&currency=USD&'; ?>
+                            <input id="postback-url-example" type="text" readonly class="form-control" data-url-prefix="<?= htmlspecialchars($postbackUrlPrefix, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" value="<?= htmlspecialchars($postbackUrlPrefix . $primaryTransactionIdParameter . '={transaction_id}', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"/>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="campaign-setting-row">
-                <div class="campaign-setting-label"><span>pbkey protection</span><small>Hide rejected postbacks behind a generic 404 outside Debug Mode.</small></div>
+                <div class="campaign-setting-label">
+                    <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="When enabled, every incoming postback must include the pbkey parameter with one of the allowed values. Missing or invalid keys are rejected. Outside Debug Mode, every rejected postback is returned as a generic 404." data-tooltip="When enabled, every incoming postback must include the pbkey parameter with one of the allowed values. Missing or invalid keys are rejected. Outside Debug Mode, every rejected postback is returned as a generic 404."></i>
+                    <span>Key protection</span>
+                </div>
                 <input type="hidden" id="postback-pbkey-enabled-value" name="postback.pbkey.enabled" value="<?= $c->postback->pbkeyEnabled ? 'true' : 'false' ?>">
-                <label class="campaign-switch" for="postback-pbkey-enabled-toggle"><input type="checkbox" id="postback-pbkey-enabled-toggle" class="campaign-switch-input" data-value-target="postback-pbkey-enabled-value" data-controls="postback-pbkey-settings" <?= $c->postback->pbkeyEnabled ? 'checked' : '' ?>><span class="campaign-switch-track" aria-hidden="true"><span class="campaign-switch-option campaign-switch-option-off">Off</span><span class="campaign-switch-option campaign-switch-option-on">On</span><span class="campaign-switch-thumb"></span></span></label>
+                <label class="campaign-switch" for="postback-pbkey-enabled-toggle"><input type="checkbox" id="postback-pbkey-enabled-toggle" class="campaign-switch-input" data-value-target="postback-pbkey-enabled-value" data-controls="postback-pbkey-settings" aria-label="Enable key protection" aria-controls="postback-pbkey-settings" <?= $c->postback->pbkeyEnabled ? 'checked' : '' ?>><span class="campaign-switch-track" aria-hidden="true"><span class="campaign-switch-option campaign-switch-option-off">Off</span><span class="campaign-switch-option campaign-switch-option-on">On</span><span class="campaign-switch-thumb"></span></span></label>
             </div>
-            <div id="postback-pbkey-settings" class="campaign-setting-row" <?= $c->postback->pbkeyEnabled ? '' : 'hidden' ?>><div class="campaign-setting-label"><span>Allowed pbkey values</span><small>Separate multiple keys with commas.</small></div><input type="text" name="postback.pbkey.keys" class="form-control conversion-compact-control" value="<?= htmlspecialchars(implode(', ', $c->postback->pbkeys), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"></div>
-            </div>
-
-            <div class="flow-group">
-            <span class="flow-group-title">S2S</span>
-            <div class="form-group-inner">
-                <div class="row">
-                    <div class="col-lg-5 col-md-12 col-sm-12 col-xs-12">
-                        <label class="login2 pull-left pull-left-pro"> S2S-postbacks settings:</label>
-                        <br />
-                    </div>
+            <div id="postback-pbkey-settings" class="campaign-setting-row" <?= $c->postback->pbkeyEnabled ? '' : 'hidden' ?>>
+                <div class="campaign-setting-label">
+                    <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Comma-separated values accepted in the pbkey parameter. Matching is exact and case-sensitive; at least one value is required while Key protection is On." data-tooltip="Comma-separated values accepted in the pbkey parameter. Matching is exact and case-sensitive; at least one value is required while Key protection is On."></i>
+                    <label for="postback-pbkey-values">Allowed key values</label>
                 </div>
+                <input id="postback-pbkey-values" type="text" name="postback.pbkey.keys" class="form-control conversion-compact-control" value="<?= htmlspecialchars(implode(', ', $c->postback->pbkeys), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" autocomplete="off" spellcheck="false">
+            </div>
+            </div>
 
-                <div id="s2s_container">
-                    <?php 
-                    for ($i = 0; $i < count($c->postback->s2sPostbacks); $i++) { 
-                        $s2sUrl = $c->postback->s2sPostbacks[$i]->url;
-                        $s2sMethod = $c->postback->s2sPostbacks[$i]->method;
-                        $s2sEvents = $c->postback->s2sPostbacks[$i]->events;
-                    ?>
-                    <div class="form-group-inner s2s">
-                        <div class="row">
-                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                                <label class="login2 pull-left pull-left-pro">
-                                    <i class="bi bi-info-circle admin-info-icon" title="Inside the S2S-postback address you can use the following macros: {clickid}, {userid}, {px}, {domain}, {status}"></i>
-                                    Address:
-                                </label>
-                                <br /><br />
+            <div class="flow-group s2s-group">
+                <div class="s2s-section-heading">
+                    <div>
+                        <span class="flow-group-title">S2S</span>
+                        <p>Send outgoing postbacks for selected conversion statuses or landing events.</p>
+                    </div>
+                    <button type="button" id="add-s2s-item" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg" aria-hidden="true"></i> Add postback</button>
+                </div>
+                <div id="s2s-empty-state" class="events-empty-state">No S2S postbacks configured.</div>
+                <div id="s2s_container" class="s2s-rules"></div>
+                <template id="s2s-rule-template">
+                    <section class="s2s-rule s2s" data-s2s-rule>
+                        <div class="s2s-rule-heading">
+                            <strong data-s2s-rule-title>S2S postback</strong>
+                            <button type="button" class="btn btn-danger campaign-icon-btn remove-s2s-item" title="Delete S2S postback" aria-label="Delete S2S postback"><i class="bi bi-trash" aria-hidden="true"></i></button>
+                        </div>
+                        <div class="s2s-rule-field">
+                            <div class="s2s-rule-label">
+                                <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="The address can use standard click macros such as {clickid}, {userid}, {domain} and {status}. Event triggers also support {event}, {event_value}, {step_index}, {variant} and {trigger_type}." data-tooltip="The address can use standard click macros such as {clickid}, {userid}, {domain} and {status}. Event triggers also support {event}, {event_value}, {step_index}, {variant} and {trigger_type}."></i>
+                                <label data-s2s-url-label>Address</label>
                             </div>
-                            <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
-                                <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="https://s2s-postback.com" value="<?= $s2sUrl ?>" name="postback.s2s[<?= $i ?>][url]" />
+                            <input type="url" class="form-control s2s-url-input" data-s2s-url placeholder="https://s2s-postback.example/goal?clickid={clickid}" maxlength="<?= PostbackSettings::MAX_S2S_URL_LENGTH ?>" required>
+                        </div>
+                        <div class="s2s-rule-field">
+                            <label class="s2s-rule-label" data-s2s-method-label>Send method</label>
+                            <select class="form-select s2s-method-select" data-s2s-method>
+                                <option value="GET">GET</option>
+                                <option value="POST">POST</option>
+                            </select>
+                        </div>
+                        <div class="s2s-rule-field s2s-trigger-field">
+                            <div class="s2s-rule-label">
+                                <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Send this S2S postback when a conversion reaches one of the selected normalized campaign statuses." data-tooltip="Send this S2S postback when a conversion reaches one of the selected normalized campaign statuses."></i>
+                                <label data-s2s-statuses-label>Conversion statuses</label>
+                            </div>
+                            <div class="s2s-chip-field" data-s2s-chip-field="statuses">
+                                <div class="s2s-chip-control" data-s2s-chip-control>
+                                    <div class="s2s-chip-list" data-s2s-chip-list></div>
+                                    <input type="search" class="s2s-chip-input" data-s2s-chip-input role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="false" autocomplete="off" spellcheck="false" placeholder="Add status…">
                                 </div>
-                            </div>
-                            <div class="col-lg-1 col-md-1 col-sm-1 col-xs-1">
-                                <a class="remove-s2s-item btn btn-danger campaign-icon-btn" title="Delete"><i class="bi bi-trash"></i></a>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                                <label class="login2 pull-left pull-left-pro"> S2S-Postback send method:
-                                </label>
-                            </div>
-                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                                <select class="form-select" name="postback.s2s[<?= $i ?>][method]">
-                                    <option value="GET" <?= ($s2sMethod === "GET" ? ' selected' : '') ?>> GET
-                                    </option>
-                                    <option value="POST" <?= ($s2sMethod === "POST" ? ' selected' : '') ?>> POST
-                                    </option>
-                                </select>
+                                <ul class="s2s-chip-options" data-s2s-chip-options role="listbox" hidden></ul>
+                                <span class="visually-hidden" data-s2s-chip-live aria-live="polite"></span>
                             </div>
                         </div>
-                        <div class="row">
-                            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
-                                <label class="login2 pull-left pull-left-pro"> Events for which S2S-postback will be sent:
-                                </label>
+                        <div class="s2s-rule-field s2s-trigger-field">
+                            <div class="s2s-rule-label">
+                                <i class="bi bi-info-circle admin-info-icon setting-help-icon" tabindex="0" role="img" aria-label="Send this S2S postback when one of the selected enabled landing events is first recorded. Performance metrics are excluded." data-tooltip="Send this S2S postback when one of the selected enabled landing events is first recorded. Performance metrics are excluded."></i>
+                                <label data-s2s-events-label>Events</label>
                             </div>
-                            <div class="col-lg-5 col-md-5 col-sm-5 col-xs-5">
-                                <br />
-                                <br/>
-                                <?php
-                                foreach ($c->conversions->statusNames() as $status)
-                                {?>
-                                    <div class="form-check form-switch">
-                                        <label for="<?=$status?><?=$i?>" class="form-check-label"><?=$status?></label>
-                                        <input id="<?=$status?><?=$i?>" type="checkbox" class="form-check-input" name="postback.s2s[<?= $i ?>][events][]" value="<?=$status?>" <?= (in_array($status, $s2sEvents) ? ' checked' : '') ?> />
-                                    </div>
-                                <?php
-                                }
-                                ?>
+                            <div class="s2s-chip-field" data-s2s-chip-field="events">
+                                <div class="s2s-chip-control" data-s2s-chip-control>
+                                    <div class="s2s-chip-list" data-s2s-chip-list></div>
+                                    <input type="search" class="s2s-chip-input" data-s2s-chip-input role="combobox" aria-autocomplete="list" aria-haspopup="listbox" aria-expanded="false" autocomplete="off" spellcheck="false" placeholder="Add event…">
+                                </div>
+                                <ul class="s2s-chip-options" data-s2s-chip-options role="listbox" hidden></ul>
+                                <span class="visually-hidden" data-s2s-chip-live aria-live="polite"></span>
                             </div>
                         </div>
-                    </div>
-                    <?php } ?>
-                </div>
-                <a id="add-s2s-item" class="btn btn-primary">+ Add</a>
-            </div>
+                    </section>
+                </template>
+                <script type="application/json" id="s2s-initial-data"><?= json_encode(
+                    $c->postback->s2sPostbacks,
+                    JSON_UNESCAPED_SLASHES
+                    | JSON_UNESCAPED_UNICODE
+                    | JSON_HEX_TAG
+                    | JSON_HEX_AMP
+                    | JSON_HEX_APOS
+                    | JSON_HEX_QUOT
+                ) ?></script>
             </div>
             </section>
 
@@ -1207,8 +1339,8 @@ global $c, $db, $campId;
                 $jsConnectUrl = $tdsRoot . '/js/index.php';
                 $jsConnectSnippet = '<script src="' . $jsConnectUrl . '"></script>';
             ?>
-            <div class="integration-heading">
-                <h5><i class="bi bi-plug" aria-hidden="true"></i> Integration</h5>
+            <div class="campaign-section-heading">
+                <h3><i class="bi bi-plug" aria-hidden="true"></i> Integration</h3>
                 <p>Choose how an external website connects to this campaign.</p>
             </div>
 
@@ -1316,15 +1448,6 @@ global $c, $db, $campId;
             cloneContainer: 'stats_subs',
             removeButtonClass: 'remove-stats-sub-item',
             maxLimit: 10,
-            minLimit: 1,
-            removeConfirm: false
-        });
-
-        $('#add-s2s-item').cloneData({
-            mainContainerId: 's2s_container',
-            cloneContainer: 's2s',
-            removeButtonClass: 'remove-s2s-item',
-            maxLimit: 5,
             minLimit: 1,
             removeConfirm: false
         });
@@ -1518,7 +1641,9 @@ global $c, $db, $campId;
     <script type="module" src="js/campsettings/dws-sync.js?v=<?= filemtime(__DIR__ . '/js/campsettings/dws-sync.js') ?>"></script>
     <script type="module" src="js/campsettings/domains.js"></script>
     <script type="module" src="js/campsettings/toggles.js?v=<?= filemtime(__DIR__ . '/js/campsettings/toggles.js') ?>"></script>
+    <script src="js/campsettings/events.js?v=<?= filemtime(__DIR__ . '/js/campsettings/events.js') ?>"></script>
     <script src="js/campsettings/conversions.js?v=<?= filemtime(__DIR__ . '/js/campsettings/conversions.js') ?>"></script>
+    <script src="js/campsettings/postbacks.js?v=<?= filemtime(__DIR__ . '/js/campsettings/postbacks.js') ?>"></script>
     <script type="module" src="js/campsettings/form-submit.js"></script>
     <script>window.campaignConversionStatuses = <?= json_encode($c->conversions->statusNames(), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) ?>;</script>
     <script src="js/filters.js?v=<?= filemtime(__DIR__ . '/js/filters.js') ?>"></script>

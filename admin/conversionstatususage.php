@@ -26,8 +26,8 @@ if ($equals($settings['conversions']['form']['status'] ?? null)) {
     $usages[] = 'Form submission conversion';
 }
 foreach (($settings['postback']['s2s'] ?? []) as $index => $s2s) {
-    foreach (($s2s['events'] ?? []) as $event) {
-        if ($equals($event)) {
+    foreach (($s2s['statuses'] ?? []) as $s2sStatus) {
+        if ($equals($s2sStatus)) {
             $usages[] = 'S2S postback #' . ($index + 1);
             break;
         }

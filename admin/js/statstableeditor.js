@@ -355,6 +355,7 @@ function addColumnsToList(containerId, selectedItems, columns, orderbyRules) {
         const div = document.createElement('div');
         div.className = 'column-item';
         div.dataset.field = field;
+        if (typeof column === 'object' && column?.description) div.title = column.description;
         if (column?.custom) div.dataset.custom = '1';
         if (column?.status_metric) div.dataset.statusMetric = '1';
 
@@ -480,8 +481,8 @@ function renderCustomColumnsList() {
                     <input type="text" class="form-control custom-column-title" value="${escapeHtml(column.title)}" placeholder="Column name">
                 </div>
                 <div class="col-lg-5 col-md-6 col-sm-12 col-xs-12">
-                    <input type="text" class="form-control custom-column-formula" value="${escapeHtml(column.formula)}" placeholder="event.scroll_50/clicks*100">
-                    <div style="font-size:12px; opacity:0.72; margin-top:6px;">Use metrics like <code>clicks</code>, <code>revenue</code>, <code>event.scroll_50</code>.</div>
+                    <input type="text" class="form-control custom-column-formula" value="${escapeHtml(column.formula)}" placeholder="revenue/clicks">
+                    <div style="font-size:12px; opacity:0.72; margin-top:6px;">Use ordinary statistics metrics such as <code>clicks</code>, <code>revenue</code>, and <code>costs</code>.</div>
                 </div>
                 <div class="col-lg-1 col-md-3 col-sm-4 col-xs-6">
                     <input type="number" min="0" max="8" class="form-control custom-column-decimals" value="${column.decimals}" title="Decimal places (0-8)">
@@ -522,7 +523,12 @@ function renderCustomColumnsList() {
 function renderFormulaMetricButtons(currentField) {
     const metrics = qsa('#metricsColumns .column-item')
         .map((item) => item.dataset.field)
-        .filter((field, index, array) => field && field !== currentField && !field.startsWith('custom.') && array.indexOf(field) === index);
+        .filter((field, index, array) => field
+            && field !== currentField
+            && !field.startsWith('custom.')
+            && !field.startsWith('event.')
+            && !field.startsWith('performance.')
+            && array.indexOf(field) === index);
     return metrics.map((field) => {
         const meta = availableMetricsMeta.get(field);
         const title = typeof meta === 'object' && meta?.title ? meta.title : formatColumnName(field);
@@ -624,7 +630,7 @@ function tokenizeCustomFormula(formula) {
             tokens.push({ type: 'number', value: raw });
         } else if (/^[()+\-*/]$/.test(raw)) {
             tokens.push({ type: 'operator', value: raw });
-        } else if (/^(?:[a-z][a-z0-9_]*|event\.[a-z0-9_]+|status\.[a-z0-9_]+|custom\.[a-z0-9_]+)$/.test(raw)) {
+        } else if (/^(?:[a-z][a-z0-9_]*|status\.[a-z0-9_]+|custom\.[a-z0-9_]+)$/.test(raw)) {
             tokens.push({ type: 'field', value: raw });
         } else {
             return null;

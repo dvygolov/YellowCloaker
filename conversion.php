@@ -20,18 +20,31 @@ final class ConversionService
         string $source,
         mixed $payoutRaw = null,
         string $currency = 'USD',
-        ?string $tid = null
+        ?string $tid = null,
+        ?string $tidParameter = null
     ): array {
         $clickid = trim($clickid);
         $rawStatus = trim($rawStatus);
         $source = trim($source);
         $tid = ($tid === null || trim($tid) === '') ? null : trim($tid);
+        $tidParameter = $tid === null ? null : trim($tidParameter ?? 'tid');
 
         if ($clickid === '') {
             return $this->reject('missing_clickid', 'No clickid found.');
         }
         if (!in_array($source, ['postback', 'form_submit', 'site_script'], true)) {
             return $this->reject('invalid_source', 'Unknown conversion source.');
+        }
+        if (
+            $tid !== null
+            && (
+                strlen($tid) > ConversionSettings::MAX_TRANSACTION_ID_VALUE_BYTES
+                || preg_match('/[\x00-\x1F\x7F]/', $tid) === 1
+                || $tidParameter === ''
+                || !in_array($tidParameter, $campaign->conversions->transactionIdParameters, true)
+            )
+        ) {
+            return $this->reject('invalid_tid', 'Invalid transaction ID or parameter.');
         }
         $status = $campaign->conversions->resolveStatus($rawStatus);
         if ($status === null) {
@@ -66,6 +79,7 @@ final class ConversionService
             $rawStatus,
             $source,
             $tid,
+            $tidParameter,
             (float)$payout,
             $currency,
             $payoutProvided,
@@ -156,7 +170,7 @@ function process_conversion_s2s_postbacks(array $s2sPostbacks, string $status, a
     $macros = new MacrosProcessor(null, $click, $clickid, $userid);
 
     foreach ($s2sPostbacks as $s2s) {
-        if (empty($s2s->url) || !in_array($status, $s2s->events, true)) {
+        if (empty($s2s->url) || !in_array($status, $s2s->statuses, true)) {
             continue;
         }
         $finalUrl = $macros->replace_url_macros(str_replace('{status}', $status, $s2s->url));

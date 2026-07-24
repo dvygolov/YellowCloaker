@@ -134,52 +134,5 @@ class CountryFuncs
             return $locales[$country];
         return $country;
     }
-
-    public static function get_continent($country)
-    {
-        $country = strtolower($country);
-        switch ($country) {
-            case 'ar':
-            case 'bo':
-            case 'cl':
-            case 'co':
-            case 'cr':
-            case 'ec':
-            case 'gt':
-            case 'hn':
-            case 'mx':
-            case 'pe':
-                return 'es';
-            case 'us':
-            case 'ua':
-            case 'gr':
-            case 'be':
-            case 'fr':
-            case 'ru':
-            case 'bg':
-            case 'it':
-            case 'pt':
-            case 'sk':
-            case 'sl':
-            case 'hr':
-            case 'ro':
-            case 'de':
-                return 'eu';
-            case 'ph':
-            case 'th':
-            case 'my':
-            case 'id':
-            case 'kh':
-                return 'as';
-            case 'ma':
-            case 'om':
-            case 'iq':
-            case 'sa':
-            case 'eg':
-            case 'tn':
-                return 'ar';
-        }
-        return $country;
-    }
 }
 ?>

@@ -284,27 +284,6 @@ function save_filters_for_type(array $filters, string $table, ?int $campId = nul
     return $db->save_campaign_settings($campId, $s);
 }
 
-function get_filters_for_type(string $table, ?int $campId = null): array {
-    global $db;
-    $filterKey = match($table) {
-        'allowed', 'single' => 'allowedFilters',
-        'blocked' => 'blockedFilters',
-        'leads' => 'leadsFilters',
-        'trafficback' => 'trafficBackFilters',
-        'campaigns' => 'campaignsFilters',
-        default => null,
-    };
-    if (!$filterKey) return [];
-
-    if ($table === 'trafficback' || $table === 'campaigns') {
-        $s = $db->get_common_settings();
-        return $s['statistics'][$filterKey] ?? [];
-    }
-
-    $s = $db->get_campaign_settings($campId);
-    return $s['statistics'][$filterKey] ?? [];
-}
-
 function save_stats_columns(array $columns, string $name, int $campId): bool
 {  
     global $db;

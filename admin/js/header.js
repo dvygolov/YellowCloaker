@@ -251,46 +251,6 @@ async function sendAutoupdateRequest(action) {
     return await response.json();
 }
 
-async function checkForUpdates() {
-    const updateOverlay = document.getElementById('updateOverlay');
-    const typingText = document.getElementById('typing-text');
-    let typingCleanup = null;
-
-    updateOverlay.style.display = 'flex';
-    setupMatrixRain();
-    typingCleanup = typeText('SYSTEM UPDATING...', typingText);
-
-    try {
-        const result = await sendAutoupdateRequest('check');
-        
-        if (!result.success) {
-            alert('Error checking for updates: ' + result.message);
-            return;
-        }
-        
-        if (!result.hasUpdate) {
-            alert('Your system is up to date!');
-            return;
-        }
-        
-        if (confirm(`An update to version ${result.version} is available. Would you like to update now?`)) {
-            const updateResult = await sendAutoupdateRequest('update');
-            
-            if (updateResult.success) {
-                alert('Update successful! The page will now reload.');
-                location.reload();
-            } else {
-                alert('Error updating system: ' + updateResult.error);
-            }
-        }
-    } catch (error) {
-        alert('Error updating system: ' + error);
-    } finally {
-        if (typingCleanup) typingCleanup();
-        updateOverlay.style.display = 'none';
-    }
-}
-
 function update_datepicker_dates(selectedDates) {
     function formatDate(date) {
         const day = String(date.getDate()).padStart(2, '0');

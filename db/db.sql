@@ -30,7 +30,6 @@ CREATE TABLE IF NOT EXISTS clicks (
 	flow TEXT,
 	path TEXT DEFAULT '[]',
 	step INTEGER DEFAULT 0,
-	events TEXT DEFAULT '{}',
 	params TEXT,
 	leaddata TEXT,
 	status TEXT,
@@ -61,23 +60,26 @@ CREATE TABLE IF NOT EXISTS conversions (
 	clickid TEXT NOT NULL,
 	campaign_id INTEGER NOT NULL,
 	flow TEXT NOT NULL,
+	step INTEGER NOT NULL DEFAULT 0,
 	time INTEGER NOT NULL,
 	status TEXT NOT NULL,
 	raw_status TEXT NOT NULL,
 	source TEXT NOT NULL CHECK (source IN ('postback', 'form_submit', 'site_script')),
 	tid TEXT,
+	tid_parameter TEXT,
 	payout NUMERIC NOT NULL DEFAULT 0,
 	currency TEXT NOT NULL DEFAULT 'USD',
 	is_initial INTEGER NOT NULL DEFAULT 0 CHECK (is_initial IN (0, 1)),
 	changes_status INTEGER NOT NULL DEFAULT 0 CHECK (changes_status IN (0, 1)),
 	status_occurrence INTEGER NOT NULL DEFAULT 1 CHECK (status_occurrence >= 1),
+	CHECK ((tid IS NULL AND tid_parameter IS NULL) OR (tid IS NOT NULL AND tid_parameter IS NOT NULL)),
 	FOREIGN KEY (clickid) REFERENCES clicks (clickid) ON DELETE CASCADE,
 	FOREIGN KEY (campaign_id) REFERENCES campaigns (id) ON DELETE CASCADE
 );
 CREATE UNIQUE INDEX IF NOT EXISTS idx_conversion_initial_click
     ON conversions (clickid) WHERE is_initial = 1;
-CREATE INDEX IF NOT EXISTS idx_conversion_campaign_tid
-    ON conversions (campaign_id,tid) WHERE tid IS NOT NULL AND tid <> '';
+CREATE INDEX IF NOT EXISTS idx_conversion_campaign_tid_parameter
+    ON conversions (campaign_id,tid_parameter,tid) WHERE tid IS NOT NULL AND tid <> '';
 CREATE INDEX IF NOT EXISTS idx_conversion_campaign_time_status
     ON conversions (campaign_id,time,status);
 CREATE INDEX IF NOT EXISTS idx_conversion_campaign_flow_time_status
@@ -88,18 +90,6 @@ CREATE INDEX IF NOT EXISTS idx_conversion_cap_flow_status_time
     ON conversions (campaign_id,flow,status COLLATE NOCASE,time);
 CREATE INDEX IF NOT EXISTS idx_conversion_click_status_time
     ON conversions (clickid,status,time,id);
-
-CREATE TABLE IF NOT EXISTS click_event_log (
-	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	clickid TEXT NOT NULL,
-	time INTEGER NOT NULL,
-	step_index INTEGER NOT NULL,
-	event_name TEXT NOT NULL,
-	event_value NUMERIC NOT NULL,
-	FOREIGN KEY (clickid) REFERENCES clicks (clickid) ON DELETE CASCADE
-);
-CREATE INDEX IF NOT EXISTS idx_event_clickid_time ON click_event_log (clickid,time);
-CREATE INDEX IF NOT EXISTS idx_event_name_time ON click_event_log (event_name,time);
 
 CREATE INDEX IF NOT EXISTS idx_country ON clicks (country);
 CREATE INDEX IF NOT EXISTS idx_lang ON clicks (lang);
@@ -119,6 +109,7 @@ CREATE TABLE IF NOT EXISTS click_steps (
 	step INTEGER NOT NULL,
 	variant TEXT NOT NULL,
 	time INTEGER NOT NULL,
+	events TEXT NOT NULL DEFAULT '{}' CHECK (json_valid(events) AND json_type(events) = 'object'),
 	UNIQUE (clickid, step),
 	FOREIGN KEY (clickid) REFERENCES clicks (clickid) ON DELETE CASCADE
 );

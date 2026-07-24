@@ -7,11 +7,20 @@ function format_timezone_offset_label(int $offsetSeconds): string
     $hours = intdiv($absOffset, 3600);
     $minutes = intdiv($absOffset % 3600, 60);
 
-    if ($minutes === 0) {
-        return "UTC{$sign}{$hours}";
-    }
+    return sprintf('UTC%s%02d:%02d', $sign, $hours, $minutes);
+}
 
-    return sprintf('UTC%s%d:%02d', $sign, $hours, $minutes);
+function get_timezone_option_label(string $timezone, ?DateTimeImmutable $at = null): string
+{
+    try {
+        $tz = new DateTimeZone($timezone);
+        $moment = $at ?? new DateTimeImmutable('now');
+        $offsetLabel = format_timezone_offset_label($tz->getOffset($moment));
+
+        return $timezone . ' (' . $offsetLabel . ')';
+    } catch (Exception) {
+        return $timezone;
+    }
 }
 
 function get_timezone_options(): array
@@ -32,7 +41,7 @@ function get_timezone_options(): array
             'value' => $zone,
             'offset' => $offset,
             'short' => $offsetLabel,
-            'label' => $offsetLabel . ' - ' . $zone,
+            'label' => $zone . ' (' . $offsetLabel . ')',
         ];
     }
 

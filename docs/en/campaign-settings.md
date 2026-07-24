@@ -7,13 +7,16 @@ The campaign settings page includes:
 - Domains
 - Safe Page
 - Flows
+- Conversions
+- Events
+- Misc
+- Postbacks
 - Integration
 - Scripts
-- Misc
-- Conversions
-- Postbacks
 
-The campaign name is shown at the top of the sidebar. Use the pencil icon beside it to rename the campaign without returning to the dashboard.
+The campaign name is shown at the top of the sidebar. Use the pencil icon beside it to rename the campaign without returning to the dashboard. Compact icons beside the primary navigation items repeat the icons used in their section headings; nested flows and steps remain text-only.
+
+Every primary section starts with a consistent icon, title, and one-line description of its scope. These introductions are navigation aids; they do not change how campaign settings are saved.
 
 All editor sections use one full-size treatment for text actions. Icon-only actions use the same height as the step controls, including rows added without reloading the page.
 
@@ -56,16 +59,22 @@ JavaScript Connect Action is a campaign-wide integration setting and is no longe
 
 ## Scripts
 
-Backfix, redirects, event tracking and image lazy loading use the same explicit **Off/On** switches as the campaign-wide flow options. Feature-specific fields appear only while the corresponding switch is On.
+Backfix, redirects, and image lazy loading use the same explicit **Off/On** switches as the campaign-wide flow options. Feature-specific fields appear only while the corresponding switch is On.
+
+## Events
+
+This section configures enabled scroll-depth and visible-time thresholds plus the allowlist for custom browser events. Only those enabled `scroll_*`, `stay_*`, and custom events are available in the **Events** searchable chip field of an S2S rule. Performance/RUM metrics are not S2S events. See [Events](events.md) for collection semantics.
 
 ## Misc
 
-The **Misc** section contains **Uniqueness counting**, its identifier method and sliding TTL, plus the campaign timezone used by reports and daily conversion caps. The timezone selector in the statistics header edits this same value. See [Uniqueness Counting](uniqueness.md) for identifier, flow-filter, cookie, GET-array, and statistics behavior.
+The **Misc** section contains **Uniqueness counting**, its identifier method and sliding TTL, plus the campaign timezone used by reports and daily conversion caps. Timezone options retain their IANA identifier and show the current UTC offset, for example `Europe/Samara (UTC+04:00)`; the offset can change with daylight-saving rules. The timezone selector in the statistics header edits this same value. See [Uniqueness Counting](uniqueness.md) for identifier, flow-filter, cookie, GET-array, and statistics behavior.
 
 ## Conversions
 
-This section contains the campaign status catalog, transaction-ID deduplication, successful-form conversion settings, and the optional website helper. See [Conversions and Postbacks](postbacks.md).
+This section contains the campaign status catalog, transaction-ID deduplication, the comma-separated transaction ID parameter names accepted from different affiliate programs, successful-form conversion settings, and the optional website helper. See [Conversions and Postbacks](postbacks.md).
 
 ## Postbacks
 
-The Postbacks section contains pbkey protection and outgoing S2S rules. Its event lists are generated from the Conversions catalog.
+The Postbacks section contains Key protection and outgoing S2S rules. With **Key protection** enabled, an incoming postback must include `pbkey`; list accepted values as comma-separated entries in **Allowed key values**. Rejected postbacks are masked as `404 Not Found` outside Debug Mode.
+
+Each S2S rule has two searchable chip fields: **Conversion statuses** from the Conversions catalog and **Events** from enabled scroll/time/custom browser events. They use OR semantics: any selected status or event is enough to run the rule. See [Conversions and Postbacks](postbacks.md) for macros, one-time browser-event delivery, and fire-and-forget behavior for event-triggered S2S only.
