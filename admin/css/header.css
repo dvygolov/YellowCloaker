@@ -88,15 +88,55 @@
 
 .settings-close:hover { color: #fff; }
 
+.settings-help-icon {
+    position: relative;
+    display: inline-block;
+    margin-right: 6px;
+    color: #8fb8ff;
+    font-size: 14px;
+    cursor: help;
+}
+
+.settings-help-icon::after {
+    content: attr(data-tooltip);
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 1100;
+    width: min(360px, 75vw);
+    padding: 9px 11px;
+    border: 1px solid #34507c;
+    border-radius: 7px;
+    background: #0d1830;
+    color: #dbe6ff;
+    font-family: inherit;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1.45;
+    text-align: left;
+    white-space: normal;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .3);
+}
+
+.settings-help-icon:hover::after,
+.settings-help-icon:focus::after {
+    display: block;
+}
+
 .settings-tabs {
     display: flex;
     gap: 4px;
     padding: 0 18px;
     border-bottom: 1px solid #2b3f67;
     background: #14213b;
+    overflow-x: auto;
+    scrollbar-width: thin;
 }
 
 .settings-tab-button {
+    flex: 0 0 auto;
     border: 0;
     border-bottom: 3px solid transparent;
     padding: 13px 18px 10px;
@@ -143,6 +183,7 @@
 }
 
 .settings-field input,
+.settings-field select,
 .settings-inline-field select,
 .settings-plugin-preferred {
     width: 100%;
@@ -154,7 +195,25 @@
     outline: none;
 }
 
+.settings-field select,
+.settings-inline-field select {
+    color-scheme: dark;
+    --bs-form-select-bg-img: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%239fb2d2' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-image: var(--bs-form-select-bg-img);
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px 12px;
+    padding-right: 36px;
+}
+
+.settings-field select option,
+.settings-inline-field select option {
+    background: #0d1830;
+    color: #f8fbff;
+}
+
 .settings-field input:focus,
+.settings-field select:focus,
 .settings-inline-field select:focus,
 .settings-plugin-preferred:focus {
     border-color: #0d8cff;
@@ -362,15 +421,6 @@
     gap: 8px;
 }
 
-.settings-backup-warning {
-    display: flex;
-    align-items: flex-start;
-    gap: 9px;
-    border-color: #755d26;
-    background: #2b271b;
-    color: #f6d88f;
-}
-
 .settings-backup-list {
     display: flex;
     flex-direction: column;
@@ -461,6 +511,13 @@
     gap: 7px;
 }
 
+.settings-backup-actions .settings-backup-delete {
+    flex: 0 0 42px;
+    width: 42px;
+    min-width: 42px;
+    padding: 0;
+}
+
 .settings-update-action {
     display: inline-flex;
     align-items: center;
@@ -533,6 +590,7 @@
     }
 
     .settings-backup-actions .btn { flex: 1; }
+    .settings-backup-actions .settings-backup-delete { flex: 0 0 42px; }
 }
 
 .logo-link {

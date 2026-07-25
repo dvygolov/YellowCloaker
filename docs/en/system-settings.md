@@ -6,13 +6,18 @@ The **Settings** button in the header opens instance-wide YellowTDS settings. Th
 
 ## Tabs
 
-- **General** — new password, admin domain/IP restrictions, admin path, UTP, debug mode, the default TDS timezone for new campaigns, and global **Conversion attribution** (`Click time` or `Conversion time`).
+- **General** — UTP, debug mode, log retention, the default TDS timezone for new campaigns, and global **Conversion attribution** (`Click time` or `Conversion time`).
+- **Security** — new admin password, admin path, and domain/IP access restrictions.
 - **Storage** — SQLite file name, backup folder, and cache root. Cache subfolders use fixed system names and are not shown in the UI. **Randomize main paths** generates new unpredictable names for the database, backup folder, and cache root; the rename is applied after **Save settings**.
 - **Backups** — create Full snapshots with SQLite or faster Quick snapshots without SQLite, then view, restore, or delete them.
 - **Plugins** — currency sources and VPN/proxy detectors, preferred currencies, and `any`/`most` decision mode.
 - **Updates** — check and install a YellowTDS update or refresh GeoBases.
 
-The server-detected current domain and IP are shown below **Allowed admin domain** and **Allowed admin IP**. **Add current domain** and **Add current IP** copy the corresponding value into the field with one click; the domain is inserted without a port number. On the **Plugins** tab, every plugin has an explicit switch and an **Enabled** or **Disabled** label; options belonging to a disabled plugin are inactive.
+![Security settings tab](../assets/screenshots/settings-modal-security.png)
+
+The **TDS timezone** selector keeps the IANA identifier and shows its current UTC offset, for example `Europe/Samara (UTC+04:00)`. The offset can change with daylight-saving rules.
+
+On the **Security** tab, the server-detected current domain and IP are shown below **Allowed admin domain** and **Allowed admin IP**. **Add current domain** and **Add current IP** copy the corresponding value into the field with one click; the domain is inserted without a port number. On the **Plugins** tab, every plugin has an explicit switch and an **Enabled** or **Disabled** label; options belonging to a disabled plugin are inactive.
 
 Changing the admin path, database file name, backup folder, or cache root physically renames the corresponding files and directories. Existing destinations are treated as conflicts and are never overwritten or merged. After an admin path change, the browser automatically redirects to the new URL.
 

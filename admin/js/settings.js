@@ -44,7 +44,7 @@
     }
 
     function setBusy(busy) {
-        ['#saveSettings', '#updateTds', '#updateGeoBases', '#randomizeStorage', '#createFullBackup', '#createQuickBackup', '#refreshBackups'].forEach((selector) => {
+        ['#saveSettings', '#updateTds', '#updateGeoBases', '#randomizeStorage', '#createFullBackup', '#createQuickBackup'].forEach((selector) => {
             const element = node(selector);
             if (element) element.disabled = busy;
         });
@@ -268,11 +268,8 @@
         return mode === 'full' ? 'Full' : mode === 'quick' ? 'Quick' : 'Unsupported';
     }
 
-    function renderBackups(backups, directory, limits, databaseBytes) {
+    function renderBackups(backups, databaseBytes) {
         const container = node('#backupsList');
-        const fullLimit = Number(limits?.full) || 5;
-        const quickLimit = Number(limits?.quick) || 5;
-        node('#backupsMeta').textContent = `Folder: ${directory}. The newest ${fullLimit} Full and ${quickLimit} Quick backups are retained automatically.`;
         node('#createFullBackup').title = `Includes the current SQLite database (${formatBackupSize(databaseBytes)}). Complete restore point; large databases can take several minutes on shared hosting.`;
         node('#createQuickBackup').title = 'Excludes only the SQLite database. Files, settings, landing pages, white pages and cache are included.';
         container.replaceChildren();
@@ -322,11 +319,13 @@
             }
             const remove = document.createElement('button');
             remove.type = 'button';
-            remove.className = 'btn btn-danger';
+            remove.className = 'btn btn-danger settings-backup-delete';
             remove.dataset.backupAction = 'delete';
             remove.dataset.backupId = backup.id;
             remove.dataset.backupMode = backup.mode || '';
-            remove.innerHTML = '<i class="bi bi-trash"></i> Delete';
+            remove.title = 'Delete backup';
+            remove.setAttribute('aria-label', 'Delete backup');
+            remove.innerHTML = '<i class="bi bi-trash" aria-hidden="true"></i>';
             actions.append(remove);
             row.append(info, actions);
             container.append(row);
@@ -339,7 +338,7 @@
             const response = await fetch('backups.php', { headers: { Accept: 'application/json' } });
             const result = await readJsonResponse(response, 'Failed to load backups');
             if (Array.isArray(result.backups)) {
-                renderBackups(result.backups, result.directory || 'backups', result.limits || {}, result.databaseBytes || 0);
+                renderBackups(result.backups, result.databaseBytes || 0);
             }
             state.backupsLoaded = true;
             if (resumeOperation && result.operation?.status === 'running') {
@@ -585,7 +584,6 @@
         node('#randomizeStorage')?.addEventListener('click', randomizeStorage);
         node('#createFullBackup')?.addEventListener('click', () => runBackupAction('create', '', 'full'));
         node('#createQuickBackup')?.addEventListener('click', () => runBackupAction('create', '', 'quick'));
-        node('#refreshBackups')?.addEventListener('click', loadBackups);
         node('#backupsList')?.addEventListener('click', (event) => {
             const button = event.target.closest('[data-backup-action]');
             if (button) runBackupAction(button.dataset.backupAction, button.dataset.backupId, button.dataset.backupMode);

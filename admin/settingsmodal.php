@@ -1,3 +1,4 @@
+<?php require_once __DIR__ . '/timezones.php'; ?>
 <link rel="stylesheet" href="<?=get_admin_base_url()?>css/modal-common.css">
 
 <div id="settingsModal" class="ywbmodal settings-modal" aria-labelledby="settingsModalTitle">
@@ -5,12 +6,12 @@
         <div class="modal-header settings-modal-header">
             <div>
                 <h5 id="settingsModalTitle"><i class="bi bi-gear"></i> Settings</h5>
-                <div class="settings-subtitle">Runtime configuration and maintenance</div>
             </div>
             <button type="button" class="settings-close" id="closeSettings" aria-label="Close">&times;</button>
         </div>
         <div class="settings-tabs" role="tablist">
             <button type="button" class="settings-tab-button active" data-settings-tab="general">General</button>
+            <button type="button" class="settings-tab-button" data-settings-tab="security">Security</button>
             <button type="button" class="settings-tab-button" data-settings-tab="storage">Storage</button>
             <button type="button" class="settings-tab-button" data-settings-tab="backups">Backups</button>
             <button type="button" class="settings-tab-button" data-settings-tab="plugins">Plugins</button>
@@ -20,6 +21,38 @@
             <div id="settingsLoading" class="settings-loading">Loading settings…</div>
             <form id="settingsForm" autocomplete="off" hidden>
                 <section class="settings-tab-panel active" data-settings-panel="general">
+                    <div class="settings-grid">
+                        <label class="settings-field">
+                            <span>TDS timezone</span>
+                            <select class="form-select" name="timezone">
+                                <?php $timezoneLabelDate = new DateTimeImmutable('now'); ?>
+                                <?php foreach (DateTimeZone::listIdentifiers() as $timezoneId) { ?>
+                                <option value="<?= htmlspecialchars($timezoneId, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"><?= htmlspecialchars(get_timezone_option_label($timezoneId, $timezoneLabelDate), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></option>
+                                <?php } ?>
+                            </select>
+                            <small>Used as the default timezone for new campaigns.</small>
+                        </label>
+                        <label class="settings-field">
+                            <span>Conversion attribution</span>
+                            <select class="form-select" name="conversionAttribution">
+                                <option value="click_time">Click time</option>
+                                <option value="conversion_time">Conversion time</option>
+                            </select>
+                            <small>Applies consistently to conversion, revenue and status metrics.</small>
+                        </label>
+                        <label class="settings-field">
+                            <span>Log retention (days)</span>
+                            <input type="number" name="logRetentionDays" min="1" max="3650" step="1">
+                            <small>Structured server logs older than this are removed automatically.</small>
+                        </label>
+                    </div>
+                    <div class="settings-switches">
+                        <label><input type="checkbox" name="useUTP"> Use Universal Thank You Page</label>
+                        <label><input type="checkbox" name="debug"> Debug mode</label>
+                    </div>
+                </section>
+
+                <section class="settings-tab-panel" data-settings-panel="security">
                     <div class="settings-grid">
                         <label class="settings-field">
                             <span>New admin password</span>
@@ -42,34 +75,6 @@
                             <button type="button" class="settings-current-value" id="addCurrentAdminIp" hidden></button>
                         </label>
                     </div>
-                    <div class="settings-switches">
-                        <label><input type="checkbox" name="useUTP"> Use Universal Thank You Page</label>
-                        <label><input type="checkbox" name="debug"> Debug mode</label>
-                    </div>
-                    <div class="settings-grid" style="margin-top: 14px;">
-                        <label class="settings-field">
-                            <span>TDS timezone</span>
-                            <select name="timezone">
-                                <?php foreach (DateTimeZone::listIdentifiers() as $timezoneId) { ?>
-                                <option value="<?= htmlspecialchars($timezoneId, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"><?= htmlspecialchars($timezoneId, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></option>
-                                <?php } ?>
-                            </select>
-                            <small>Used as the default timezone for new campaigns.</small>
-                        </label>
-                        <label class="settings-field">
-                            <span>Conversion attribution</span>
-                            <select name="conversionAttribution">
-                                <option value="click_time">Click time</option>
-                                <option value="conversion_time">Conversion time</option>
-                            </select>
-                            <small>Applies consistently to conversion, revenue and status metrics.</small>
-                        </label>
-                        <label class="settings-field">
-                            <span>Log retention (days)</span>
-                            <input type="number" name="logRetentionDays" min="1" max="3650" step="1">
-                            <small>Structured server logs older than this are removed automatically.</small>
-                        </label>
-                    </div>
                 </section>
 
                 <section class="settings-tab-panel" data-settings-panel="storage">
@@ -86,13 +91,20 @@
                 </section>
 
                 <section class="settings-tab-panel" data-settings-panel="backups">
-                    <div class="settings-notice settings-backup-warning"><i class="bi bi-exclamation-triangle"></i> Full restore replaces the SQLite database. Quick restore preserves the current database. A matching safety backup is created first.</div>
                     <div class="settings-section-heading settings-backup-heading">
-                        <div><h6>System backups</h6><small id="backupsMeta">The newest five Full and five Quick backups are retained automatically.</small></div>
+                        <h6>
+                            <i
+                                class="bi bi-info-circle settings-help-icon"
+                                tabindex="0"
+                                role="img"
+                                aria-label="Full restore replaces the SQLite database. Quick restore preserves the current database. A matching safety backup is created first."
+                                data-tooltip="Full restore replaces the SQLite database. Quick restore preserves the current database. A matching safety backup is created first."
+                            ></i>
+                            System backups
+                        </h6>
                         <div class="settings-backup-toolbar">
                             <button type="button" class="btn btn-primary" id="createFullBackup" title="Includes the current SQLite database. Complete restore point; large databases can take several minutes on shared hosting."><i class="bi bi-database-add"></i> Full backup</button>
-                            <button type="button" class="btn btn-success" id="createQuickBackup" title="Excludes only the SQLite database. Files, settings, landing pages, white pages and cache are included."><i class="bi bi-lightning-charge"></i> Quick backup</button>
-                            <button type="button" class="btn btn-secondary" id="refreshBackups"><i class="bi bi-arrow-clockwise"></i> Refresh</button>
+                            <button type="button" class="btn btn-primary" id="createQuickBackup" title="Excludes only the SQLite database. Files, settings, landing pages, white pages and cache are included."><i class="bi bi-lightning-charge"></i> Quick backup</button>
                         </div>
                     </div>
                     <div id="backupsList" class="settings-backup-list"></div>
@@ -110,7 +122,7 @@
                         <div class="settings-section-heading">
                             <div><h6>VPN / proxy detectors</h6><small>No enabled detector means the VPN check is disabled.</small></div>
                             <label class="settings-inline-field">Decision
-                                <select id="vpnMode"><option value="any">Any positive</option><option value="most">Majority</option></select>
+                                <select class="form-select" id="vpnMode"><option value="any">Any positive</option><option value="most">Majority</option></select>
                             </label>
                         </div>
                         <div id="vpnPlugins" class="settings-plugin-list"></div>
