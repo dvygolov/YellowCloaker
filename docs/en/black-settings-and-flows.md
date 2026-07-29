@@ -34,3 +34,17 @@ Choose one of `<`, `<=`, `=`, `!=`, `>=`, or `>`, one or more campaign statuses,
 ## Steps
 
 Steps use the same handle to keep ordering consistent. A redirect is a terminal action, so its step remains locked in the last position.
+
+Each step can contain folders or redirect URLs. Weight is stored with the corresponding folder or URL. A folder also stores its load type and its own MVT settings.
+
+## Landing MVT
+
+Every folder entry has an **MVT** section. Put its generated placeholder, such as `#TEST1#`, into the landing HTML and add text or HTML Values to the TEST. YellowTDS selects one Value independently and uniformly for every active TEST and performs a trusted string replacement. The same placeholder may occur more than once in the HTML.
+
+TEST numbers follow creation order. Values use A, B … Z, AA, and subsequent codes. A saved Value is read-only: archive it and append another Value when the content must change. Archived TESTs and Values stay in the configuration with their original number or code, so numbering never rolls back.
+
+![MVT settings for a folder entry](../assets/screenshots/campaign-settings-mvt.png)
+
+One `clickid + step` always keeps the same landing and MVT combination. A new click first reuses the current PHP-session assignment. When **Save user path** is enabled, the existing `saved_paths` cookie provides a five-day fallback. Direct Load refreshes and Back navigation read the assignment already recorded for the reached step instead of selecting again.
+
+Only active TESTs and Values participate in new assignments. A previously assigned archived Value continues to render for an existing click, session, or Sticky path while MVT remains enabled. When MVT is disabled, YellowTDS does not replace placeholders and does not scan or repair the landing HTML.

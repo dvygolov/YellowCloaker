@@ -2,10 +2,11 @@
 
 ## PHPUnit
 
-Tests are run from the outer repository root:
+Run both suites from the repository root:
 
 ```bash
 vendor/bin/phpunit
+vendor/bin/phpunit -c tests/application/phpunit.xml
 ```
 
 ## Covered Areas
@@ -13,6 +14,8 @@ vendor/bin/phpunit
 - flows
 - statistics
 - Thompson Sampling
+- MVT persistence and rendering
+- installer, updater, settings, and plugins
 
 ## Server Logs
 

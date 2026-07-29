@@ -25,7 +25,7 @@ In every completed test, the local `install.sh` correctly detected the panel, ex
 1. Create a separate website and, where possible, a separate system user in the panel.
 2. Select PHP 8.2 or newer; PHP 8.4 is recommended.
 3. Enable `curl`, `gd`, `mbstring`, `pdo_sqlite`, `sqlite3`, `xml`, and `zip`. The `maxminddb` extension is recommended but optional because `bases/geoip2.phar` is a working fallback.
-4. Extract the `multipleconfigs` branch into the website document root:
+4. Download the `multipleconfigs` branch and copy the contents of its `code/` directory into the website document root:
 
    ```text
    https://github.com/dvygolov/YellowTDS/archive/refs/heads/multipleconfigs.zip

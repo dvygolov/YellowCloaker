@@ -44,7 +44,7 @@ Key capabilities:
 For a clean Debian/Ubuntu VPS, use the auto-installer:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/code/install.sh | sudo bash
 ```
 
 The script asks for a domain, verifies DNS points to the VPS, installs nginx/PHP/HTTPS, the MMDB C extension, and downloads geobases from `sapics/ip-location-db`.
@@ -54,7 +54,7 @@ The automatic installer is intended for a clean VPS without a hosting control pa
 To add multiple domains to an existing instance:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/install.sh | sudo bash -s -- --add-domain
+curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/code/install.sh | sudo bash -s -- --add-domain
 ```
 
 Enter domains comma-separated, for example: `tds1.example.com,tds2.example.com`.
@@ -63,7 +63,7 @@ See: [VPS Installation](docs/en/installation.md).
 
 ### Manual Install
 
-1. Deploy the contents to your server/hosting.
+1. Copy the contents of `code/` into the site's document root.
 2. Open `settings.php` and configure at least:
    - `adminPassword`
    - `dbConnection`
@@ -79,13 +79,20 @@ See: [VPS Installation](docs/en/installation.md).
 
 ## Main Entry Points
 
-- `index.php` — main runtime entry point
-- `js/index.php` — JS Connect
-- `phpconnect.php` — PHP Connect API
-- `postback.php` — incoming postbacks
-- `send.php` — lead form submission relay
-- `next.php` — funnel step transitions
-- `admin/` — admin panel
+- `code/index.php` — main runtime entry point
+- `code/js/index.php` — JS Connect
+- `code/api/phpconnect.php` — PHP Connect API
+- `code/api/postback.php` — incoming postbacks
+- `code/send.php` — lead form submission relay
+- `code/next.php` — funnel step transitions
+- `code/admin/` — admin panel
+
+## Repository Layout
+
+- `code/` — the self-contained YellowTDS distribution; deployment needs only this directory;
+- `docs/` — RU/EN user documentation, screenshots, and OpenAPI;
+- `tests/` — engine, application, browser/load tests, and diagnostic tools;
+- `temp/` — local temporary and IDE files that are not part of the distribution.
 
 ## Full Documentation
 

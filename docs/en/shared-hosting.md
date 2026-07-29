@@ -15,15 +15,13 @@ The `maxminddb` extension is optional because `bases/geoip2.phar` can be used as
 
 ## Files to upload
 
-Download and extract the `multipleconfigs` branch:
+Download and extract the `multipleconfigs` branch, then upload only the contents of `code/`:
 
 ```text
 https://github.com/dvygolov/YellowTDS/archive/refs/heads/multipleconfigs.zip
 ```
 
-The safest choice is the complete application. Keep every root PHP file and `admin/`, `api/`, `bases/`, `caching/`, `cron/`, `db/`, `js/`, `plugins/`, `scripts/`, `thankyou/`, `tmp/`, `logs/`, and `ycclogs/`. Empty runtime directories must still exist.
-
-The live site does not need Git, editor, and PHPUnit metadata; `docs/`, `tests/`, README and agent files; `install.sh`; IDE project files; local SQLite, log, or runtime-cache contents. When unsure, upload the whole archive and protect service files with the rules below.
+`code/` is the complete distribution. Its root PHP files and the `admin/`, `api/`, `bases/`, `caching/`, `cron/`, `db/`, `js/`, `plugins/`, `scripts/`, `thankyou/`, `tmp/`, `logs/`, and `ycclogs/` directories belong in the site document root. Do not upload the repository-level `docs/`, `tests/`, or `temp/` directories.
 
 ## Root or nested directory
 

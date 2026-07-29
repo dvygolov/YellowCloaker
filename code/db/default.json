@@ -1,0 +1,458 @@
+{
+  "domains": [],
+  "apikey": "test",
+  "saveuserflow": false,
+  "uniqueness": {
+    "enabled": false,
+    "method": "cookie_ip_ua",
+    "ttl_hours": 24,
+    "get_parameter": ""
+  },
+  "white": {
+    "action": "error",
+    "folders": [
+      "white"
+    ],
+    "redirect": {
+      "type": "302",
+      "urls": [
+        "https://ya.ru",
+        "https://google.com"
+      ]
+    },
+    "curls": [
+      "https://www.9111.ru/"
+    ],
+    "errorcodes": [
+      "200"
+    ],
+    "domainfilter": {
+      "use": false,
+      "domains": [
+        {
+          "name": "127.0.0.1",
+          "action": "folder:white"
+        },
+        {
+          "name": "localhost",
+          "action": "folder:white2"
+        }
+      ]
+    },
+    "filters": {
+      "condition": "AND",
+      "rules": [
+        {
+          "id": "country",
+          "field": "country",
+          "type": "string",
+          "input": "text",
+          "operator": "in",
+          "value": "RU,BG,SG"
+        }
+      ],
+      "valid": true
+    }
+  },
+  "black": {
+    "jsconnect": "redirect",
+    "jsbotdetection": {
+      "enabled": false,
+      "events": [
+        "audiocontext",
+        "timezone"
+      ],
+      "timeout": "40000",
+      "timezone": {
+        "min": "-3",
+        "max": "4"
+      }
+    },
+    "flows": [
+      {
+        "name": "Flow 1",
+        "filters": {},
+        "distribution": "equal",
+        "optimize_for": "Lead",
+        "optimize_mode": "funnels",
+        "steps": [
+          {
+            "action": "redirect",
+            "folders": [],
+            "redirect": {
+              "urls": [
+                {
+                  "url": "https://www.rolltrk.com/DHSF7PS/2QM39NQ/",
+                  "label": "rolltrk.com",
+                  "weight": 100
+                }
+              ],
+              "type": 302
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "scripts": {
+    "backfix": {
+      "use": false,
+      "urls": []
+    },
+    "nextredirect": {
+      "use": false,
+      "rules": []
+    },
+    "submitredirect": {
+      "use": false,
+      "rules": []
+    },
+    "imageslazyload": false
+  },
+  "events": {
+    "scroll": {
+      "use": false,
+      "thresholds": [
+        50
+      ]
+    },
+    "time": {
+      "use": false,
+      "thresholds": [
+        60
+      ]
+    },
+    "performance": {
+      "use": false
+    },
+    "custom": []
+  },
+  "statistics": {
+    "timezone": "Europe/Moscow",
+    "blocked": [
+      {
+        "field": "time",
+        "width": -1
+      },
+      {
+        "field": "ip",
+        "width": -1
+      },
+      {
+        "field": "country",
+        "width": -1
+      },
+      {
+        "field": "lang",
+        "width": -1
+      },
+      {
+        "field": "os",
+        "width": -1
+      },
+      {
+        "field": "osver",
+        "width": -1
+      },
+      {
+        "field": "device",
+        "width": -1
+      },
+      {
+        "field": "brand",
+        "width": -1
+      },
+      {
+        "field": "model",
+        "width": -1
+      },
+      {
+        "field": "isp",
+        "width": -1
+      },
+      {
+        "field": "client",
+        "width": -1
+      },
+      {
+        "field": "clientver",
+        "width": -1
+      },
+      {
+        "field": "ua",
+        "width": -1
+      },
+      {
+        "field": "params",
+        "width": -1
+      },
+      {
+        "field": "reason",
+        "width": -1
+      }
+    ],
+    "allowed": [
+      {
+        "field": "userid",
+        "width": -1
+      },
+      {
+        "field": "clickid",
+        "width": -1
+      },
+      {
+        "field": "time",
+        "width": -1
+      },
+      {
+        "field": "ip",
+        "width": -1
+      },
+      {
+        "field": "country",
+        "width": -1
+      },
+      {
+        "field": "lang",
+        "width": -1
+      },
+      {
+        "field": "os",
+        "width": -1
+      },
+      {
+        "field": "osver",
+        "width": -1
+      },
+      {
+        "field": "brand",
+        "width": -1
+      },
+      {
+        "field": "model",
+        "width": -1
+      },
+      {
+        "field": "isp",
+        "width": -1
+      },
+      {
+        "field": "client",
+        "width": -1
+      },
+      {
+        "field": "clientver",
+        "width": -1
+      },
+      {
+        "field": "ua",
+        "width": -1
+      },
+      {
+        "field": "params",
+        "width": -1
+      },
+      {
+        "field": "flow",
+        "width": -1
+      },
+      {
+        "field": "path",
+        "width": -1
+      },
+      {
+        "field": "step",
+        "width": -1
+      },
+      {
+        "field": "status",
+        "width": -1
+      },
+      {
+        "field": "cost",
+        "width": -1
+      },
+      {
+        "field": "payout",
+        "width": -1
+      }
+    ],
+    "leads": [
+      {
+        "field": "userid",
+        "width": -1
+      },
+      {
+        "field": "clickid",
+        "width": -1
+      },
+      {
+        "field": "time",
+        "width": -1
+      },
+      {
+        "field": "ip",
+        "width": -1
+      },
+      {
+        "field": "country",
+        "width": -1
+      },
+      {
+        "field": "lang",
+        "width": -1
+      },
+      {
+        "field": "os",
+        "width": -1
+      },
+      {
+        "field": "osver",
+        "width": -1
+      },
+      {
+        "field": "brand",
+        "width": -1
+      },
+      {
+        "field": "model",
+        "width": -1
+      },
+      {
+        "field": "isp",
+        "width": -1
+      },
+      {
+        "field": "client",
+        "width": -1
+      },
+      {
+        "field": "clientver",
+        "width": -1
+      },
+      {
+        "field": "ua",
+        "width": -1
+      },
+      {
+        "field": "params",
+        "width": -1
+      },
+      {
+        "field": "flow",
+        "width": -1
+      },
+      {
+        "field": "path",
+        "width": -1
+      },
+      {
+        "field": "step",
+        "width": -1
+      },
+      {
+        "field": "status",
+        "width": -1
+      },
+      {
+        "field": "payout",
+        "width": -1
+      }
+    ],
+    "tables": [
+      {
+        "name": "Date",
+        "columns": [
+          {
+            "field": "date",
+            "width": -1
+          },
+          {
+            "field": "clicks",
+            "width": -1
+          },
+          {
+            "field": "uniques",
+            "width": -1
+          },
+          {
+            "field": "uniques_ratio",
+            "width": -1
+          },
+          {
+            "field": "conversion",
+            "width": -1
+          },
+          {
+            "field": "cra",
+            "width": -1
+          },
+          {
+            "field": "epc",
+            "width": -1
+          },
+          {
+            "field": "cpc",
+            "width": -1
+          },
+          {
+            "field": "revenue",
+            "width": -1
+          },
+          {
+            "field": "costs",
+            "width": -1
+          },
+          {
+            "field": "profit",
+            "width": -1
+          },
+          {
+            "field": "roi",
+            "width": -1
+          }
+        ],
+        "groupby": [
+          "date"
+        ],
+        "mvt": {}
+      }
+    ]
+  },
+  "conversions": {
+    "statuses": [
+      {"name": "Lead", "aliases": ["lead", "pending", "hold"]},
+      {"name": "Purchase", "aliases": ["purchase", "approved", "sale"]},
+      {"name": "Reject", "aliases": ["reject", "declined"]},
+      {"name": "Trash", "aliases": ["trash", "invalid"]}
+    ],
+    "deduplication": {
+      "enabled": true,
+      "transaction_id_parameters": ["tid"],
+      "paid_repeat_without_tid": "reject"
+    },
+    "form": {
+      "enabled": false,
+      "status": "Lead"
+    },
+    "site": {
+      "enabled": false
+    }
+  },
+  "postback": {
+    "pbkey": {
+      "enabled": false,
+      "keys": []
+    },
+    "s2s": [
+      {
+        "url": "https://eu.roerads.com/conversion/aid/45141/ed52562686164ba2?click_id={hash:clickid}",
+        "method": "GET",
+        "statuses": [
+          "Purchase"
+        ],
+        "events": []
+      }
+    ]
+  }
+}

@@ -48,7 +48,7 @@ YellowTDS — TDS для маршрутизации трафика по прав
 Для чистого Debian/Ubuntu VPS можно использовать автоустановщик:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/code/install.sh | sudo bash
 ```
 
 Скрипт спросит домен, проверит DNS-привязку к VPS, поставит nginx/PHP/HTTPS, C-расширение MMDB и скачает геобазы из `sapics/ip-location-db`.
@@ -58,7 +58,7 @@ curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/
 Чтобы добавить к уже установленному инстансу несколько новых доменов:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/install.sh | sudo bash -s -- --add-domain
+curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/code/install.sh | sudo bash -s -- --add-domain
 ```
 
 Домены можно вводить через запятую: `tds1.example.com,tds2.example.com`.
@@ -67,7 +67,7 @@ curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/
 
 ### Ручная установка
 
-1. Разверните содержимое на хостинге.
+1. Скопируйте содержимое каталога `code/` в document root сайта.
 2. Откройте `settings.php` и задайте как минимум:
    - `adminPassword`
    - `dbConnection`
@@ -83,13 +83,20 @@ curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/
 
 ## Основные точки входа
 
-- `index.php` — основной runtime entry point
-- `js/index.php` — JS Connect
-- `phpconnect.php` — PHP Connect API
-- `postback.php` — входящие постбэки
-- `send.php` — отправка лид-форм
-- `next.php` — переходы по шагам воронки
-- `admin/` — админ-панель
+- `code/index.php` — основной runtime entry point
+- `code/js/index.php` — JS Connect
+- `code/api/phpconnect.php` — PHP Connect API
+- `code/api/postback.php` — входящие постбэки
+- `code/send.php` — отправка лид-форм
+- `code/next.php` — переходы по шагам воронки
+- `code/admin/` — админ-панель
+
+## Структура репозитория
+
+- `code/` — самостоятельный дистрибутив YellowTDS; для развёртывания нужен только этот каталог;
+- `docs/` — пользовательская документация RU/EN, скриншоты и OpenAPI;
+- `tests/` — engine, application, browser/load tests и диагностические инструменты;
+- `temp/` — локальные временные и IDE-файлы, которые не входят в дистрибутив.
 
 ## Где читать полную документацию
 

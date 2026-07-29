@@ -7,7 +7,7 @@ We recommend [FriendHosting](https://yellowweb.top/friendhosting) for a VPS. For
 ## Short Command
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/install.sh | sudo bash
+curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/code/install.sh | sudo bash
 ```
 
 The script asks for the primary domain. Before issuing the certificate, it verifies that the domain DNS points to the VPS public IP. If the domain is not pointed yet, installation stops and shows the expected IP and currently resolved IPs.
@@ -35,7 +35,7 @@ YellowTDS works on a panel-managed server, but the website, PHP version, rewrite
 To add domains to an existing instance without creating a new database:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/install.sh | sudo bash -s -- --add-domain
+curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/code/install.sh | sudo bash -s -- --add-domain
 ```
 
 The script asks for the existing YellowTDS installation directory and comma-separated domains:
@@ -51,14 +51,14 @@ Each domain is checked through DNS, gets its own nginx config and HTTPS certific
 For automation, pass values non-interactively:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/install.sh \
+curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/code/install.sh \
   | sudo YELLOWTDS_DOMAIN=tds.example.com bash
 ```
 
 For batch domain additions:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/install.sh \
+curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/code/install.sh \
   | sudo YELLOWTDS_APP_DIR=/var/www/tds.example.com YELLOWTDS_DOMAINS=tds1.example.com,tds2.example.com bash -s -- --add-domain
 ```
 

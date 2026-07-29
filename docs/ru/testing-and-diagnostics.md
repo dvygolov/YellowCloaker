@@ -2,10 +2,11 @@
 
 ## PHPUnit
 
-Тесты находятся в корневом `tests/`, запуск из корня общего репозитория:
+Тесты находятся в корневом `tests/`. Из корня репозитория запускаются два набора:
 
 ```bash
 vendor/bin/phpunit
+vendor/bin/phpunit -c tests/application/phpunit.xml
 ```
 
 ## Что покрыто тестами
@@ -13,14 +14,16 @@ vendor/bin/phpunit
 - flows
 - statistics
 - Thompson Sampling
+- MVT, persistence и rendering
+- installer, updater, settings и plugins
 
 ## Диагностика
 
 Полезные файлы:
 
-- `tests/check_db.php`
-- `phptest.php`
-- `loadtest/`
+- `tests/engine/check_db.php`
+- `tests/tools/phptest.php`
+- `tests/load/`
 
 ## Серверные журналы
 

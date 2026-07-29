@@ -33,8 +33,10 @@ index.php                     — точка входа, роутинг
 
 ## Структура файлов
 
+Корень Git-репозитория содержит `code/` (самостоятельный дистрибутив), `docs/`, `tests/` и `temp/`. Все пути runtime ниже отсчитываются от `code/`.
+
 ```
-fromfolder/
+code/
 ├── index.php              — главная точка входа
 ├── settings.php           — SettingsManager: defaults + локальная конфигурация, валидация, ревизии и безопасное переименование runtime-путей
 ├── core.php               — FiltrationCore: сбор click_params, матчинг фильтров (GEO, device, OS, ISP, referer, URL params, VPN/proxy)
@@ -109,8 +111,6 @@ fromfolder/
 ├── reverse/               — Reverse proxy (для nginx)
 ├── thankyou/              — Universal Thank You Page (UTP)
 ├── admin/                 — Админ-панель (см. admin/agents.md)
-├── docs/                  — Двуязычная документация и UI-скриншоты
-├── tests/                 — PHPUnit: installer, updater, settings, HTTP, plugins, GeoBases
 ├── logs/                  — Логи
 ├── ycclogs/               — Логи YCC
 └── tmp/                   — Временные файлы
@@ -122,7 +122,7 @@ fromfolder/
 - **WhiteSettings** — фильтры, действие (folder/curl/redirect/error), domain-specific настройки, loadMode
 - **BlackSettings** — jsconnectAction (replace/iframe), jsBotDetection, flows[]
 - **FlowSettings** — name, filters, steps[], distribution (equal/weighted/thompson), optimize_for, optimize_mode
-- **StepSettings** — action, folders, redirectUrls, weights, folderloadtypes (base/direct)
+- **StepSettings** — action, folders и redirectUrls; folder/redirect entries хранят loadtype, weight и MVT рядом с вариантом
 - **JsBotDetection** — enabled, events[], timeout, timezone range
 - **ScriptsSettings** — backfix, replacePrelanding, replaceLanding, imagesLazyLoad
 - **PostbackSettings** — s2s postbacks[], event name mapping (lead/purchase/reject/trash)
@@ -133,7 +133,7 @@ fromfolder/
 Таблицы:
 - **campaigns** — id, name, settings (JSON)
 - **clicks** — один клик на проход по black-воронке (`userid`, `clickid`, `flow`, `path`, `step`, `params`, `cost`, `payout`, `status`)
-- **click_steps** — факт входа в конкретный шаг (`clickid`, `step`, `variant`, `time`)
+- **click_steps** — факт входа в конкретный шаг (`clickid`, `step`, `variant`, `time`, `mvt`)
 - **common** — общие настройки (JSON)
 
 ## A/B тестирование

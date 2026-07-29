@@ -1,0 +1,303 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "YellowTDS Runtime API",
+    "version": "1.0.0",
+    "description": "Public runtime endpoints for conversion postbacks and optional website status tracking."
+  },
+  "servers": [
+    { "url": "/" }
+  ],
+  "tags": [
+    { "name": "Conversions" },
+    { "name": "Events" }
+  ],
+  "paths": {
+    "/api/postback.php": {
+      "get": {
+        "tags": ["Conversions"],
+        "summary": "Record an incoming conversion",
+        "description": "Accepts a campaign status name or alias. tid is the default transaction ID parameter; each campaign may configure alternative names for different affiliate programs. Send no more than one non-empty configured transaction ID parameter. Query and form fields are processed explicitly: cookies are ignored and the same field in both sources is rejected. The first accepted row is the initial conversion; later rows are retained as history. When campaign pbkey protection is enabled, rejected requests are masked as 404 outside Debug Mode.",
+        "parameters": [
+          { "$ref": "#/components/parameters/ClickId" },
+          { "$ref": "#/components/parameters/Status" },
+          { "$ref": "#/components/parameters/Payout" },
+          { "$ref": "#/components/parameters/Currency" },
+          { "$ref": "#/components/parameters/Tid" },
+          { "$ref": "#/components/parameters/Pbkey" }
+        ],
+        "responses": {
+          "200": { "$ref": "#/components/responses/ConversionAccepted" },
+          "400": { "$ref": "#/components/responses/ConversionRejected" },
+          "404": { "description": "Click not found, or a protected failure masked as Not Found." },
+          "409": { "$ref": "#/components/responses/ConversionRejected" },
+          "422": { "$ref": "#/components/responses/ConversionRejected" }
+        }
+      },
+      "post": {
+        "tags": ["Conversions"],
+        "summary": "Record an incoming conversion",
+        "description": "POST accepts the same fields as the GET endpoint as form or query parameters. Do not send the same field in both locations. A campaign-configured transaction ID name may replace the documented default tid field.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": { "$ref": "#/components/schemas/PostbackRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/ConversionAccepted" },
+          "400": { "$ref": "#/components/responses/ConversionRejected" },
+          "404": { "description": "Click not found, or a protected failure masked as Not Found." },
+          "409": { "$ref": "#/components/responses/ConversionRejected" },
+          "422": { "$ref": "#/components/responses/ConversionRejected" }
+        }
+      }
+    },
+    "/api/conversion.php": {
+      "post": {
+        "tags": ["Conversions"],
+        "summary": "Record a website status",
+        "description": "Same-origin endpoint used by ytdsConversion(status). Website status tracking must be enabled for the campaign. Payout is not accepted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": ["clickid", "status"],
+                "properties": {
+                  "clickid": { "type": "string", "description": "Current YellowTDS click identifier." },
+                  "status": { "type": "string", "description": "Campaign internal status name or alias." }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/ConversionAccepted" },
+          "403": { "$ref": "#/components/responses/ConversionRejected" },
+          "404": { "$ref": "#/components/responses/ConversionRejected" },
+          "405": { "$ref": "#/components/responses/ConversionRejected" },
+          "422": { "$ref": "#/components/responses/ConversionRejected" }
+        }
+      }
+    },
+    "/api/events.php": {
+      "post": {
+        "tags": ["Events"],
+        "summary": "Record one landing event sample",
+        "description": "Accepts either one ordinary first-occurrence event or one Performance RUM packet. The clickid, reached step index, and recorded landing variant must match exactly. Unknown or disabled events are rejected. Cross-origin collectors send the JSON body as text/plain to remain a simple CORS request; application/json is also accepted.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "text/plain": {
+              "schema": { "$ref": "#/components/schemas/EventRequest" }
+            },
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/EventRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "$ref": "#/components/responses/EventAccepted" },
+          "400": { "$ref": "#/components/responses/EventRejected" },
+          "404": { "$ref": "#/components/responses/EventRejected" },
+          "405": { "$ref": "#/components/responses/EventRejected" },
+          "422": { "$ref": "#/components/responses/EventRejected" },
+          "503": { "$ref": "#/components/responses/EventRejected" }
+        }
+      },
+      "options": {
+        "tags": ["Events"],
+        "summary": "Events CORS preflight",
+        "responses": {
+          "204": { "description": "Preflight accepted." }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "ClickId": {
+        "name": "clickid",
+        "in": "query",
+        "required": true,
+        "schema": { "type": "string" },
+        "description": "YellowTDS click identifier."
+      },
+      "Status": {
+        "name": "status",
+        "in": "query",
+        "required": true,
+        "schema": { "type": "string" },
+        "description": "Campaign internal status name or case-insensitive alias."
+      },
+      "Payout": {
+        "name": "payout",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "number", "minimum": 0, "default": 0 }
+      },
+      "Currency": {
+        "name": "currency",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "string", "pattern": "^[A-Za-z]{3}$", "default": "USD" }
+      },
+      "Tid": {
+        "name": "tid",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "string", "maxLength": 255 },
+        "description": "Default transaction identifier parameter. A campaign may configure alternative names; each name has its own deduplication namespace, and only one configured name may be non-empty in a request."
+      },
+      "Pbkey": {
+        "name": "pbkey",
+        "in": "query",
+        "required": false,
+        "schema": { "type": "string" },
+        "description": "Campaign postback key when pbkey protection is enabled."
+      }
+    },
+    "schemas": {
+      "PostbackRequest": {
+        "type": "object",
+        "required": ["clickid", "status"],
+        "properties": {
+          "clickid": { "type": "string" },
+          "status": { "type": "string" },
+          "payout": { "type": "number", "minimum": 0, "default": 0 },
+          "currency": { "type": "string", "pattern": "^[A-Za-z]{3}$", "default": "USD" },
+          "tid": {
+            "type": "string",
+            "maxLength": 255,
+            "description": "Default transaction ID parameter. A configured alternative property may be used instead; send only one non-empty configured transaction ID property."
+          },
+          "pbkey": { "type": "string" }
+        }
+      },
+      "ConversionResult": {
+        "type": "object",
+        "required": ["ok", "code", "message"],
+        "properties": {
+          "ok": { "type": "boolean" },
+          "code": {
+            "type": "string",
+            "example": "accepted"
+          },
+          "message": { "type": "string" },
+          "status": {
+            "type": "string",
+            "nullable": true,
+            "description": "Normalized internal campaign status."
+          },
+          "conversion_id": {
+            "type": "integer",
+            "nullable": true
+          }
+        }
+      },
+      "EventRequest": {
+        "oneOf": [
+          { "$ref": "#/components/schemas/OrdinaryEventRequest" },
+          { "$ref": "#/components/schemas/PerformanceEventRequest" }
+        ]
+      },
+      "OrdinaryEventRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["clickid", "step_index", "variant", "event", "value"],
+        "properties": {
+          "clickid": { "type": "string", "minLength": 1, "maxLength": 255 },
+          "step_index": { "type": "integer", "minimum": 0 },
+          "variant": { "type": "string", "minLength": 1, "maxLength": 2048 },
+          "event": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{0,63}$"
+          },
+          "value": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 2592000000,
+            "description": "Elapsed milliseconds from collector initialization to the first occurrence."
+          }
+        }
+      },
+      "PerformanceEventRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["clickid", "step_index", "variant", "performance"],
+        "properties": {
+          "clickid": { "type": "string", "minLength": 1, "maxLength": 255 },
+          "step_index": { "type": "integer", "minimum": 0 },
+          "variant": { "type": "string", "minLength": 1, "maxLength": 2048 },
+          "performance": {
+            "type": "object",
+            "additionalProperties": false,
+            "minProperties": 1,
+            "maxProperties": 5,
+            "properties": {
+              "ttfb": { "type": "number", "minimum": 0, "maximum": 86400000 },
+              "fcp": { "type": "number", "minimum": 0, "maximum": 86400000 },
+              "lcp": { "type": "number", "minimum": 0, "maximum": 86400000 },
+              "inp": { "type": "number", "minimum": 0, "maximum": 86400000 },
+              "cls": { "type": "number", "minimum": 0, "maximum": 100 }
+            }
+          }
+        }
+      },
+      "EventAcceptedResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ok"],
+        "properties": {
+          "ok": { "type": "boolean", "enum": [true] }
+        }
+      },
+      "EventErrorResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["error"],
+        "properties": {
+          "error": { "type": "string" }
+        }
+      }
+    },
+    "responses": {
+      "ConversionAccepted": {
+        "description": "Conversion row accepted.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ConversionResult" }
+          }
+        }
+      },
+      "ConversionRejected": {
+        "description": "Request rejected with a machine-readable result when it is not masked by pbkey protection.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ConversionResult" }
+          }
+        }
+      },
+      "EventAccepted": {
+        "description": "The first value is stored, or this is an idempotent retry of an already stored sample.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/EventAcceptedResult" }
+          }
+        }
+      },
+      "EventRejected": {
+        "description": "Malformed payload, identity mismatch, disabled event, or temporary storage failure.",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/EventErrorResult" }
+          }
+        }
+      }
+    }
+  }
+}

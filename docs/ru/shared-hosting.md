@@ -16,23 +16,13 @@ YellowTDS можно установить на обычный виртуальн
 
 ## Какие файлы загружать
 
-Самый надёжный вариант — скачать ZIP ветки `multipleconfigs`, распаковать его локально и загрузить содержимое каталога YellowTDS в каталог сайта:
+Скачайте ZIP ветки `multipleconfigs`, распакуйте его локально и загрузите в каталог сайта только содержимое `code/`:
 
 ```text
 https://github.com/dvygolov/YellowTDS/archive/refs/heads/multipleconfigs.zip
 ```
 
-Обязательно сохраните PHP-файлы в корне, а также каталоги `admin/`, `api/`, `bases/`, `caching/`, `cron/`, `db/`, `js/`, `plugins/`, `scripts/`, `thankyou/`, `tmp/`, `logs/` и `ycclogs/`. Runtime-каталоги должны существовать, даже если при загрузке они пустые.
-
-Для рабочей установки не нужны:
-
-- `.git/`, `.github/`, `.vscode/`, `.playwright-cli/` и `.phpunit.cache/`;
-- `docs/` и `tests/`;
-- README-файлы, `agents.md`, `phpunit.xml` и `install.sh`;
-- файлы IDE `YellowTDS.sln`, `YellowTDS.phpproj`, `YellowTDS.phpproj.user`;
-- локальные `db/*.db`, `db/*.db-wal`, `db/*.db-shm`, логи и содержимое runtime-кэшей.
-
-Если сомневаетесь, загрузите весь архив: это безопаснее, чем удалить рабочую зависимость. Служебные файлы затем закройте правилами ниже.
+Каталог `code/` уже является полным дистрибутивом: в document root должны попасть его корневые PHP-файлы и внутренние `admin/`, `api/`, `bases/`, `caching/`, `cron/`, `db/`, `js/`, `plugins/`, `scripts/`, `thankyou/`, `tmp/`, `logs/` и `ycclogs/`. `docs/`, `tests/` и `temp/` на сервер не загружаются.
 
 ## Корень, папка или подпапка
 

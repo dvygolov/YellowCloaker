@@ -9,11 +9,27 @@ Campaign statistics let you:
 - configure group by
 - save filters
 - save order by
+- save MVT grouping
 - export tables to XLSX
 
 ![Statistics table example](../assets/screenshots/statistics-table-overview.png)
 
 ![Statistics table editor modal](../assets/screenshots/statistics-table-editor-modal.png)
+
+## MVT Grouping
+
+Open the table editor with the columns icon. Under **MVT grouping**, select a `Flow / Step / Landing` placement and then choose:
+
+- **All combinations** — the exact assignment across all TESTs, such as `ACB`;
+- **TEST1**, **TEST2**, and the others — Value A, B, C… for one TEST.
+
+The choice is saved with this table and is appended after the ordinary Group by hierarchy without consuming one of its three slots. Select **None** to disable MVT grouping for the table.
+
+![MVT grouping in statistics](../assets/screenshots/statistics-mvt-grouping.png)
+
+Combination labels use no separators. A missing TEST number is shown as a dash: TEST1=A, TEST2=C, TEST4=B is displayed as `AC-B`. Sorting and aggregation use the structured JSON assignment rather than parsing this short label.
+
+MVT grouping is always scoped to its campaign, flow, step, and landing, so identically numbered TESTs from different placements cannot mix. A click is counted when it reaches the step. A conversion is attributed to the MVT assignment of every step reached by its recorded conversion step. No separate impression or pageview rows are created.
 
 ## Custom Metrics
 
