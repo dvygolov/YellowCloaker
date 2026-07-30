@@ -70,8 +70,8 @@
                             <button type="button" class="settings-current-value" id="addCurrentAdminDomain" hidden></button>
                         </label>
                         <label class="settings-field">
-                            <span>Allowed admin IP</span>
-                            <input type="text" name="adminIp" placeholder="Empty means any IP">
+                            <span>Allowed admin IPs</span>
+                            <input type="text" name="adminIp" placeholder="Comma-separated; empty means any IP">
                             <button type="button" class="settings-current-value" id="addCurrentAdminIp" hidden></button>
                         </label>
                     </div>

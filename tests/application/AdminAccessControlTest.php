@@ -57,6 +57,14 @@ class AdminAccessControlTest extends TestCase
         $this->assertStringNotContainsString('203.0.113.15', $response['body']);
     }
 
+    public function testIpRestrictionAllowsAnyAddressInCommaSeparatedList(): void
+    {
+        $this->assertNull(get_admin_access_error(
+            ['REMOTE_ADDR' => '203.0.113.15'],
+            ['adminDomain' => '', 'adminIp' => '198.51.100.10, 203.0.113.15']
+        ));
+    }
+
     public function testDebugDenialKeepsDiagnosticMessage(): void
     {
         $error = 'Admin Domain mismatch details';

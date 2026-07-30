@@ -69,7 +69,7 @@ See: [VPS Installation](docs/en/installation.md).
    - `dbConnection`
    - `debug` (`false` in production)
    - `adminDomain` if needed
-   - `adminIp` if needed
+   - `adminIp` if needed: one or more comma-separated IP addresses
 3. Make sure PHP can write to:
    - `db/`
    - `logs/`

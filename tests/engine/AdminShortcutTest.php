@@ -32,6 +32,17 @@ class AdminShortcutTest extends TestCase
         );
     }
 
+    public function testRedirectsWhenAdminIpMatchesAnyConfiguredIp(): void
+    {
+        $this->assertSame(
+            '/e3c80abc/',
+            get_admin_shortcut_redirect(
+                $this->server(),
+                $this->settings(['adminIp' => '198.51.100.10, ' . self::ADMIN_IP])
+            )
+        );
+    }
+
     public function testPreservesApplicationSubdirectoryInRedirect(): void
     {
         $this->assertSame(

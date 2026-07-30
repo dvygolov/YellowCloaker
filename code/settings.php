@@ -239,8 +239,20 @@ final class SettingsManager
         if (($next['adminDomain'] ?? '') !== '' && preg_match('/^(?:[A-Za-z0-9](?:[A-Za-z0-9.-]{0,251}[A-Za-z0-9])?)$/', (string)$next['adminDomain']) !== 1) {
             $errors['adminDomain'] = 'Invalid domain';
         }
-        if (($next['adminIp'] ?? '') !== '' && filter_var($next['adminIp'], FILTER_VALIDATE_IP) === false) {
-            $errors['adminIp'] = 'Invalid IP address';
+        if (($next['adminIp'] ?? '') !== '') {
+            $adminIps = array_map(
+                static fn(string $ip): string => trim($ip),
+                explode(',', (string)$next['adminIp'])
+            );
+            $invalidAdminIps = array_filter(
+                $adminIps,
+                static fn(string $ip): bool => $ip === '' || filter_var($ip, FILTER_VALIDATE_IP) === false
+            );
+            if ($invalidAdminIps !== []) {
+                $errors['adminIp'] = 'Enter valid IP addresses separated by commas';
+            } else {
+                $next['adminIp'] = implode(', ', array_values(array_unique($adminIps)));
+            }
         }
         if (!in_array((string)($next['timezone'] ?? ''), timezone_identifiers_list(), true)) {
             $errors['timezone'] = 'Select a valid IANA timezone';

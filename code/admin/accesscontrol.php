@@ -33,10 +33,27 @@ function get_admin_request_ip(array $server, ?callable $isCloudflareIp = null): 
     return '';
 }
 
+/** @return list<string> */
+function get_allowed_admin_ips(array $settings): array
+{
+    $configuredIps = trim((string)($settings['adminIp'] ?? ''));
+    if ($configuredIps === '') {
+        return [];
+    }
+
+    return array_values(array_unique(array_filter(
+        array_map(static fn(string $ip): string => trim($ip), explode(',', $configuredIps)),
+        static fn(string $ip): bool => $ip !== ''
+    )));
+}
+
 function get_admin_shortcut_redirect(array $server, array $settings, ?callable $isCloudflareIp = null): ?string
 {
-    $adminIp = trim((string)($settings['adminIp'] ?? ''));
-    if ($adminIp === '' || get_admin_request_ip($server, $isCloudflareIp) !== $adminIp) {
+    $adminIps = get_allowed_admin_ips($settings);
+    if (
+        $adminIps === []
+        || !in_array(get_admin_request_ip($server, $isCloudflareIp), $adminIps, true)
+    ) {
         return null;
     }
 
@@ -66,11 +83,11 @@ function get_admin_access_error(array $server, array $settings, ?callable $isClo
         }
     }
 
-    $adminIp = trim((string)($settings['adminIp'] ?? ''));
-    if ($adminIp !== '') {
+    $configuredAdminIps = trim((string)($settings['adminIp'] ?? ''));
+    if ($configuredAdminIps !== '') {
         $currentIp = get_admin_request_ip($server, $isCloudflareIp);
-        if ($currentIp !== $adminIp) {
-            return "Admin IP $adminIp is set, but your IP is $currentIp. You are not allowed to access this page!";
+        if (!in_array($currentIp, get_allowed_admin_ips($settings), true)) {
+            return "Admin IPs $configuredAdminIps are set, but your IP is $currentIp. You are not allowed to access this page!";
         }
     }
 

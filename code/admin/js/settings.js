@@ -598,9 +598,17 @@
         node('#addCurrentAdminIp')?.addEventListener('click', () => {
             const button = node('#addCurrentAdminIp');
             if (!button.dataset.ip) return;
-            field('adminIp').value = button.dataset.ip;
-            field('adminIp').classList.remove('is-invalid');
-            field('adminIp').focus();
+            const input = field('adminIp');
+            const configuredIps = input.value
+                .split(',')
+                .map((ip) => ip.trim())
+                .filter(Boolean);
+            if (!configuredIps.includes(button.dataset.ip)) {
+                configuredIps.push(button.dataset.ip);
+            }
+            input.value = configuredIps.join(', ');
+            input.classList.remove('is-invalid');
+            input.focus();
         });
         node('#closeSettings')?.addEventListener('click', () => $.modal.close());
         node('#cancelSettings')?.addEventListener('click', () => $.modal.close());

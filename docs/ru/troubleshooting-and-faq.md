@@ -6,7 +6,7 @@
 
 - `adminPassword`
 - `adminDomain`
-- `adminIp`
+- список `adminIp` и наличие текущего IP среди адресов через запятую
 - блокировку по rate limit
 
 ## Пустая статистика

@@ -6,7 +6,7 @@ Check:
 
 - `adminPassword`
 - `adminDomain`
-- `adminIp`
+- the `adminIp` list and whether it contains the current IP
 - rate limiting
 
 ## Statistics are empty

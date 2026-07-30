@@ -49,8 +49,26 @@ class AdminAccessTest extends TestCase
         ];
 
         $this->assertSame(
-            'Admin IP 198.51.100.10 is set, but your IP is 203.0.113.15. You are not allowed to access this page!',
+            'Admin IPs 198.51.100.10 are set, but your IP is 203.0.113.15. You are not allowed to access this page!',
             get_admin_access_error($server, $settings)
+        );
+    }
+
+    public function testAllowsAnyConfiguredAdminIp(): void
+    {
+        $server = [
+            'SERVER_NAME' => 'admin.example.com',
+            'REMOTE_ADDR' => '203.0.113.15',
+        ];
+        $settings = [
+            'adminDomain' => '',
+            'adminIp' => '198.51.100.10, 203.0.113.15, 2001:db8::10',
+        ];
+
+        $this->assertNull(get_admin_access_error($server, $settings));
+        $this->assertSame(
+            ['198.51.100.10', '203.0.113.15', '2001:db8::10'],
+            get_allowed_admin_ips($settings)
         );
     }
 
@@ -86,7 +104,7 @@ class AdminAccessTest extends TestCase
 
         $this->assertSame('203.0.113.15', get_admin_request_ip($server, $cloudflareChecker));
         $this->assertSame(
-            'Admin IP 8.8.8.8 is set, but your IP is 203.0.113.15. You are not allowed to access this page!',
+            'Admin IPs 8.8.8.8 are set, but your IP is 203.0.113.15. You are not allowed to access this page!',
             get_admin_access_error($server, $settings, $cloudflareChecker)
         );
     }

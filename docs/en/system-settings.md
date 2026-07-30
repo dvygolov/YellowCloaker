@@ -17,7 +17,7 @@ The **Settings** button in the header opens instance-wide YellowTDS settings. Th
 
 The **TDS timezone** selector keeps the IANA identifier and shows its current UTC offset, for example `Europe/Samara (UTC+04:00)`. The offset can change with daylight-saving rules.
 
-On the **Security** tab, the server-detected current domain and IP are shown below **Allowed admin domain** and **Allowed admin IP**. **Add current domain** and **Add current IP** copy the corresponding value into the field with one click; the domain is inserted without a port number. On the **Plugins** tab, every plugin has an explicit switch and an **Enabled** or **Disabled** label; options belonging to a disabled plugin are inactive.
+On the **Security** tab, the server-detected current domain and IP are shown below **Allowed admin domain** and **Allowed admin IPs**. **Allowed admin IPs** accepts multiple IPv4 and IPv6 addresses in one comma-separated line, for example `198.51.100.10, 203.0.113.15, 2001:db8::10`; access is allowed from any address in the list. An empty field disables the IP restriction. **Add current IP** appends the detected address with a comma only when the list is not empty and does not add a duplicate. **Add current domain** inserts the current domain without a port number. On the **Plugins** tab, every plugin has an explicit switch and an **Enabled** or **Disabled** label; options belonging to a disabled plugin are inactive.
 
 Changing the admin path, database file name, backup folder, or cache root physically renames the corresponding files and directories. Existing destinations are treated as conflicts and are never overwritten or merged. After an admin path change, the browser automatically redirects to the new URL.
 

@@ -30,9 +30,11 @@ You can restrict admin access to a single host with:
 
 ## IP Restriction
 
-You can also restrict admin access to a single IP with:
+You can also restrict admin access to selected IP addresses with:
 
 - `adminIp`
+
+The value contains one or more comma-separated IPv4/IPv6 addresses, for example `198.51.100.10, 203.0.113.15, 2001:db8::10`. Access is allowed when the current IP matches any address in the list. Existing single-IP values remain valid.
 
 When the site is behind Cloudflare, the IP check uses `CF-Connecting-IP`, but only if the proxy IP itself belongs to Cloudflare. This check depends on a readable and fresh ASN geobase.
 

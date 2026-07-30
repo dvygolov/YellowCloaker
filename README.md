@@ -73,7 +73,7 @@ curl -fsSL https://raw.githubusercontent.com/dvygolov/YellowTDS/multipleconfigs/
    - `dbConnection`
    - `debug` (`false` для production)
    - `adminDomain` при необходимости
-   - `adminIp` при необходимости
+   - `adminIp` при необходимости: один или несколько IP через запятую
 3. Убедитесь, что PHP может писать в:
    - `db/`
    - `logs/`

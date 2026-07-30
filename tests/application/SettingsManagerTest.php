@@ -133,6 +133,34 @@ class SettingsManagerTest extends TestCase
         }
     }
 
+    public function testAdminIpListIsValidatedAndNormalized(): void
+    {
+        $settings = $this->manager->load();
+        $settings['adminIp'] = '198.51.100.10, 203.0.113.15, 198.51.100.10, 2001:db8::10';
+        $saved = $this->manager->save($settings, 0, $this->catalog);
+
+        $this->assertSame(
+            '198.51.100.10, 203.0.113.15, 2001:db8::10',
+            $saved['settings']['adminIp']
+        );
+    }
+
+    public function testAdminIpListRejectsInvalidEntries(): void
+    {
+        $settings = $this->manager->load();
+        $settings['adminIp'] = '198.51.100.10, not-an-ip';
+
+        try {
+            $this->manager->save($settings, 0, $this->catalog);
+            $this->fail('Expected validation exception');
+        } catch (SettingsValidationException $e) {
+            $this->assertSame(
+                'Enter valid IP addresses separated by commas',
+                $e->errors['adminIp'] ?? null
+            );
+        }
+    }
+
     public function testBackupDirectoryCannotOverlapSystemStorage(): void
     {
         $settings = $this->manager->load();
