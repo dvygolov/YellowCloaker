@@ -5,6 +5,8 @@ require_once __DIR__ . '/settings.php';
 final class YellowTdsLogger
 {
     public const LEVELS = ['trace', 'info', 'warning', 'error'];
+    public const POSTBACK_DIRECTIONS = ['incoming', 'outgoing'];
+    public const POSTBACK_SUCCESS_OUTCOMES = ['accepted', 'delivered', 'sent_unconfirmed'];
     private const CLEANUP_MARKER = '.retention-cleanup';
 
     public function __construct(
@@ -54,6 +56,30 @@ final class YellowTdsLogger
         );
         $this->cleanupIfDue();
         return $written !== false;
+    }
+
+    public function logPostback(
+        string $direction,
+        string $outcome,
+        string $message,
+        array $context = []
+    ): bool {
+        $direction = strtolower(trim($direction));
+        $outcome = strtolower(trim($outcome));
+        if (!in_array($direction, self::POSTBACK_DIRECTIONS, true)) {
+            throw new InvalidArgumentException('Unsupported postback direction');
+        }
+        if (preg_match('/^[a-z][a-z0-9_]{0,31}$/', $outcome) !== 1) {
+            throw new InvalidArgumentException('Invalid postback outcome');
+        }
+
+        $level = in_array($outcome, self::POSTBACK_SUCCESS_OUTCOMES, true) ? 'info' : 'warning';
+        return $this->log(
+            $level,
+            'postback.' . $direction,
+            $message,
+            ['direction' => $direction, 'outcome' => $outcome] + $context
+        );
     }
 
     public function cleanupIfDue(?int $now = null): int
@@ -145,10 +171,10 @@ final class YellowTdsLogReader
                 }
                 $level = strtolower((string)$entry['level']);
                 $source = strtolower((string)$entry['source']);
-                $counts[$level]++;
                 $availableSources[$source] = true;
-                if ($levels !== [] && !in_array($level, $levels, true)) continue;
                 if ($sources !== [] && !in_array($source, $sources, true)) continue;
+                $counts[$level]++;
+                if ($levels !== [] && !in_array($level, $levels, true)) continue;
                 if ($search !== '' && !str_contains(mb_strtolower($line, 'UTF-8'), $search)) continue;
                 if ($matched++ < $offset) continue;
                 if (count($entries) >= $limit) {
@@ -218,6 +244,17 @@ function ytds_log(string $level, string $source, string $message, array $context
     static $logger;
     $logger ??= new YellowTdsLogger();
     return $logger->log($level, $source, $message, $context);
+}
+
+function ytds_log_postback(
+    string $direction,
+    string $outcome,
+    string $message,
+    array $context = []
+): bool {
+    static $logger;
+    $logger ??= new YellowTdsLogger();
+    return $logger->logPostback($direction, $outcome, $message, $context);
 }
 
 /** Backward-compatible wrapper for integrations still calling the legacy API. */

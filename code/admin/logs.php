@@ -14,12 +14,20 @@ $startDate = DateTimeImmutable::createFromFormat('!d.m.y', $calendarStart, new D
 $endDate = DateTimeImmutable::createFromFormat('!d.m.y', $calendarEnd, new DateTimeZone($tz));
 $start = $startDate !== false && $startDate->format('d.m.y') === $calendarStart ? $startDate->format('Y-m-d') : '';
 $end = $endDate !== false && $endDate->format('d.m.y') === $calendarEnd ? $endDate->format('Y-m-d') : '';
+$view = (string)($_GET['view'] ?? 'server') === 'postbacks' ? 'postbacks' : 'server';
 $levels = isset($_GET['levels']) && is_array($_GET['levels'])
     ? array_values(array_map('strval', $_GET['levels']))
     : ['info', 'warning', 'error'];
+$postbackSources = ['postback.incoming', 'postback.outgoing'];
 $sources = isset($_GET['sources']) && is_array($_GET['sources'])
     ? array_values(array_map('strval', $_GET['sources']))
     : [];
+if ($view === 'postbacks') {
+    $sources = array_values(array_intersect($postbackSources, $sources));
+    if ($sources === []) {
+        $sources = $postbackSources;
+    }
+}
 $search = trim((string)($_GET['search'] ?? ''));
 $cursor = isset($_GET['cursor']) ? (string)$_GET['cursor'] : null;
 $reader = new YellowTdsLogReader(dirname(__DIR__));
@@ -109,6 +117,30 @@ function logs_query(array $overrides = []): string
     }
     return http_build_query($params);
 }
+
+function logs_source_label(string $source, string $view): string
+{
+    if ($view !== 'postbacks') {
+        return $source;
+    }
+    return match ($source) {
+        'postback.incoming' => 'Incoming',
+        'postback.outgoing' => 'Outgoing',
+        default => $source,
+    };
+}
+
+function logs_postback_outcome_label(string $outcome): string
+{
+    return match ($outcome) {
+        'accepted' => 'Accepted',
+        'rejected' => 'Rejected',
+        'delivered' => 'Delivered',
+        'sent_unconfirmed' => 'Sent · response not checked',
+        'failed' => 'Failed',
+        default => str_replace('_', ' ', ucfirst($outcome)),
+    };
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -117,18 +149,38 @@ function logs_query(array $overrides = []): string
 <body class="logs-page">
 <?php include __DIR__ . '/header.php'; ?>
 <main class="all-content-wrapper logs-content">
+    <nav class="logs-tabs" aria-label="Log views">
+        <a class="logs-tab<?= $view === 'server' ? ' active' : '' ?>" href="?<?=logs_h(http_build_query(['view' => 'server', 'startdate' => $calendarStart, 'enddate' => $calendarEnd]))?>"<?= $view === 'server' ? ' aria-current="page"' : '' ?>>
+            <i class="bi bi-list-ul"></i> Server logs
+        </a>
+        <a class="logs-tab<?= $view === 'postbacks' ? ' active' : '' ?>" href="?<?=logs_h(http_build_query(['view' => 'postbacks', 'startdate' => $calendarStart, 'enddate' => $calendarEnd]))?>"<?= $view === 'postbacks' ? ' aria-current="page"' : '' ?>>
+            <i class="bi bi-arrow-left-right"></i> Postbacks
+        </a>
+    </nav>
+    <?php if ($view === 'postbacks'): ?>
+        <p class="postback-log-note">
+            Incoming requests show whether YellowTDS accepted them. Conversion S2S deliveries show the recipient HTTP result; event S2S keeps collection fast and reports a successful socket write as “response not checked”.
+        </p>
+    <?php endif; ?>
     <form class="logs-filters" method="get">
+        <input type="hidden" name="view" value="<?=logs_h($view)?>">
         <input type="hidden" name="startdate" value="<?=logs_h($calendarStart)?>">
         <input type="hidden" name="enddate" value="<?=logs_h($calendarEnd)?>">
         <div class="logs-filter-top">
-            <label class="logs-search"><span>Search</span><input class="form-control" type="search" name="search" value="<?=logs_h($search)?>" placeholder="Message or context"></label>
+            <label class="logs-search"><span>Search</span><input class="form-control" type="search" name="search" value="<?=logs_h($search)?>" placeholder="<?= $view === 'postbacks' ? 'Click ID, status, URL or response' : 'Message or context' ?>"></label>
             <div class="logs-filter-actions">
                 <button class="btn btn-primary" type="submit"><i class="bi bi-funnel"></i> Apply</button>
-                <a class="btn btn-outline-secondary" href="?<?=logs_h(http_build_query(['startdate' => $calendarStart, 'enddate' => $calendarEnd]))?>">Reset</a>
+                <a class="btn btn-outline-secondary" href="?<?=logs_h(http_build_query(['view' => $view, 'startdate' => $calendarStart, 'enddate' => $calendarEnd]))?>">Reset</a>
                 <a class="btn btn-success" href="?<?=logs_h(logs_query(['download' => '1', 'cursor' => null]))?>"><i class="bi bi-download"></i> Download ZIP</a>
             </div>
         </div>
-        <?php $availableSources = array_values(array_unique(array_merge($result['sources'] ?? [], $sources))); sort($availableSources); ?>
+        <?php
+        $availableSources = array_values(array_unique(array_merge($result['sources'] ?? [], $sources)));
+        if ($view === 'postbacks') {
+            $availableSources = array_values(array_intersect($postbackSources, $availableSources));
+        }
+        sort($availableSources);
+        ?>
         <div class="logs-filter-bar">
             <div class="logs-chip-filter" data-chip-filter data-name="levels[]">
                 <span class="logs-filter-label">Levels</span>
@@ -157,8 +209,8 @@ function logs_query(array $overrides = []): string
                     <div class="logs-chips" data-chip-list>
                         <?php foreach ($sources as $source): if (!in_array($source, $availableSources, true)) continue; ?>
                             <span class="logs-chip chip-source" data-value="<?=logs_h($source)?>">
-                                <span><?=logs_h($source)?></span>
-                                <button type="button" data-remove-chip aria-label="Remove <?=logs_h($source)?>">&times;</button>
+                                <span><?=logs_h(logs_source_label($source, $view))?></span>
+                                <button type="button" data-remove-chip aria-label="Remove <?=logs_h(logs_source_label($source, $view))?>">&times;</button>
                                 <input type="hidden" name="sources[]" value="<?=logs_h($source)?>">
                             </span>
                         <?php endforeach; ?>
@@ -166,7 +218,7 @@ function logs_query(array $overrides = []): string
                     </div>
                     <select class="logs-chip-add" data-chip-add aria-label="Add log source">
                         <option value="">+ Add</option>
-                        <?php foreach ($availableSources as $source): ?><option value="<?=logs_h($source)?>" data-label="<?=logs_h($source)?>"><?=logs_h($source)?></option><?php endforeach; ?>
+                        <?php foreach ($availableSources as $source): ?><option value="<?=logs_h($source)?>" data-label="<?=logs_h(logs_source_label($source, $view))?>"><?=logs_h(logs_source_label($source, $view))?></option><?php endforeach; ?>
                     </select>
                 </div>
             </div>
@@ -179,15 +231,25 @@ function logs_query(array $overrides = []): string
     <section class="logs-stream" aria-live="polite">
         <?php if ($error === null && $result['entries'] === []): ?><div class="logs-empty">No records match the selected filters.</div><?php endif; ?>
         <?php foreach ($result['entries'] as $entry): ?>
-            <article class="log-entry log-<?=logs_h($entry['level'])?>">
+            <?php
+            $entryContext = is_array($entry['context'] ?? null) ? $entry['context'] : [];
+            $postbackOutcome = isset($entryContext['outcome']) ? (string)$entryContext['outcome'] : '';
+            ?>
+            <article class="log-entry log-<?=logs_h($entry['level'])?><?= $postbackOutcome !== '' ? ' postback-outcome-' . logs_h($postbackOutcome) : '' ?>">
                 <div class="log-meta">
                     <time datetime="<?=logs_h($entry['timestamp'])?>"><?=logs_h(logs_format_timestamp((string)$entry['timestamp'], $tz))?></time>
                     <span class="log-level"><?=logs_h(strtoupper($entry['level']))?></span>
-                    <span class="log-source"><?=logs_h($entry['source'])?></span>
+                    <span class="log-source"><?=logs_h(logs_source_label((string)$entry['source'], $view))?></span>
+                    <?php if ($postbackOutcome !== ''): ?>
+                        <span class="postback-outcome"><?=logs_h(logs_postback_outcome_label($postbackOutcome))?></span>
+                    <?php endif; ?>
+                    <?php if (isset($entryContext['http_code'])): ?>
+                        <span class="postback-http">HTTP <?= (int)$entryContext['http_code'] ?></span>
+                    <?php endif; ?>
                 </div>
                 <div class="log-message"><?=nl2br(logs_h($entry['message']))?></div>
-                <?php if (!empty($entry['context']) && is_array($entry['context'])): ?>
-                    <details><summary>Context</summary><pre><?=logs_h(json_encode($entry['context'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE))?></pre></details>
+                <?php if ($entryContext !== []): ?>
+                    <details><summary>Details</summary><pre><?=logs_h(json_encode($entryContext, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE))?></pre></details>
                 <?php endif; ?>
             </article>
         <?php endforeach; ?>

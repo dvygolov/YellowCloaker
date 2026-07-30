@@ -80,3 +80,17 @@ Browser-event-triggered S2S URLs support `{clickid}`, `{userid}`, `{domain}`, `c
 Browser-event-triggered S2S is sent in fire-and-forget mode: YellowTDS writes the HTTP request to a write-only socket and does not wait for the partner's HTTP response. These deliveries have no queue, retries, or delivery guarantee; an unavailable server, network error, or a partner response after the write is not retried automatically. Conversion-status S2S remains an ordinary confirmed delivery. Use event-triggered S2S for best-effort notifications, not as the only confirmation of a financial conversion.
 
 Browser events originate on the visitor's page and are untrusted engagement signals. Do not treat them as protected proof of payment, fraud prevention, or a server-side status; select them for S2S only where this best-effort meaning is acceptable.
+
+## Postback Log
+
+Select **Logs** on the dashboard, then open the **Postbacks** tab. One chronological stream contains:
+
+- every incoming `api/postback.php` result: `Accepted` or `Rejected`, HTTP code, campaign, click ID, incoming and normalized status, payout, currency, and result code;
+- every conversion S2S attempt: `Delivered` only for a `2xx` response, otherwise `Failed`, with the method, final URL, HTTP code, transport error, and a shortened response body;
+- every event S2S attempt: `Sent · response not checked` after the full request is written to the socket, or `Failed` when connection or writing fails.
+
+![Incoming and outgoing postback log](../assets/screenshots/postback-log-viewer.png)
+
+Use **Levels** and **Sources** to keep only incoming or outgoing records. Search covers click IDs, statuses, URLs, and responses. **Download ZIP** exports the filtered JSON Lines records plus a filter manifest.
+
+`Sent · response not checked` does not mean the partner accepted an event S2S request: the fast event transport intentionally does not wait for its HTTP response. For conversion S2S, `Delivered` means a successful `2xx` HTTP response, not independent confirmation of the business result in the partner system.

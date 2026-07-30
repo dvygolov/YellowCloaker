@@ -342,8 +342,10 @@ function yellowtds_expand_event_s2s_url(
     string $eventName,
     int $eventValue,
     int $stepIndex,
-    string $variant
+    string $variant,
+    ?string &$error = null
 ): ?string {
+    $error = null;
     $url = strtr($template, [
         '{event}' => rawurlencode($eventName),
         '{event_value}' => rawurlencode((string)$eventValue),
@@ -363,7 +365,7 @@ function yellowtds_expand_event_s2s_url(
         );
         $url = $macros->replace_url_macros($url);
     } catch (Throwable $e) {
-        add_log('postback', 'Failed to expand event S2S macros: ' . $e->getMessage());
+        $error = $e->getMessage();
         return null;
     }
 
@@ -408,21 +410,29 @@ function process_event_s2s_postbacks(
             continue;
         }
 
+        $macroError = null;
         $finalUrl = yellowtds_expand_event_s2s_url(
             $url,
             $click,
             $eventName,
             $eventValue,
             $stepIndex,
-            $variant
+            $variant,
+            $macroError
         );
         if ($finalUrl === null) {
-            add_log('postback', sprintf(
-                'Event S2S #%d skipped: macro expansion failed for event=%s clickid=%s',
-                $index + 1,
-                $eventName,
-                (string)($click['clickid'] ?? '')
-            ));
+            ytds_log_postback('outgoing', 'failed', 'Outgoing event S2S postback failed', [
+                'rule_number' => $index + 1,
+                'trigger_type' => 'event',
+                'method' => $method,
+                'campaign_id' => isset($click['campaign_id']) ? (int)$click['campaign_id'] : null,
+                'clickid' => (string)($click['clickid'] ?? ''),
+                'event' => $eventName,
+                'event_value' => $eventValue,
+                'error' => $macroError === null || $macroError === ''
+                    ? 'Macro expansion failed'
+                    : 'Macro expansion failed: ' . $macroError,
+            ]);
             continue;
         }
 
@@ -433,16 +443,29 @@ function process_event_s2s_postbacks(
             $sent = false;
             $transportError = 'transport error: ' . $e->getMessage();
         }
-        $host = parse_url($finalUrl, PHP_URL_HOST);
-        add_log('postback', sprintf(
-            'Event S2S #%d: method=%s host=%s event=%s clickid=%s result=%s%s',
-            $index + 1,
-            $method,
-            is_string($host) ? $host : 'invalid',
-            $eventName,
-            (string)($click['clickid'] ?? ''),
-            $sent ? 'written' : 'failed',
-            $transportError === '' ? '' : ' error=' . $transportError
-        ));
+        $context = [
+            'rule_number' => $index + 1,
+            'trigger_type' => 'event',
+            'method' => $method,
+            'campaign_id' => isset($click['campaign_id']) ? (int)$click['campaign_id'] : null,
+            'clickid' => (string)($click['clickid'] ?? ''),
+            'event' => $eventName,
+            'event_value' => $eventValue,
+            'step_index' => $stepIndex,
+            'variant' => $variant,
+            'url' => $finalUrl,
+            'response_checked' => false,
+        ];
+        if ($transportError !== '') {
+            $context['error'] = $transportError;
+        }
+        ytds_log_postback(
+            'outgoing',
+            $sent ? 'sent_unconfirmed' : 'failed',
+            $sent
+                ? 'Outgoing event S2S postback sent; recipient response was not checked'
+                : 'Outgoing event S2S postback failed',
+            array_filter($context, static fn(mixed $value): bool => $value !== null && $value !== '')
+        );
     }
 }

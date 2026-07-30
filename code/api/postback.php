@@ -92,6 +92,27 @@ function postback_response(?Campaign $campaign, array $result, int $statusCode):
         && $campaign !== null
         && $campaign->postback->pbkeyEnabled
         && !($cloSettings['debug'] ?? false);
+    $publicStatusCode = $hideFailure ? 404 : $statusCode;
+
+    ytds_log_postback(
+        'incoming',
+        $accepted ? 'accepted' : 'rejected',
+        $accepted ? 'Incoming postback accepted' : 'Incoming postback rejected',
+        array_filter([
+            'method' => strtoupper((string)($_SERVER['REQUEST_METHOD'] ?? 'GET')),
+            'campaign_id' => $campaign?->campaignId,
+            'clickid' => postback_log_input_value('clickid'),
+            'status' => postback_log_input_value('status'),
+            'resolved_status' => isset($result['status']) ? (string)$result['status'] : null,
+            'payout' => postback_log_input_value('payout'),
+            'currency' => postback_log_input_value('currency'),
+            'code' => (string)($result['code'] ?? 'error'),
+            'http_code' => $publicStatusCode,
+            'result_http_code' => $statusCode,
+            'masked' => $hideFailure,
+            'conversion_id' => isset($result['conversion_id']) ? (int)$result['conversion_id'] : null,
+        ], static fn(mixed $value): bool => $value !== null && $value !== '')
+    );
 
     if ($hideFailure) {
         http_response_code(404);
@@ -109,4 +130,18 @@ function postback_response(?Campaign $campaign, array $result, int $statusCode):
         'conversion_id' => $result['conversion_id'] ?? null,
     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     exit;
+}
+
+function postback_log_input_value(string $name): ?string
+{
+    $queryHas = array_key_exists($name, $_GET);
+    $bodyHas = array_key_exists($name, $_POST);
+    if ($queryHas === $bodyHas) {
+        return null;
+    }
+    $value = $queryHas ? $_GET[$name] : $_POST[$name];
+    if (!is_scalar($value)) {
+        return null;
+    }
+    return substr(trim((string)$value), 0, 512);
 }

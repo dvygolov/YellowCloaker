@@ -30,6 +30,46 @@ final class LoggingTest extends TestCase
         $this->assertSame('abc', $entry['context']['clickid']);
     }
 
+    public function testWritesStructuredPostbackOutcomesWithDedicatedSources(): void
+    {
+        $logger = new YellowTdsLogger($this->root, ['debug' => false, 'logRetentionDays' => 30]);
+        $this->assertTrue($logger->logPostback(
+            'incoming',
+            'accepted',
+            'Incoming postback accepted',
+            ['clickid' => 'click-1', 'http_code' => 200]
+        ));
+        $this->assertTrue($logger->logPostback(
+            'outgoing',
+            'failed',
+            'Outgoing S2S postback failed',
+            ['clickid' => 'click-1', 'http_code' => 500]
+        ));
+
+        $lines = file($this->root . '/logs/' . date('Y-m-d') . '.log', FILE_IGNORE_NEW_LINES);
+        $this->assertIsArray($lines);
+        $incoming = json_decode((string)$lines[0], true);
+        $outgoing = json_decode((string)$lines[1], true);
+
+        $this->assertSame('info', $incoming['level']);
+        $this->assertSame('postback.incoming', $incoming['source']);
+        $this->assertSame('incoming', $incoming['context']['direction']);
+        $this->assertSame('accepted', $incoming['context']['outcome']);
+        $this->assertSame('warning', $outgoing['level']);
+        $this->assertSame('postback.outgoing', $outgoing['source']);
+        $this->assertSame('failed', $outgoing['context']['outcome']);
+    }
+
+    public function testLogViewerIncludesDedicatedPostbackView(): void
+    {
+        $page = file_get_contents(__DIR__ . '/../../code/admin/logs.php');
+        $this->assertIsString($page);
+        $this->assertStringContainsString('>Postbacks<', str_replace(["\r", "\n", ' '], '', $page));
+        $this->assertStringContainsString("'postback.incoming', 'postback.outgoing'", $page);
+        $this->assertStringContainsString('Sent · response not checked', $page);
+        $this->assertStringContainsString('postback-outcome', $page);
+    }
+
     public function testTraceIsSkippedOutsideDebugMode(): void
     {
         $logger = new YellowTdsLogger($this->root, ['debug' => false]);
@@ -69,6 +109,7 @@ final class LoggingTest extends TestCase
         $this->assertSame('latest click', $page['entries'][0]['message']);
         $this->assertNotNull($page['nextCursor']);
         $this->assertSame(1, $page['malformed']);
+        $this->assertSame(['trace' => 0, 'info' => 1, 'warning' => 1, 'error' => 0], $page['counts']);
 
         $next = $reader->query('2026-07-16', '2026-07-16', ['info', 'warning', 'error'], ['postback'], 'click', $page['nextCursor'], 1);
         $this->assertSame('first click', $next['entries'][0]['message']);

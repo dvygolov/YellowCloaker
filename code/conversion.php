@@ -169,18 +169,64 @@ function process_conversion_s2s_postbacks(array $s2sPostbacks, string $status, a
     $userid = (string)($click['userid'] ?? '');
     $macros = new MacrosProcessor(null, $click, $clickid, $userid);
 
-    foreach ($s2sPostbacks as $s2s) {
+    foreach ($s2sPostbacks as $index => $s2s) {
         if (empty($s2s->url) || !in_array($status, $s2s->statuses, true)) {
             continue;
         }
-        $finalUrl = $macros->replace_url_macros(str_replace('{status}', $status, $s2s->url));
-        $response = match ($s2s->method) {
-            'GET' => get($finalUrl),
-            'POST' => conversion_s2s_post($finalUrl),
-            default => null,
-        };
-        $httpCode = is_array($response) ? (int)($response['info']['http_code'] ?? 0) : 0;
-        add_log('postback', $s2s->method . ', ' . $finalUrl . ', ' . $status . ', ' . $httpCode);
+        $method = strtoupper((string)$s2s->method);
+        $baseContext = [
+            'rule_number' => $index + 1,
+            'trigger_type' => 'conversion',
+            'method' => $method,
+            'campaign_id' => isset($click['campaign_id']) ? (int)$click['campaign_id'] : null,
+            'clickid' => $clickid,
+            'status' => $status,
+        ];
+
+        try {
+            $finalUrl = $macros->replace_url_macros(str_replace('{status}', $status, $s2s->url));
+            $response = match ($method) {
+                'GET' => get($finalUrl),
+                'POST' => conversion_s2s_post($finalUrl),
+                default => null,
+            };
+        } catch (Throwable $exception) {
+            ytds_log_postback(
+                'outgoing',
+                'failed',
+                'Outgoing conversion S2S postback failed',
+                $baseContext + ['error' => $exception->getMessage()]
+            );
+            continue;
+        }
+
+        if (!is_array($response)) {
+            ytds_log_postback(
+                'outgoing',
+                'failed',
+                'Outgoing conversion S2S postback failed',
+                $baseContext + ['url' => $finalUrl, 'error' => 'Unsupported S2S method']
+            );
+            continue;
+        }
+
+        $httpCode = (int)($response['info']['http_code'] ?? 0);
+        $transportError = trim((string)($response['error'] ?? ''));
+        $delivered = $transportError === '' && $httpCode >= 200 && $httpCode < 300;
+        $context = $baseContext + [
+            'url' => $finalUrl,
+            'http_code' => $httpCode,
+            'response_body' => conversion_s2s_response_excerpt($response['content'] ?? ''),
+        ];
+        if ($transportError !== '') {
+            $context['error'] = $transportError;
+        }
+        ytds_log_postback(
+            'outgoing',
+            $delivered ? 'delivered' : 'failed',
+            $delivered ? 'Outgoing conversion S2S postback delivered' : 'Outgoing conversion S2S postback failed',
+            array_filter($context, static fn(mixed $value): bool => $value !== null && $value !== '')
+        );
     }
 }
 
@@ -192,4 +238,15 @@ function conversion_s2s_post(string $url): array
         parse_str($parts[1], $params);
     }
     return post($parts[0], $params);
+}
+
+function conversion_s2s_response_excerpt(mixed $content, int $limit = 2048): string
+{
+    if (!is_string($content) || $content === '') {
+        return '';
+    }
+    if (strlen($content) <= $limit) {
+        return $content;
+    }
+    return substr($content, 0, $limit) . '…';
 }

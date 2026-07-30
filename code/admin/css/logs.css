@@ -1,5 +1,10 @@
 .logs-page { min-height: 100vh; background: #111d35; color: #d7dce2; }
 .logs-content { padding: 8px 30px 40px; }
+.logs-tabs { display: flex; gap: 6px; margin: 0 0 14px; border-bottom: 1px solid #2a3f6a; }
+.logs-tab { display: inline-flex; align-items: center; gap: 7px; padding: 10px 14px; border: 1px solid transparent; border-bottom: 0; border-radius: 7px 7px 0 0; color: #9fb0c7; text-decoration: none; }
+.logs-tab:hover { color: #fff; background: #17243b; }
+.logs-tab.active { margin-bottom: -1px; background: #1d2a48; border-color: #2a3f6a; color: #fff; }
+.postback-log-note { margin: 0 0 14px; padding: 11px 14px; border: 1px solid #31527e; border-radius: 7px; background: #172b47; color: #bdcce0; font-size: 14px; }
 .logs-filters { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; padding: 18px; margin-bottom: 18px; background: #1d2a48; border: 1px solid #2a3f6a; border-radius: 8px; }
 .logs-filters > label, .logs-filter-group { display: flex; flex-direction: column; gap: 6px; color: #aeb6c0; }
 .logs-filters input, .logs-filters select { background: #111b31; border-color: #2a3f6a; color: #e8ebef; }
@@ -29,6 +34,14 @@
 .log-level { font-weight: 700; }
 .log-info .log-level { color: #73b9ff; } .log-warning .log-level { color: #f0c24b; } .log-error .log-level { color: #ff7979; }
 .log-source { padding: 1px 7px; border-radius: 10px; background: #2a3f6a; color: #d8e4f3; }
+.postback-outcome, .postback-http { padding: 2px 8px; border-radius: 10px; font-weight: 700; }
+.postback-outcome { background: #273853; color: #d7e0eb; }
+.postback-http { background: #253149; color: #aebbd0; }
+.postback-outcome-accepted .postback-outcome,
+.postback-outcome-delivered .postback-outcome { background: #164b3a; color: #7ee2b8; }
+.postback-outcome-sent_unconfirmed .postback-outcome { background: #594819; color: #f4d277; }
+.postback-outcome-rejected .postback-outcome,
+.postback-outcome-failed .postback-outcome { background: #582b35; color: #ff9da8; }
 .log-message { white-space: normal; color: #e3e7ec; }
 .log-entry details { margin-top: 8px; color: #9ea8b4; }
 .log-entry pre { margin: 7px 0 0; padding: 9px; background: #0d1830; color: #b9c7d9; border-radius: 4px; white-space: pre-wrap; }
