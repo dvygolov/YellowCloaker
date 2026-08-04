@@ -949,8 +949,13 @@ global $c, $db, $campId;
                 <div class="events-field-row">
                     <label for="events-scroll-thresholds">Scroll thresholds, %</label>
                     <div>
-                        <input id="events-scroll-thresholds" type="text" class="form-control" name="events.scroll.thresholds" value="<?= htmlspecialchars(implode(',', $c->events->scrollTrackingThresholds), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" placeholder="50,75,90" inputmode="numeric" pattern="[0-9,]*" autocomplete="off" />
-                        <small>Up to 32 comma-separated whole numbers from 1 to 100. Example events: <code>scroll_50</code>, <code>scroll_90</code>.</small>
+                        <input id="events-scroll-thresholds" type="hidden" name="events.scroll.thresholds" value="<?= htmlspecialchars(implode(',', $c->events->scrollTrackingThresholds), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" />
+                        <div class="events-threshold-control" data-threshold-control="events-scroll-thresholds">
+                            <div class="events-threshold-chips" data-threshold-chips aria-label="Scroll thresholds">
+                                <input type="text" class="events-threshold-entry" data-threshold-entry-for="events-scroll-thresholds" placeholder="Add %" inputmode="numeric" autocomplete="off" aria-label="Add scroll threshold" />
+                            </div>
+                        </div>
+                        <small>Up to 32 whole numbers from 1 to 100. Press Enter or comma to add a threshold. Example events: <code>scroll_50</code>, <code>scroll_90</code>.</small>
                     </div>
                 </div>
             </div>
@@ -977,8 +982,13 @@ global $c, $db, $campId;
                 <div class="events-field-row">
                     <label for="events-time-thresholds">Time thresholds, seconds</label>
                     <div>
-                        <input id="events-time-thresholds" type="text" class="form-control" name="events.time.thresholds" value="<?= htmlspecialchars(implode(',', $c->events->timeTrackingThresholds), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" placeholder="30,60,120" inputmode="numeric" pattern="[0-9,]*" autocomplete="off" />
-                        <small>Up to 32 comma-separated whole numbers from 1 to 86400. Example events: <code>stay_30s</code>, <code>stay_60s</code>.</small>
+                        <input id="events-time-thresholds" type="hidden" name="events.time.thresholds" value="<?= htmlspecialchars(implode(',', $c->events->timeTrackingThresholds), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" />
+                        <div class="events-threshold-control" data-threshold-control="events-time-thresholds">
+                            <div class="events-threshold-chips" data-threshold-chips aria-label="Visible-time thresholds">
+                                <input type="text" class="events-threshold-entry" data-threshold-entry-for="events-time-thresholds" placeholder="Add seconds" inputmode="numeric" autocomplete="off" aria-label="Add visible-time threshold" />
+                            </div>
+                        </div>
+                        <small>Up to 32 whole numbers from 1 to 86400. Press Enter or comma to add a threshold. Example events: <code>stay_30s</code>, <code>stay_60s</code>.</small>
                     </div>
                 </div>
             </div>

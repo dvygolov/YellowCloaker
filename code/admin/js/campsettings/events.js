@@ -151,24 +151,131 @@ function parseEventThresholds(value, maximum) {
     };
 }
 
-function sanitizeEventThresholdInput(input) {
-    if (/^[0-9,]*$/.test(input.value)) {
-        input.dataset.lastValidThresholdValue = input.value;
-        return;
-    }
-    input.value = input.dataset.lastValidThresholdValue || '';
-}
-
 function normalizeEventThresholdInput(inputId, toggleId, maximum) {
     const input = document.getElementById(inputId);
     const toggle = document.getElementById(toggleId);
     if (!input || !toggle) return [];
 
     const parsed = parseEventThresholds(input.value, maximum);
-    if (!toggle.checked || parsed.invalidValues.length === 0) {
-        input.value = parsed.values.join(',');
-    }
+    input.value = parsed.values.join(',');
+    renderEventThresholdTags(inputId, parsed.values, toggle.checked);
     return parsed.values;
+}
+
+function eventThresholdField(inputId) {
+    return EVENT_THRESHOLD_FIELDS.find((field) => field.inputId === inputId) || null;
+}
+
+function eventThresholdElements(inputId) {
+    const input = document.getElementById(inputId);
+    const control = document.querySelector(`[data-threshold-control="${inputId}"]`);
+    const chips = control?.querySelector('[data-threshold-chips]');
+    const entry = control?.querySelector(`[data-threshold-entry-for="${inputId}"]`);
+    return { input, chips, entry };
+}
+
+function updateEventThresholdValue(input, values, emit = false) {
+    const nextValue = values.join(',');
+    if (input.value === nextValue) return;
+    input.value = nextValue;
+    if (emit) {
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+}
+
+function renderEventThresholdTags(inputId, values, enabled) {
+    const { chips, entry } = eventThresholdElements(inputId);
+    if (!chips || !entry) return;
+
+    chips.querySelectorAll('.events-threshold-chip').forEach((chip) => chip.remove());
+    values.forEach((value) => {
+        const chip = document.createElement('span');
+        chip.className = 'events-threshold-chip';
+        chip.dataset.thresholdValue = String(value);
+        chip.innerHTML = `<span>${value}</span><button type="button" class="events-threshold-remove" aria-label="Remove threshold ${value}" title="Remove ${value}">&times;</button>`;
+        chip.querySelector('button').addEventListener('click', () => removeEventThresholdTag(inputId, value));
+        chips.insertBefore(chip, entry);
+    });
+    entry.disabled = !enabled;
+    entry.placeholder = enabled ? entry.dataset.placeholder || entry.placeholder : '';
+}
+
+function setEventThresholdEntryMessage(entry, message) {
+    entry.setCustomValidity(message);
+    entry.title = message;
+}
+
+function addEventThresholdTags(inputId, rawValue) {
+    const field = eventThresholdField(inputId);
+    const { input, entry } = eventThresholdElements(inputId);
+    if (!field || !input || !entry) return;
+
+    const parsedCurrent = parseEventThresholds(input.value, field.maximum);
+    const parsedNew = parseEventThresholds(rawValue, field.maximum);
+    const invalid = parsedNew.invalidValues.length !== 0;
+    const nextValues = new Set(parsedCurrent.values);
+    parsedNew.values.forEach((value) => nextValues.add(value));
+    const values = Array.from(nextValues).sort((left, right) => left - right);
+
+    if (invalid) {
+        setEventThresholdEntryMessage(entry, `Use whole numbers from 1 to ${field.maximum}.`);
+        return;
+    }
+    if (values.length > MAX_EVENT_THRESHOLDS) {
+        setEventThresholdEntryMessage(entry, `Use at most ${MAX_EVENT_THRESHOLDS} ${field.label} thresholds.`);
+        return;
+    }
+
+    setEventThresholdEntryMessage(entry, '');
+    entry.value = '';
+    updateEventThresholdValue(input, values, true);
+    renderEventThresholdTags(inputId, values, true);
+    validateEventThresholds();
+}
+
+function removeEventThresholdTag(inputId, value) {
+    const field = eventThresholdField(inputId);
+    const { input } = eventThresholdElements(inputId);
+    if (!field || !input) return;
+    const values = parseEventThresholds(input.value, field.maximum).values
+        .filter((threshold) => threshold !== value);
+    updateEventThresholdValue(input, values, true);
+    renderEventThresholdTags(inputId, values, true);
+    validateEventThresholds();
+}
+
+function initializeEventThresholdTags({ inputId, toggleId, maximum }) {
+    const { input, entry } = eventThresholdElements(inputId);
+    if (!input || !entry) return;
+    entry.dataset.placeholder = entry.placeholder;
+    entry.addEventListener('beforeinput', (event) => {
+        if (typeof event.data === 'string' && /[^0-9,\s]/.test(event.data)) {
+            event.preventDefault();
+        }
+    });
+    entry.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ',') {
+            event.preventDefault();
+            addEventThresholdTags(inputId, entry.value);
+        } else if (event.key === 'Backspace' && entry.value === '') {
+            const field = eventThresholdField(inputId);
+            const values = field ? parseEventThresholds(input.value, field.maximum).values : [];
+            if (values.length) removeEventThresholdTag(inputId, values[values.length - 1]);
+        }
+    });
+    entry.addEventListener('input', () => {
+        entry.value = entry.value.replace(/[^0-9,\s]/g, '');
+        setEventThresholdEntryMessage(entry, '');
+        if (entry.value.includes(',')) addEventThresholdTags(inputId, entry.value);
+    });
+    entry.addEventListener('blur', () => {
+        if (entry.value.trim() !== '') addEventThresholdTags(inputId, entry.value);
+    });
+    document.getElementById(toggleId)?.addEventListener('change', () => {
+        normalizeEventThresholdInput(inputId, toggleId, maximum);
+        validateEventThresholds();
+    });
 }
 
 function normalizeEventThresholdInputs() {
@@ -181,11 +288,13 @@ function normalizeEventThresholdInputs() {
 function validateEventThresholdInput(inputId, toggleId, maximum, label) {
     const input = document.getElementById(inputId);
     const toggle = document.getElementById(toggleId);
+    const entry = eventThresholdElements(inputId).entry;
     if (!input || !toggle) return;
 
     input.required = toggle.checked;
     if (!toggle.checked) {
         input.setCustomValidity('');
+        entry?.setCustomValidity('');
         return;
     }
 
@@ -199,6 +308,7 @@ function validateEventThresholdInput(inputId, toggleId, maximum, label) {
         message = `Use at most ${MAX_EVENT_THRESHOLDS} ${label} thresholds.`;
     }
     input.setCustomValidity(message);
+    entry?.setCustomValidity(message);
 }
 
 function validateEventThresholds() {
@@ -260,31 +370,7 @@ if (typeof document !== 'undefined') {
         reindexCustomEvents();
         validateCustomEvents();
     });
-    EVENT_THRESHOLD_FIELDS.forEach(({ inputId, toggleId, maximum }) => {
-        const input = document.getElementById(inputId);
-        if (input) {
-            input.dataset.lastValidThresholdValue = /^[0-9,]*$/.test(input.value)
-                ? input.value
-                : '';
-        }
-        input?.addEventListener('beforeinput', (event) => {
-            if (typeof event.data === 'string' && /[^0-9,]/.test(event.data)) {
-                event.preventDefault();
-            }
-        });
-        input?.addEventListener('input', () => {
-            sanitizeEventThresholdInput(input);
-            validateEventThresholds();
-        });
-        input?.addEventListener('blur', () => {
-            normalizeEventThresholdInput(inputId, toggleId, maximum);
-            validateEventThresholds();
-        });
-        document.getElementById(toggleId)?.addEventListener('change', () => {
-            normalizeEventThresholdInput(inputId, toggleId, maximum);
-            validateEventThresholds();
-        });
-    });
+    EVENT_THRESHOLD_FIELDS.forEach(initializeEventThresholdTags);
 
     window.normalizeEventThresholdInputs = normalizeEventThresholdInputs;
     normalizeEventThresholdInputs();
@@ -295,5 +381,6 @@ if (typeof document !== 'undefined') {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         parseEventThresholds,
+        addEventThresholdTags,
     };
 }

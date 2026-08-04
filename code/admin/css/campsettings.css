@@ -1229,6 +1229,86 @@
     color: #cfe4ff;
 }
 
+#sec-events .campaign-dependent-settings {
+    margin: 4px 0 12px;
+    padding: 10px 0 2px;
+    border-left: 0;
+}
+
+.events-threshold-chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 7px;
+    min-height: 42px;
+    padding: 6px 9px;
+    border: 1px solid #2a3245;
+    border-radius: 8px;
+    background: #172035;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.events-threshold-chips:focus-within {
+    border-color: #77b2ff;
+    box-shadow: 0 0 0 3px rgba(64, 153, 255, .2);
+}
+
+.events-threshold-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 5px 3px 8px;
+    border: 1px solid rgba(64, 153, 255, .55);
+    border-radius: 999px;
+    background: rgba(64, 153, 255, .15);
+    color: #dcecff;
+    font-size: 13px;
+    line-height: 1.3;
+}
+
+.events-threshold-remove {
+    width: 17px;
+    height: 17px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: #dcecff;
+    font-size: 16px;
+    line-height: 14px;
+    opacity: 0;
+    transition: opacity .15s ease, background .15s ease;
+}
+
+.events-threshold-chip:hover .events-threshold-remove,
+.events-threshold-chip:focus-within .events-threshold-remove {
+    opacity: 1;
+}
+
+.events-threshold-remove:hover,
+.events-threshold-remove:focus-visible {
+    background: rgba(239, 68, 68, .28);
+    outline: none;
+}
+
+.events-threshold-entry {
+    flex: 1 1 110px;
+    min-width: 85px;
+    padding: 3px 2px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: #edf4ff;
+}
+
+.events-threshold-entry::placeholder {
+    color: #8ea0bf;
+}
+
+.events-threshold-entry:disabled {
+    cursor: not-allowed;
+}
+
 .events-custom-heading {
     display: flex;
     align-items: flex-start;
@@ -1353,11 +1433,6 @@
 
     #sec-events .campaign-switch {
         align-self: flex-start;
-    }
-
-    #sec-events .campaign-dependent-settings {
-        margin-left: 0;
-        padding-left: 10px;
     }
 
     #sec-events .flow-group {

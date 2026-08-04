@@ -8,13 +8,13 @@
 
 ## Scroll Depth
 
-Enable scroll tracking and enter up to 32 page-depth thresholds as whole percentages from 1 to 100. For example, the `50` threshold produces the `scroll_50` event when the visitor first reaches half of the page.
+Enable scroll tracking and add up to 32 page-depth thresholds as whole percentages from 1 to 100. Each threshold appears as a removable tag; press Enter or comma after a number to add it. For example, the `50` threshold produces the `scroll_50` event when the visitor first reaches half of the page.
 
 YellowTDS keeps the first occurrence for each clickid and step. The stored value is the elapsed time in milliseconds from tracker initialization on that step. Repeated crossings of the same threshold do not replace it.
 
 ## Visible Time
 
-Enable visible-time tracking and enter up to 32 whole-second thresholds from 1 to 86400. For example, the `60` threshold produces `stay_60s` after the page has been visible for 60 seconds.
+Enable visible-time tracking and add up to 32 whole-second thresholds from 1 to 86400. Each threshold appears as a removable tag; press Enter or comma after a number to add it. For example, the `60` threshold produces `stay_60s` after the page has been visible for 60 seconds.
 
 The timer measures visible page time rather than merely keeping a timer running in a hidden tab. As with scroll events, YellowTDS stores the elapsed milliseconds of the first occurrence for each clickid and step.
 
