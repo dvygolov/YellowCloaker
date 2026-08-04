@@ -9,7 +9,7 @@ Installing YellowTDS on ordinary shared hosting has not changed: select a domain
 - permission for PHP to write inside the YellowTDS directory;
 - HTTPS for the selected domain or subdomain.
 
-The `curl`, `gd`, `mbstring`, `xml`, `zip`, and `maxminddb` extensions are recommended but are not required for a basic installation. `GD` provides image-processing functions and is not needed for the first admin-panel launch.
+The `curl`, `mbstring`, `xml`, `zip`, and `maxminddb` extensions are recommended but are not required for a basic installation.
 
 ## Installation
 

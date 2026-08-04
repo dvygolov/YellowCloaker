@@ -24,7 +24,7 @@ YellowTDS работает с панелями, но простого копир
 
 1. Создайте в панели отдельный сайт и, по возможности, отдельного системного пользователя.
 2. Выберите PHP 8.2 или новее; рекомендуется PHP 8.4.
-3. Включите `curl`, `gd`, `mbstring`, `pdo_sqlite`, `sqlite3`, `xml` и `zip`. Расширение `maxminddb` желательно, но не обязательно: `bases/geoip2.phar` является рабочим fallback.
+3. Включите `curl`, `mbstring`, `pdo_sqlite`, `sqlite3`, `xml` и `zip`. Расширение `maxminddb` желательно, но не обязательно: `bases/geoip2.phar` является рабочим fallback.
 4. Скачайте ветку `multipleconfigs` и скопируйте содержимое её каталога `code/` в document root сайта:
 
    ```text

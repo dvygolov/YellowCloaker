@@ -387,7 +387,7 @@ install_dependencies() {
         -o Dpkg::Options::="--force-confold" \
         nginx \
         php${PHP_VER}-fpm php${PHP_VER}-cli php${PHP_VER}-sqlite3 php${PHP_VER}-curl \
-        php${PHP_VER}-mbstring php${PHP_VER}-zip php${PHP_VER}-xml php${PHP_VER}-gd php${PHP_VER}-apcu \
+        php${PHP_VER}-mbstring php${PHP_VER}-zip php${PHP_VER}-xml php${PHP_VER}-apcu \
         php${PHP_VER}-dev php-pear \
         libmaxminddb0 libmaxminddb-dev \
         certbot python3-certbot-nginx curl wget unzip tar ca-certificates \
