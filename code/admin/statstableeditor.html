@@ -12,40 +12,33 @@
 
             <div class="columns-flex-container">
                 <div class="columns-section">
-                    <h5>Columns
+                    <h5>Columns</h5>
+                    <div class="editor-section-controls">
                         <span id="selectAllMetrics" class="header-checkbox-btn" title="Select All"><input type="checkbox" checked readonly></span>
                         <span id="deselectAllMetrics" class="header-checkbox-btn" title="Deselect All"><input type="checkbox" readonly></span>
-                        <button id="openStatusColumn" type="button" class="btn btn-sm btn-outline-primary" style="margin-left: 8px;">+ Status</button>
-                        <button id="openCustomColumns" type="button" class="btn btn-sm btn-outline-primary" style="margin-left: 8px;">+ Formula</button>
-                    </h5>
+                        <button id="openStatusColumn" type="button" class="btn btn-sm btn-outline-primary">+ Status</button>
+                        <button id="openCustomColumns" type="button" class="btn btn-sm btn-outline-primary">+ Formula</button>
+                    </div>
                     <div class="columns-container">
                         <div id="metricsColumns" class="metricsColumns"></div>
                     </div>
                 </div>
 
                 <div class="columns-section">
-                    <h5>GroupBy
-                        <button id="addParamDimension" class="btn btn-sm btn-outline-primary" style="margin-left: 8px;">+ URL Param</button>
-                    </h5>
+                    <h5>Group By</h5>
+                    <div class="editor-section-controls">
+                        <button id="addParamDimension" class="btn btn-sm btn-outline-primary">+ URL Param</button>
+                        <button id="openMvtGrouping" type="button" class="btn btn-sm btn-outline-primary">+ MVT</button>
+                    </div>
                     <div class="columns-container">
                         <div id="dimensionsColumns" class="dimensionsColumns"></div>
-                    </div>
-                    <div class="stats-mvt-editor">
-                        <h5>MVT grouping <i class="bi bi-info-circle" tabindex="0" title="Adds an MVT dimension without using one of the three GroupBy slots."></i></h5>
-                        <label for="mvtPlacement">Placement</label>
-                        <select id="mvtPlacement" class="form-control">
-                            <option value="">None</option>
-                        </select>
-                        <label for="mvtMode">Variant</label>
-                        <select id="mvtMode" class="form-control" disabled>
-                            <option value="0">All combinations</option>
-                        </select>
                     </div>
                 </div>
 
                 <div class="filters-section">
-                    <h5>Filters <button id="addFilterRow" class="btn btn-sm btn-outline-primary" style="margin-left: 8px;">+ Add</button></h5>
-                    <div style="margin-bottom: 6px;">
+                    <h5>Filters</h5>
+                    <div class="editor-section-controls">
+                        <button id="addFilterRow" class="btn btn-sm btn-outline-primary">+ Add</button>
                         <label style="margin-right: 8px;">Condition:</label>
                         <select id="filterCondition" class="form-control" style="width: 80px; display: inline-block;">
                             <option value="AND">AND</option>
@@ -114,6 +107,30 @@
                 </div>
             </div>
         </div>
+
+        <div id="mvtGroupingModal" class="stats-editor-overlay" style="display:none; z-index:22;">
+            <div class="stats-editor-overlay-header">
+                <h5>MVT grouping</h5>
+                <button id="closeMvtGrouping" type="button" class="btn btn-sm btn-secondary">Cancel</button>
+            </div>
+            <div class="stats-editor-overlay-body">
+                <label for="mvtPlacement">Landing</label>
+                <select id="mvtPlacement" class="form-control"></select>
+                <label class="mvt-all-combinations-choice" for="mvtAllCombinations">
+                    <input id="mvtAllCombinations" type="checkbox">
+                    <span>All combinations</span>
+                </label>
+                <p class="mvt-grouping-hint">Turn this off to select TESTs. Drag selected rows to set the nesting order.</p>
+                <div id="mvtTestsList" class="mvt-tests-list"></div>
+            </div>
+            <div class="stats-editor-overlay-footer">
+                <button id="removeMvtGrouping" type="button" class="btn btn-outline-danger">Remove MVT</button>
+                <div>
+                    <button id="cancelMvtGrouping" type="button" class="btn btn-secondary">Cancel</button>
+                    <button id="applyMvtGrouping" type="button" class="btn btn-primary">OK</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -122,9 +139,26 @@
     .status-calculation-choice:has(input:checked) { border-color:#4f8cff; background:rgba(79,140,255,.1); }
     .status-calculation-choice small { grid-column:2 / -1; opacity:.68; }
     .configured-status-column { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:9px 10px; border:1px solid #2a3245; border-radius:7px; margin-top:7px; }
-    .stats-mvt-editor { margin-top:14px; padding:12px; border:1px solid #344258; border-radius:8px; background:rgba(15,23,42,.35); }
-    .stats-mvt-editor h5 { margin:0 0 10px; }
-    .stats-mvt-editor label { display:block; margin:9px 0 5px; color:#cbd5e1; font-size:13px; }
+    #statsTableModal .columns-section > h5, #statsTableModal .filters-section > h5 { margin-bottom:10px; }
+    .editor-section-controls { display:flex; flex-wrap:wrap; align-items:center; gap:8px; min-height:38px; margin:0 0 10px; }
+    .editor-section-controls .btn { margin:0 !important; }
+    .stats-editor-overlay { position:absolute; inset:14px; background:#0f172a; border:1px solid #2a3245; border-radius:12px; box-shadow:0 18px 50px rgba(0,0,0,.45); overflow:hidden; }
+    .stats-editor-overlay-header, .stats-editor-overlay-footer { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 16px; border-bottom:1px solid #25324a; }
+    .stats-editor-overlay-header h5 { margin:0; }
+    .stats-editor-overlay-footer { border-top:1px solid #25324a; border-bottom:0; }
+    .stats-editor-overlay-footer > div { display:flex; gap:8px; }
+    .stats-editor-overlay-body { padding:16px; max-height:min(65vh, 650px); overflow:auto; }
+    .stats-editor-overlay-body > label:first-child { display:block; margin:0 0 5px; color:#cbd5e1; font-size:13px; }
+    .mvt-all-combinations-choice { display:flex; align-items:center; gap:8px; margin:16px 0 5px; cursor:pointer; }
+    .mvt-grouping-hint { margin:0 0 10px; color:#93a4c2; font-size:13px; }
+    .mvt-tests-list { display:grid; gap:7px; }
+    .mvt-test-choice, .mvt-groupby-item { display:flex; align-items:center; gap:10px; padding:9px 10px; border:1px solid #344258; border-radius:8px; background:rgba(30,41,59,.55); }
+    .mvt-test-choice.is-disabled { opacity:.45; }
+    .mvt-test-choice .drag-handle { cursor:grab; }
+    .mvt-groupby-item { margin-bottom:7px; }
+    .mvt-groupby-item .column-label { flex:1; min-width:0; }
+    .mvt-groupby-item .mvt-groupby-actions { display:flex; gap:6px; }
+    #dimensionsColumns .column-item.is-mvt-incompatible { opacity:.45; }
     @media (max-width: 760px) {
         #statsTableModal { width:calc(100vw - 16px) !important; max-height:96vh !important; }
         #statsTableModal .modal-content { max-height:96vh; }
@@ -134,9 +168,9 @@
         #statsTableModal .columns-flex-container .filters-section { width:100%; min-width:0; overflow:visible; }
         #statsTableModal .columns-container { height:min(42vh, 360px); }
         #statsTableModal .filters-section .columns-container { height:auto; max-height:42vh; }
-        #statsTableModal h5 { display:flex; flex-wrap:wrap; align-items:center; gap:6px; }
-        #statsTableModal h5 .btn { margin-left:0 !important; }
-        #statsTableModal .stats-mvt-editor select { max-width:100%; }
+        .editor-section-controls { min-height:0; }
+        .stats-editor-overlay { inset:8px; }
+        .stats-editor-overlay-footer { align-items:flex-start; flex-direction:column; }
     }
 </style>
 

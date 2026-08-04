@@ -1038,13 +1038,19 @@ class Db
 
         foreach ($groupByFields as $field) {
             if ($field === 'mvt' && $mvtGrouping !== []) {
-                $testNumber = (int)($mvtGrouping['test'] ?? 0);
-                $selectParts[] = $testNumber > 0
-                    ? "COALESCE(json_extract(mvt_data, '$.\"" . $testNumber . "\"'), '-') AS mvt"
-                    : "COALESCE(NULLIF(mvt_data, ''), '{}') AS mvt";
+                $selectParts[] = "COALESCE(NULLIF(mvt_data, ''), '{}') AS mvt";
                 $groupByParts[] = 'mvt';
                 $orderByParts[] = 'mvt';
                 $normalizedFields[] = 'mvt';
+                continue;
+            }
+            if ($mvtGrouping !== [] && preg_match('/^mvt\\.(\d+)$/', (string)$field, $matches) === 1) {
+                $testNumber = (int)$matches[1];
+                $alias = 'mvt_test_' . $testNumber;
+                $selectParts[] = "COALESCE(json_extract(mvt_data, '$.\"" . $testNumber . "\"'), '-') AS " . $alias;
+                $groupByParts[] = $alias;
+                $orderByParts[] = $alias;
+                $normalizedFields[] = $alias;
                 continue;
             }
             if ($field === 'date') {
@@ -1652,7 +1658,10 @@ class Db
         array &$rows,
         array $mvtGrouping
     ): void {
-        if ($mvtGrouping === [] || (int)($mvtGrouping['test'] ?? 0) > 0) {
+        $selectedTests = is_array($mvtGrouping['tests'] ?? null)
+            ? $mvtGrouping['tests']
+            : ((int)($mvtGrouping['test'] ?? 0) > 0 ? [$mvtGrouping['test']] : []);
+        if ($mvtGrouping === [] || $selectedTests !== []) {
             return;
         }
         foreach ($rows as &$row) {
@@ -1729,9 +1738,35 @@ class Db
             $coreQueryFields = array_values(array_unique($coreQueryFields));
         }
 
-        $effectiveGroupBy = $mvtGrouping !== []
-            ? array_merge($groupByFields, ['mvt'])
-            : $groupByFields;
+        $effectiveGroupBy = $groupByFields;
+        if ($mvtGrouping !== []) {
+            $requestedMvtTests = is_array($mvtGrouping['tests'] ?? null)
+                ? $mvtGrouping['tests']
+                : ((int)($mvtGrouping['test'] ?? 0) > 0 ? [$mvtGrouping['test']] : []);
+            $mvtTests = array_values(array_unique(array_filter(array_map(
+                static fn($test): int => (int)$test,
+                $requestedMvtTests
+            ), static fn(int $test): bool => $test > 0)));
+            $mvtFields = $mvtTests === []
+                ? ['mvt']
+                : array_map(static fn(int $test): string => 'mvt.' . $test, $mvtTests);
+            $rewrittenGroupBy = [];
+            $insertedMvt = false;
+            foreach ($effectiveGroupBy as $field) {
+                if ($field !== 'mvt') {
+                    $rewrittenGroupBy[] = $field;
+                    continue;
+                }
+                if (!$insertedMvt) {
+                    array_push($rewrittenGroupBy, ...$mvtFields);
+                    $insertedMvt = true;
+                }
+            }
+            if (!$insertedMvt) {
+                array_push($rewrittenGroupBy, ...$mvtFields);
+            }
+            $effectiveGroupBy = $rewrittenGroupBy;
+        }
         $rowsByLevel = [];
         $normalizedGroupBy = [];
         $eventRowsByLevel = $eventMetricFields !== []

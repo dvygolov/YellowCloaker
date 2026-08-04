@@ -9,7 +9,7 @@ Campaign statistics let you:
 - configure group by
 - save filters
 - save order by
-- save MVT grouping
+- configure MVT grouping
 - export tables to XLSX
 
 ![Statistics table example](../assets/screenshots/statistics-table-overview.png)
@@ -18,12 +18,12 @@ Campaign statistics let you:
 
 ## MVT Grouping
 
-Open the table editor with the columns icon. Under **MVT grouping**, select a `Flow / Step / Landing` placement and then choose:
+Open the table editor with the columns icon. In **Group By**, choose **+ MVT**, then select a `Flow / Step / Landing` placement.
 
 - **All combinations** — the exact assignment across all TESTs, such as `ACB`;
-- **TEST1**, **TEST2**, and the others — Value A, B, C… for one TEST.
+- turn it off to select two or more TESTs. Their checked rows can be dragged into the nesting order: TEST1 followed by TEST2 makes `A → A/B/C` branches, and a third selected TEST adds the next level below each branch.
 
-The choice is saved with this table and is appended after the ordinary Group by hierarchy without consuming one of its three slots. Select **None** to disable MVT grouping for the table.
+After **OK**, MVT appears as an editable item in the ordinary **Group By** list and can be moved with the other dimensions. The chosen placement scopes the report, so redundant **Flow**, **Step**, and **Landing** dimensions are disabled. Remove the MVT item to restore them.
 
 ![MVT grouping in statistics](../assets/screenshots/statistics-mvt-grouping.png)
 

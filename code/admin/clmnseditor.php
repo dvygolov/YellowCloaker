@@ -204,7 +204,9 @@ function normalize_stats_mvt_config(array $mvt, array $campaignSettings): array
     $flowName = (string)($mvt['flow'] ?? '');
     $stepIndex = filter_var($mvt['step'] ?? null, FILTER_VALIDATE_INT);
     $landingName = (string)($mvt['landing'] ?? '');
-    $testNumber = max(0, (int)($mvt['test'] ?? 0));
+    $requestedTests = is_array($mvt['tests'] ?? null)
+        ? $mvt['tests']
+        : ((int)($mvt['test'] ?? 0) > 0 ? [$mvt['test']] : []);
     if ($flowName === '' || $stepIndex === false || $stepIndex < 0 || $landingName === '') {
         return [];
     }
@@ -222,14 +224,22 @@ function normalize_stats_mvt_config(array $mvt, array $campaignSettings): array
                 continue;
             }
             $tests = (array)($folder['mvt']['tests'] ?? []);
-            if ($tests === [] || ($testNumber > 0 && !array_key_exists($testNumber - 1, $tests))) {
+            $testNumbers = array_values(array_unique(array_filter(array_map(
+                static fn($test): int => (int)$test,
+                $requestedTests
+            ), static fn(int $test): bool => $test > 0)));
+            if ($tests === [] || array_reduce(
+                $testNumbers,
+                static fn(bool $valid, int $test): bool => $valid && array_key_exists($test - 1, $tests),
+                true
+            ) === false) {
                 return [];
             }
             return [
                 'flow' => $flowName,
                 'step' => $stepIndex,
                 'landing' => $landingName,
-                'test' => $testNumber,
+                'tests' => $testNumbers,
             ];
         }
         return [];

@@ -131,6 +131,28 @@ class StatisticsTest extends TestCase
         $this->assertSame([2, 1], array_column($testOne, 'clicks'));
     }
 
+    public function testMvtSelectedTestsCreateNestedGroupsInTheConfiguredOrder(): void
+    {
+        $this->db->seedClicks([
+            ['clickid' => 'm1', 'path' => ['landing-a'], 'step_mvt' => [['1' => 'A', '2' => 'A']]],
+            ['clickid' => 'm2', 'path' => ['landing-a'], 'step_mvt' => [['1' => 'A', '2' => 'B']]],
+            ['clickid' => 'm3', 'path' => ['landing-a'], 'step_mvt' => [['1' => 'B', '2' => 'A']]],
+        ]);
+        $placement = [
+            'flow' => 'Flow 1',
+            'step' => 0,
+            'landing' => 'landing-a',
+            'tests' => [1, 2],
+        ];
+
+        $result = $this->stat(['clicks'], ['mvt'], 'UTC', $placement);
+
+        $this->assertSame(['A', 'B'], array_column($result, 'group'));
+        $this->assertSame(['A', 'B'], array_column($result[0]['_children'], 'group'));
+        $this->assertSame(['A'], array_column($result[1]['_children'], 'group'));
+        $this->assertSame([1, 1], array_column($result[0]['_children'], 'clicks'));
+    }
+
     public function testMvtConversionOnlyCountsReachedPlacementBeforeConversionStep(): void
     {
         $this->db->seedClicks([

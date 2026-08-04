@@ -9,6 +9,10 @@ let statusColumnsState = new Map();
 let availableMetricsMeta = new Map();
 let activeCustomFormulaField = null;
 let campaignStatusesState = [];
+let mvtPlacementsState = [];
+let mvtGroupingState = null;
+let mvtGroupingDraft = null;
+let mvtTestsSortable = null;
 
 function initializeStatsTableEditor(availableColumns, selectedMetrics, availableDimensions, selectedDimensions, tableName, saveUrl, existingFilters, existingOrderby, campaignStatuses = [], availableMvtPlacements = [], existingMvt = {}) {
     const MAX_GROUPBY_SELECTIONS = 3;
@@ -38,7 +42,7 @@ function initializeStatsTableEditor(availableColumns, selectedMetrics, available
     const tableNameInput = document.getElementById('tableName');
     if (tableName) tableNameInput.value = tableName;
 
-    const regularDimensions = selectedDimensions.filter((d) => !d.startsWith('param.'));
+    const regularDimensions = selectedDimensions.filter((d) => !d.startsWith('param.') && d !== 'mvt');
     const paramDimensions = selectedDimensions.filter((d) => d.startsWith('param.'));
 
     addColumnsToList('metricsColumns', selectedMetricObjects, [...availableColumns, ...statusMetrics, ...customMetrics], existingOrderby);
@@ -46,8 +50,7 @@ function initializeStatsTableEditor(availableColumns, selectedMetrics, available
     reorderItemsByFields('metricsColumns', selectedMetricObjects);
 
     for (const pd of paramDimensions) addParamItem('dimensionsColumns', pd.substring(6));
-    reorderItemsByFields('dimensionsColumns', selectedDimensions);
-    enforceDimensionLimit(MAX_GROUPBY_SELECTIONS);
+    reorderItemsByFields('dimensionsColumns', selectedDimensions.filter((d) => d !== 'mvt'));
     initializeFilters(existingFilters);
     renderCustomColumnsList();
 
@@ -89,6 +92,7 @@ function initializeStatsTableEditor(availableColumns, selectedMetrics, available
     populateStatusColumnOptions();
     renderConfiguredStatusColumns();
     initializeMvtGrouping(availableMvtPlacements, existingMvt);
+    enforceDimensionLimit(MAX_GROUPBY_SELECTIONS);
 
     tableNameInput.addEventListener('input', () => updateSaveButtonState());
     updateSaveButtonState();
@@ -107,8 +111,9 @@ function initializeStatsTableEditor(availableColumns, selectedMetrics, available
         }
 
         const groupby = getSelectedItems('dimensionsColumns');
+        const regularGroupby = groupby.filter((field) => field !== 'mvt');
         if (!groupby.length) { alert('Please select at least one dimension for grouping'); return; }
-        if (groupby.length > MAX_GROUPBY_SELECTIONS) {
+        if (regularGroupby.length > MAX_GROUPBY_SELECTIONS) {
             alert(`You can select at most ${MAX_GROUPBY_SELECTIONS} dimensions for grouping`);
             return;
         }
@@ -145,63 +150,205 @@ function mvtPlacementKey(placement) {
 }
 
 function initializeMvtGrouping(placements, existingMvt) {
-    const placementSelect = document.getElementById('mvtPlacement');
-    const modeSelect = document.getElementById('mvtMode');
-    const normalizedPlacements = Array.isArray(placements) ? placements : [];
-    placementSelect.innerHTML = '<option value="">None</option>';
+    mvtPlacementsState = Array.isArray(placements) ? placements : [];
+    mvtGroupingState = normalizeMvtGroupingConfig(existingMvt, mvtPlacementsState);
+    if (mvtGroupingState) ensureMvtGroupingItem();
 
-    normalizedPlacements.forEach((placement, index) => {
-        const option = document.createElement('option');
-        option.value = String(index);
-        option.textContent = `${placement.flow} / Step ${Number(placement.step) + 1} / ${placement.landing}`;
-        placementSelect.appendChild(option);
-    });
-
-    const selectedKey = mvtPlacementKey(existingMvt);
-    const selectedIndex = normalizedPlacements.findIndex((placement) => mvtPlacementKey(placement) === selectedKey);
-    placementSelect.value = selectedIndex >= 0 ? String(selectedIndex) : '';
-    placementSelect.dataset.placements = JSON.stringify(normalizedPlacements);
-
-    const renderModes = () => {
-        const index = Number.parseInt(placementSelect.value, 10);
-        const placement = Number.isInteger(index) ? normalizedPlacements[index] : null;
-        modeSelect.innerHTML = '<option value="0">All combinations</option>';
-        modeSelect.disabled = !placement;
-        if (placement) {
-            const tests = Array.isArray(placement.tests) ? placement.tests : [];
-            tests.forEach((test, testIndex) => {
-                const option = document.createElement('option');
-                option.value = String(testIndex + 1);
-                option.textContent = `TEST${testIndex + 1}`;
-                modeSelect.appendChild(option);
-            });
-            const requestedTest = Math.max(0, Number.parseInt(existingMvt?.test ?? 0, 10) || 0);
-            modeSelect.value = modeSelect.querySelector(`option[value="${requestedTest}"]`) ? String(requestedTest) : '0';
-        }
+    document.getElementById('openMvtGrouping').onclick = openMvtGroupingEditor;
+    document.getElementById('closeMvtGrouping').onclick = closeMvtGroupingEditor;
+    document.getElementById('cancelMvtGrouping').onclick = closeMvtGroupingEditor;
+    document.getElementById('applyMvtGrouping').onclick = applyMvtGroupingEditor;
+    document.getElementById('removeMvtGrouping').onclick = removeMvtGrouping;
+    document.getElementById('mvtPlacement').onchange = () => {
+        const placement = getSelectedMvtPlacement();
+        if (!placement || !mvtGroupingDraft) return;
+        mvtGroupingDraft = {
+            flow: String(placement.flow),
+            step: Number.parseInt(placement.step, 10),
+            landing: String(placement.landing),
+            tests: [],
+        };
+        renderMvtGroupingEditor();
     };
-
-    placementSelect.onchange = () => {
-        existingMvt = {};
-        renderModes();
+    document.getElementById('mvtAllCombinations').onchange = () => {
+        if (!mvtGroupingDraft) return;
+        mvtGroupingDraft.tests = collectMvtTestsFromEditor();
+        renderMvtTestRows();
     };
-    renderModes();
+    applyMvtCompatibility();
 }
 
 function collectMvtGrouping() {
-    const placementSelect = document.getElementById('mvtPlacement');
-    const modeSelect = document.getElementById('mvtMode');
-    if (!placementSelect?.value) return {};
+    return mvtGroupingState ? {
+        flow: mvtGroupingState.flow,
+        step: mvtGroupingState.step,
+        landing: mvtGroupingState.landing,
+        tests: [...mvtGroupingState.tests],
+    } : {};
+}
 
-    const placements = JSON.parse(placementSelect.dataset.placements || '[]');
-    const placement = placements[Number.parseInt(placementSelect.value, 10)];
-    if (!placement) return {};
+function normalizeMvtGroupingConfig(config, placements) {
+    if (!config || typeof config !== 'object') return null;
+    const placement = (Array.isArray(placements) ? placements : []).find((candidate) =>
+        mvtPlacementKey(candidate) === mvtPlacementKey(config)
+    );
+    if (!placement) return null;
+
+    const rawTests = Array.isArray(config.tests)
+        ? config.tests
+        : (Number.parseInt(config.test, 10) > 0 ? [config.test] : []);
+    const availableTests = Array.isArray(placement.tests) ? placement.tests.length : 0;
+    const tests = rawTests
+        .map((value) => Number.parseInt(value, 10))
+        .filter((value, index, values) => Number.isInteger(value) && value > 0 && value <= availableTests && values.indexOf(value) === index);
 
     return {
         flow: String(placement.flow),
         step: Number.parseInt(placement.step, 10),
         landing: String(placement.landing),
-        test: Math.max(0, Number.parseInt(modeSelect.value, 10) || 0),
+        tests,
     };
+}
+
+function getSelectedMvtPlacement() {
+    const index = Number.parseInt(document.getElementById('mvtPlacement').value, 10);
+    return Number.isInteger(index) ? mvtPlacementsState[index] || null : null;
+}
+
+function openMvtGroupingEditor() {
+    if (!mvtPlacementsState.length) {
+        alert('This campaign has no landing with MVT tests.');
+        return;
+    }
+    const fallback = mvtPlacementsState[0];
+    mvtGroupingDraft = mvtGroupingState ? { ...mvtGroupingState, tests: [...mvtGroupingState.tests] } : {
+        flow: String(fallback.flow),
+        step: Number.parseInt(fallback.step, 10),
+        landing: String(fallback.landing),
+        tests: [],
+    };
+    renderMvtGroupingEditor();
+    document.getElementById('mvtGroupingModal').style.display = 'block';
+}
+
+function closeMvtGroupingEditor() {
+    document.getElementById('mvtGroupingModal').style.display = 'none';
+    mvtGroupingDraft = null;
+}
+
+function renderMvtGroupingEditor() {
+    const placementSelect = document.getElementById('mvtPlacement');
+    placementSelect.innerHTML = '';
+    const selectedKey = mvtPlacementKey(mvtGroupingDraft);
+    mvtPlacementsState.forEach((placement, index) => {
+        const option = document.createElement('option');
+        option.value = String(index);
+        option.textContent = `${placement.flow} / Step ${Number(placement.step) + 1} / ${placement.landing}`;
+        option.selected = mvtPlacementKey(placement) === selectedKey;
+        placementSelect.appendChild(option);
+    });
+    renderMvtTestRows();
+}
+
+function renderMvtTestRows() {
+    const placement = getSelectedMvtPlacement();
+    const allCombinations = mvtGroupingDraft?.tests.length === 0;
+    const allCheckbox = document.getElementById('mvtAllCombinations');
+    const list = document.getElementById('mvtTestsList');
+    allCheckbox.checked = allCombinations;
+    list.innerHTML = '';
+    if (!placement || !mvtGroupingDraft) return;
+
+    const tests = Array.isArray(placement.tests) ? placement.tests : [];
+    const orderedTests = allCombinations
+        ? tests.map((_, index) => index + 1)
+        : [...mvtGroupingDraft.tests, ...tests.map((_, index) => index + 1).filter((number) => !mvtGroupingDraft.tests.includes(number))];
+    orderedTests.forEach((testNumber) => {
+        const row = document.createElement('label');
+        row.className = 'mvt-test-choice' + (allCombinations ? ' is-disabled' : '');
+        row.dataset.testNumber = String(testNumber);
+        row.innerHTML = `<span class="drag-handle" aria-hidden="true">☰</span><input type="checkbox" ${mvtGroupingDraft.tests.includes(testNumber) ? 'checked' : ''} ${allCombinations ? 'disabled' : ''}><span>Test ${testNumber}</span>`;
+        row.querySelector('input').onchange = () => {
+            mvtGroupingDraft.tests = collectMvtTestsFromEditor();
+        };
+        list.appendChild(row);
+    });
+
+    if (mvtTestsSortable) mvtTestsSortable.destroy();
+    mvtTestsSortable = new Sortable(list, {
+        animation: 150,
+        handle: '.drag-handle',
+        disabled: allCombinations,
+        onEnd: () => { mvtGroupingDraft.tests = collectMvtTestsFromEditor(); },
+    });
+}
+
+function collectMvtTestsFromEditor() {
+    if (document.getElementById('mvtAllCombinations').checked) return [];
+    return qsa('#mvtTestsList .mvt-test-choice')
+        .filter((row) => row.querySelector('input').checked)
+        .map((row) => Number.parseInt(row.dataset.testNumber, 10));
+}
+
+function applyMvtGroupingEditor() {
+    const placement = getSelectedMvtPlacement();
+    if (!placement || !mvtGroupingDraft) return;
+    const tests = collectMvtTestsFromEditor();
+    if (!document.getElementById('mvtAllCombinations').checked && tests.length === 0) {
+        alert('Select at least one TEST or use All combinations.');
+        return;
+    }
+    mvtGroupingState = {
+        flow: String(placement.flow),
+        step: Number.parseInt(placement.step, 10),
+        landing: String(placement.landing),
+        tests,
+    };
+    ensureMvtGroupingItem();
+    applyMvtCompatibility();
+    enforceDimensionLimit(3);
+    updateSaveButtonState();
+    closeMvtGroupingEditor();
+}
+
+function removeMvtGrouping() {
+    mvtGroupingState = null;
+    document.querySelector('#dimensionsColumns [data-mvt-item="1"]')?.remove();
+    applyMvtCompatibility();
+    enforceDimensionLimit(3);
+    updateSaveButtonState();
+    closeMvtGroupingEditor();
+}
+
+function ensureMvtGroupingItem() {
+    const container = document.getElementById('dimensionsColumns');
+    let item = container.querySelector('[data-mvt-item="1"]');
+    if (!item) {
+        item = document.createElement('div');
+        item.className = 'column-item mvt-groupby-item';
+        item.dataset.field = 'mvt';
+        item.dataset.mvtItem = '1';
+        item.innerHTML = '<span class="drag-handle" aria-hidden="true">☰</span><input type="checkbox" checked disabled aria-label="MVT grouping"><span class="column-label"></span><span class="mvt-groupby-actions"><button type="button" class="btn btn-sm btn-outline-primary">Edit</button><button type="button" class="btn btn-sm btn-outline-danger" aria-label="Remove MVT grouping">×</button></span>';
+        item.querySelector('.btn-outline-primary').onclick = openMvtGroupingEditor;
+        item.querySelector('.btn-outline-danger').onclick = removeMvtGrouping;
+        container.appendChild(item);
+    }
+    const scope = `${mvtGroupingState.flow} / Step ${mvtGroupingState.step + 1} / ${mvtGroupingState.landing}`;
+    const mode = mvtGroupingState.tests.length === 0
+        ? 'All combinations'
+        : mvtGroupingState.tests.map((number) => `Test ${number}`).join(' → ');
+    item.querySelector('.column-label').textContent = `MVT · ${scope} · ${mode}`;
+}
+
+function applyMvtCompatibility() {
+    const incompatibleFields = new Set(['flow', 'step', 'landing']);
+    qsa('#dimensionsColumns .column-item:not([data-mvt-item])').forEach((item) => {
+        const checkbox = item.querySelector('input[type="checkbox"]');
+        const incompatible = Boolean(mvtGroupingState) && incompatibleFields.has(item.dataset.field);
+        if (incompatible) checkbox.checked = false;
+        checkbox.disabled = incompatible;
+        item.classList.toggle('is-mvt-incompatible', incompatible);
+    });
 }
 
 function toggleCustomColumnsModal(show) {
@@ -508,7 +655,7 @@ function collectSelectedMetricConfigs() {
 function handleAddParamDimension(e) {
     if (!e.target.closest('#addParamDimension')) return;
     const MAX_GROUPBY_SELECTIONS = 3;
-    const total = qsa('#dimensionsColumns input[type="checkbox"]:checked').length;
+    const total = getRegularDimensionSelectionCount();
     if (total >= MAX_GROUPBY_SELECTIONS) return;
     const name = prompt('URL param name:');
     if (!name || !name.trim()) return;
@@ -857,14 +1004,25 @@ function collectOrderby() {
 }
 
 function enforceDimensionLimit(max) {
-    const total = qsa('#dimensionsColumns input[type="checkbox"]:checked').length;
-    const allBoxes = qsa('#dimensionsColumns input[type="checkbox"]');
-    for (const cb of allBoxes) cb.disabled = !cb.checked && total >= max;
+    const total = getRegularDimensionSelectionCount();
+    const allBoxes = qsa('#dimensionsColumns .column-item:not([data-mvt-item]) input[type="checkbox"]');
+    for (const cb of allBoxes) {
+        const item = cb.closest('.column-item');
+        if (item?.classList.contains('is-mvt-incompatible')) {
+            cb.disabled = true;
+            continue;
+        }
+        cb.disabled = !cb.checked && total >= max;
+    }
     const addBtn = document.getElementById('addParamDimension');
     if (addBtn) {
         addBtn.disabled = total >= max;
         addBtn.style.opacity = total >= max ? '0.5' : '';
     }
+}
+
+function getRegularDimensionSelectionCount() {
+    return qsa('#dimensionsColumns .column-item:not([data-mvt-item]) input[type="checkbox"]:checked').length;
 }
 
 function escapeHtml(value) {

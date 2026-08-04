@@ -31,18 +31,28 @@ foreach ($c->black->flows as $flow) {
 }
 function normalize_stats_mvt_grouping(array $requested, array $placements): array
 {
+    $requestedTests = is_array($requested['tests'] ?? null)
+        ? $requested['tests']
+        : ((int)($requested['test'] ?? 0) > 0 ? [$requested['test']] : []);
     $requested = [
         'flow' => (string)($requested['flow'] ?? ''),
         'step' => isset($requested['step']) ? (int)$requested['step'] : -1,
         'landing' => (string)($requested['landing'] ?? ''),
-        'test' => max(0, (int)($requested['test'] ?? 0)),
+        'tests' => array_values(array_unique(array_filter(array_map(
+            static fn($test): int => (int)$test,
+            $requestedTests
+        ), static fn(int $test): bool => $test > 0))),
     ];
     foreach ($placements as $placement) {
         if (
             $placement['flow'] === $requested['flow']
             && $placement['step'] === $requested['step']
             && $placement['landing'] === $requested['landing']
-            && ($requested['test'] === 0 || isset($placement['tests'][$requested['test'] - 1]))
+            && array_reduce(
+                $requested['tests'],
+                static fn(bool $valid, int $test): bool => $valid && isset($placement['tests'][$test - 1]),
+                true
+            )
         ) {
             return $requested;
         }
@@ -74,9 +84,10 @@ if (count($ss->tables)>0){
     $tName = $tSettings->name;
     $tDomId = 'statsTable_' . intval($curTableIndex);
     $tJsVar = 'statsTable' . intval($curTableIndex);
-    $displayGroupBy = $mvtGrouping !== []
-        ? array_merge($tSettings->groupby, ['mvt'])
-        : $tSettings->groupby;
+    $displayGroupBy = $tSettings->groupby;
+    if ($mvtGrouping !== [] && !in_array('mvt', $displayGroupBy, true)) {
+        $displayGroupBy[] = 'mvt';
+    }
     $tColumns = Tabulator::get_stats_columns($tSettings->columns, $tName, $displayGroupBy);
 }
 ?>

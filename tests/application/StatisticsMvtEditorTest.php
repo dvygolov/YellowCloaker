@@ -12,10 +12,12 @@ final class StatisticsMvtEditorTest extends TestCase
         $statistics = (string)file_get_contents(__DIR__ . '/../../code/admin/statistics.php');
 
         self::assertStringContainsString('id="mvtPlacement"', $editor);
-        self::assertStringContainsString('id="mvtMode"', $editor);
+        self::assertStringContainsString('id="mvtAllCombinations"', $editor);
+        self::assertStringContainsString('id="mvtTestsList"', $editor);
+        self::assertStringContainsString('id="openMvtGrouping"', $editor);
         self::assertStringContainsString('MVT grouping', $editor);
         self::assertStringNotContainsString('stats-mvt-menu', $statistics);
-        self::assertStringNotContainsString('>+MVT<', $statistics);
+        self::assertStringNotContainsString('stats-mvt-editor', $editor);
     }
 
     public function testEditorPersistsMvtAlongsideTableColumns(): void
@@ -34,8 +36,8 @@ final class StatisticsMvtEditorTest extends TestCase
         $configured = StatisticsTable::fromArray([
             'name' => 'Landing MVT',
             'columns' => [['field' => 'clicks']],
-            'groupby' => ['flow'],
-            'mvt' => ['flow' => 'Main', 'step' => 1, 'landing' => 'landing-a', 'test' => 2],
+            'groupby' => ['mvt'],
+            'mvt' => ['flow' => 'Main', 'step' => 1, 'landing' => 'landing-a', 'tests' => [2, 1]],
         ]);
         $plain = StatisticsTable::fromArray([
             'name' => 'Date',
@@ -44,7 +46,7 @@ final class StatisticsMvtEditorTest extends TestCase
         ]);
 
         self::assertSame(
-            ['flow' => 'Main', 'step' => 1, 'landing' => 'landing-a', 'test' => 2],
+            ['flow' => 'Main', 'step' => 1, 'landing' => 'landing-a', 'tests' => [2, 1]],
             $configured->mvt
         );
         self::assertSame([], $plain->mvt);
