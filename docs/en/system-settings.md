@@ -10,7 +10,7 @@ The **Settings** button in the header opens instance-wide YellowTDS settings. Th
 - **Security** — new admin password, admin path, and domain/IP access restrictions.
 - **Storage** — SQLite file name, backup folder, and cache root. Cache subfolders use fixed system names and are not shown in the UI. **Randomize main paths** generates new unpredictable names for the database, backup folder, and cache root; the rename is applied after **Save settings**.
 - **Backups** — create Full snapshots with SQLite or faster Quick snapshots without SQLite, then view, restore, or delete them.
-- **Plugins** — currency sources and VPN/proxy detectors, preferred currencies, and `any`/`most` decision mode.
+- **Plugins** — currency sources and VPN/proxy detectors, preferred currencies, and the VPN/proxy decision mode. **Any positive** treats a visitor as VPN/proxy when any enabled detector returns a positive result. **Majority** requires positive results from more than half of the detectors that returned a valid response. With one responding detector the modes are equivalent; when every detector fails, YellowTDS treats the visitor as VPN/proxy.
 - **Updates** — check and install a YellowTDS update or refresh GeoBases.
 
 ![Security settings tab](../assets/screenshots/settings-modal-security.png)

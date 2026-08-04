@@ -276,6 +276,20 @@
 
 .settings-inline-field select { width: auto; padding: 7px 10px; }
 
+.settings-decision-help {
+    margin: 0 -2px 0 0;
+}
+
+.settings-inline-field .settings-decision-select {
+    min-width: 166px;
+    min-height: 42px;
+    padding: 7px 40px 7px 12px;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%239fb2d2' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+    background-repeat: no-repeat;
+    background-position: right 13px center;
+    background-size: 16px 12px;
+}
+
 .settings-plugin-list {
     display: flex;
     flex-direction: column;

@@ -121,8 +121,16 @@
                     <div class="settings-plugin-section">
                         <div class="settings-section-heading">
                             <div><h6>VPN / proxy detectors</h6><small>No enabled detector means the VPN check is disabled.</small></div>
-                            <label class="settings-inline-field">Decision
-                                <select class="form-select" id="vpnMode"><option value="any">Any positive</option><option value="most">Majority</option></select>
+                            <label class="settings-inline-field">
+                                <i
+                                    class="bi bi-info-circle settings-help-icon settings-decision-help"
+                                    tabindex="0"
+                                    role="img"
+                                    aria-label="Any positive classifies the visitor as VPN/proxy when at least one enabled detector returns a positive result. Majority requires positive results from more than half of the detectors that returned a valid result. With one responding detector, both modes work the same. If every detector fails, the visitor is treated as VPN/proxy."
+                                    data-tooltip="Any positive: one positive enabled detector is enough. Majority: more than half of the detectors that returned a valid result must be positive. With one responding detector, both modes work the same. If every detector fails, the visitor is treated as VPN/proxy."
+                                ></i>
+                                <span>Decision</span>
+                                <select class="form-select settings-decision-select" id="vpnMode" aria-label="VPN / proxy decision mode"><option value="any">Any positive</option><option value="most">Majority</option></select>
                             </label>
                         </div>
                         <div id="vpnPlugins" class="settings-plugin-list"></div>
