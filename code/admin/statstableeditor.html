@@ -111,7 +111,6 @@
         <div id="mvtGroupingModal" class="stats-editor-overlay" style="display:none; z-index:22;">
             <div class="stats-editor-overlay-header">
                 <h5>MVT grouping</h5>
-                <button id="closeMvtGrouping" type="button" class="btn btn-sm btn-secondary">Cancel</button>
             </div>
             <div class="stats-editor-overlay-body">
                 <label for="mvtPlacement">Landing</label>
@@ -158,6 +157,14 @@
     .mvt-groupby-item { margin-bottom:7px; }
     .mvt-groupby-item .column-label { flex:1; min-width:0; }
     .mvt-groupby-item .mvt-groupby-actions { display:flex; gap:6px; }
+    .mvt-groupby-item .mvt-groupby-actions .btn { display:inline-flex; align-items:center; justify-content:center; width:36px; height:34px; padding:0; }
+    .mvt-groupby-info { position:relative; display:inline-flex; align-items:center; justify-content:center; flex:0 0 26px; width:26px; height:26px; padding:0; border:0; background:transparent; color:#8fb8ff; cursor:help; }
+    .mvt-groupby-info::after { content:attr(data-tooltip); display:none; position:absolute; top:calc(100% + 8px); right:0; z-index:30; width:min(330px, 75vw); padding:9px 11px; border:1px solid #34507c; border-radius:7px; background:#0d1830; color:#dbe6ff; font-size:12px; font-weight:400; line-height:1.45; text-align:left; white-space:normal; box-shadow:0 8px 24px rgba(0,0,0,.3); }
+    .mvt-groupby-info:hover::after, .mvt-groupby-info:focus-visible::after { display:block; }
+    #statsTableModal.is-mvt-grouping-open > .modal-content > .modal-body,
+    #statsTableModal.is-mvt-grouping-open > .modal-content > .modal-footer { display:none; }
+    #statsTableModal.is-mvt-grouping-open .stats-editor-overlay { position:relative; inset:auto; display:flex !important; flex-direction:column; max-height:min(80vh, 650px); border:0; border-radius:12px; box-shadow:none; }
+    #statsTableModal.is-mvt-grouping-open .stats-editor-overlay-body { flex:1; max-height:min(62vh, 540px); }
     #dimensionsColumns .column-item.is-mvt-incompatible { opacity:.45; }
     @media (max-width: 760px) {
         #statsTableModal { width:calc(100vw - 16px) !important; max-height:96vh !important; }

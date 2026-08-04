@@ -155,7 +155,6 @@ function initializeMvtGrouping(placements, existingMvt) {
     if (mvtGroupingState) ensureMvtGroupingItem();
 
     document.getElementById('openMvtGrouping').onclick = openMvtGroupingEditor;
-    document.getElementById('closeMvtGrouping').onclick = closeMvtGroupingEditor;
     document.getElementById('cancelMvtGrouping').onclick = closeMvtGroupingEditor;
     document.getElementById('applyMvtGrouping').onclick = applyMvtGroupingEditor;
     document.getElementById('removeMvtGrouping').onclick = removeMvtGrouping;
@@ -167,12 +166,22 @@ function initializeMvtGrouping(placements, existingMvt) {
             step: Number.parseInt(placement.step, 10),
             landing: String(placement.landing),
             tests: [],
+            manualTests: mvtTestNumbersForPlacement(placement),
         };
         renderMvtGroupingEditor();
     };
     document.getElementById('mvtAllCombinations').onchange = () => {
         if (!mvtGroupingDraft) return;
-        mvtGroupingDraft.tests = collectMvtTestsFromEditor();
+        const allCombinations = document.getElementById('mvtAllCombinations').checked;
+        if (allCombinations) {
+            mvtGroupingDraft.manualTests = collectMvtSelectedTestsFromRows();
+            mvtGroupingDraft.tests = [];
+        } else {
+            const placement = getSelectedMvtPlacement();
+            mvtGroupingDraft.tests = [...(mvtGroupingDraft.manualTests?.length
+                ? mvtGroupingDraft.manualTests
+                : mvtTestNumbersForPlacement(placement))];
+        }
         renderMvtTestRows();
     };
     applyMvtCompatibility();
@@ -215,24 +224,38 @@ function getSelectedMvtPlacement() {
     return Number.isInteger(index) ? mvtPlacementsState[index] || null : null;
 }
 
+function mvtTestNumbersForPlacement(placement) {
+    const count = Array.isArray(placement?.tests) ? placement.tests.length : 0;
+    return Array.from({ length: count }, (_, index) => index + 1);
+}
+
 function openMvtGroupingEditor() {
     if (!mvtPlacementsState.length) {
         alert('This campaign has no landing with MVT tests.');
         return;
     }
     const fallback = mvtPlacementsState[0];
-    mvtGroupingDraft = mvtGroupingState ? { ...mvtGroupingState, tests: [...mvtGroupingState.tests] } : {
+    mvtGroupingDraft = mvtGroupingState ? {
+        ...mvtGroupingState,
+        tests: [...mvtGroupingState.tests],
+        manualTests: mvtGroupingState.tests.length > 0
+            ? [...mvtGroupingState.tests]
+            : mvtTestNumbersForPlacement(mvtGroupingState),
+    } : {
         flow: String(fallback.flow),
         step: Number.parseInt(fallback.step, 10),
         landing: String(fallback.landing),
         tests: [],
+        manualTests: mvtTestNumbersForPlacement(fallback),
     };
     renderMvtGroupingEditor();
     document.getElementById('mvtGroupingModal').style.display = 'block';
+    document.getElementById('statsTableModal').classList.add('is-mvt-grouping-open');
 }
 
 function closeMvtGroupingEditor() {
     document.getElementById('mvtGroupingModal').style.display = 'none';
+    document.getElementById('statsTableModal').classList.remove('is-mvt-grouping-open');
     mvtGroupingDraft = null;
 }
 
@@ -270,6 +293,7 @@ function renderMvtTestRows() {
         row.innerHTML = `<span class="drag-handle" aria-hidden="true">☰</span><input type="checkbox" ${mvtGroupingDraft.tests.includes(testNumber) ? 'checked' : ''} ${allCombinations ? 'disabled' : ''}><span>Test ${testNumber}</span>`;
         row.querySelector('input').onchange = () => {
             mvtGroupingDraft.tests = collectMvtTestsFromEditor();
+            mvtGroupingDraft.manualTests = [...mvtGroupingDraft.tests];
         };
         list.appendChild(row);
     });
@@ -279,15 +303,22 @@ function renderMvtTestRows() {
         animation: 150,
         handle: '.drag-handle',
         disabled: allCombinations,
-        onEnd: () => { mvtGroupingDraft.tests = collectMvtTestsFromEditor(); },
+        onEnd: () => {
+            mvtGroupingDraft.tests = collectMvtTestsFromEditor();
+            mvtGroupingDraft.manualTests = [...mvtGroupingDraft.tests];
+        },
     });
+}
+
+function collectMvtSelectedTestsFromRows() {
+    return qsa('#mvtTestsList .mvt-test-choice')
+        .filter((row) => row.querySelector('input').checked)
+        .map((row) => Number.parseInt(row.dataset.testNumber, 10));
 }
 
 function collectMvtTestsFromEditor() {
     if (document.getElementById('mvtAllCombinations').checked) return [];
-    return qsa('#mvtTestsList .mvt-test-choice')
-        .filter((row) => row.querySelector('input').checked)
-        .map((row) => Number.parseInt(row.dataset.testNumber, 10));
+    return collectMvtSelectedTestsFromRows();
 }
 
 function applyMvtGroupingEditor() {
@@ -328,7 +359,7 @@ function ensureMvtGroupingItem() {
         item.className = 'column-item mvt-groupby-item';
         item.dataset.field = 'mvt';
         item.dataset.mvtItem = '1';
-        item.innerHTML = '<span class="drag-handle" aria-hidden="true">☰</span><input type="checkbox" checked disabled aria-label="MVT grouping"><span class="column-label"></span><span class="mvt-groupby-actions"><button type="button" class="btn btn-sm btn-outline-primary">Edit</button><button type="button" class="btn btn-sm btn-outline-danger" aria-label="Remove MVT grouping">×</button></span>';
+        item.innerHTML = '<span class="drag-handle" aria-hidden="true">☰</span><input type="checkbox" checked disabled aria-label="MVT grouping"><span class="column-label">MVT</span><button type="button" class="mvt-groupby-info" aria-label="MVT grouping details"><i class="bi bi-info-circle" aria-hidden="true"></i></button><span class="mvt-groupby-actions"><button type="button" class="btn btn-sm btn-outline-primary" aria-label="Edit MVT grouping" title="Edit MVT grouping"><i class="bi bi-pencil" aria-hidden="true"></i></button><button type="button" class="btn btn-sm btn-outline-danger" aria-label="Remove MVT grouping" title="Remove MVT grouping"><i class="bi bi-trash" aria-hidden="true"></i></button></span>';
         item.querySelector('.btn-outline-primary').onclick = openMvtGroupingEditor;
         item.querySelector('.btn-outline-danger').onclick = removeMvtGrouping;
         container.appendChild(item);
@@ -337,7 +368,10 @@ function ensureMvtGroupingItem() {
     const mode = mvtGroupingState.tests.length === 0
         ? 'All combinations'
         : mvtGroupingState.tests.map((number) => `Test ${number}`).join(' → ');
-    item.querySelector('.column-label').textContent = `MVT · ${scope} · ${mode}`;
+    const info = item.querySelector('.mvt-groupby-info');
+    const details = `MVT grouping for ${scope}. ${mode === 'All combinations' ? 'All TEST combinations are shown together.' : `Nested TESTs: ${mode}.`}`;
+    info.dataset.tooltip = details;
+    info.setAttribute('aria-label', details);
 }
 
 function applyMvtCompatibility() {

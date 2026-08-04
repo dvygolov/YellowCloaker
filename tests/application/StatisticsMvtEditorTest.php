@@ -16,6 +16,8 @@ final class StatisticsMvtEditorTest extends TestCase
         self::assertStringContainsString('id="mvtTestsList"', $editor);
         self::assertStringContainsString('id="openMvtGrouping"', $editor);
         self::assertStringContainsString('MVT grouping', $editor);
+        self::assertStringNotContainsString('id="closeMvtGrouping"', $editor);
+        self::assertStringContainsString('is-mvt-grouping-open', $editor);
         self::assertStringNotContainsString('stats-mvt-menu', $statistics);
         self::assertStringNotContainsString('stats-mvt-editor', $editor);
     }
@@ -29,6 +31,9 @@ final class StatisticsMvtEditorTest extends TestCase
         self::assertStringContainsString('JSON.stringify({ name, columns, groupby, filters, orderby, mvt })', $script);
         self::assertStringContainsString("'mvt' => \$tableConfig['mvt'] ?? []", $endpoint);
         self::assertStringContainsString('normalize_stats_mvt_config', $endpoint);
+        self::assertStringContainsString('manualTests', $script);
+        self::assertStringContainsString('collectMvtSelectedTestsFromRows', $script);
+        self::assertStringContainsString('MVT grouping for ${scope}', $script);
     }
 
     public function testStatisticsTableMvtRoundTripsAndDefaultsToEmpty(): void

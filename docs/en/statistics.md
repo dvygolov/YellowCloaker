@@ -21,9 +21,9 @@ Campaign statistics let you:
 Open the table editor with the columns icon. In **Group By**, choose **+ MVT**, then select a `Flow / Step / Landing` placement.
 
 - **All combinations** — the exact assignment across all TESTs, such as `ACB`;
-- turn it off to select two or more TESTs. Their checked rows can be dragged into the nesting order: TEST1 followed by TEST2 makes `A → A/B/C` branches, and a third selected TEST adds the next level below each branch.
+- turn it off to select individual TESTs. Their checked rows can be dragged into the nesting order: TEST1 followed by TEST2 makes `A → A/B/C` branches, and a third selected TEST adds the next level below each branch.
 
-After **OK**, MVT appears as an editable item in the ordinary **Group By** list and can be moved with the other dimensions. The chosen placement scopes the report, so redundant **Flow**, **Step**, and **Landing** dimensions are disabled. Remove the MVT item to restore them.
+After **OK**, MVT appears as a compact editable **MVT** item in the ordinary **Group By** list and can be moved with the other dimensions. Hover or focus its information icon to see the selected `Flow / Step / Landing` placement and TEST mode; use the pencil to edit it or the trash icon to remove it. The chosen placement scopes the report, so redundant **Flow**, **Step**, and **Landing** dimensions are disabled. Remove the MVT item to restore them.
 
 ![MVT grouping in statistics](../assets/screenshots/statistics-mvt-grouping.png)
 
