@@ -6,6 +6,7 @@ var currentFile = '';
 var isDirty = false;
 var cmInstance = null;
 var initialContent = '';
+var isWordWrapEnabled = false;
 
 function normalizeEditorContent(text) {
     if (typeof text !== 'string') return '';
@@ -48,6 +49,7 @@ function buildModal() {
                 '<span class="fe-title">File Editor: <span id="fe-folder-name"></span></span>' +
                 '<div class="fe-header-actions">' +
                     '<span id="fe-current-file" class="fe-current-file"></span>' +
+                    '<button class="btn btn-sm btn-outline-light fe-btn fe-word-wrap" id="fe-word-wrap-btn" type="button" aria-pressed="false" title="Enable Word Wrap"><i class="bi bi-text-wrap" aria-hidden="true"></i> Word Wrap</button>' +
                     '<button class="btn btn-sm btn-success fe-btn" id="fe-save-btn" title="Save (Ctrl+S)"><i class="bi bi-floppy"></i> Save</button>' +
                     '<button class="btn btn-sm btn-secondary fe-btn" id="fe-close-btn"><i class="bi bi-x-lg"></i> Close</button>' +
                 '</div>' +
@@ -286,16 +288,33 @@ function setEditorContent(content, ext) {
         editorView = null;
     }
     container.innerHTML = '';
+    container.classList.toggle('fe-word-wrap-enabled', isWordWrapEnabled);
     var bundle = getCm6Bundle(ext);
     if (!bundle) {
         container.textContent = 'CodeMirror not loaded';
         return;
     }
     cmInstance = bundle.load();
-    editorView = cmInstance.newEditor(container, content, { dark: true, lineWrapping: true });
+    editorView = cmInstance.newEditor(container, content, { dark: true });
     showSearchPanelByDefault();
     initialContent = normalizeEditorContent(content);
     isDirty = false;
+}
+
+function updateWordWrapButton() {
+    var button = document.getElementById('fe-word-wrap-btn');
+    if (!button) return;
+    button.classList.toggle('is-active', isWordWrapEnabled);
+    button.setAttribute('aria-pressed', isWordWrapEnabled ? 'true' : 'false');
+    button.title = isWordWrapEnabled ? 'Disable Word Wrap' : 'Enable Word Wrap';
+}
+
+function toggleWordWrap() {
+    isWordWrapEnabled = !isWordWrapEnabled;
+    updateWordWrapButton();
+
+    if (!editorView || !currentFile) return;
+    document.getElementById('fe-editor').classList.toggle('fe-word-wrap-enabled', isWordWrapEnabled);
 }
 
 function hasUnsavedChanges() {
@@ -338,6 +357,8 @@ function saveFile() {
 // ── Toolbar actions ──
 function setupToolbar() {
     document.getElementById('fe-save-btn').addEventListener('click', saveFile);
+    document.getElementById('fe-word-wrap-btn').addEventListener('click', toggleWordWrap);
+    updateWordWrapButton();
 
     document.getElementById('fe-close-btn').addEventListener('click', function () {
         if (hasUnsavedChanges() && !confirm('You have unsaved changes. Close anyway?')) return;

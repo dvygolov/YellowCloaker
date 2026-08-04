@@ -63,6 +63,12 @@ body.fe-modal-open {
     font-size: 12px;
 }
 
+.fe-word-wrap.is-active {
+    color: #181825;
+    background: #89b4fa;
+    border-color: #89b4fa;
+}
+
 /* Body: sidebar + editor */
 .fe-body {
     display: flex;
@@ -160,6 +166,23 @@ body.fe-modal-open {
 
 #fe-editor .cm-scroller {
     overflow: auto;
+}
+
+#fe-editor.fe-word-wrap-enabled .cm-content {
+    box-sizing: border-box;
+    flex: 1 1 0;
+    width: auto;
+    min-width: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+#fe-editor.fe-word-wrap-enabled .cm-line {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
 }
 
 .fe-loading {
