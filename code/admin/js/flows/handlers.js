@@ -52,6 +52,8 @@ export function handleRemoveStepItem(e) {
     if (!removeBtn) return;
     var item = removeBtn.closest('.flow-path-item');
     if (!item) return;
+    var landingInput = item.querySelector('.flow-step-folder');
+    if (landingInput && !window.confirm('Delete landing "' + landingInput.value + '"?')) return;
     var stepSec = item.closest('.step-section');
     var fi = stepSec ? stepSec.dataset.flowIndex : '';
     var isWeighted = getFlowDist(fi) === 'weighted';
