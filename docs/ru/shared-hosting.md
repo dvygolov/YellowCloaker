@@ -1,78 +1,38 @@
 # Установка на shared hosting
 
-YellowTDS можно установить на обычный виртуальный (shared) хостинг, если он поддерживает PHP 8.2 или новее, SQLite и правила Apache `.htaccess`. Root-доступ не нужен. На shared hosting нельзя запускать `install.sh`: файлы загружаются через файловый менеджер, FTP или SFTP, а PHP и HTTPS настраиваются в панели хостинга.
-
-Если нужен VPS, рекомендуем [FriendHosting](https://yellowweb.top/friendhosting) и [автоматическую установку на чистый Debian/Ubuntu](installation.md).
+Установка YellowTDS на обычный виртуальный (shared) хостинг не изменилась: выберите домен, загрузите файлы и откройте админку в браузере.
 
 ## Требования к хостингу
 
-- PHP 8.2 или новее; рекомендуется PHP 8.4;
-- расширения `curl`, `gd`, `mbstring`, `pdo_sqlite`, `sqlite3`, `xml` и `zip`;
-- возможность создавать и изменять файлы из PHP;
-- Apache с `mod_rewrite` и поддержкой `.htaccess` либо эквивалентные правила от поддержки хостинга;
+- PHP 8.2 или новее;
+- расширение PHP `sqlite3`;
+- возможность записи из PHP в каталог YellowTDS;
 - HTTPS для выбранного домена или поддомена.
 
-Расширение `maxminddb` желательно, но не обязательно: YellowTDS может использовать `bases/geoip2.phar`. Тариф, где запрещены SQLite, rewrite или запись из PHP, не подходит.
+Расширения `curl`, `gd`, `mbstring`, `xml`, `zip` и `maxminddb` желательны, но не обязательны для базовой установки. `GD` используется для обработки изображений и для первого запуска админки не требуется.
 
-## Какие файлы загружать
+## Установка
 
-Скачайте ZIP ветки `multipleconfigs`, распакуйте его локально и загрузите в каталог сайта только содержимое `code/`:
+1. Скачайте ZIP ветки `multipleconfigs` и распакуйте его:
 
-```text
-https://github.com/dvygolov/YellowTDS/archive/refs/heads/multipleconfigs.zip
-```
+   ```text
+   https://github.com/dvygolov/YellowTDS/archive/refs/heads/multipleconfigs.zip
+   ```
 
-Каталог `code/` уже является полным дистрибутивом: в document root должны попасть его корневые PHP-файлы и внутренние `admin/`, `api/`, `bases/`, `caching/`, `cron/`, `db/`, `js/`, `plugins/`, `scripts/`, `thankyou/`, `tmp/`, `logs/` и `ycclogs/`. `docs/`, `tests/` и `temp/` на сервер не загружаются.
+2. Загрузите в каталог сайта только содержимое папки `code/`. Каталог `code/` уже является полным дистрибутивом.
+3. Включите в панели хостинга PHP 8.2+, SQLite и HTTPS.
+4. Откройте админку и завершите настройку:
 
-## Корень, папка или подпапка
+   ```text
+   https://example.com/admin/
+   ```
 
-YellowTDS не обязан находиться в корне домена. Поддерживаются, например:
+YellowTDS можно разместить как в корне сайта, так и в подпапке. Для установки в подпапку добавьте её к адресу админки, например `https://example.com/tds/admin/`.
 
-```text
-https://tds.example.com/
-https://example.com/tds/
-https://example.com/tools/tds/
-```
+## Важно для безопасности
 
-Загрузите приложение целиком в выбранный каталог, не меняя внутреннюю структуру. В `.htaccess` используется относительный переход в `index.php`, поэтому один файл подходит для корня и подкаталогов. Не добавляйте начальный `/` перед `index.php`.
+Админка открывается напрямую и не требует `.htaccess`. Однако перед запуском рабочего трафика веб-сервер должен закрывать прямой доступ к базе SQLite, настройкам и логам. Для режима Direct Load он также должен направлять служебные URL в `index.php`.
 
-Если в родительском каталоге уже есть WordPress или другое приложение со своим `.htaccess`, положите отдельный `.htaccess` в каталог YellowTDS. Убедитесь, что правила родительского сайта не перехватывают запросы раньше него.
+На Apache и LiteSpeed для этого используется `.htaccess`, а на nginx — эквивалентные правила сайта. Если хостинг уже направляет отсутствующие URL в `index.php`, Direct Load будет работать без дополнительных действий. Если такого правила нет и изменить конфигурацию нельзя, Direct Load недоступен — используйте Base Load.
 
-## Настройка `.htaccess`
-
-Создайте в корне установки YellowTDS файл `.htaccess`:
-
-```apache
-Options -Indexes -MultiViews
-RewriteEngine On
-
-RewriteRule (^|/)\. - [F,L]
-RewriteRule ^(?:settings(?:\.local)?\.php|composer\.(?:json|lock)|phpunit\.xml|agents\.md|AGENTS\.md)$ - [F,L,NC]
-RewriteRule ^(?:db|logs|ycclogs|tmp)(?:/|$) - [F,L,NC]
-RewriteRule ^bases/.*\.(?:mmdb|phar|txt)$ - [F,L,NC]
-RewriteRule \.(?:db|sqlite|sqlite3|db-wal|db-shm|sql|env|log|cache|bak|old|orig|swp|md)$ - [F,L,NC]
-
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ index.php [QSA,L]
-```
-
-Если строка `Options -Indexes -MultiViews` вызывает ошибку 500, удалите только её и попросите поддержку отключить листинг каталогов и `MultiViews` для каталога YellowTDS.
-
-## Права и первый запуск
-
-1. В панели выберите PHP 8.2+ и включите обязательные расширения.
-2. Выдайте PHP право записи в корень установки и `db/`, `logs/`, `ycclogs/`, `tmp/`, `caching/`, `bases/`. Обычно достаточно `0755` для каталогов и `0644` для файлов, если PHP работает от владельца аккаунта; не используйте `0777` без требования поддержки.
-3. Скачайте `geolite2-country.mmdb` как `bases/country.mmdb` и `origin-asn.mmdb` как `bases/asn.mmdb` из [sapics/ip-location-db](https://github.com/sapics/ip-location-db/releases/latest).
-4. Включите HTTPS и откройте URL установки. YellowTDS создаст runtime-файлы, включая SQLite-базу и `settings.local.php`.
-5. Откройте путь админки и завершите настройку.
-
-## Проверка
-
-- главная страница и несуществующий URL обрабатываются YellowTDS, а не стандартной страницей 404 хостинга;
-- админка открывается внутри того же подкаталога;
-- база создана, PHP пишет во все runtime-каталоги;
-- `settings.php`, `settings.local.php`, `db/db.sql`, MMDB-базы, логи, `.gitignore` и README возвращают 403 или 404;
-- ссылки, JS Connect, API и переходы между шагами сохраняют префикс подкаталога.
-
-Если friendly URL возвращает 404 хостинга, попросите поддержку включить `mod_rewrite` и `AllowOverride`. При ошибке 500 сначала уберите строку `Options`, затем проверьте журналы ошибок.
+Это настройка веб-сервера, а не отдельная установка YellowTDS. Готовые правила приведены в разделе [«Обязательные правила веб-сервера»](hosting-panels.md#обязательные-правила-веб-сервера).
