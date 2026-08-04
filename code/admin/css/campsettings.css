@@ -1183,9 +1183,13 @@
     font-size: 14px;
 }
 
-.events-custom-heading p,
-.events-performance-copy {
+.events-custom-heading p {
     color: #9bb0d2;
+}
+
+.events-performance-help::after {
+    width: min(360px, 80vw);
+    white-space: pre-line;
 }
 
 .events-setting-label {
@@ -1223,60 +1227,6 @@
 
 .events-field-row code {
     color: #cfe4ff;
-}
-
-.events-performance-copy {
-    margin: 0 0 14px;
-    font-size: 13px;
-}
-
-.events-metric-grid {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
-}
-
-.events-metric-card {
-    min-height: 148px;
-    padding: 14px;
-    border: 1px solid rgba(76, 104, 158, 0.42);
-    border-radius: 9px;
-    background: rgba(14, 25, 47, 0.46);
-}
-
-.events-metric-card-core {
-    border-color: rgba(64, 153, 255, 0.48);
-    background: rgba(64, 153, 255, 0.07);
-}
-
-.events-metric-card > div {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-}
-
-.events-metric-card strong {
-    color: #f4f7fc;
-    font-size: 18px;
-}
-
-.events-metric-card span {
-    color: #8bbdff;
-    font-size: 11px;
-    text-transform: uppercase;
-}
-
-.events-metric-card p {
-    margin: 10px 0 8px;
-    color: #cbd5e1;
-    font-size: 13px;
-    line-height: 1.45;
-}
-
-.events-metric-card small {
-    color: #91a4c3;
-    font-size: 12px;
 }
 
 .events-custom-heading {
@@ -1370,10 +1320,6 @@
         margin-top: 0;
     }
 
-    .events-metric-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
     .events-custom-heading .btn {
         align-self: flex-start;
     }
@@ -1417,10 +1363,6 @@
     #sec-events .flow-group {
         padding-right: 10px;
         padding-left: 10px;
-    }
-
-    .events-metric-grid {
-        grid-template-columns: 1fr;
     }
 
     .events-custom-row {

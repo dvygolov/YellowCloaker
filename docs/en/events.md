@@ -20,7 +20,7 @@ The timer measures visible page time rather than merely keeping a timer running 
 
 ## Performance Measurement
 
-**Measure performance** enables Real User Monitoring (RUM) through browser performance APIs. YellowTDS collects at most one performance sample for each clickid and step. A sample can contain:
+**Measure landing performance** enables Real User Monitoring (RUM) through browser performance APIs. YellowTDS collects at most one performance sample for each clickid and step. The settings use a compact switch; hover or focus its information icon for the metric names. A sample can contain:
 
 | Metric | Meaning | Unit |
 | --- | --- | --- |

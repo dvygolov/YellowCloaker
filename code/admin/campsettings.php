@@ -988,46 +988,21 @@ global $c, $db, $campId;
             <span class="flow-group-title">Performance</span>
             <div class="campaign-setting-row">
                 <div class="campaign-setting-label events-setting-label">
-                    <span>Measure landing performance</span>
+                    <span>
+                        Measure landing performance
+                        <i class="bi bi-info-circle admin-info-icon setting-help-icon events-performance-help" tabindex="0" role="img" aria-label="Collected performance metrics: LCP — Largest Contentful Paint; INP — Interaction to Next Paint; CLS — Cumulative Layout Shift; TTFB — Time to First Byte; FCP — First Contentful Paint." data-tooltip="LCP — Largest Contentful Paint&#10;INP — Interaction to Next Paint&#10;CLS — Cumulative Layout Shift&#10;TTFB — Time to First Byte&#10;FCP — First Contentful Paint"></i>
+                    </span>
                     <small>Collect browser performance metrics once for every clickid + step.</small>
                 </div>
                 <input type="hidden" id="events-performance-tracking-use" name="events.performance.use" value="<?= $c->events->performanceTrackingUse ? 'true' : 'false' ?>" />
                 <label class="campaign-switch" for="events-performance-tracking-toggle">
-                    <input type="checkbox" id="events-performance-tracking-toggle" class="campaign-switch-input" data-value-target="events-performance-tracking-use" data-controls="events-performance-metrics" aria-controls="events-performance-metrics" aria-label="Measure landing performance" <?= $c->events->performanceTrackingUse ? 'checked' : '' ?> />
+                    <input type="checkbox" id="events-performance-tracking-toggle" class="campaign-switch-input" data-value-target="events-performance-tracking-use" aria-label="Measure landing performance" <?= $c->events->performanceTrackingUse ? 'checked' : '' ?> />
                     <span class="campaign-switch-track" aria-hidden="true">
                         <span class="campaign-switch-option campaign-switch-option-off">Off</span>
                         <span class="campaign-switch-option campaign-switch-option-on">On</span>
                         <span class="campaign-switch-thumb"></span>
                     </span>
                 </label>
-            </div>
-            <div id="events-performance-metrics" class="campaign-dependent-settings events-dependent-settings" <?= $c->events->performanceTrackingUse ? '' : 'hidden' ?>>
-                <p class="events-performance-copy">YellowTDS measures real visits in the browser. Reports use P75 by default: 75% of measured visits are at or below that value.</p>
-                <div class="events-metric-grid">
-                    <article class="events-metric-card events-metric-card-core">
-                        <div><strong>LCP</strong><span>Core Web Vital</span></div>
-                        <p>Largest Contentful Paint — when the main visible content finishes rendering.</p>
-                        <small>Good: ≤ 2.5 s · Poor: &gt; 4 s</small>
-                    </article>
-                    <article class="events-metric-card events-metric-card-core">
-                        <div><strong>INP</strong><span>Core Web Vital</span></div>
-                        <p>Interaction to Next Paint — how quickly the page responds to visitor interactions.</p>
-                        <small>Good: ≤ 200 ms · Poor: &gt; 500 ms</small>
-                    </article>
-                    <article class="events-metric-card events-metric-card-core">
-                        <div><strong>CLS</strong><span>Core Web Vital</span></div>
-                        <p>Cumulative Layout Shift — how much visible content unexpectedly moves.</p>
-                        <small>Good: ≤ 0.1 · Poor: &gt; 0.25</small>
-                    </article>
-                    <article class="events-metric-card">
-                        <div><strong>TTFB</strong><span>Diagnostic</span></div>
-                        <p>Time to First Byte — how long the browser waits for the first server response byte.</p>
-                    </article>
-                    <article class="events-metric-card">
-                        <div><strong>FCP</strong><span>Diagnostic</span></div>
-                        <p>First Contentful Paint — when the first text, image, or other content appears.</p>
-                    </article>
-                </div>
             </div>
             </div>
 
