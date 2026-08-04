@@ -39,7 +39,7 @@ Each step can contain folders or redirect URLs. Weight is stored with the corres
 
 ## Landing MVT
 
-Every folder entry has an **MVT** section. Put its generated placeholder, such as `#TEST1#`, into the landing HTML and add text or HTML Values to the TEST. YellowTDS selects one Value independently and uniformly for every active TEST and performs a trusted string replacement. The same placeholder may occur more than once in the HTML.
+Every folder entry has an **MVT** section. The Copy button beside each Test name copies its placeholder, such as `#TEST1#`; put it into the landing HTML and add text or HTML Values to the Test. YellowTDS selects one Value independently and uniformly for every active TEST and performs a trusted string replacement. The same placeholder may occur more than once in the HTML.
 
 TEST numbers follow creation order. Values use A, B … Z, AA, and subsequent codes. A saved Value is read-only: archive it and append another Value when the content must change. Archived TESTs and Values stay in the configuration with their original number or code, so numbering never rolls back.
 

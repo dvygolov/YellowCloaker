@@ -1905,16 +1905,24 @@
 }
 
 .flow-mvt-test-header {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) 36px 36px;
+    display: flex;
     align-items: center;
     gap: 8px;
     margin-bottom: 9px;
 }
 
-.flow-mvt-placeholder {
-    width: fit-content;
-    color: #7fc6ff;
+.flow-mvt-test-title {
+    color: #eef4ff;
+    font-size: 15px;
+    letter-spacing: .01em;
+}
+
+.flow-mvt-copy {
+    flex: 0 0 auto;
+}
+
+.flow-mvt-archive-test {
+    margin-left: auto;
 }
 
 .flow-mvt-values {
@@ -1982,29 +1990,11 @@
     }
 
     .flow-mvt-test-header {
-        grid-template-columns: minmax(0, 1fr) 32px 32px;
         gap: 6px;
     }
 
-    .flow-mvt-test-header > strong {
-        grid-column: 1;
-        grid-row: 1;
-    }
-
-    .flow-mvt-placeholder {
-        grid-column: 1 / -1;
-        grid-row: 2;
-        overflow-wrap: anywhere;
-    }
-
     .flow-mvt-copy {
-        grid-column: 2;
-        grid-row: 1;
-    }
-
-    .flow-mvt-archive-test {
-        grid-column: 3;
-        grid-row: 1;
+        min-width: 32px;
     }
 
     .flow-mvt-value {

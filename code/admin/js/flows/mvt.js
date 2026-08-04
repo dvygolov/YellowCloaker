@@ -79,16 +79,15 @@ function createTestCard(test, testIndex) {
     header.className = 'flow-mvt-test-header';
 
     var title = document.createElement('strong');
-    title.textContent = 'TEST' + (testIndex + 1);
-
-    var placeholder = document.createElement('code');
-    placeholder.className = 'flow-mvt-placeholder';
-    placeholder.textContent = '#TEST' + (testIndex + 1) + '#';
+    title.className = 'flow-mvt-test-title';
+    title.textContent = 'Test ' + (testIndex + 1);
 
     var copy = document.createElement('button');
     copy.type = 'button';
     copy.className = 'btn btn-outline-light btn-sm flow-mvt-copy';
     copy.title = 'Copy placeholder';
+    copy.setAttribute('aria-label', 'Copy placeholder for Test ' + (testIndex + 1));
+    copy.dataset.placeholder = '#TEST' + (testIndex + 1) + '#';
     copy.innerHTML = '<i class="bi bi-copy"></i>';
 
     var archive = document.createElement('button');
@@ -98,7 +97,7 @@ function createTestCard(test, testIndex) {
     archive.innerHTML = '<i class="bi bi-trash"></i>';
     archive.disabled = test.active === false;
 
-    header.append(title, placeholder, copy, archive);
+    header.append(title, copy, archive);
 
     var values = document.createElement('div');
     values.className = 'flow-mvt-values';
@@ -199,8 +198,7 @@ export function handleMvtClick(e) {
 
     var copy = e.target.closest('.flow-mvt-copy');
     if (copy) {
-        var placeholder = copy.closest('.flow-mvt-test-header').querySelector('.flow-mvt-placeholder').textContent;
-        copyText(placeholder, copy);
+        copyText(copy.dataset.placeholder, copy);
         return true;
     }
 
