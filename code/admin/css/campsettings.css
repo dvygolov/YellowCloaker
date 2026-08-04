@@ -419,6 +419,10 @@
 }
 
 /* Flow section visual groups */
+.flow-section-title {
+    margin: 0 0 22px;
+}
+
 .flow-group {
     border: 1px solid #2a3f6a;
     border-radius: 6px;
