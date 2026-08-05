@@ -800,6 +800,11 @@
   width: 7px;
 }
 
+/* Keep leaf labels aligned with expandable siblings at the same tree level. */
+.tabulator-row .tabulator-cell .tabulator-data-tree-branch-empty:not(:has(+ .tabulator-data-tree-control)) {
+  width: 23px;
+}
+
 .tabulator-row .tabulator-cell .tabulator-data-tree-branch {
   display: inline-block;
   vertical-align: middle;
