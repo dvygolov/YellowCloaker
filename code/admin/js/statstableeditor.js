@@ -13,6 +13,7 @@ let mvtPlacementsState = [];
 let mvtGroupingState = null;
 let mvtGroupingDraft = null;
 let mvtTestsSortable = null;
+let mvtGroupingTooltip = null;
 
 function initializeStatsTableEditor(availableColumns, selectedMetrics, availableDimensions, selectedDimensions, tableName, saveUrl, existingFilters, existingOrderby, campaignStatuses = [], availableMvtPlacements = [], existingMvt = {}) {
     const MAX_GROUPBY_SELECTIONS = 3;
@@ -344,6 +345,7 @@ function applyMvtGroupingEditor() {
 
 function removeMvtGrouping() {
     mvtGroupingState = null;
+    hideMvtGroupingTooltip();
     document.querySelector('#dimensionsColumns [data-mvt-item="1"]')?.remove();
     applyMvtCompatibility();
     enforceDimensionLimit(3);
@@ -362,6 +364,11 @@ function ensureMvtGroupingItem() {
         item.innerHTML = '<span class="drag-handle" aria-hidden="true">☰</span><input type="checkbox" checked disabled aria-label="MVT grouping"><span class="mvt-groupby-title">MVT</span><button type="button" class="mvt-groupby-info" aria-label="MVT grouping details"><i class="mvt-groupby-info-symbol" aria-hidden="true">i</i></button><span class="mvt-groupby-actions"><button type="button" class="btn btn-sm btn-outline-primary" aria-label="Edit MVT grouping" title="Edit MVT grouping"><i class="bi bi-pencil" aria-hidden="true"></i></button><button type="button" class="btn btn-sm btn-outline-danger" aria-label="Remove MVT grouping" title="Remove MVT grouping"><i class="bi bi-trash" aria-hidden="true"></i></button></span>';
         item.querySelector('.btn-outline-primary').onclick = openMvtGroupingEditor;
         item.querySelector('.btn-outline-danger').onclick = removeMvtGrouping;
+        const infoButton = item.querySelector('.mvt-groupby-info');
+        infoButton.onmouseenter = () => showMvtGroupingTooltip(infoButton);
+        infoButton.onmouseleave = hideMvtGroupingTooltip;
+        infoButton.onfocus = () => showMvtGroupingTooltip(infoButton);
+        infoButton.onblur = hideMvtGroupingTooltip;
         container.appendChild(item);
     }
     const scope = `${mvtGroupingState.flow} / Step ${mvtGroupingState.step + 1} / ${mvtGroupingState.landing}`;
@@ -372,6 +379,45 @@ function ensureMvtGroupingItem() {
     const details = `MVT grouping for ${scope}. ${mode === 'All combinations' ? 'All TEST combinations are shown together.' : `Nested TESTs: ${mode}.`}`;
     info.dataset.tooltip = details;
     info.setAttribute('aria-label', details);
+}
+
+function getMvtGroupingTooltip() {
+    if (mvtGroupingTooltip) return mvtGroupingTooltip;
+    mvtGroupingTooltip = document.createElement('div');
+    mvtGroupingTooltip.className = 'mvt-groupby-tooltip';
+    mvtGroupingTooltip.id = 'mvtGroupingTooltip';
+    mvtGroupingTooltip.setAttribute('role', 'tooltip');
+    mvtGroupingTooltip.hidden = true;
+    document.body.appendChild(mvtGroupingTooltip);
+    return mvtGroupingTooltip;
+}
+
+function showMvtGroupingTooltip(anchor) {
+    const text = anchor.dataset.tooltip;
+    if (!text) return;
+    const tooltip = getMvtGroupingTooltip();
+    tooltip.textContent = text;
+    tooltip.hidden = false;
+    tooltip.style.visibility = 'hidden';
+    tooltip.style.left = '0';
+    tooltip.style.top = '0';
+
+    const anchorRect = anchor.getBoundingClientRect();
+    const tooltipRect = tooltip.getBoundingClientRect();
+    const maxLeft = Math.max(12, window.innerWidth - tooltipRect.width - 12);
+    const left = Math.min(maxLeft, Math.max(12, anchorRect.left + (anchorRect.width / 2) - (tooltipRect.width / 2)));
+    const below = anchorRect.bottom + 8;
+    const top = below + tooltipRect.height <= window.innerHeight - 12
+        ? below
+        : Math.max(12, anchorRect.top - tooltipRect.height - 8);
+    tooltip.style.left = `${Math.round(left)}px`;
+    tooltip.style.top = `${Math.round(top)}px`;
+    tooltip.style.visibility = '';
+    anchor.setAttribute('aria-describedby', tooltip.id);
+}
+
+function hideMvtGroupingTooltip() {
+    if (mvtGroupingTooltip) mvtGroupingTooltip.hidden = true;
 }
 
 function applyMvtCompatibility() {
