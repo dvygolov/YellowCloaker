@@ -6,6 +6,8 @@ const CUSTOM_COLUMN_FORMATS = ['number', 'percent', 'currency'];
 const FORMULA_OPERATOR_TOKENS = ['7', '8', '9', '-', '*', '4', '5', '6', '+', '/', '1', '2', '3', '(', ')', '0', '.'];
 let customColumnsState = new Map();
 let statusColumnsState = new Map();
+let eventColumnsState = new Map();
+let eventMetricOptionsState = new Map();
 let availableMetricsMeta = new Map();
 let activeCustomFormulaField = null;
 let campaignStatusesState = [];
@@ -20,20 +22,29 @@ function initializeStatsTableEditor(availableColumns, selectedMetrics, available
 
     customColumnsState = new Map();
     statusColumnsState = new Map();
+    eventColumnsState = new Map();
+    eventMetricOptionsState = new Map();
     availableMetricsMeta = new Map();
     campaignStatusesState = Array.isArray(campaignStatuses) ? campaignStatuses.filter(Boolean).map(String) : [];
     availableColumns.forEach((column) => {
         const field = typeof column === 'string' ? column : column.field;
         availableMetricsMeta.set(field, column);
+        if (isEventMetricColumn(column)) eventMetricOptionsState.set(field, column);
     });
 
     const selectedMetricObjects = Array.isArray(selectedMetrics) ? selectedMetrics : [];
     const customMetrics = selectedMetricObjects.filter((item) => typeof item === 'object' && item?.custom);
     const statusMetrics = selectedMetricObjects.filter((item) => typeof item === 'object' && item?.status_metric);
+    const eventMetrics = selectedMetricObjects.filter(isEventMetricColumn);
     customMetrics.forEach((column) => customColumnsState.set(column.field, normalizeCustomColumn(column)));
     statusMetrics.forEach((column) => {
         const normalized = normalizeStatusColumn(column);
         statusColumnsState.set(normalized.field, normalized);
+        availableMetricsMeta.set(normalized.field, normalized);
+    });
+    eventMetrics.forEach((column) => {
+        const normalized = normalizeEventColumn(column);
+        eventColumnsState.set(normalized.field, normalized);
         availableMetricsMeta.set(normalized.field, normalized);
     });
 
@@ -46,7 +57,7 @@ function initializeStatsTableEditor(availableColumns, selectedMetrics, available
     const regularDimensions = selectedDimensions.filter((d) => !d.startsWith('param.') && d !== 'mvt');
     const paramDimensions = selectedDimensions.filter((d) => d.startsWith('param.'));
 
-    addColumnsToList('metricsColumns', selectedMetricObjects, [...availableColumns, ...statusMetrics, ...customMetrics], existingOrderby);
+    addColumnsToList('metricsColumns', selectedMetricObjects, getMetricColumnsForList(), existingOrderby);
     addColumnsToList('dimensionsColumns', regularDimensions, availableDimensions);
     reorderItemsByFields('metricsColumns', selectedMetricObjects);
 
@@ -92,6 +103,14 @@ function initializeStatsTableEditor(availableColumns, selectedMetrics, available
     document.getElementById('statusCalculationChoices').addEventListener('change', updateStatusColumnDefaultTitle);
     populateStatusColumnOptions();
     renderConfiguredStatusColumns();
+    document.getElementById('openEventColumn').onclick = () => toggleEventColumnModal(true);
+    document.getElementById('closeEventColumn').onclick = () => toggleEventColumnModal(false);
+    document.getElementById('eventColumnMetric').onchange = populateEventAggregationOptions;
+    document.getElementById('eventColumnAggregation').onchange = updateEventColumnDescription;
+    document.getElementById('addEventColumn').onclick = addEventColumn;
+    document.getElementById('configuredEventColumns').onclick = handleConfiguredEventColumnClick;
+    populateEventMetricOptions();
+    renderConfiguredEventColumns();
     initializeMvtGrouping(availableMvtPlacements, existingMvt);
     enforceDimensionLimit(MAX_GROUPBY_SELECTIONS);
 
@@ -554,13 +573,161 @@ function addStatusColumn() {
     updateSaveButtonState();
 }
 
+function isEventMetricColumn(column) {
+    const field = typeof column === 'string' ? column : column?.field;
+    return Boolean(column?.event_metric)
+        || /^event\.[a-z][a-z0-9_]{0,63}\.(count|avg|p75|min|max)$/.test(String(field || ''))
+        || /^performance\.(ttfb|fcp|lcp|inp|cls)\.(count|avg|p75|min|max)$/.test(String(field || ''));
+}
+
+function normalizeEventColumn(column) {
+    const field = String(typeof column === 'string' ? column : column?.field || '');
+    const meta = availableMetricsMeta.get(field);
+    return {
+        field,
+        title: String(column?.title || meta?.title || formatColumnName(field)),
+        description: String(column?.description || meta?.description || ''),
+        event_metric: true,
+        width: Number(column?.width ?? -1),
+    };
+}
+
+function getMetricColumnsForList() {
+    return [
+        ...[...availableMetricsMeta.values()].filter((column) => !isEventMetricColumn(column)),
+        ...statusColumnsState.values(),
+        ...customColumnsState.values(),
+        ...eventColumnsState.values(),
+    ];
+}
+
+function eventMetricBase(field) {
+    return String(field || '').replace(/\.(count|avg|p75|min|max)$/, '');
+}
+
+function eventAggregationLabel(aggregation) {
+    return {
+        count: 'Count',
+        avg: 'Average',
+        p75: 'P75',
+        min: 'Minimum',
+        max: 'Maximum',
+    }[aggregation] || String(aggregation || '').toUpperCase();
+}
+
+function eventMetricDisplayName(column) {
+    return String(column?.title || formatColumnName(column?.field || ''))
+        .replace(/\s+—\s+(Count|Average|P75|Minimum|Maximum)$/, '');
+}
+
+function toggleEventColumnModal(show) {
+    const modal = document.getElementById('eventColumnModal');
+    if (!modal) return;
+    modal.style.display = show ? 'block' : 'none';
+    if (show) {
+        populateEventMetricOptions();
+        renderConfiguredEventColumns();
+    }
+}
+
+function populateEventMetricOptions() {
+    const select = document.getElementById('eventColumnMetric');
+    if (!select) return;
+    const previous = select.value;
+    const options = [];
+    const bases = new Set();
+    for (const column of eventMetricOptionsState.values()) {
+        const base = eventMetricBase(column.field);
+        if (bases.has(base)) continue;
+        bases.add(base);
+        options.push({ base, title: eventMetricDisplayName(column) });
+    }
+    select.innerHTML = options
+        .sort((a, b) => a.title.localeCompare(b.title))
+        .map((option) => `<option value="${escapeHtml(option.base)}">${escapeHtml(option.title)}</option>`)
+        .join('');
+    if (options.some((option) => option.base === previous)) select.value = previous;
+    populateEventAggregationOptions();
+}
+
+function populateEventAggregationOptions() {
+    const metricSelect = document.getElementById('eventColumnMetric');
+    const aggregationSelect = document.getElementById('eventColumnAggregation');
+    if (!metricSelect || !aggregationSelect) return;
+    const base = metricSelect.value;
+    const previous = aggregationSelect.value;
+    const fields = [...eventMetricOptionsState.values()]
+        .filter((column) => eventMetricBase(column.field) === base)
+        .map((column) => String(column.field).split('.').at(-1));
+    aggregationSelect.innerHTML = fields
+        .map((aggregation) => `<option value="${escapeHtml(aggregation)}">${escapeHtml(eventAggregationLabel(aggregation))}</option>`)
+        .join('');
+    const preferred = base.startsWith('performance.') ? 'p75' : 'count';
+    aggregationSelect.value = fields.includes(previous)
+        ? previous
+        : (fields.includes(preferred) ? preferred : fields[0] || '');
+    updateEventColumnDescription();
+}
+
+function updateEventColumnDescription() {
+    const metricSelect = document.getElementById('eventColumnMetric');
+    const aggregationSelect = document.getElementById('eventColumnAggregation');
+    const description = document.getElementById('eventColumnDescription');
+    if (!metricSelect || !aggregationSelect || !description) return;
+    const field = `${metricSelect.value}.${aggregationSelect.value}`;
+    const column = eventMetricOptionsState.get(field);
+    description.textContent = column?.description || '';
+}
+
+function addEventColumn() {
+    const metric = document.getElementById('eventColumnMetric')?.value || '';
+    const aggregation = document.getElementById('eventColumnAggregation')?.value || '';
+    const field = `${metric}.${aggregation}`;
+    const column = eventMetricOptionsState.get(field);
+    if (!column) return;
+    eventColumnsState.set(field, normalizeEventColumn(column));
+    rebuildMetricColumns([...getSelectedItems('metricsColumns'), field]);
+    renderConfiguredEventColumns();
+    updateSaveButtonState();
+}
+
+function renderConfiguredEventColumns() {
+    const container = document.getElementById('configuredEventColumns');
+    if (!container) return;
+    if (eventColumnsState.size === 0) {
+        container.innerHTML = '<div style="opacity:.65; padding:7px 0;">No event columns yet.</div>';
+        return;
+    }
+    container.innerHTML = [...eventColumnsState.values()].map((column) => {
+        const aggregation = String(column.field).split('.').at(-1);
+        return `
+            <div class="configured-status-column" data-event-field="${escapeHtml(column.field)}">
+                <span><strong>${escapeHtml(column.title)}</strong><small style="display:block; opacity:.68;">${escapeHtml(eventAggregationLabel(aggregation))}</small></span>
+                <button type="button" class="btn btn-sm btn-danger remove-event-column">Delete</button>
+            </div>
+        `;
+    }).join('');
+}
+
+function handleConfiguredEventColumnClick(event) {
+    const button = event.target.closest('.remove-event-column');
+    if (!button) return;
+    const field = button.closest('[data-event-field]')?.dataset.eventField;
+    if (!field) return;
+    eventColumnsState.delete(field);
+    qs(`#metricsColumns .column-item[data-field="${CSS.escape(field)}"]`)?.remove();
+    renderConfiguredEventColumns();
+    updateSortToggleAvailability();
+    updateSaveButtonState();
+}
+
 function rebuildMetricColumns(selectedFields) {
     const orderby = collectOrderby();
-    const selected = selectedFields.map((field) => statusColumnsState.get(field) || customColumnsState.get(field) || field);
+    const selected = selectedFields.map((field) => statusColumnsState.get(field) || customColumnsState.get(field) || eventColumnsState.get(field) || field);
     addColumnsToList(
         'metricsColumns',
         selected,
-        [...availableMetricsMeta.values(), ...statusColumnsState.values(), ...customColumnsState.values()],
+        getMetricColumnsForList(),
         orderby
     );
     reorderItemsByFields('metricsColumns', selectedFields);
@@ -750,8 +917,7 @@ function addCustomColumn() {
     const field = generateCustomColumnField();
     const column = normalizeCustomColumn({ field, title: 'Custom metric', formula: '', decimals: 2, format: 'number', custom: true });
     customColumnsState.set(field, column);
-    addColumnsToList('metricsColumns', collectSelectedMetricConfigs().concat([column]), [...availableMetricsMeta.values(), ...customColumnsState.values()], collectOrderby());
-    reorderItemsByFields('metricsColumns', [...getSelectedItems('metricsColumns'), field]);
+    rebuildMetricColumns([...getSelectedItems('metricsColumns'), field]);
     const item = qs(`#metricsColumns .column-item[data-field="${CSS.escape(field)}"] input`);
     if (item) item.checked = true;
     renderCustomColumnsList();

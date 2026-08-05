@@ -14,13 +14,16 @@
                 <div class="columns-section">
                     <h5>Columns</h5>
                     <div class="editor-section-controls">
-                        <span id="selectAllMetrics" class="header-checkbox-btn" title="Select All"><input type="checkbox" checked readonly></span>
-                        <span id="deselectAllMetrics" class="header-checkbox-btn" title="Deselect All"><input type="checkbox" readonly></span>
                         <button id="openStatusColumn" type="button" class="btn btn-sm btn-outline-primary">+ Status</button>
                         <button id="openCustomColumns" type="button" class="btn btn-sm btn-outline-primary">+ Formula</button>
+                        <button id="openEventColumn" type="button" class="btn btn-sm btn-outline-primary">+ Event</button>
                     </div>
                     <div class="columns-container">
                         <div id="metricsColumns" class="metricsColumns"></div>
+                    </div>
+                    <div class="column-selection-actions">
+                        <button id="selectAllMetrics" type="button" class="btn btn-sm btn-outline-secondary">Select all</button>
+                        <button id="deselectAllMetrics" type="button" class="btn btn-sm btn-outline-secondary">Deselect all</button>
                     </div>
                 </div>
 
@@ -108,7 +111,36 @@
             </div>
         </div>
 
-        <div id="mvtGroupingModal" class="stats-editor-overlay" style="display:none; z-index:22;">
+        <div id="eventColumnModal" style="display:none; position:absolute; inset:14px; background:#0f172a; border:1px solid #2a3245; border-radius:12px; z-index:22; box-shadow:0 18px 50px rgba(0,0,0,0.45); overflow:hidden;">
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid #25324a;">
+                <h5 style="margin:0;">Event column</h5>
+                <button id="closeEventColumn" type="button" class="btn btn-sm btn-secondary">Done</button>
+            </div>
+            <div style="padding:18px 20px; max-height:min(74vh, 760px); overflow:auto;">
+                <div class="row" style="row-gap:14px;">
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                        <label for="eventColumnMetric">Metric</label>
+                        <select id="eventColumnMetric" class="form-control"></select>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                        <label for="eventColumnAggregation">Calculation</label>
+                        <select id="eventColumnAggregation" class="form-control"></select>
+                    </div>
+                    <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                        <div id="eventColumnDescription" style="font-size:13px; color:#9fb2d4;"></div>
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:18px;">
+                    <button id="addEventColumn" type="button" class="btn btn-primary">Add column</button>
+                </div>
+                <div id="configuredEventColumnsSection" style="margin-top:20px; border-top:1px solid #25324a; padding-top:14px;">
+                    <h6>Configured event columns</h6>
+                    <div id="configuredEventColumns"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="mvtGroupingModal" class="stats-editor-overlay" style="display:none; z-index:23;">
             <div class="stats-editor-overlay-header">
                 <h5>MVT grouping</h5>
             </div>
@@ -141,6 +173,8 @@
     #statsTableModal .columns-section > h5, #statsTableModal .filters-section > h5 { margin-bottom:10px; }
     .editor-section-controls { display:flex; flex-wrap:wrap; align-items:center; gap:8px; min-height:38px; margin:0 0 10px; }
     .editor-section-controls .btn { margin:0 !important; }
+    .column-selection-actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .columns-section:has(#metricsColumns) .columns-container { height:calc(50vh - 44px); }
     .stats-editor-overlay { position:absolute; inset:14px; background:#0f172a; border:1px solid #2a3245; border-radius:12px; box-shadow:0 18px 50px rgba(0,0,0,.45); overflow:hidden; }
     .stats-editor-overlay-header, .stats-editor-overlay-footer { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 16px; border-bottom:1px solid #25324a; }
     .stats-editor-overlay-header h5 { margin:0; }
@@ -178,6 +212,7 @@
         #statsTableModal .columns-flex-container .columns-section,
         #statsTableModal .columns-flex-container .filters-section { width:100%; min-width:0; overflow:visible; }
         #statsTableModal .columns-container { height:min(42vh, 360px); }
+        #statsTableModal .columns-section:has(#metricsColumns) .columns-container { height:calc(min(42vh, 360px) - 44px); }
         #statsTableModal .filters-section .columns-container { height:auto; max-height:42vh; }
         .editor-section-controls { min-height:0; }
         .stats-editor-overlay { inset:8px; }

@@ -47,7 +47,7 @@ Division by zero produces `0`.
 
 ## Event Columns
 
-Events enabled in campaign [Events settings](events.md) appear in **Available columns** in the table editor. Event data is reported in the ordinary statistics table; use the **Flow → Step → Landing** grouping hierarchy to compare the landing pages that produced the samples.
+Events enabled in campaign [Events settings](events.md) are added with **+ Event** in the table editor. Choose the metric and calculation in a separate dialog; configured Event columns remain in the main list while the full set of options stays out of the way. Event data is reported in the ordinary statistics table; use the **Flow → Step → Landing** grouping hierarchy to compare the landing pages that produced the samples.
 
 When adding an event column, choose one calculation:
 

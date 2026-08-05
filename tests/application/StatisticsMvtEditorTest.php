@@ -36,6 +36,22 @@ final class StatisticsMvtEditorTest extends TestCase
         self::assertStringContainsString('MVT grouping for ${scope}', $script);
     }
 
+    public function testEventColumnsHaveTheirOwnEditor(): void
+    {
+        $editor = (string)file_get_contents(__DIR__ . '/../../code/admin/statstableeditor.html');
+        $script = (string)file_get_contents(__DIR__ . '/../../code/admin/js/statstableeditor.js');
+        $columns = (string)file_get_contents(__DIR__ . '/../../code/admin/clmns.php');
+
+        self::assertStringContainsString('id="openEventColumn"', $editor);
+        self::assertStringContainsString('id="eventColumnMetric"', $editor);
+        self::assertStringContainsString('id="eventColumnAggregation"', $editor);
+        self::assertStringContainsString('id="configuredEventColumns"', $editor);
+        self::assertStringContainsString('eventColumnsState', $script);
+        self::assertStringContainsString('toggleEventColumnModal', $script);
+        self::assertStringContainsString('isEventMetricColumn', $script);
+        self::assertStringContainsString("'event_metric' => true", $columns);
+    }
+
     public function testStatisticsTableMvtRoundTripsAndDefaultsToEmpty(): void
     {
         $configured = StatisticsTable::fromArray([
