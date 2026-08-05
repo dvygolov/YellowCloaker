@@ -10823,11 +10823,16 @@
 				if(this.branchEl){
 					config.branchEl = this.branchEl.cloneNode(true);
 					el.insertBefore(config.branchEl, el.firstChild);
+					var branchOffset = this.options("dataTreeBranchElement")
+						? config.branchEl.offsetWidth + (parseFloat(this.table.rtl
+							? config.branchEl.style.marginLeft
+							: config.branchEl.style.marginRight) || 0)
+						: 0;
 
 					if(this.table.rtl){
-						config.branchEl.style.marginRight = (((config.branchEl.offsetWidth + config.branchEl.style.marginLeft) * (config.index - 1)) + (config.index * this.indent)) + "px";
+						config.branchEl.style.marginRight = ((branchOffset * (config.index - 1)) + (config.index * this.indent)) + "px";
 					}else {
-						config.branchEl.style.marginLeft = (((config.branchEl.offsetWidth + config.branchEl.style.marginRight) * (config.index - 1)) + (config.index * this.indent)) + "px";
+						config.branchEl.style.marginLeft = ((branchOffset * (config.index - 1)) + (config.index * this.indent)) + "px";
 					}
 				}else {
 
@@ -10952,6 +10957,10 @@
 
 				childRow.modules.dataTree.index = row.modules.dataTree.index + 1;
 				childRow.modules.dataTree.parent = row;
+				// A child Row is created before its tree level is known. Re-layout it
+				// after assigning the level so collapsed siblings keep the same indent
+				// as a sibling that has just been expanded.
+				this.layoutRow(childRow);
 
 				if(childRow.modules.dataTree.children){
 					childRow.modules.dataTree.open = this.startOpen(childRow.getComponent(), childRow.modules.dataTree.index);
