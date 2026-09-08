@@ -31,13 +31,13 @@ YellowTDS работает с панелями, но простого копир
    https://github.com/dvygolov/YellowTDS/archive/refs/heads/multipleconfigs.zip
    ```
 
-5. Скачайте из [sapics/ip-location-db](https://github.com/sapics/ip-location-db/releases/latest):
-   - `geolite2-country.mmdb` как `bases/country.mmdb`;
-   - `origin-asn.mmdb` как `bases/asn.mmdb`.
-6. Сделайте владельцем файлов пользователя PHP-FPM сайта. Не используйте `chmod 777`.
-7. Убедитесь, что PHP может писать в document root и в `db/`, `logs/`, `ycclogs/`, `tmp/`, `caching/`, `bases/`. Запись в сам document root нужна для `settings.local.php` и встроенного обновления. Код можно оставить с правами `0644`, каталоги — `0755`, runtime-каталоги — `0775`, если владелец выбран правильно.
-8. Добавьте rewrite и защитные правила постоянным механизмом панели, а не правкой генерируемого vhost-файла.
-9. Выпустите сертификат средствами панели.
+5. Сделайте владельцем файлов пользователя PHP-FPM сайта. Не используйте `chmod 777`.
+6. Убедитесь, что PHP может писать в document root и в `db/`, `logs/`, `ycclogs/`, `tmp/`, `caching/`, `bases/`. Запись в сам document root нужна для `settings.local.php` и встроенного обновления. Код можно оставить с правами `0644`, каталоги — `0755`, runtime-каталоги — `0775`, если владелец выбран правильно.
+7. Добавьте rewrite и защитные правила постоянным механизмом панели, а не правкой генерируемого vhost-файла.
+8. Выпустите сертификат средствами панели.
+9. При первом входе в админку GeoIP-баз ещё нет: они не входят в ZIP-архив. Это не мешает открыть админку. Перейдите в **Settings → Updates** и нажмите **Update GeoBases**. Кнопка скачает `country.mmdb` и `asn.mmdb` в `bases/` и запишет дату обновления. Для этого хостинг должен разрешать PHP `curl` исходящие HTTPS-запросы к GitHub, а пользователь PHP должен иметь право записи в `bases/`.
+
+Если обновление из админки не удалось из-за сетевых ограничений хостинга, скачайте файлы вручную из [sapics/ip-location-db](https://github.com/sapics/ip-location-db/releases/latest): `geolite2-country.mmdb` сохраните как `bases/country.mmdb`, а `origin-asn.mmdb` — как `bases/asn.mmdb`.
 
 ## Обязательные правила веб-сервера
 
