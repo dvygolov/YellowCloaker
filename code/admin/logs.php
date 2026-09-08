@@ -145,7 +145,7 @@ function logs_postback_outcome_label(string $outcome): string
 <!doctype html>
 <html lang="en">
 <?php include __DIR__ . '/head.php'; ?>
-<link rel="stylesheet" href="<?=get_admin_base_url()?>css/logs.css?v=<?=filemtime(__DIR__ . '/css/logs.css')?>">
+<link rel="stylesheet" href="<?=get_admin_url_path()?>css/logs.css?v=<?=filemtime(__DIR__ . '/css/logs.css')?>">
 <body class="logs-page">
 <?php include __DIR__ . '/header.php'; ?>
 <main class="all-content-wrapper logs-content">

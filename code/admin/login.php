@@ -217,7 +217,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         });
     </script>
 </head>
-<?php $tdsPath = get_admin_base_url(); ?>
+<?php $tdsPath = get_admin_url_path(); ?>
 <body>
     <canvas id="matrix-rain"></canvas>
     <div class="grid-overlay"></div>

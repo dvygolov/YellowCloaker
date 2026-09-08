@@ -1,5 +1,5 @@
 <?php require_once __DIR__ . '/timezones.php'; ?>
-<link rel="stylesheet" href="<?=get_admin_base_url()?>css/modal-common.css">
+<link rel="stylesheet" href="<?=get_admin_url_path()?>css/modal-common.css">
 
 <div id="settingsModal" class="ywbmodal settings-modal" aria-labelledby="settingsModalTitle">
     <div class="modal-content">

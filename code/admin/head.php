@@ -7,7 +7,7 @@ require_once __DIR__.'/../paths.php';
     <title>YellowTDS</title>
     <meta name="description" content="Traffic distribution system for affiliate marketing" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="shortcut icon" type="image/png" href="<?=get_admin_base_url()?>img/favicon.png" />
+    <link rel="shortcut icon" type="image/png" href="<?=get_admin_url_path()?>img/favicon.png" />
     <?php include_once "css.php" ?>
     <?php include_once "scripts.php" ?>
 </head>

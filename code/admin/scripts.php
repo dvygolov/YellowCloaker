@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../paths.php';
 $jsFsPath = __DIR__ . '/js';
-$jsPath = get_admin_base_url() . 'js';
+$jsPath = get_admin_url_path() . 'js';
 $sortableTime = filemtime($jsFsPath . '/sortable.min.js');
 ?>
 <script src="<?=$jsPath?>/jquery.js"></script>

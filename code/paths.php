@@ -9,7 +9,14 @@ function get_tds_path(bool $withPrefix = true, bool $withSlashEnd = true): strin
     } else {
         $fullpath = $domain . '/';
     }
-    $script_path = array_values(array_filter(explode("/", $_SERVER['SCRIPT_NAME']), 'strlen'));
+    return rtrim($fullpath, '/') . get_tds_url_path($withSlashEnd);
+}
+
+// Origin-relative browser URL, including the installation subdirectory.
+function get_tds_url_path(bool $withSlashEnd = true): string
+{
+    $fullpath = '/';
+    $script_path = array_values(array_filter(explode("/", $_SERVER['SCRIPT_NAME'] ?? '/index.php'), 'strlen'));
     array_pop($script_path);
 
     if (count($script_path) > 0) {
@@ -62,6 +69,11 @@ function get_admin_base_url(bool $withPrefix = true, bool $withSlashEnd = true):
         return $url . '/';
     }
     return $url;
+}
+
+function get_admin_url_path(bool $withSlashEnd = true): string
+{
+    return rtrim(get_tds_url_path(), '/') . '/' . get_admin_path_segment() . ($withSlashEnd ? '/' : '');
 }
 
 function is_https(): bool
@@ -131,7 +143,9 @@ function get_request_port(): int
     if ($forwardedPort !== '' && ctype_digit($forwardedPort)) {
         return (int)$forwardedPort;
     }
-    return (int)($_SERVER['SERVER_PORT'] ?? 0);
+    // SERVER_PORT describes the PHP/backend connection, not the public URL.
+    // Nonstandard public ports are retained in Host (or explicitly forwarded).
+    return is_https() ? 443 : 80;
 }
 
 function is_local_host(string $host): bool

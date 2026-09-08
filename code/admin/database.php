@@ -16,7 +16,7 @@ $csrf = database_maintenance_csrf_token();
 <!doctype html>
 <html lang="en">
 <?php include __DIR__ . '/head.php'; ?>
-<link rel="stylesheet" href="<?=get_admin_base_url()?>css/database.css?v=<?=filemtime(__DIR__ . '/css/database.css')?>">
+<link rel="stylesheet" href="<?=get_admin_url_path()?>css/database.css?v=<?=filemtime(__DIR__ . '/css/database.css')?>">
 <body class="database-page">
 <?php include __DIR__ . '/header.php'; ?>
 
@@ -97,6 +97,6 @@ $csrf = database_maintenance_csrf_token();
         'api' => 'databasemaintenance.php',
     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)
 ?></script>
-<script src="<?=get_admin_base_url()?>js/database.js?v=<?=filemtime(__DIR__ . '/js/database.js')?>"></script>
+<script src="<?=get_admin_url_path()?>js/database.js?v=<?=filemtime(__DIR__ . '/js/database.js')?>"></script>
 </body>
 </html>

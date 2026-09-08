@@ -69,7 +69,6 @@ final class HttpClient
         [$handle, $context] = self::createHandle($request);
         $content = curl_exec($handle);
         $response = self::createResponse($request, $handle, $context, $content);
-        curl_close($handle);
         return $response;
     }
 
@@ -112,7 +111,6 @@ final class HttpClient
                 curl_multi_getcontent($handle)
             );
             curl_multi_remove_handle($multi, $handle);
-            curl_close($handle);
         }
         curl_multi_close($multi);
         return $responses;
@@ -176,7 +174,6 @@ final class HttpClient
             };
         }
         if (!curl_setopt_array($handle, $options)) {
-            curl_close($handle);
             throw new RuntimeException('Failed to configure cURL request');
         }
         return [$handle, $context];

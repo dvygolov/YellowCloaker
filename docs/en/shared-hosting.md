@@ -4,6 +4,8 @@ Installing YellowTDS on ordinary shared hosting has not changed: select a domain
 
 ## Hosting requirements
 
+Admin links and redirects preserve the installation subdirectory and configured admin directory name. Internal navigation uses an origin-relative path, such as `/tds/private-panel/login.php`. Behind an HTTPS proxy, the PHP backend port is not appended to public URLs; a nonstandard public port must be present in Host or explicitly forwarded by the proxy.
+
 - PHP 8.2 or newer;
 - the PHP `sqlite3` extension;
 - permission for PHP to write inside the YellowTDS directory;
