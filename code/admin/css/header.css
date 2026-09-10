@@ -152,7 +152,7 @@
 }
 
 .settings-modal-body {
-    min-height: 430px;
+    min-height: min(430px, 45vh);
     max-height: min(64vh, 670px);
     overflow-y: auto;
     padding: 22px;
