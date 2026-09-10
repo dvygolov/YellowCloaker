@@ -24,6 +24,32 @@ When [uniqueness counting](uniqueness.md) is enabled, flow filters include Campa
 
 For fields with **in** and **not in**, enter multiple values as a comma-separated list without quotes: `en,it`, `desktop,mobile,other`, `Android,iOS`. Spaces around commas are ignored, and matching is case-insensitive. These operators require an exact value match; use **contains** or **not contains** for partial matching when the selected filter supports them.
 
+**Safe Page** filters and **Flow Filters** share the same core rule set. **Uniqueness**, **Conversion cap (campaign)**, and **Conversion cap (flow)** are available only in flows.
+
+| Filter | What It Checks | Operators | What To Enter |
+| --- | --- | --- | --- |
+| **OS** | Operating system from User-Agent/Client Hints. | **in**, **not in** | DeviceDetector OS names: `Android`, `iOS`, `Windows`, `Mac`, `GNU/Linux`, `Ubuntu`. Use commas for multiple values. |
+| **OS version** | Operating system version. | **in**, **not in**, **<=**, **>=** | Version numbers: `10`, `11`, `14`, `17.1`. Comparisons use version comparison. |
+| **Device** | Device type from DeviceDetector. | **in**, **not in** | `desktop`, `mobile`, `tablet`, `other`, or an exact device type from the list below. |
+| **Bot** | Server-side bot detection by User-Agent. | **=** | Select **Yes** or **No** in the UI. Saved rules use `yes` and `no`. |
+| **Brand** | Device manufacturer. | **contains**, **not contains**, **in**, **not in** | Examples: `Apple`, `Samsung`, `Xiaomi`, `Huawei`. The value may be empty when the brand is unknown. |
+| **Model** | Device model. | **contains**, **not contains**, **in**, **not in** | Examples: `iPhone`, `SM-G991B`, `Pixel 8`. Desktop traffic often has an empty model. |
+| **Client** | Client/browser from User-Agent. | **contains**, **not contains**, **in**, **not in** | Examples: `Chrome`, `Mobile Safari`, `Firefox`, `Facebook`, `Instagram`. Use **contains** for broad browser families. |
+| **ClientVer** | Client/browser version. | **<=**, **>=**, **in**, **not in** | Examples: `120`, `120.0`, `17.4`. Comparisons use version comparison. |
+| **Country** | Visitor country by IP. | **in**, **not in** | Two-letter [ISO 3166-1 alpha-2 country codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2): `US`, `IT`, `RU`, `DE`, `BR`. |
+| **Language** | Primary browser language from `Accept-Language`. | **in**, **not in** | Two-letter [ISO 639-1 language codes](https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes): `en`, `it`, `ru`, `de`. |
+| **UserAgent** | Full User-Agent string. | **contains**, **not contains** | String fragments: `facebook`, `facebot`, `curl`, `gce-spider`, `yandex.com`, `odklbot`. |
+| **ISP** | ISP/ASN organization by IP. | **contains**, **not contains** | Provider or datacenter name fragments: `facebook`, `google`, `amazon`, `azure`, `digitalocean`, `microsoft`. |
+| **Referer** | HTTP `Referer` header. | **=**, **!=**, **contains**, **not contains** | A full URL or source fragment. Empty value is allowed when you need to check missing referer. |
+| **Domain** | Campaign domain receiving the request. | **in**, **not in** | Current request host, for example `example.com`, `promo.example.com`. |
+| **Host** | Incoming request host or explicit `tds_host` prefill. | **in**, **not in** | Usually the same as **Domain** for direct traffic. Useful for server-side integrations that pass host explicitly. |
+| **VPN&Tor** | IP proxy/VPN plugin result. | **=** | Select **Detected** or **NOT Detected** in the UI. |
+| **IP Base** | Whether the IP is present in a text base under `bases/`. | **in**, **not in** | One or more base filenames: `bots1.txt,bots2.txt`. Files may contain IP addresses and CIDR ranges. |
+| **URL Parameter** | URL query parameter existence or value. | **in**, **not in**, **exists**, **not exists** | First field: parameter name, such as `utm_source`; second field for **in/not in**: comma-separated values, such as `fb,tt`. |
+| **Uniqueness** | Visitor uniqueness in campaign or flow scope. | **is unique**, **is not unique** | Flow-only. Available after [uniqueness counting](uniqueness.md) is enabled. Scope: **Campaign** or **Flow**. |
+| **Conversion cap (campaign)** | Daily conversion cap across the whole campaign. | `<`, `<=`, `=`, `!=`, `>=`, `>` | Flow-only. Select campaign statuses and a numeric daily limit. |
+| **Conversion cap (flow)** | Daily conversion cap for the current flow. | `<`, `<=`, `=`, `!=`, `>=`, `>` | Flow-only. Counts only rows attributed to the current flow. |
+
 **Language** checks the browser's primary language from the HTTP `Accept-Language` header. YellowTDS takes the highest-priority language, lowercases it, and keeps the first two characters. Use two-letter [ISO 639-1 language codes](https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes): `en`, `it`, `ru`, `de`, `fr`, `es`, `pt`, `tr`, and so on. Region subtags are not stored: `en-US` and `en-GB` are matched as `en`.
 
 **Country** checks the visitor country by IP and uses two-letter uppercase [ISO 3166-1 alpha-2 country codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2): `US`, `IT`, `RU`, `DE`, `BR`.

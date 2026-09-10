@@ -6,6 +6,8 @@ Safe Page settings define what to do with traffic that should not enter the offe
 
 Short explanations for filters, Global/Domain-Specific scope, and HTTP codes are available from the `i` icons. Hover an icon or focus it with the keyboard to show its hint.
 
+The full reference for every filter and value format is in [Filter Value Format](black-settings-and-flows.md#filter-value-format).
+
 ## Available Actions
 
 - local safe page from folder
