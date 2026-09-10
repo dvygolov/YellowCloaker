@@ -24,15 +24,15 @@ When [uniqueness counting](uniqueness.md) is enabled, flow filters include Campa
 
 For fields with **in** and **not in**, enter multiple values as a comma-separated list without quotes: `en,it`, `desktop,mobile,other`, `Android,iOS`. Spaces around commas are ignored, and matching is case-insensitive. These operators require an exact value match; use **contains** or **not contains** for partial matching when the selected filter supports them.
 
-**Language** checks the browser's primary language from the HTTP `Accept-Language` header. YellowTDS takes the highest-priority language, lowercases it, and keeps the first two characters. Use two-letter ISO language codes: `en`, `it`, `ru`, `de`, `fr`, `es`, `pt`, `tr`, and so on. Region subtags are not stored: `en-US` and `en-GB` are matched as `en`.
+**Language** checks the browser's primary language from the HTTP `Accept-Language` header. YellowTDS takes the highest-priority language, lowercases it, and keeps the first two characters. Use two-letter [ISO 639-1 language codes](https://en.wikipedia.org/wiki/List_of_ISO_639_language_codes): `en`, `it`, `ru`, `de`, `fr`, `es`, `pt`, `tr`, and so on. Region subtags are not stored: `en-US` and `en-GB` are matched as `en`.
 
-**Country** checks the visitor country by IP and uses two-letter uppercase ISO country codes: `US`, `IT`, `RU`, `DE`, `BR`.
+**Country** checks the visitor country by IP and uses two-letter uppercase [ISO 3166-1 alpha-2 country codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2): `US`, `IT`, `RU`, `DE`, `BR`.
 
 **Device** checks the device type returned by the bundled DeviceDetector library. Accepted values are:
 
 `desktop`, `smartphone`, `tablet`, `feature phone`, `console`, `tv`, `car browser`, `smart display`, `camera`, `portable media player`, `phablet`, `smart speaker`, `wearable`, `peripheral`.
 
-The filter also supports the convenience alias `mobile`: it means phone traffic and expands to `smartphone`, `feature phone`, and `phablet`. `Mobile` and `mobile` work the same way. A `feature phone` is a basic phone with a browser; a `phablet` is a large smartphone between a phone and a tablet. Tablets are not included in `mobile`; add `tablet` separately when needed. For example, `mobile,tablet` matches phones and tablets, while `mobile` matches phones only.
+The filter also supports the convenience alias `mobile`: it means phone traffic and expands to `smartphone`, `feature phone`, and `phablet`. A `feature phone` is a basic phone with a browser; a `phablet` is a large smartphone between a phone and a tablet. Tablets are not included in `mobile`; add `tablet` separately when needed. For example, `mobile,tablet` matches phones and tablets, while `mobile` matches phones only.
 
 The `other` alias groups the remaining rare device types: `console`, `tv`, `car browser`, `smart display`, `camera`, `portable media player`, `smart speaker`, `wearable`, and `peripheral`. `other` does not include `desktop`, `smartphone`, `feature phone`, `phablet`, or `tablet`.
 
