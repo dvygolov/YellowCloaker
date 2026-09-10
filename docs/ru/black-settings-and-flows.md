@@ -36,6 +36,22 @@ Flow включает:
 
 При включённом [подсчёте уникальности](uniqueness.md) в filters доступно условие **Uniqueness** с областями Campaign и Flow. В Safe Page этого фильтра нет.
 
+## Формат значений фильтров
+
+В полях с операторами **in** и **not in** несколько значений перечисляются через запятую, без кавычек: `en,it`, `desktop,mobile,other`, `Android,iOS`. Пробелы вокруг запятых не учитываются, регистр букв не важен. Для этих операторов значение должно совпасть целиком; для частичного поиска используйте **contains** или **not contains**, если они доступны у выбранного фильтра.
+
+**Language** проверяет основной язык браузера из HTTP-заголовка `Accept-Language`. YellowTDS берёт самый приоритетный язык, приводит его к нижнему регистру и оставляет первые две буквы. Поэтому используйте двухбуквенные ISO-коды языков: `en`, `it`, `ru`, `de`, `fr`, `es`, `pt`, `tr` и т. д. Региональная часть не хранится: `en-US` и `en-GB` будут проверяться как `en`.
+
+**Country** проверяет страну по IP и использует двухбуквенные ISO-коды стран в верхнем регистре: `US`, `IT`, `RU`, `DE`, `BR`.
+
+**Device** проверяет тип устройства, который вернула встроенная библиотека DeviceDetector. Допустимые значения:
+
+`desktop`, `smartphone`, `tablet`, `feature phone`, `console`, `tv`, `car browser`, `smart display`, `camera`, `portable media player`, `phablet`, `smart speaker`, `wearable`, `peripheral`.
+
+Также поддерживается удобный алиас `mobile`: он означает телефонный трафик и раскрывается в `smartphone`, `feature phone`, `phablet`. `Mobile` и `mobile` работают одинаково. `feature phone` — кнопочный или простой телефон с браузером; `phablet` — крупный смартфон между телефоном и планшетом. Планшеты в `mobile` не входят; для них указывайте `tablet` отдельно. Например, `mobile,tablet` пропустит телефоны и планшеты, а `mobile` — только телефоны.
+
+Алиас `other` собирает остальные редкие типы устройств: `console`, `tv`, `car browser`, `smart display`, `camera`, `portable media player`, `smart speaker`, `wearable`, `peripheral`. В `other` не входят `desktop`, `smartphone`, `feature phone`, `phablet` и `tablet`.
+
 Фильтр **Bot** использует серверное распознавание User-Agent из DeviceDetector и позволяет выбрать **Yes** или **No**. Он работает до браузерной проверки и не заменяет отдельный этап **JS bot detection**. Если правило Safe Page блокирует бота, в Blocked clicks сохраняются reason `bot` и полный исходный User-Agent.
 
 В каждом flow также доступны два самостоятельных суточных правила:

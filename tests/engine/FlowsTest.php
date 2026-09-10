@@ -152,6 +152,112 @@ class FlowsTest extends TestCase
         $this->assertFalse($human->click_matches_filters($botRule));
     }
 
+    public function testDeviceMobileAliasMatchesPhoneTypesOnly(): void
+    {
+        $rule = [
+            'condition' => 'AND',
+            'rules' => [[
+                'id' => 'device',
+                'field' => 'device',
+                'type' => 'string',
+                'operator' => 'in',
+                'value' => 'mobile',
+            ]],
+        ];
+
+        foreach (['smartphone', 'feature phone', 'phablet'] as $device) {
+            $core = new FiltrationCore();
+            $core->click_params['device'] = $device;
+            $this->assertTrue($core->click_matches_filters($rule), $device);
+        }
+
+        foreach (['tablet', 'desktop'] as $device) {
+            $core = new FiltrationCore();
+            $core->click_params['device'] = $device;
+            $this->assertFalse($core->click_matches_filters($rule), $device);
+        }
+    }
+
+    public function testDeviceMobileAliasWorksWithNotIn(): void
+    {
+        $rule = [
+            'condition' => 'AND',
+            'rules' => [[
+                'id' => 'device',
+                'field' => 'device',
+                'type' => 'string',
+                'operator' => 'not_in',
+                'value' => 'mobile',
+            ]],
+        ];
+
+        $phone = new FiltrationCore();
+        $phone->click_params['device'] = 'smartphone';
+        $desktop = new FiltrationCore();
+        $desktop->click_params['device'] = 'desktop';
+
+        $this->assertFalse($phone->click_matches_filters($rule));
+        $this->assertTrue($desktop->click_matches_filters($rule));
+    }
+
+    public function testDeviceOtherAliasMatchesRemainingDeviceTypesOnly(): void
+    {
+        $rule = [
+            'condition' => 'AND',
+            'rules' => [[
+                'id' => 'device',
+                'field' => 'device',
+                'type' => 'string',
+                'operator' => 'in',
+                'value' => 'other',
+            ]],
+        ];
+
+        foreach ([
+            'console',
+            'tv',
+            'car browser',
+            'smart display',
+            'camera',
+            'portable media player',
+            'smart speaker',
+            'wearable',
+            'peripheral',
+        ] as $device) {
+            $core = new FiltrationCore();
+            $core->click_params['device'] = $device;
+            $this->assertTrue($core->click_matches_filters($rule), $device);
+        }
+
+        foreach (['desktop', 'smartphone', 'feature phone', 'phablet', 'tablet'] as $device) {
+            $core = new FiltrationCore();
+            $core->click_params['device'] = $device;
+            $this->assertFalse($core->click_matches_filters($rule), $device);
+        }
+    }
+
+    public function testDeviceOtherAliasWorksWithNotIn(): void
+    {
+        $rule = [
+            'condition' => 'AND',
+            'rules' => [[
+                'id' => 'device',
+                'field' => 'device',
+                'type' => 'string',
+                'operator' => 'not_in',
+                'value' => 'other',
+            ]],
+        ];
+
+        $tv = new FiltrationCore();
+        $tv->click_params['device'] = 'tv';
+        $tablet = new FiltrationCore();
+        $tablet->click_params['device'] = 'tablet';
+
+        $this->assertFalse($tv->click_matches_filters($rule));
+        $this->assertTrue($tablet->click_matches_filters($rule));
+    }
+
     public function testPickFlowFirstMatchWins(): void
     {
         $clkr = new FiltrationCore();

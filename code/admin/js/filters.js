@@ -24,7 +24,7 @@ var tdsFilters = [
         input: 'text',
         type: 'string',
         operators: ['in', 'not_in'],
-        placeholder: 'desktop,mobile',
+        placeholder: 'desktop,mobile,tablet,other',
         size: 70
     },
     {
@@ -85,7 +85,7 @@ var tdsFilters = [
         input: 'text',
         type: 'string',
         operators: ['in', 'not_in'],
-        placeholder: 'en,ru'
+        placeholder: 'en,ru,it'
     },
     {
         id: 'useragent',

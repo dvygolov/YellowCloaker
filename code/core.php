@@ -171,6 +171,9 @@ class FiltrationCore
         ];
         if (in_array($curParamName, $standardParams)) {
             $paramValue = $this->click_params[$curParamName];
+            if ($curParamName === 'device') {
+                $val = $this->expand_device_filter_value((string) $val);
+            }
             $check = $this->operator($val, $filter['operator'], $paramValue);
             if ($check) {
                 $this->matched_filters[] = $curParamName;
@@ -314,6 +317,34 @@ class FiltrationCore
     private function split_filter_values(string $val): array
     {
         return array_map('trim', explode(',', $val));
+    }
+
+    private function expand_device_filter_value(string $val): string
+    {
+        $values = [];
+        foreach ($this->split_filter_values($val) as $value) {
+            if (strcasecmp($value, 'mobile') === 0) {
+                $values[] = 'smartphone';
+                $values[] = 'feature phone';
+                $values[] = 'phablet';
+                continue;
+            }
+            if (strcasecmp($value, 'other') === 0) {
+                $values[] = 'console';
+                $values[] = 'tv';
+                $values[] = 'car browser';
+                $values[] = 'smart display';
+                $values[] = 'camera';
+                $values[] = 'portable media player';
+                $values[] = 'smart speaker';
+                $values[] = 'wearable';
+                $values[] = 'peripheral';
+                continue;
+            }
+            $values[] = $value;
+        }
+
+        return implode(',', array_unique($values));
     }
 
     private function match_url_param_filter(array $filter): bool
