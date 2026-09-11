@@ -163,7 +163,6 @@ class FiltrationCore
             'clientver',
             'country',
             'lang',
-            'useragent',
             'isp',
             'referer',
             'domain',
@@ -181,6 +180,14 @@ class FiltrationCore
             }
         } else {
             switch ($curParamName) {
+                case 'useragent':
+                    // Filter id is 'useragent', but the click param key is 'ua'
+                    $check = $this->operator($val, $filter['operator'], (string)$this->click_params['ua']);
+                    if ($check) {
+                        $this->matched_filters[] = $curParamName;
+                        return true;
+                    }
+                    break;
                 case 'urlparam':
                     if ($this->match_url_param_filter($filter)) {
                         $this->matched_filters[] = $curParamName;
