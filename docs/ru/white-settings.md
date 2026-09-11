@@ -15,6 +15,8 @@
 - load a website using CURL
 - return HTTP code
 
+В режиме **local safe page from folder** кнопка **Upload ZIP** создаёт новую папку в системном каталоге safe pages. ZIP должен содержать `index.php`, `index.html` или `index.htm` в корне архива либо внутри одной верхней папки. Уже загруженную папку выбирайте через **Add Existing**.
+
 ![Раздел настроек Safe Page](../assets/screenshots/white-settings-overview.png)
 
 ## Global vs domain-specific

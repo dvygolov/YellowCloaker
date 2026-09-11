@@ -15,6 +15,8 @@ The full reference for every filter and value format is in [Filter Value Format]
 - load a website using CURL
 - return HTTP code
 
+In **local safe page from folder** mode, **Upload ZIP** creates a new folder in the system safe-page directory. The ZIP must contain `index.php`, `index.html`, or `index.htm` at archive root or inside one top-level folder. Use **Add Existing** to select a folder that is already uploaded.
+
 ![Safe Page settings section](../assets/screenshots/white-settings-overview.png)
 
 ## Global vs domain-specific
